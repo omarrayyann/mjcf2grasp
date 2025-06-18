@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Check if object name was provided
+if [ -z "$1" ]; then
+  echo "Usage: $0 <object_name_without_extension>"
+  exit 1
+fi
+
+OBJECT_NAME="$1"
+
+# Define paths
+INPUT_PATH="/home/lambda1/Documents/thor-grasp/meshes/${OBJECT_NAME}.obj"
+TEMP_PATH="/home/lambda1/Documents/thor-grasp/meshes/test.obj"
+OUTPUT_PATH="/home/lambda1/Documents/thor-grasp/meshes/model.obj"
+
+# Run commands
+cd external_src/Manifold/build
+./manifold "$INPUT_PATH" "$TEMP_PATH" -s
+./simplify -i "$TEMP_PATH" -o "$OUTPUT_PATH" -m -r 0.02
+cd ..
+cd ..
+cd ..
+python main.py --object_file meshes/model.obj --quality antipodal --output "output/${OBJECT_NAME}_grasps.json"
+export LD_LIBRARY_PATH=/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/PySide2/Qt/lib:$LD_LIBRARY_PATH
+python visualize.py
