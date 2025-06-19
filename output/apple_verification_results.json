@@ -1,0 +1,74 @@
+{
+  "results": [
+    {
+      "grasp_index": 0,
+      "quality": 0.9517764806159503,
+      "success": true,
+      "failed_at": null,
+      "final_two_finger_grasp": true
+    },
+    {
+      "grasp_index": 1,
+      "quality": 0.9381236379154614,
+      "success": true,
+      "failed_at": null,
+      "final_two_finger_grasp": true
+    },
+    {
+      "grasp_index": 2,
+      "quality": 0.9258016638929231,
+      "success": true,
+      "failed_at": null,
+      "final_two_finger_grasp": true
+    },
+    {
+      "grasp_index": 3,
+      "quality": 0.9240729971614785,
+      "success": true,
+      "failed_at": null,
+      "final_two_finger_grasp": true
+    },
+    {
+      "grasp_index": 4,
+      "quality": 0.9199064883997322,
+      "success": true,
+      "failed_at": null,
+      "final_two_finger_grasp": true
+    },
+    {
+      "grasp_index": 5,
+      "quality": 0.9146529323474135,
+      "success": true,
+      "failed_at": null,
+      "final_two_finger_grasp": true
+    },
+    {
+      "grasp_index": 6,
+      "quality": 0.9146528805197425,
+      "success": true,
+      "failed_at": null,
+      "final_two_finger_grasp": true
+    },
+    {
+      "grasp_index": 7,
+      "quality": 0.906234875239566,
+      "success": true,
+      "failed_at": null,
+      "final_two_finger_grasp": true
+    },
+    {
+      "grasp_index": 8,
+      "quality": 0.9039405828411728,
+      "success": true,
+      "failed_at": null,
+      "final_two_finger_grasp": true
+    },
+    {
+      "grasp_index": 9,
+      "quality": 0.8852083886614689,
+      "success": true,
+      "failed_at": null,
+      "final_two_finger_grasp": true
+    }
+  ]
+}
