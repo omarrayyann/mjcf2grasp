@@ -14,9 +14,13 @@ import tensorflow as tf
 import time
 import trimesh.transformations as tra
 import os
+import argparse
+import json
+parser = argparse.ArgumentParser(description='Visualize grasps from a JSON file.')
+parser.add_argument('object_name', type=str)
 
 GRIPPER_PC = np.load(
-    'external_src/gripper_models/panda_pc.npy', allow_pickle=True).item()['points']
+    'assets/gripper_models/panda_pc.npy', allow_pickle=True).item()['points']
 GRIPPER_PC[:, 3] = 1.
 
 
@@ -67,7 +71,7 @@ def get_control_point_tensor(batch_size, use_tf=True):
       Outputs a tensor of shape (batch_size x 6 x 3).
       use_tf: switches between outputing a tensor and outputing a numpy array.
     """
-    control_points = np.load('external_src/gripper_control_points/panda.npy')[:, :3]
+    control_points = np.load('assets/gripper_control_points/panda.npy')[:, :3]
     control_points = [[0, 0, 0], [0, 0, 0], control_points[0, :],
                       control_points[1, :], control_points[-2, :], control_points[-1, :]]
     control_points = np.asarray(control_points, dtype=np.float32)
@@ -522,8 +526,10 @@ def get_axis():
     return axis
 
 
+
+json_file = os.path.abspath(f"output/{parser.parse_args().object_name}_grasps.json")
 # Load saved grasp data
-with open('grasps.json', 'r') as f:
+with open(json_file, 'r') as f:
     data = json.load(f)
 
 # Load object mesh
@@ -536,7 +542,7 @@ mesh.apply_scale(data['object_scale'])
 transforms = np.array(data['transforms'])
 quality = np.array(data.get('quality_antipodal', data.get('quality_number_of_contacts', [1.0]*len(transforms))))
 
-top_k = 100
+top_k = 10
 top_indices = np.argsort(quality)[-top_k:][::-1]
 transforms = [transforms[i] for i in top_indices]
 quality = [quality[i] for i in top_indices]
@@ -548,6 +554,6 @@ draw_scene(
     grasps=transforms,
     grasp_scores=quality,
     mesh=mesh,
-    show_gripper_mesh=False,  # Set to True if you want full gripper meshes
+    show_gripper_mesh=True,  # Set to True if you want full gripper meshes
     plasma_coloring=True
 )

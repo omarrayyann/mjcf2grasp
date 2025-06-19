@@ -90,8 +90,8 @@ class PandaGripper(object):
             q = self.default_pregrasp_configuration
 
         self.q = q
-        fn_base = root_folder + 'external_src/gripper_models/panda_gripper/hand.stl'
-        fn_finger = root_folder + 'external_src/gripper_models/panda_gripper/finger.stl'
+        fn_base = root_folder + 'assets/gripper_models/panda_gripper/hand.stl'
+        fn_finger = root_folder + 'assets/gripper_models/panda_gripper/finger.stl'
         self.base = trimesh.load(fn_base)
         self.finger_l = trimesh.load(fn_finger)
         self.finger_r = self.finger_l.copy()

@@ -7,9 +7,9 @@ fi
 
 OBJECT_NAME="$1"
 
-INPUT_PATH="/home/lambda1/Documents/thor-grasp/meshes/${OBJECT_NAME}.obj"
-TEMP_PATH="/home/lambda1/Documents/thor-grasp/meshes/test.obj"
-OUTPUT_PATH="/home/lambda1/Documents/thor-grasp/meshes/model.obj"
+INPUT_PATH="/home/lambda1/Documents/thor-grasp/assets/objects/${OBJECT_NAME}.obj"
+TEMP_PATH="/home/lambda1/Documents/thor-grasp/assets/objects/test.obj"
+OUTPUT_PATH="/home/lambda1/Documents/thor-grasp/assets/objects/model.obj"
 
 cd external_src/Manifold/build
 ./manifold "$INPUT_PATH" "$TEMP_PATH" -s
@@ -17,6 +17,6 @@ cd external_src/Manifold/build
 cd ..
 cd ..
 cd ..
-python main.py --object_file meshes/model.obj --quality antipodal --output "output/${OBJECT_NAME}_grasps.json"
+python main.py --object_file assets/objects/test.obj --quality antipodal --output "output/${OBJECT_NAME}_grasps.json" --systematic_sampling
 export LD_LIBRARY_PATH=/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/PySide2/Qt/lib:$LD_LIBRARY_PATH
-python visualize.py
+python visualize.py ${OBJECT_NAME}
