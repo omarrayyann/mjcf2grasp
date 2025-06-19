@@ -8,12 +8,19 @@ import argparse
 import json
 from scipy.spatial.transform import Rotation as R
 
+parser = argparse.ArgumentParser()
+parser.add_argument("object", type=str)
+parser.add_argument("--num_shakes", type=int, default=5)
+parser.add_argument("--shake_magnitude", type=float, default=0.05)
+parser.add_argument("--shake_steps", type=int, default=500)
+parser.add_argument("--top_k", type=int, default=10)
+args = parser.parse_args()
+
 initial_relative_position = None
 initial_grasp_verified = False
 
 
 def list_all_geoms(model):
-    """List all geometry names in the model to help identify finger geoms"""
     print("\n=== Available Geometry Names ===")
     for i in range(model.ngeom):
         geom_name = mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_GEOM, i)
@@ -22,18 +29,12 @@ def list_all_geoms(model):
 
 
 def is_object_grasped(model, data, verbose=False):
-    """
-    An object is considered "picked up" if it's in contact with both fingers.
-    This function dynamically identifies finger geoms based on common naming patterns.
-    """
     left_finger_contact = False
     right_finger_contact = False
     contact_count = 0
 
-    # List to store contacts for debugging
     contacts_list = []
 
-    # Possible finger name patterns
     left_patterns = ["left_finger", "finger_l", "gripper_finger_left"]
     right_patterns = ["right_finger", "finger_r", "gripper_finger_right"]
 
@@ -44,16 +45,13 @@ def is_object_grasped(model, data, verbose=False):
         geom1_name = mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_GEOM, geom1_id)
         geom2_name = mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_GEOM, geom2_id)
 
-        # Skip if either name is None
         if not geom1_name or not geom2_name:
             continue
 
-        # Check for object contact
         if geom1_name == "object" or geom2_name == "object":
             other_geom = geom2_name if geom1_name == "object" else geom1_name
             contacts_list.append(other_geom)
 
-            # Check if the other geom is a left finger
             for pattern in left_patterns:
                 if pattern in str(other_geom).lower():
                     left_finger_contact = True
@@ -62,7 +60,6 @@ def is_object_grasped(model, data, verbose=False):
                         print(f"Left finger contact: {other_geom}")
                     break
 
-            # Check if the other geom is a right finger
             for pattern in right_patterns:
                 if pattern in str(other_geom).lower():
                     right_finger_contact = True
@@ -77,7 +74,6 @@ def is_object_grasped(model, data, verbose=False):
         print(f"Left finger contact: {left_finger_contact}")
         print(f"Right finger contact: {right_finger_contact}")
 
-        # If we're missing a contact, suggest checking the scene for finger names
         if not (left_finger_contact and right_finger_contact):
             print("Warning: Not all finger contacts detected!")
             print(
@@ -85,8 +81,6 @@ def is_object_grasped(model, data, verbose=False):
             )
             print(f"Current left patterns: {left_patterns}")
             print(f"Current right patterns: {right_patterns}")
-
-    # Both fingers must be in contact with the object for a successful grasp
     return left_finger_contact and right_finger_contact
 
 
@@ -94,14 +88,12 @@ def check_grasp(model, data, store_initial=False, verbose=False):
     global initial_relative_position, initial_grasp_verified
 
     object_pos = data.body("object_body").xpos
-    gripper_pos = data.body("gripper_base").xpos
+    gripper_pos = data.site("end_effector").xpos
 
     relative_position = object_pos - gripper_pos
 
     if store_initial:
-        # Verify that the object is actually being grasped AFTER closing the gripper
         if is_object_grasped(model, data, verbose=verbose):
-            # Store the object position relative to the gripper after successful grasp
             initial_relative_position = relative_position.copy()
             initial_grasp_verified = True
             if verbose:
@@ -119,17 +111,14 @@ def check_grasp(model, data, store_initial=False, verbose=False):
                 )
             initial_grasp_verified = False
             return False
-
-    # If initial position wasn't verified, grasp check fails
     if not initial_grasp_verified or initial_relative_position is None:
         if verbose:
             print("Grasp check failed: Initial position not verified")
         return False
 
     position_change = np.linalg.norm(relative_position - initial_relative_position)
-    max_allowed_change = 0.05
+    max_allowed_change = 0.01
 
-    # Make sure the object is still in contact with the gripper
     still_grasped = is_object_grasped(model, data, verbose=verbose)
 
     if verbose:
@@ -139,13 +128,6 @@ def check_grasp(model, data, store_initial=False, verbose=False):
     print("position_change:", position_change)
     return position_change < max_allowed_change and still_grasped
 
-
-parser = argparse.ArgumentParser()
-parser.add_argument("object", type=str)
-parser.add_argument("--num_shakes", type=int, default=5)
-parser.add_argument("--shake_magnitude", type=float, default=0.01)
-parser.add_argument("--top_k", type=int, default=10)
-args = parser.parse_args()
 
 mesh_file = os.path.abspath(f"assets/objects/{args.object}.obj")
 mesh_name = os.path.splitext(os.path.basename(mesh_file))[0]
@@ -195,7 +177,7 @@ grasp_results = []
 model = mujoco.MjModel.from_xml_string(modified_xml_content)
 data = mujoco.MjData(model)
 
-# List all geometry names to help identify finger geoms
+
 list_all_geoms(model)
 
 with mujoco.viewer.launch_passive(
@@ -217,9 +199,14 @@ with mujoco.viewer.launch_passive(
             mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, "gripper_base")
         ] = gripper_quat
 
+        camera_id = mujoco.mj_name2id(
+            model, mujoco.mjtObj.mjOBJ_BODY, "fixed_camera_body"
+        )
+        model.body_pos[camera_id] = gripper_pos + gripper_rot[:3, 2] * 0.5
+        model.body_quat[camera_id] = gripper_quat
+
         mujoco.mj_step(model, data)
 
-        # Close gripper to establish grasp
         data.ctrl[0] = -1.0
         for _ in range(2000):
             mujoco.mj_step(model, data)
@@ -228,7 +215,6 @@ with mujoco.viewer.launch_passive(
                 if not viewer.is_running():
                     break
 
-        # After closing the gripper, wait for stabilization
         print("Waiting for grasp stabilization...")
         for _ in range(500):
             mujoco.mj_step(model, data)
@@ -237,8 +223,9 @@ with mujoco.viewer.launch_passive(
                 if not viewer.is_running():
                     break
 
-        # Now verify the object is actually grasped and store initial position post-grasp
-        print(f"\nVerifying initial grasp for grasp {i + 1}...")
+        print(
+            f"\nVerifying initial grasp and storing reference position for grasp {i + 1}..."
+        )
         grasp_successful = check_grasp(model, data, store_initial=True, verbose=True)
 
         if not grasp_successful:
@@ -268,17 +255,26 @@ with mujoco.viewer.launch_passive(
             ctrl_idx = direction_idx + 1
 
             for shake in range(args.num_shakes):
-                data.ctrl[ctrl_idx] = args.shake_magnitude
+                print(f"\nPerforming {direction} shake {shake + 1}...")
 
-                for _ in range(500):
+                for step in range(args.shake_steps):
+                    position = args.shake_magnitude * (step + 1) / args.shake_steps
+                    data.ctrl[ctrl_idx] = position
+
                     mujoco.mj_step(model, data)
-                    if _ % 50 == 0:
+                    if step % 5 == 0:
                         viewer.sync()
                         if not viewer.is_running():
                             break
 
-                # Check if grasp is maintained during positive shake
-                print(f"\nChecking grasp during {direction}+ shake {shake + 1}...")
+                for _ in range(50):
+                    mujoco.mj_step(model, data)
+                    if _ % 20 == 0:
+                        viewer.sync()
+                        if not viewer.is_running():
+                            break
+
+                print(f"Checking grasp during {direction}+ shake {shake + 1}...")
                 grasp_maintained = check_grasp(model, data, verbose=True)
                 if not grasp_maintained:
                     print(
@@ -288,17 +284,33 @@ with mujoco.viewer.launch_passive(
                     failed_direction = f"{direction}+"
                     break
 
-                data.ctrl[ctrl_idx] = -args.shake_magnitude
+                initial_position = data.ctrl[ctrl_idx]
 
-                for _ in range(500):
+                for step in range(args.shake_steps * 2):
+                    position = args.shake_magnitude * (
+                        1 - (step + 1) / args.shake_steps
+                    )
+                    if step >= args.shake_steps:
+                        position = -args.shake_magnitude * (
+                            (step + 1 - args.shake_steps) / args.shake_steps
+                        )
+
+                    data.ctrl[ctrl_idx] = position
+
                     mujoco.mj_step(model, data)
-                    if _ % 50 == 0:
+                    if step % 5 == 0:
                         viewer.sync()
                         if not viewer.is_running():
                             break
 
-                # Check if grasp is maintained during negative shake
-                print(f"\nChecking grasp during {direction}- shake {shake + 1}...")
+                for _ in range(50):
+                    mujoco.mj_step(model, data)
+                    if _ % 20 == 0:
+                        viewer.sync()
+                        if not viewer.is_running():
+                            break
+
+                print(f"Checking grasp during {direction}- shake {shake + 1}...")
                 grasp_maintained = check_grasp(model, data, verbose=True)
                 if not grasp_maintained:
                     print(
@@ -308,11 +320,22 @@ with mujoco.viewer.launch_passive(
                     failed_direction = f"{direction}-"
                     break
 
-                data.ctrl[ctrl_idx] = 0
+                for step in range(args.shake_steps):
+                    position = -args.shake_magnitude * (
+                        1 - (step + 1) / args.shake_steps
+                    )
+                    data.ctrl[ctrl_idx] = position
 
-                for _ in range(200):
                     mujoco.mj_step(model, data)
-                    if _ % 50 == 0:
+                    if step % 5 == 0:
+                        viewer.sync()
+                        if not viewer.is_running():
+                            break
+
+                data.ctrl[ctrl_idx] = 0
+                for _ in range(50):
+                    mujoco.mj_step(model, data)
+                    if _ % 20 == 0:
                         viewer.sync()
                         if not viewer.is_running():
                             break
@@ -322,7 +345,6 @@ with mujoco.viewer.launch_passive(
             if not shake_success:
                 break
 
-        # Final check to verify two-finger grasp is still maintained
         final_grasp_check = is_object_grasped(model, data, verbose=True)
 
         grasp_results.append(
