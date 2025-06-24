@@ -18,6 +18,7 @@ import argparse
 import json
 parser = argparse.ArgumentParser(description='Visualize grasps from a JSON file.')
 parser.add_argument('object_name', type=str)
+parser.add_argument('--verified', action='store_true')
 
 GRIPPER_PC = np.load(
     'assets/gripper_models/panda_pc.npy', allow_pickle=True).item()['points']
@@ -526,8 +527,11 @@ def get_axis():
     return axis
 
 
-
-json_file = os.path.abspath(f"output/{parser.parse_args().object_name}_grasps.json")
+if parser.parse_args().verified:
+    extra = '_verified'
+else:
+    extra = ''
+json_file = os.path.abspath(f"output/{parser.parse_args().object_name}_grasps{extra}.json")
 # Load saved grasp data
 with open(json_file, 'r') as f:
     data = json.load(f)
@@ -542,7 +546,7 @@ mesh.apply_scale(data['object_scale'])
 transforms = np.array(data['transforms'])
 quality = np.array(data.get('quality_antipodal', data.get('quality_number_of_contacts', [1.0]*len(transforms))))
 
-top_k = 10
+top_k = 50
 top_indices = np.argsort(quality)[-top_k:][::-1]
 transforms = [transforms[i] for i in top_indices]
 quality = [quality[i] for i in top_indices]

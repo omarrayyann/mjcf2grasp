@@ -593,7 +593,7 @@ def make_parser():
     parser.add_argument('--filter_best_per_position', action='store_true',
                         help='Only store one grasp (highest quality) if there are multiple per with the same position.')
 
-    parser.add_argument('--min_quality', type=float, default=0.5,
+    parser.add_argument('--min_quality', type=float, default=0.2,
                         help="""Only store grasps whose quality is at least this value. \
                             Colliding grasps have quality -1, i.e. they are filtered out by default.""")
 
