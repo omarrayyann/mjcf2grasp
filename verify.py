@@ -122,60 +122,68 @@ def run_simulation_with_viewer(model, data, use_viewer):
 
             print(f"Testing grasp {i + 1}/{len(transforms)}...")
             
+            # Updated shaking logic matching the second script
+            directions = ["x", "y", "z"]
             shake_success = True
-            for axis in range(3):
-                ctrl_idx = axis + 1
-                for shake_num in range(args.num_shakes):
-                    # Positive shake
-                    for step in range(args.shake_steps):
-                        data.ctrl[ctrl_idx] = args.shake_magnitude * (step + 1) / args.shake_steps
+            failed_direction = None
+
+            for direction_idx, direction in enumerate(directions):
+                print(f"  Shaking in {direction} direction...")
+                ctrl_idx = direction_idx + 1
+
+                for shake in range(args.num_shakes):
+                    total_steps = args.shake_steps * 2
+
+                    for step in range(total_steps):
+                        # Sinusoidal motion like in the second script
+                        angle = 2 * np.pi * step / total_steps
+                        position = args.shake_magnitude * np.sin(angle)
+                        data.ctrl[ctrl_idx] = position
+
                         mujoco.mj_step(model, data)
                         if use_viewer and step % 5 == 0:
                             viewer.sync()
                             if not viewer.is_running():
                                 return
 
-                    # Check grasp after positive shake
-                    for step in range(50):
-                        mujoco.mj_step(model, data)
-                        if use_viewer and step % 10 == 0:
-                            viewer.sync()
-                            if not viewer.is_running():
-                                return
+                        # Check grasp at quarter and three-quarter points
+                        if step == total_steps // 4:
+                            grasp_maintained = check_grasp(model, data)
+                            if not grasp_maintained:
+                                print(f"  Grasp {i + 1} failed at {direction}+ peak during shake {shake + 1}")
+                                shake_success = False
+                                failed_direction = f"{direction}+"
+                                break
+                        elif step == 3 * total_steps // 4:
+                            grasp_maintained = check_grasp(model, data)
+                            if not grasp_maintained:
+                                print(f"  Grasp {i + 1} failed at {direction}- peak during shake {shake + 1}")
+                                shake_success = False
+                                failed_direction = f"{direction}-"
+                                break
 
-                    if not check_grasp(model, data):
-                        shake_success = False
+                    if not shake_success:
                         break
 
-                    # Negative shake
-                    for step in range(args.shake_steps * 2):
-                        offset = args.shake_magnitude * (1 - (step + 1) / args.shake_steps)
-                        if step >= args.shake_steps:
-                            offset = -args.shake_magnitude * ((step + 1 - args.shake_steps) / args.shake_steps)
-                        data.ctrl[ctrl_idx] = offset
-                        mujoco.mj_step(model, data)
-                        if use_viewer and step % 5 == 0:
-                            viewer.sync()
-                            if not viewer.is_running():
-                                return
-
-                    # Check grasp after negative shake
+                    # Reset control and stabilize
+                    data.ctrl[ctrl_idx] = 0
                     for step in range(50):
                         mujoco.mj_step(model, data)
-                        if use_viewer and step % 10 == 0:
+                        if use_viewer and step % 20 == 0:
                             viewer.sync()
                             if not viewer.is_running():
                                 return
 
-                    if not check_grasp(model, data):
-                        shake_success = False
-                        break
-
+                # Reset control for this direction
                 data.ctrl[ctrl_idx] = 0
+
                 if not shake_success:
                     break
 
-            if shake_success and is_object_grasped(model, data):
+            # Final grasp check
+            final_grasp_check = is_object_grasped(model, data)
+
+            if shake_success and final_grasp_check:
                 successful_transforms.append(transform.tolist())
                 successful_qualities.append(quality)
                 print(f"Grasp {i + 1} SUCCESSFUL ({len(successful_transforms)}/50)")
