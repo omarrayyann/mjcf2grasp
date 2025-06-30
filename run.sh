@@ -17,6 +17,6 @@ cd external_src/Manifold/build
 cd ..
 cd ..
 cd ..
-python main.py --object_file assets/objects/test.obj --quality number_of_contacts --output "output/${OBJECT_NAME}_grasps.json" --systematic_sampling
+python main.py --object_file assets/objects/test.obj --quality antipodal --output "output/${OBJECT_NAME}_grasps.json"
 export LD_LIBRARY_PATH=/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/PySide2/Qt/lib:$LD_LIBRARY_PATH
 python visualize.py ${OBJECT_NAME}

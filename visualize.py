@@ -25,6 +25,55 @@ GRIPPER_PC = np.load(
 GRIPPER_PC[:, 3] = 1.
 
 
+
+class Object(object):
+    """Represents a graspable object."""
+
+    def __init__(self, filename):
+        """Constructor.
+
+        :param filename: Mesh to load
+        :param scale: Scaling factor
+        """
+        self.mesh = trimesh.load(filename)
+        self.scale = 1.0
+
+        # print(filename)
+        self.filename = filename
+        if isinstance(self.mesh, list):
+            # this is fixed in a newer trimesh version:
+            # https://github.com/mikedh/trimesh/issues/69
+            print("Warning: Will do a concatenation")
+            self.mesh = trimesh.util.concatenate(self.mesh)
+
+        self.collision_manager = trimesh.collision.CollisionManager()
+        self.collision_manager.add_object('object', self.mesh)
+
+    def rescale(self, scale=1.0):
+        """Set scale of object mesh.
+
+        :param scale
+        """
+        self.scale = scale
+        self.mesh.apply_scale(self.scale)
+
+    def resize(self, size=1.0):
+        """Set longest of all three lengths in Cartesian space.
+
+        :param size
+        """
+        self.scale = size / np.max(self.mesh.extents)
+        self.mesh.apply_scale(self.scale)
+
+    def in_collision_with(self, mesh, transform):
+        """Check whether the object is in collision with the provided mesh.
+
+        :param mesh:
+        :param transform:
+        :return: boolean value
+        """
+        return self.collision_manager.in_collision_single(mesh, transform=transform)
+
 def get_shape(x):
     """
       Gets the shape of the tensor x.
@@ -494,17 +543,19 @@ def draw_scene(
                 gripper_color = (0.0, 1.0, 0.0)
 
     
-        # if show_gripper_mesh:
-        #     gripper_mesh = sample.Object('panda_gripper.obj').mesh
-        #     gripper_mesh.apply_transform(g)
-        #     mlab.triangular_mesh(
-        #         gripper_mesh.vertices[:, 0],
-        #         gripper_mesh.vertices[:, 1],
-        #         gripper_mesh.vertices[:, 2],
-        #         gripper_mesh.faces,
-        #         color=gripper_color,
-        #         opacity=1 if visualize_diverse_grasps else 0.5
-        #     )
+        if show_gripper_mesh:
+            object = Object('new_rum.obj')
+            # object.rescale(0.001)
+            gripper_mesh = object.mesh
+            gripper_mesh.apply_transform(g)
+            mlab.triangular_mesh(
+                gripper_mesh.vertices[:, 0],
+                gripper_mesh.vertices[:, 1],
+                gripper_mesh.vertices[:, 2],
+                gripper_mesh.faces,
+                color=gripper_color,
+                opacity=1 if visualize_diverse_grasps else 0.5
+            )
         # else:
         pts = np.matmul(grasp_pc, g[:3, :3].T)
         pts += np.expand_dims(g[:3, 3], 0)
@@ -546,14 +597,14 @@ mesh.apply_scale(data['object_scale'])
 transforms = np.array(data['transforms'])
 quality = np.array(data.get('quality_antipodal', data.get('quality_number_of_contacts', [1.0]*len(transforms))))
 
-top_k = 50
+top_k = 10
 top_indices = np.argsort(quality)[-top_k:][::-1]
 transforms = [transforms[i] for i in top_indices]
 quality = [quality[i] for i in top_indices]
 
 
 # Visualize
-draw_scene(
+draw_scene( 
     pc=None,
     grasps=transforms,
     grasp_scores=quality,
