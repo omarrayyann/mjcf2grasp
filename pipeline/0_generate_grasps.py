@@ -167,7 +167,7 @@ class RumGripper(object):
         self.pivot_l = np.array([0.023, 0, 0.04224])
 
         self.angle_rad = np.deg2rad(angle_deg)
-        base_path = '/home/lambda1/Documents/thor-grasp/assets/rum_gripper/meshes/'
+        base_path = 'assets/rum_gripper/meshes/'
         self.body = trimesh.load(base_path + 'new_body(1).stl')
         self.finger_l = trimesh.load(base_path + 'new_left(1).stl')
         self.finger_r = trimesh.load(base_path + 'new_right(1).stl')
@@ -209,8 +209,8 @@ class RumGripper(object):
         
 
     def reset_fingers(self):
-        self.finger_l = trimesh.load('/home/lambda1/Documents/thor-grasp/assets/rum_gripper/meshes/new_left(1).stl')
-        self.finger_r = trimesh.load('/home/lambda1/Documents/thor-grasp/assets/rum_gripper/meshes/new_right(1).stl')
+        self.finger_l = trimesh.load('assets/rum_gripper/meshes/new_left(1).stl')
+        self.finger_r = trimesh.load('assets/rum_gripper/meshes/new_right(1).stl')
 
         
         rot_l = tra.rotation_matrix(self.angle_rad, [0, -1, 0], point=self.pivot_l)

@@ -544,8 +544,7 @@ def draw_scene(
 
     
         if show_gripper_mesh:
-            object = Object('new_rum.obj')
-            # object.rescale(0.001)
+            object = Object('assets/gripper_models/rum_gripper/model.obj')
             gripper_mesh = object.mesh
             gripper_mesh.apply_transform(g)
             mlab.triangular_mesh(

@@ -211,7 +211,7 @@ def run_simulation_with_viewer(model, data, use_viewer):
 # Load object and scene
 mesh_file = os.path.abspath(f"assets/objects/{args.object}.obj")
 object_name = os.path.splitext(os.path.basename(mesh_file))[0]
-xml_path = os.path.join(os.path.dirname(__file__), "assets/scene.xml")
+xml_path = os.path.join(os.path.dirname(__file__), "../assets/scene.xml")
 tree = ET.parse(xml_path)
 root = tree.getroot()
 
