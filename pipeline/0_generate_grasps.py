@@ -16,6 +16,8 @@ import errno
 import json
 import os
 import numpy as np
+import multiprocessing as mp
+from functools import partial
 
 from tqdm import tqdm
 
@@ -256,7 +258,28 @@ def create_gripper(name, configuration=None, root_folder=''):
         raise Exception("Unknown gripper: {}".format(name))
 
 
-def in_collision_with_gripper(object_mesh, gripper_transforms, gripper_name, silent=False):
+def _check_collision_worker(object_mesh, gripper_mesh, transform_batch):
+    """Worker function to check collisions for a batch of transforms.
+    
+    Arguments:
+        object_mesh {trimesh} -- mesh of object
+        gripper_mesh {trimesh} -- mesh of gripper
+        transform_batch {list} -- batch of transforms to check
+        
+    Returns:
+        list -- minimum distances for each transform
+    """
+    manager = trimesh.collision.CollisionManager()
+    manager.add_object('object', object_mesh)
+    min_distances = []
+    
+    for tf in transform_batch:
+        min_distances.append(manager.min_distance_single(gripper_mesh, transform=tf))
+        
+    return min_distances
+
+
+def in_collision_with_gripper(object_mesh, gripper_transforms, gripper_name, silent=False, num_workers=None):
     """Check collision of object with gripper.
 
     Arguments:
@@ -266,19 +289,55 @@ def in_collision_with_gripper(object_mesh, gripper_transforms, gripper_name, sil
 
     Keyword Arguments:
         silent {bool} -- verbosity (default: {False})
+        num_workers {int} -- number of parallel workers (default: {None}, uses CPU count)
 
     Returns:
         [list of bool] -- Which gripper poses are in collision with object mesh
     """
-    manager = trimesh.collision.CollisionManager()
-    manager.add_object('object', object_mesh)
-    gripper_meshes = [create_gripper(gripper_name).hand]
-    min_distance = []
-    for tf in tqdm(gripper_transforms, disable=silent):
-        min_distance.append(np.min([manager.min_distance_single(
-            gripper_mesh, transform=tf) for gripper_mesh in gripper_meshes]))
+    if num_workers is None:
+        num_workers = mp.cpu_count()
+    
+    # For small numbers of transforms, it's faster to use the sequential version
+    if len(gripper_transforms) < 100 or num_workers <= 1:
+        manager = trimesh.collision.CollisionManager()
+        manager.add_object('object', object_mesh)
+        gripper_meshes = [create_gripper(gripper_name).hand]
+        min_distance = []
+        for tf in tqdm(gripper_transforms, disable=silent):
+            min_distance.append(np.min([manager.min_distance_single(
+                gripper_mesh, transform=tf) for gripper_mesh in gripper_meshes]))
 
-    return [d == 0 for d in min_distance], min_distance
+        return [d == 0 for d in min_distance], min_distance
+    
+    # Use parallel processing for larger numbers of transforms
+    gripper_mesh = create_gripper(gripper_name).hand
+    
+    # Split transforms into batches for each worker
+    num_transforms = len(gripper_transforms)
+    batch_size = max(1, num_transforms // num_workers)
+    batches = [gripper_transforms[i:i+batch_size] for i in range(0, num_transforms, batch_size)]
+    
+    # Create a partial function with fixed arguments
+    worker_func = partial(_check_collision_worker, object_mesh, gripper_mesh)
+    
+    # Use a pool of workers to process batches in parallel
+    min_distances = []
+    
+    # Setup progress bar to track total transforms, not batches
+    pbar = tqdm(
+        total=num_transforms, 
+        disable=silent,
+        desc=f"Checking collisions (using {num_workers} workers)"
+    )
+    
+    with mp.Pool(processes=num_workers) as pool:
+        for batch_result in pool.imap(worker_func, batches):
+            min_distances.extend(batch_result)
+            pbar.update(len(batch_result))  # Update by actual number of transforms processed
+    
+    pbar.close()
+    
+    return [d == 0 for d in min_distances], min_distances
 
 
 def grasp_quality_point_contacts(transforms, collisions, object_mesh, gripper_name='panda', silent=False):
@@ -433,7 +492,8 @@ def sample_multiple_grasps(number_of_candidates, mesh, gripper_name, systematic_
                            surface_density=0.005*0.005, standoff_density=0.01, roll_density=15,
                            type_of_quality='antipodal',
                            min_quality=-1.0,
-                           silent=False):
+                           silent=False,
+                           num_workers=None):
     """Sample a set of grasps for an object.
 
     Arguments:
@@ -574,7 +634,7 @@ def sample_multiple_grasps(number_of_candidates, mesh, gripper_name, systematic_
 
     verboseprint("Checking collisions...")
     collisions, _ = in_collision_with_gripper(
-        mesh, transforms, gripper_name=gripper_name, silent=silent)
+        mesh, transforms, gripper_name=gripper_name, silent=silent, num_workers=args.num_workers)
 
     verboseprint("Labelling grasps...")
     quality = {}
@@ -678,11 +738,15 @@ def make_parser():
 
     parser.add_argument('--force', action='store_true',
                         help='Do things my way.')
+                        
+    parser.add_argument('--num_workers', type=int, default=None,
+                        help='Number of parallel workers to use for collision checking. Default uses all available CPU cores.')
 
     return parser
 
 
 if __name__ == "__main__":
+    # This guard is important for multiprocessing to work correctly
     parser = make_parser()
     args = parser.parse_args()
 
@@ -753,7 +817,8 @@ if __name__ == "__main__":
                                      type_of_quality=args.quality,
                                     #  filter_best_per_position=args.filter_best_per_position,
                                      min_quality=args.min_quality,
-                                     silent=args.silent)
+                                     silent=args.silent,
+                                     num_workers=args.num_workers)
 
         # save transforms
         grasps = {

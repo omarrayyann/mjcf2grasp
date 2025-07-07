@@ -20,6 +20,8 @@ parser.add_argument("--render", action="store_true",
                     help="Enable interactive viewer")
 parser.add_argument("--num_workers", type=int, default=mp.cpu_count(),
                     help="Number of parallel processes to use")
+parser.add_argument("--max_successful", type=int, default=0,
+                    help="Stop after finding this many successful grasps (0 = process all grasps)")
 args = parser.parse_args()
 
 initial_relative_position = None
@@ -278,6 +280,11 @@ def run_simulation_with_viewer(model, data, use_viewer):
                 if shake_success and final_grasp_check:
                     successful_transforms.append(transform.tolist())
                     successful_qualities.append(quality)
+                    
+                    # Check if we've reached the maximum number of successful grasps
+                    if args.max_successful > 0 and len(successful_transforms) >= args.max_successful:
+                        tqdm.write(f"Found {len(successful_transforms)} successful grasps (reached max_successful limit)")
+                        return successful_transforms, successful_qualities
                 
                 # Update progress bar with success rate
                 pbar.set_description(f"Testing grasps ({len(successful_transforms)}/{i+1} successful)")
@@ -317,6 +324,9 @@ def run_simulation_with_viewer(model, data, use_viewer):
             processed_count = manager.Value('i', 0)
             lock = manager.Lock()
             
+            # Create a shared flag to signal workers to stop
+            should_stop = manager.Value('b', False)
+            
             # Function to update the progress bar
             def update_progress_bar(result):
                 nonlocal pbar
@@ -329,6 +339,11 @@ def run_simulation_with_viewer(model, data, use_viewer):
                     if transform_result is not None:
                         success_count.value += 1
                         successful_transforms.append((i, transform_result, quality_result))
+                        
+                        # Check if we've reached the maximum number of successful grasps
+                        if args.max_successful > 0 and success_count.value >= args.max_successful:
+                            should_stop.value = True
+                            tqdm.write(f"Found {success_count.value} successful grasps (reached max_successful limit)")
                 
                 pbar.set_description(f"Testing grasps ({success_count.value}/{processed_count.value} successful)")
                 pbar.update(1)
@@ -338,16 +353,40 @@ def run_simulation_with_viewer(model, data, use_viewer):
             
             # Start parallel processing
             with mp.Pool(processes=num_workers) as pool:
+                # Create async results
                 results = [pool.apply_async(test_single_grasp, args=(param,), callback=update_progress_bar) 
-                           for param in grasp_params]
+                          for param in grasp_params]
                 
-                # Ensure all processes complete
-                for result in results:
-                    result.wait()
+                # Monitor results, allow early termination if max_successful is reached
+                completed = 0
+                while completed < len(results):
+                    # Check if we should stop early
+                    if should_stop.value:
+                        pool.terminate()  # Stop all workers
+                        tqdm.write("Terminating remaining workers after reaching max successful grasps")
+                        break
+                    
+                    # Check for completed tasks
+                    for i, r in enumerate(results):
+                        if r is not None and r.ready() and not r.successful():
+                            # Handle any exceptions in worker processes
+                            try:
+                                r.get()  # This will re-raise the exception if any occurred
+                            except Exception as e:
+                                tqdm.write(f"Worker error: {str(e)}")
+                            results[i] = None
+                            completed += 1
+                        elif r is not None and r.ready():
+                            results[i] = None
+                            completed += 1
+                    
+                    # Small delay to avoid busy waiting
+                    time.sleep(0.1)
                 
-                # Close and join the pool
-                pool.close()
-                pool.join()
+                # Make sure to close pool properly
+                if not should_stop.value:
+                    pool.close()
+                    pool.join()
             
             # Sort results by original index
             successful_transforms.sort()

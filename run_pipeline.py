@@ -23,24 +23,25 @@ for obj in data:
     object_name = os.path.splitext(os.path.basename(full_path))[0]
 
     print(f"\nProcessing object: {object_name} manifold")
-    # subprocess.run([
-    #     "./manifold", full_path, temp_abs_path, "-s"
-    # ], cwd="external_src/Manifold/build", check=True)
+    subprocess.run([
+        "./manifold", full_path, temp_abs_path, "-s"
+    ], cwd="external_src/Manifold/build", check=True)
 
-    # print(f"\nProcessing object: {object_name} simplification")
+    print(f"\nProcessing object: {object_name} simplification")
 
-    # subprocess.run([
-    #     "./simplify", "-i", temp_abs_path, "-o", output_abs_path, "-m", "-r", "0.02"
-    # ], cwd="external_src/Manifold/build", check=True)
+    subprocess.run([
+        "./simplify", "-i", temp_abs_path, "-o", output_abs_path, "-m", "-r", "0.02"
+    ], cwd="external_src/Manifold/build", check=True)
 
-    # print(f"Generating grasps for object: {object_name}")
-    # subprocess.run([
-    #     "python", "pipeline/0_generate_grasps.py",
-    #     "--object_file", output_abs_path,
-    #     "--quality", "antipodal",
-    #     "--output", f"output/{object_name}_grasps.json",
-    #     "--systematic_sampling"
-    # ], check=True)
+    print(f"Generating grasps for object: {object_name}")
+    subprocess.run([
+        "python", "pipeline/0_generate_grasps.py",
+        "--object_file", output_abs_path,
+        "--quality", "antipodal",
+        "--output", f"output/{object_name}_grasps.json",
+        "--systematic_sampling",
+        "--num_workers", str(os.cpu_count())  # Use all available CPU cores
+    ], check=True)
 
     env = os.environ.copy()
     env["LD_LIBRARY_PATH"] = "myenv/lib/python3.10/site-packages/PySide2/Qt/lib:" + env.get("LD_LIBRARY_PATH", "")
@@ -50,10 +51,14 @@ for obj in data:
         "python", "scripts/visualize.py", object_name
     ], check=True, env=env)
 
-    # print(f"Filtering grasps for object: {object_name} using MuJoCo")
-    # subprocess.run([
-    #     "python", "pipeline/1_filter_mujoco.py", "--mesh_path", output_abs_path, "--grasps_path", f"output/{object_name}_grasps.json"
-    # ], check=True)
+    print(f"Filtering grasps for object: {object_name} using MuJoCo")
+    subprocess.run([
+        "python", "pipeline/1_filter_mujoco.py", 
+        "--mesh_path", output_abs_path, 
+        "--grasps_path", f"output/{object_name}_grasps.json",
+        "--num_workers", str(os.cpu_count()),
+        "--max_successful", "20"  # Stop after finding 20 successful grasps
+    ], check=True)
 
     print(f"Visualizing filtered grasps for object: {object_name}")
     subprocess.run([
