@@ -19,6 +19,8 @@ import json
 parser = argparse.ArgumentParser(description='Visualize grasps from a JSON file.')
 parser.add_argument('object_name', type=str)
 parser.add_argument('--filtered', action='store_true')
+parser.add_argument('--compare', action='store_true', 
+                   help='Show both filtered (green) and unfiltered (red) grasps')
 
 GRIPPER_PC = np.load(
     'assets/gripper_models/panda_pc.npy', allow_pickle=True).item()['points']
@@ -577,37 +579,100 @@ def get_axis():
     return axis
 
 
-if parser.parse_args().filtered:
-    extra = '_filtered'
-else:
-    extra = ''
-json_file = os.path.abspath(f"output/{parser.parse_args().object_name}_grasps{extra}.json")
+args = parser.parse_args()
+
+# Define file paths
+base_json_file = os.path.abspath(f"output/{args.object_name}_grasps.json")
+filtered_json_file = os.path.abspath(f"output/{args.object_name}_grasps_filtered.json")
+
 # Load saved grasp data
-with open(json_file, 'r') as f:
-    data = json.load(f)
+if args.compare:
+    # Load both files for comparison
+    try:
+        with open(base_json_file, 'r') as f:
+            base_data = json.load(f)
+        
+        with open(filtered_json_file, 'r') as f:
+            filtered_data = json.load(f)
+            
+        # Load object mesh from either file (they should be the same)
+        mesh = trimesh.load(base_data['object'])
+        mesh.apply_scale(base_data['object_scale'])
+        
+        # Get all transforms
+        all_transforms = np.array(base_data['transforms'])
+        all_quality = np.array(base_data.get('quality_antipodal', 
+                              base_data.get('quality_number_of_contacts', [1.0]*len(all_transforms))))
+        
+        # Get filtered transforms
+        filtered_transforms = np.array(filtered_data['transforms'])
+        
+        # Convert filtered transforms to list of lists for easier comparison
+        filtered_transform_lists = [t.tolist() if not isinstance(t, list) else t for t in filtered_transforms]
+        
+        # Create color list and separate transforms based on filtered status
+        colors = []
+        filtered_indices = []
+        unfiltered_indices = []
+        
+        for i, transform in enumerate(all_transforms):
+            transform_list = transform.tolist() if not isinstance(transform, list) else transform
+            if any(np.allclose(np.array(transform_list), np.array(ft)) for ft in filtered_transform_lists):
+                colors.append((0, 1, 0))  # Green for filtered
+                filtered_indices.append(i)
+            else:
+                colors.append((1, 0, 0))  # Red for unfiltered/rejected
+                unfiltered_indices.append(i)
+                
+        print(f"Showing {len(filtered_indices)} filtered grasps (green) and {len(unfiltered_indices)} unfiltered grasps (red)")
+        
+        # Visualize
+        draw_scene(
+            pc=None,
+            grasps=all_transforms,
+            grasp_scores=all_quality,
+            mesh=mesh,
+            show_gripper_mesh=True,
+            plasma_coloring=False,
+            gripper_color=colors
+        )
+    except FileNotFoundError as e:
+        print(f"Error: Could not find one of the required grasp files. Make sure both filtered and unfiltered files exist.")
+        print(f"Exception: {e}")
+else:
+    # Original behavior
+    if args.filtered:
+        extra = '_filtered'
+    else:
+        extra = ''
+    
+    json_file = os.path.abspath(f"output/{args.object_name}_grasps{extra}.json")
+    
+    # Load saved grasp data
+    with open(json_file, 'r') as f:
+        data = json.load(f)
 
-# Load object mesh
-mesh = trimesh.load(data['object'])
+    # Load object mesh
+    mesh = trimesh.load(data['object'])
 
-# Apply scale
-mesh.apply_scale(data['object_scale'])
+    # Apply scale
+    mesh.apply_scale(data['object_scale'])
 
-# Extract grasp info
-transforms = np.array(data['transforms'])
-quality = np.array(data.get('quality_antipodal', data.get('quality_number_of_contacts', [1.0]*len(transforms))))
+    # Extract grasp info
+    transforms = np.array(data['transforms'])
+    quality = np.array(data.get('quality_antipodal', data.get('quality_number_of_contacts', [1.0]*len(transforms))))
 
-top_k = 100000
-top_indices = np.argsort(quality)[-top_k:][::-1]
-transforms = [transforms[i] for i in top_indices]
-quality = [quality[i] for i in top_indices]
+    top_k = 100000
+    top_indices = np.argsort(quality)[-top_k:][::-1]
+    transforms = [transforms[i] for i in top_indices]
+    quality = [quality[i] for i in top_indices]
 
-
-# Visualize
-draw_scene( 
-    pc=None,
-    grasps=transforms,
-    grasp_scores=quality,
-    mesh=mesh,
-    show_gripper_mesh=True,  # Set to True if you want full gripper meshes
-    plasma_coloring=True
-)
+    # Visualize
+    draw_scene( 
+        pc=None,
+        grasps=transforms,
+        grasp_scores=quality,
+        mesh=mesh,
+        show_gripper_mesh=True,  # Set to True if you want full gripper meshes
+        plasma_coloring=True
+    )
