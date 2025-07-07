@@ -20,7 +20,7 @@ cd ..
 cd ..
 
 echo "Generating grasps for object: $OBJECT_NAME"
-python pipeline/0_generate_grasps.py --object_file assets/objects/test.obj --quality number_of_contacts --output "output/${OBJECT_NAME}_grasps.json"
+python pipeline/0_generate_grasps.py --object_file assets/objects/test.obj --quality number_of_contacts --output "output/${OBJECT_NAME}_grasps.json" --systematic_sampling
 export LD_LIBRARY_PATH=myenv/lib/python3.10/site-packages/PySide2/Qt/lib:$LD_LIBRARY_PATH
 echo "Generating grasps for object: $OBJECT_NAME at output/output/${OBJECT_NAME}_grasps.json"
 

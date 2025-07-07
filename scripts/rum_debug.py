@@ -28,7 +28,7 @@ class PandaGripper:
         self.ray_origins = []
         self.ray_directions = []
 
-        for i in np.linspace(-0.01, 0.03, num_contact_points_per_finger):
+        for i in np.linspace(-0.01, 0.045, num_contact_points_per_finger):
             self.ray_origins.append(np.r_[self.finger_l.bounding_box.centroid + [0, 0, i], 1] + [i/np.sqrt(2) + 0.01, 0, 0, 1])
             self.ray_origins.append(np.r_[self.finger_r.bounding_box.centroid + [0, 0, i], 1] - [i/np.sqrt(2) + 0.01, 0, 0, 1])
             self.ray_directions.append(np.r_[-self.finger_l.bounding_box.primitive.transform[:3, 0]])

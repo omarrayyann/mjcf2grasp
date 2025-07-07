@@ -543,18 +543,18 @@ def draw_scene(
                 gripper_color = (0.0, 1.0, 0.0)
 
     
-        if show_gripper_mesh:
-            object = Object('assets/gripper_models/rum_gripper/model.obj')
-            gripper_mesh = object.mesh
-            gripper_mesh.apply_transform(g)
-            mlab.triangular_mesh(
-                gripper_mesh.vertices[:, 0],
-                gripper_mesh.vertices[:, 1],
-                gripper_mesh.vertices[:, 2],
-                gripper_mesh.faces,
-                color=gripper_color,
-                opacity=1 if visualize_diverse_grasps else 0.5
-            )
+        # if show_gripper_mesh:
+        #     object = Object('assets/gripper_models/rum_gripper/model.obj')
+        #     gripper_mesh = object.mesh
+        #     gripper_mesh.apply_transform(g)
+        #     mlab.triangular_mesh(
+        #         gripper_mesh.vertices[:, 0],
+        #         gripper_mesh.vertices[:, 1],
+        #         gripper_mesh.vertices[:, 2],
+        #         gripper_mesh.faces,
+        #         color=gripper_color,
+        #         opacity=1 if visualize_diverse_grasps else 0.5
+        #     )
         # else:
         pts = np.matmul(grasp_pc, g[:3, :3].T)
         pts += np.expand_dims(g[:3, 3], 0)
@@ -596,7 +596,7 @@ mesh.apply_scale(data['object_scale'])
 transforms = np.array(data['transforms'])
 quality = np.array(data.get('quality_antipodal', data.get('quality_number_of_contacts', [1.0]*len(transforms))))
 
-top_k = 10
+top_k = 100000
 top_indices = np.argsort(quality)[-top_k:][::-1]
 transforms = [transforms[i] for i in top_indices]
 quality = [quality[i] for i in top_indices]

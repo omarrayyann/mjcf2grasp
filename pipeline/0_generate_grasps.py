@@ -166,8 +166,8 @@ class RumGripper(object):
         self.q = q
 
         fn_base = root_folder + 'assets/gripper_models/rum_gripper/meshes/simple_body.stl'
-        fn_finger_l = root_folder + 'assets/gripper_models/rum_gripper/meshes/left_finger_adjusted.stl'
-        fn_finger_r = root_folder + 'assets/gripper_models/rum_gripper/meshes/right_finger_adjusted.stl'
+        fn_finger_l = root_folder + 'assets/gripper_models/rum_gripper/meshes/simple_left.stl'
+        fn_finger_r = root_folder + 'assets/gripper_models/rum_gripper/meshes/simple_right.stl'
         self.base = trimesh.load(fn_base)
         self.finger_l = trimesh.load(fn_finger_l)
         self.finger_r = trimesh.load(fn_finger_r)
@@ -185,7 +185,7 @@ class RumGripper(object):
         self.ray_origins = []
         self.ray_directions = []
 
-        for i in np.linspace(-0.01, 0.05, num_contact_points_per_finger):
+        for i in np.linspace(-0.01, 0.04, num_contact_points_per_finger):
             self.ray_origins.append(np.r_[self.finger_l.bounding_box.centroid + [0, 0, i], 1] + [i/np.sqrt(2) + 0.01, 0, 0, 0])
             self.ray_origins.append(np.r_[self.finger_r.bounding_box.centroid + [0, 0, i], 1] - [i/np.sqrt(2) + 0.01, 0, 0, 0])
             self.ray_directions.append(np.r_[-self.finger_l.bounding_box.primitive.transform[:3, 0]])
@@ -310,9 +310,6 @@ def grasp_quality_point_contacts(transforms, collisions, object_mesh, gripper_na
             ray_origins, ray_directions = gripper.get_closing_rays(p)
             locations, index_ray, index_tri = intersector.intersects_location(
                 ray_origins, ray_directions, multiple_hits=False)
-            
-            print("Number of rays:", len(ray_origins))
-            print("Number of hits:", len(locations))
 
             if len(locations) == 0:
                 res.append(0)

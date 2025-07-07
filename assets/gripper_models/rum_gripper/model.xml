@@ -43,7 +43,7 @@
     </default>
 
     <default class="finger_actuator">
-      <position ctrlrange="-1 1" kp="20" dampratio="10.1"/>
+      <position ctrlrange="-1 1" kp="30" dampratio="10.1"/>
     </default>
 
     <default class="friction">

@@ -9,10 +9,11 @@ import json
 from scipy.spatial.transform import Rotation as R
 
 parser = argparse.ArgumentParser()
-parser.add_argument("object", type=str)
-parser.add_argument("--num_shakes", type=int, default=2)
-parser.add_argument("--shake_magnitude", type=float, default=0.05)
-parser.add_argument("--shake_steps", type=int, default=100)
+parser.add_argument("--mesh_path", type=str)
+parser.add_argument("--grasps_path", type=str)
+parser.add_argument("--num_shakes", type=int, default=10)
+parser.add_argument("--shake_magnitude", type=float, default=0.5)
+parser.add_argument("--shake_steps", type=int, default=10000)
 parser.add_argument("--render", action="store_true", 
                     help="Enable interactive viewer")
 args = parser.parse_args()
@@ -72,7 +73,7 @@ def run_simulation_with_viewer(model, data, use_viewer):
     """Run the simulation with or without interactive viewer"""
     
     # Load all grasps
-    with open(f"output/{object_name}_grasps.json", "r") as f:
+    with open(args.grasps_path, "r") as f:
         grasp_data = json.load(f)
     transforms = np.array(grasp_data["transforms"])
     qualities = np.array(grasp_data.get("quality_antipodal", [1.0] * len(transforms)))
@@ -85,7 +86,7 @@ def run_simulation_with_viewer(model, data, use_viewer):
         nonlocal successful_transforms, successful_qualities
         
         for i, (transform, quality) in enumerate(zip(transforms, qualities)):
-            if len(successful_transforms) >= 50:
+            if len(successful_transforms) >= 1000:
                 break
 
             mujoco.mj_resetData(model, data)
@@ -109,7 +110,7 @@ def run_simulation_with_viewer(model, data, use_viewer):
                         return
 
             # Stabilize grasp
-            for step in range(200):
+            for step in range(2000):
                 mujoco.mj_step(model, data)
                 if use_viewer and step % 20 == 0:
                     viewer.sync()
@@ -209,20 +210,19 @@ def run_simulation_with_viewer(model, data, use_viewer):
 
 
 # Load object and scene
-mesh_file = os.path.abspath(f"assets/objects/{args.object}.obj")
-object_name = os.path.splitext(os.path.basename(mesh_file))[0]
+mesh_file = os.path.abspath(args.mesh_path)
 xml_path = os.path.join(os.path.dirname(__file__), "../assets/scene.xml")
 tree = ET.parse(xml_path)
 root = tree.getroot()
 
 asset = root.find("asset")
-mesh = ET.Element("mesh", {"file": mesh_file, "scale": "1 1 1"})
+mesh = ET.Element("mesh", {"file": mesh_file, "scale": "1 1 1", "name":"object_mesh"})
 asset.append(mesh)
 
 worldbody = root.find("worldbody")
 body = ET.Element("body", {"name": "object_body", "gravcomp": "1"})
 joint = ET.Element("joint", {"type": "free", "damping": "10."})
-geom = ET.Element("geom", {"name": "object", "type": "mesh", "mesh": object_name})
+geom = ET.Element("geom", {"name": "object", "type": "mesh", "mesh": "object_mesh"})
 body.extend([joint, geom])
 worldbody.append(body)
 
@@ -236,10 +236,10 @@ print(f"Running simulation{'with interactive viewer' if args.render else ''}")
 successful_transforms, successful_qualities = run_simulation_with_viewer(model, data, args.render)
 
 # Save updated successful grasps
-output_path = f"output/{object_name}_grasps_verified.json"
+output_path = args.grasps_path.replace(".json", "_filtered.json")
 with open(output_path, "w") as f:
     # Load original grasp data to preserve other fields
-    with open(f"output/{object_name}_grasps.json", "r") as original_f:
+    with open(args.grasps_path, "r") as original_f:
         original_data = json.load(original_f)
     
     json.dump({
