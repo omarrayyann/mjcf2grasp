@@ -38,16 +38,16 @@
     </default>
 
     <default class="finger_hinge">
-      <joint type="hinge" stiffness="10" damping="1.5" armature="0.001" range="-3.14 0" frictionloss="1"/>
-      <position kp="150" dampratio="1" ctrlrange="-30.14 0"/>
+      <joint type="hinge" stiffness="1" damping="1" armature="0.001" range="-1.57 0" frictionloss="0.2" springref="-0.1"/>
+      <position kp="100" dampratio="1" ctrlrange="-1.57 0"/>
     </default>
 
     <default class="finger_actuator">
-      <position ctrlrange="-1 1" kp="30" dampratio="10.1"/>
+      <position ctrlrange="-0.8 0" kp="100" dampratio="3"/>
     </default>
 
     <default class="friction">
-      <geom condim="6" friction="0.7 0.7 1.0" priority="1" solref="0.01 1" solimp="0.99 0.99 0.01" conaffinity="1"
+      <geom condim="6" friction="0.8 0.005 0.0001" priority="1" solref="0.01 1" solimp="0.99 0.99 0.01" conaffinity="1"
         contype="1"/>
     </default>
 
@@ -62,11 +62,10 @@
 
   <worldbody>
 
-    <geom name="z_axis" type="sphere" size="0.01" pos="0 0 1" rgba="1 0 0 1" contype="0" conaffinity="0"/>
 
     <body name="gripper_base" pos="0 0 0" euler="0 0 0" gravcomp="1">
 
-      <light pos="0 0 4.5" dir="0 0 -1" directional="true"/>
+      <light pos="0 -1 0" dir="0 1 0" directional="true"/>
 
       <body name="rotation_adjustment" euler="1.57 0 0" gravcomp="1">
 
@@ -127,7 +126,7 @@
   </tendon>
 
   <actuator>
-    <velocity name="fingers_actuator" tendon="split" class="finger_actuator"/>
+    <position name="fingers_actuator" tendon="split" class="finger_actuator"/>
     <velocity name="gripper_joint_x" joint="gripper_joint_x" class="translation"/>
     <velocity name="gripper_joint_y" joint="gripper_joint_y" class="translation"/>
     <velocity name="gripper_joint_z" joint="gripper_joint_z" class="translation"/>

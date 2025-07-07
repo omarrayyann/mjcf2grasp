@@ -7,13 +7,14 @@ import xml.etree.ElementTree as ET
 import argparse
 import json
 from scipy.spatial.transform import Rotation as R
+from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--mesh_path", type=str)
 parser.add_argument("--grasps_path", type=str)
-parser.add_argument("--num_shakes", type=int, default=10)
-parser.add_argument("--shake_magnitude", type=float, default=0.5)
-parser.add_argument("--shake_steps", type=int, default=10000)
+parser.add_argument("--num_shakes", type=int, default=2)
+parser.add_argument("--shake_magnitude", type=float, default=0.1)
+parser.add_argument("--shake_steps", type=int, default=100)
 parser.add_argument("--render", action="store_true", 
                     help="Enable interactive viewer")
 args = parser.parse_args()
@@ -22,7 +23,7 @@ initial_relative_position = None
 initial_grasp_verified = False
 
 
-def is_object_grasped(model, data, verbose=False):
+def is_object_grasped(model, data):
     left_finger_contact = False
     right_finger_contact = False
 
@@ -47,7 +48,7 @@ def is_object_grasped(model, data, verbose=False):
     return left_finger_contact and right_finger_contact
 
 
-def check_grasp(model, data, store_initial=False, verbose=False):
+def check_grasp(model, data, store_initial=False):
     global initial_relative_position, initial_grasp_verified
 
     object_pos = data.body("object_body").xpos
@@ -66,7 +67,7 @@ def check_grasp(model, data, store_initial=False, verbose=False):
         return False
 
     position_change = np.linalg.norm(relative_position - initial_relative_position)
-    return position_change < 0.01 and is_object_grasped(model, data)
+    return position_change < 0.03 and is_object_grasped(model, data)
 
 
 def run_simulation_with_viewer(model, data, use_viewer):
@@ -85,9 +86,13 @@ def run_simulation_with_viewer(model, data, use_viewer):
     def test_grasps():
         nonlocal successful_transforms, successful_qualities
         
-        for i, (transform, quality) in enumerate(zip(transforms, qualities)):
-            if len(successful_transforms) >= 1000:
-                break
+        pbar = tqdm(enumerate(zip(transforms, qualities)), 
+                   total=len(transforms),
+                   desc=f"Testing grasps (0/0 successful)")
+        
+        for i, (transform, quality) in pbar:
+            # if len(successful_transforms) >= 50:
+            #     break
 
             mujoco.mj_resetData(model, data)
 
@@ -105,7 +110,7 @@ def run_simulation_with_viewer(model, data, use_viewer):
             for step in range(1000):
                 mujoco.mj_step(model, data)
                 if use_viewer and step % 50 == 0:
-                    viewer.sync()
+                    # viewer.sync()
                     if not viewer.is_running():
                         return
 
@@ -113,15 +118,13 @@ def run_simulation_with_viewer(model, data, use_viewer):
             for step in range(2000):
                 mujoco.mj_step(model, data)
                 if use_viewer and step % 20 == 0:
-                    viewer.sync()
+                    # viewer.sync()
                     if not viewer.is_running():
                         return
 
             if not check_grasp(model, data, store_initial=True):
-                print(f"Grasp {i + 1} failed initial check")
+                pbar.set_description(f"Testing grasps ({len(successful_transforms)}/{i+1} successful)")
                 continue
-
-            print(f"Testing grasp {i + 1}/{len(transforms)}...")
             
             # Updated shaking logic matching the second script
             directions = ["x", "y", "z"]
@@ -129,7 +132,6 @@ def run_simulation_with_viewer(model, data, use_viewer):
             failed_direction = None
 
             for direction_idx, direction in enumerate(directions):
-                print(f"  Shaking in {direction} direction...")
                 ctrl_idx = direction_idx + 1
 
                 for shake in range(args.num_shakes):
@@ -151,14 +153,12 @@ def run_simulation_with_viewer(model, data, use_viewer):
                         if step == total_steps // 4:
                             grasp_maintained = check_grasp(model, data)
                             if not grasp_maintained:
-                                print(f"  Grasp {i + 1} failed at {direction}+ peak during shake {shake + 1}")
                                 shake_success = False
                                 failed_direction = f"{direction}+"
                                 break
                         elif step == 3 * total_steps // 4:
                             grasp_maintained = check_grasp(model, data)
                             if not grasp_maintained:
-                                print(f"  Grasp {i + 1} failed at {direction}- peak during shake {shake + 1}")
                                 shake_success = False
                                 failed_direction = f"{direction}-"
                                 break
@@ -187,9 +187,9 @@ def run_simulation_with_viewer(model, data, use_viewer):
             if shake_success and final_grasp_check:
                 successful_transforms.append(transform.tolist())
                 successful_qualities.append(quality)
-                print(f"Grasp {i + 1} SUCCESSFUL ({len(successful_transforms)}/50)")
-            else:
-                print(f"Grasp {i + 1} failed")
+            
+            # Update progress bar with success rate
+            pbar.set_description(f"Testing grasps ({len(successful_transforms)}/{i+1} successful)")
 
             # Add delay for viewing
             if use_viewer:
@@ -230,8 +230,6 @@ xml_content = ET.tostring(root, encoding="unicode")
 model = mujoco.MjModel.from_xml_string(xml_content)
 data = mujoco.MjData(model)
 
-print(f"Running simulation{'with interactive viewer' if args.render else ''}")
-
 # Run the simulation
 successful_transforms, successful_qualities = run_simulation_with_viewer(model, data, args.render)
 
@@ -245,8 +243,8 @@ with open(output_path, "w") as f:
     json.dump({
         "transforms": successful_transforms,
         "quality_antipodal": successful_qualities,
-        "object": original_data.get('object', object_name),
+        "object": original_data.get('object', "unknown_object"),
         "object_scale": original_data.get('object_scale', 1.0),
     }, f, indent=2)
 
-print(f"\nSaved {len(successful_transforms)} successful grasps to {output_path}")
+tqdm.write(f"Saved {len(successful_transforms)} successful grasps to {output_path}")

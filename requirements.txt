@@ -98,6 +98,7 @@ protobuf==5.29.5
 ptyprocess==0.7.0
 pure_eval==0.2.3
 puremagic==1.29
+tqdm==4.66.1
 pycollada==0.9
 pyface==8.0.0
 pyglet==1.5.31
