@@ -182,7 +182,7 @@ class RumGripper(object):
                 self.base.bounding_box.bounds[1, 2]),
             self.finger_l.bounding_box.bounds[1, 2]
         ])
-        self.standoff_range[0] += 0.01
+        self.standoff_range[0] += 0.001
 
         self.ray_origins = []
         self.ray_directions = []
@@ -912,7 +912,7 @@ def make_parser():
     parser.add_argument('--filter_best_per_position', action='store_true',
                         help='Only store one grasp (highest quality) if there are multiple per with the same position.')
 
-    parser.add_argument('--min_quality', type=float, default=0.01,
+    parser.add_argument('--min_quality', type=float, default=0.5,
                         help="""Only store grasps whose quality is at least this value. \
                             Colliding grasps have quality -1, i.e. they are filtered out by default.""")
 

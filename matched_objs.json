@@ -1,18 +1,7 @@
 [
-     {
+    {
         "name": "Pan_16",
-        "path": "Kitchen Objects/Pan/Prefabs/Pan_16.obj"
-    },
-    {
-        "name": "Pan_19",
-        "path": "Kitchen Objects/Pan/Prefabs/Pan_19.obj"
-    },
-    {
-        "name": "Pan_10",
-        "path": "Kitchen Objects/Pan/Prefabs/Pan_10.obj"
-    },
-    {
-        "name": "Pan_15",
-        "path": "Kitchen Objects/Pan/Prefabs/Pan_15.obj"
+        "path": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/Kitchen Objects/Pan/Prefabs/Pan_16.obj",
+        "xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/Kitchen Objects/Pan/Prefabs/Pan_16/Pan_16.xml"
     }
 ]

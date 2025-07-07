@@ -39,11 +39,11 @@
 
     <default class="finger_hinge">
       <joint type="hinge" stiffness="1" damping="1" armature="0.001" range="-1.57 0" frictionloss="0.2" springref="-0.1"/>
-      <position kp="100" dampratio="1" ctrlrange="-1.57 0"/>
+      <position kp="50" dampratio="1" ctrlrange="-1.57 0"/>
     </default>
 
     <default class="finger_actuator">
-      <position ctrlrange="-0.8 0" kp="100" dampratio="3"/>
+      <position ctrlrange="-0.8 0" kp="50" dampratio="5"/>
     </default>
 
     <default class="friction">
