@@ -42,20 +42,20 @@ for obj in data:
     #     "--systematic_sampling"
     # ], check=True)
 
-    # env = os.environ.copy()
-    # env["LD_LIBRARY_PATH"] = "myenv/lib/python3.10/site-packages/PySide2/Qt/lib:" + env.get("LD_LIBRARY_PATH", "")
+    env = os.environ.copy()
+    env["LD_LIBRARY_PATH"] = "myenv/lib/python3.10/site-packages/PySide2/Qt/lib:" + env.get("LD_LIBRARY_PATH", "")
 
-    # print(f"Visualizing initial grasps for object: {object_name}")
-    # subprocess.run([
-    #     "python", "scripts/visualize.py", object_name
-    # ], check=True, env=env)
-
-    print(f"Filtering grasps for object: {object_name} using MuJoCo")
+    print(f"Visualizing initial grasps for object: {object_name}")
     subprocess.run([
-        "python", "pipeline/1_filter_mujoco.py", "--mesh_path", output_abs_path, "--grasps_path", f"output/{object_name}_grasps.json", "--render"
-    ], check=True)
+        "python", "scripts/visualize.py", object_name
+    ], check=True, env=env)
+
+    # print(f"Filtering grasps for object: {object_name} using MuJoCo")
+    # subprocess.run([
+    #     "python", "pipeline/1_filter_mujoco.py", "--mesh_path", output_abs_path, "--grasps_path", f"output/{object_name}_grasps.json"
+    # ], check=True)
 
     print(f"Visualizing filtered grasps for object: {object_name}")
     subprocess.run([
-        "python", "scripts/visualize.py", object_name, "--verified"
+        "python", "scripts/visualize.py", object_name, "--filtered"
     ], check=True)

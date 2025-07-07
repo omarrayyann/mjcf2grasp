@@ -18,7 +18,7 @@ import argparse
 import json
 parser = argparse.ArgumentParser(description='Visualize grasps from a JSON file.')
 parser.add_argument('object_name', type=str)
-parser.add_argument('--verified', action='store_true')
+parser.add_argument('--filtered', action='store_true')
 
 GRIPPER_PC = np.load(
     'assets/gripper_models/panda_pc.npy', allow_pickle=True).item()['points']
@@ -577,8 +577,8 @@ def get_axis():
     return axis
 
 
-if parser.parse_args().verified:
-    extra = '_verified'
+if parser.parse_args().filtered:
+    extra = '_filtered'
 else:
     extra = ''
 json_file = os.path.abspath(f"output/{parser.parse_args().object_name}_grasps{extra}.json")
