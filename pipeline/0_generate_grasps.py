@@ -182,7 +182,7 @@ class RumGripper(object):
                 self.base.bounding_box.bounds[1, 2]),
             self.finger_l.bounding_box.bounds[1, 2]
         ])
-        self.standoff_range[0] += 0.001
+        self.standoff_range[0] += 0.01
 
         self.ray_origins = []
         self.ray_directions = []
@@ -462,17 +462,46 @@ def grasp_quality_antipodal(transforms, collisions, object_mesh, gripper_name='p
     return res
 
 
-def raycast_collisioncheck(origins, expected_hit_points, object_mesh):
+def _raycast_collision_worker(object_mesh, origins_batch, expected_points_batch):
+    """Worker function for raycast collision checking.
+    
+    Arguments:
+        object_mesh {trimesh} -- mesh to check collisions against
+        origins_batch {np.array} -- batch of origins
+        expected_points_batch {np.array} -- batch of expected hit points
+        
+    Returns:
+        np.array -- boolean array of valid collisions
+    """
+    if trimesh.ray.has_embree:
+        intersector = trimesh.ray.ray_pyembree.RayMeshIntersector(
+            object_mesh, scale_to_box=True)
+    else:
+        intersector = trimesh.ray.ray_triangle.RayMeshIntersector(object_mesh)
+        
+    locations, index_rays, _ = intersector.intersects_location(
+        origins_batch[:, :3, 3], origins_batch[:, :3, 2], multiple_hits=False)
+        
+    res = np.array([False] * len(origins_batch))
+    res[index_rays] = np.all(np.isclose(
+        locations, expected_points_batch[index_rays]), axis=1)
+        
+    return res
+
+def raycast_collisioncheck(origins, expected_hit_points, object_mesh, num_workers=None):
     """ Check whether a set of ray casts turn out as expected.
 
     :param origins: ray origins and directions as Nx4x4 homogenous matrices (use last two columns)
     :param expected_hit_points: 3d points Nx3
     :param object_mesh: trimesh mesh instance
+    :param num_workers: number of workers for parallel processing (ignored to avoid nested pools)
 
     :return: boolean array of size N
     """
     assert len(origins) == len(expected_hit_points)
-
+    
+    # Always use sequential mode when called from a worker process
+    # to avoid nested process pools
     if trimesh.ray.has_embree:
         intersector = trimesh.ray.ray_pyembree.RayMeshIntersector(
             object_mesh, scale_to_box=True)
@@ -486,6 +515,128 @@ def raycast_collisioncheck(origins, expected_hit_points, object_mesh):
         locations, expected_hit_points[index_rays]), axis=1)
 
     return res
+
+
+def _process_points_batch(batch_data):
+    """Process a batch of points for systematic sampling in parallel.
+    
+    Arguments:
+        batch_data {tuple} -- (points, normals, rotation_samples, standoff_samples, gripper_name, mesh)
+        
+    Returns:
+        tuple -- (points, normals, transforms, roll_angles, standoffs, position_idx)
+    """
+    points_batch, normals_batch, rotation_samples, standoff_samples, gripper_name, mesh = batch_data
+    
+    batch_position_idx = []
+    batch_points = []
+    batch_normals = []
+    batch_roll_angles = []
+    batch_standoffs = []
+    batch_transforms = []
+    
+    # Pre-allocate for better efficiency
+    total_combinations = len(points_batch) * len(rotation_samples) * len(standoff_samples)
+    batch_transforms = np.zeros((total_combinations, 4, 4))
+    all_points = np.zeros((total_combinations, 3))
+    all_normals = np.zeros((total_combinations, 3))
+    all_roll_angles = np.zeros(total_combinations)
+    all_standoffs = np.zeros(total_combinations)
+    all_position_idx = np.zeros(total_combinations, dtype=int)
+    
+    idx = 0
+    for i, (point, normal) in enumerate(zip(points_batch, normals_batch)):
+        for roll in rotation_samples:
+            orientation = tra.quaternion_matrix(
+                tra.quaternion_about_axis(roll, [0, 0, 1]))
+            
+            for standoff in standoff_samples:
+                origin = point + normal * standoff
+                transform = np.dot(np.dot(tra.translation_matrix(origin), 
+                                         trimesh.geometry.align_vectors([0, 0, -1], normal)),
+                                   orientation)
+                
+                all_points[idx] = point
+                all_normals[idx] = normal
+                all_roll_angles[idx] = roll
+                all_standoffs[idx] = standoff
+                all_position_idx[idx] = i
+                batch_transforms[idx] = transform
+                idx += 1
+    
+    # Filter by raycast collision check - use sequential mode to avoid nested process pools
+    # When inside a worker process, we must not create another process pool
+    if trimesh.ray.has_embree:
+        intersector = trimesh.ray.ray_pyembree.RayMeshIntersector(
+            mesh, scale_to_box=True)
+    else:
+        intersector = trimesh.ray.ray_triangle.RayMeshIntersector(mesh)
+
+    locations, index_rays, _ = intersector.intersects_location(
+        batch_transforms[:, :3, 3], batch_transforms[:, :3, 2], multiple_hits=False)
+    valid = np.array([False] * len(batch_transforms))
+    valid[index_rays] = np.all(np.isclose(
+        locations, all_points[index_rays]), axis=1)
+    
+    return (
+        all_points[valid],
+        all_normals[valid],
+        batch_transforms[valid],
+        all_roll_angles[valid],
+        all_standoffs[valid],
+        all_position_idx[valid]
+    )
+
+
+def _process_random_points(batch_data):
+    """Process a batch of points for random sampling in parallel.
+    
+    Arguments:
+        batch_data {tuple} -- (points, normals, gripper, mesh)
+        
+    Returns:
+        tuple -- (points, normals, transforms, roll_angles, standoffs)
+    """
+    points_batch, normals_batch, gripper, mesh = batch_data
+    
+    num_points = len(points_batch)
+    batch_points = np.array(points_batch)
+    batch_normals = np.array(normals_batch)
+    batch_transforms = np.zeros((num_points, 4, 4))
+    batch_roll_angles = np.zeros(num_points)
+    batch_standoffs = np.zeros(num_points)
+    
+    # Generate all transforms at once
+    angles = np.random.rand(num_points) * 2 * np.pi
+    batch_roll_angles[:] = angles
+    
+    # Compute standoffs - random value within range
+    standoff_range = gripper.standoff_range
+    standoffs = (standoff_range[1] - standoff_range[0]) * np.random.rand(num_points) + standoff_range[0]
+    batch_standoffs[:] = standoffs
+    
+    # Compute origins
+    origins = batch_points + batch_normals * standoffs[:, np.newaxis]
+    
+    # Create transformations
+    for i, (origin, normal, angle) in enumerate(zip(origins, batch_normals, angles)):
+        orientation = tra.quaternion_matrix(
+            tra.quaternion_about_axis(angle, [0, 0, 1]))
+        batch_transforms[i] = np.dot(
+            np.dot(tra.translation_matrix(origin),
+                  trimesh.geometry.align_vectors([0, 0, -1], normal)),
+            orientation)
+    
+    # No need to perform raycast collision check for random sampling
+    # This will be done later in the collision checking step
+    
+    return (
+        batch_points,
+        batch_normals,
+        batch_transforms,
+        batch_roll_angles,
+        batch_standoffs
+    )
 
 
 def sample_multiple_grasps(number_of_candidates, mesh, gripper_name, systematic_sampling,
@@ -509,6 +660,7 @@ def sample_multiple_grasps(number_of_candidates, mesh, gripper_name, systematic_
         type_of_quality {str} -- quality metric (default: {'antipodal'})
         min_quality {float} -- minimum grasp quality (default: {-1})
         silent {bool} -- verbosity (default: {False})
+        num_workers {int} -- number of parallel processes (default: {None})
 
     Raises:
         Exception: Unknown quality metric
@@ -516,14 +668,19 @@ def sample_multiple_grasps(number_of_candidates, mesh, gripper_name, systematic_
     Returns:
         [type] -- points, normals, transforms, roll_angles, standoffs, collisions, quality
     """
-    origins = []
-    orientations = []
+    # Set up multiprocessing
+    if num_workers is None:
+        num_workers = mp.cpu_count()
+    
+    # Initialize empty lists
     transforms = []
-
-    standoffs = []
+    points = []
+    normals = []
     roll_angles = []
+    standoffs = []
 
     gripper = create_gripper(gripper_name)
+    verboseprint = print if not silent else lambda *a, **k: None
 
     if systematic_sampling:
         # systematic sampling. input:
@@ -541,100 +698,130 @@ def sample_multiple_grasps(number_of_candidates, mesh, gripper_name, systematic_
 
         rotation_samples = np.arange(0, 1 * np.pi, np.deg2rad(roll_density))
 
-        number_of_candidates = surface_samples * \
-            len(standoff_samples) * len(rotation_samples)
-
+        # Sample points on mesh surface
         tmp_points, face_indices = mesh.sample(
             surface_samples, return_index=True)
         tmp_normals = mesh.face_normals[face_indices]
 
-        number_of_candidates = len(tmp_points) * \
+        estimated_candidates = len(tmp_points) * \
             len(standoff_samples) * len(rotation_samples)
-        print("Number of samples ", number_of_candidates, "(", len(tmp_points), " x ", len(standoff_samples), " x ",
-              len(rotation_samples), ")")
+            
+        if not silent:
+            verboseprint(f"Estimated number of samples: {estimated_candidates:,} ({len(tmp_points):,} points × {len(standoff_samples)} standoffs × {len(rotation_samples)} rotations)")
 
-        points = []
-        normals = []
-
-        position_idx = []
-
-        pos_cnt = 0
-        cnt = 0
-
-        batch_position_idx = []
-        batch_points = []
-        batch_normals = []
-        batch_roll_angles = []
-        batch_standoffs = []
-        batch_transforms = []
-
-        for point, normal in tqdm(zip(tmp_points, tmp_normals), total=len(tmp_points), disable=silent):
-            for roll in rotation_samples:
-                for standoff in standoff_samples:
-                    batch_position_idx.append(pos_cnt)
-                    batch_points.append(point)
-                    batch_normals.append(normal)
-                    batch_roll_angles.append(roll)
-                    batch_standoffs.append(standoff)
-
-                    orientation = tra.quaternion_matrix(
-                        tra.quaternion_about_axis(roll, [0, 0, 1]))
-                    origin = point + normal * standoff
-
-                    batch_transforms.append(
-                        np.dot(np.dot(tra.translation_matrix(origin), trimesh.geometry.align_vectors([0, 0, -1], normal)),
-                               orientation))
-
-                    cnt += 1
-            pos_cnt += 1
-
-            if cnt % 1000 == 0 or cnt == len(tmp_points):
-                valid = raycast_collisioncheck(np.asarray(
-                    batch_transforms), np.asarray(batch_points), mesh)
-                transforms.extend(np.array(batch_transforms)[valid])
-                position_idx.extend(np.array(batch_position_idx)[valid])
-                points.extend(np.array(batch_points)[valid])
-                normals.extend(np.array(batch_normals)[valid])
-                roll_angles.extend(np.array(batch_roll_angles)[valid])
-                standoffs.extend(np.array(batch_standoffs)[valid])
-
-                batch_position_idx = []
-                batch_points = []
-                batch_normals = []
-                batch_roll_angles = []
-                batch_standoffs = []
-                batch_transforms = []
-
-        points = np.array(points)
-        normals = np.array(normals)
-        position_idx = np.array(position_idx)
+        # Prepare for parallel processing
+        # Split points into batches for each worker
+        batch_size = max(1, len(tmp_points) // num_workers)
+        point_batches = [tmp_points[i:i+batch_size] for i in range(0, len(tmp_points), batch_size)]
+        normal_batches = [tmp_normals[i:i+batch_size] for i in range(0, len(tmp_normals), batch_size)]
+        
+        # Create batch data for parallel processing
+        batch_data = [(points_batch, normals_batch, rotation_samples, standoff_samples, gripper_name, mesh)
+                      for points_batch, normals_batch in zip(point_batches, normal_batches)]
+        
+        # Process batches in parallel
+        all_points = []
+        all_normals = []
+        all_transforms = []
+        all_roll_angles = []
+        all_standoffs = []
+        all_position_idx = []
+        
+        verboseprint("Sampling grasps in parallel...")
+        with mp.Pool(processes=num_workers) as pool:
+            batch_total = sum(len(pb) for pb in point_batches) * len(rotation_samples) * len(standoff_samples)
+            pbar = tqdm(
+                total=batch_total,
+                disable=silent,
+                desc=f"Sampling grasps (using {num_workers} workers)"
+            )
+            
+            valid_count = 0
+            processed_count = 0
+            
+            for result in pool.imap(_process_points_batch, batch_data):
+                batch_points, batch_normals, batch_transforms, batch_roll_angles, batch_standoffs, batch_position_idx = result
+                
+                if len(batch_points) > 0:  # Only add if we got valid results
+                    all_points.extend(batch_points)
+                    all_normals.extend(batch_normals)
+                    all_transforms.extend(batch_transforms)
+                    all_roll_angles.extend(batch_roll_angles)
+                    all_standoffs.extend(batch_standoffs)
+                    all_position_idx.extend(batch_position_idx)
+                    valid_count += len(batch_points)
+                
+                # Estimate how many grasps were processed in this batch
+                processed_count += len(point_batches[0]) * len(rotation_samples) * len(standoff_samples)
+                pbar.update(len(point_batches[0]) * len(rotation_samples) * len(standoff_samples))
+                pbar.set_postfix({"Valid": valid_count})
+            
+            pbar.close()
+        
+        points = np.array(all_points)
+        normals = np.array(all_normals)
+        transforms = np.array(all_transforms)
+        roll_angles = np.array(all_roll_angles)
+        standoffs = np.array(all_standoffs)
+        position_idx = np.array(all_position_idx)
+        
+        verboseprint(f"Generated {len(transforms):,} valid grasps after sampling")
+        
     else:
+        # Random sampling
         points, face_indices = mesh.sample(
             number_of_candidates, return_index=True)
         normals = mesh.face_normals[face_indices]
-
-        # generate transformations
-        for point, normal in tqdm(zip(points, normals), total=len(points), disable=silent):
-            # roll along approach vector
-            angle = np.random.rand() * 2 * np.pi
-            roll_angles.append(angle)
-            orientations.append(tra.quaternion_matrix(
-                tra.quaternion_about_axis(angle, [0, 0, 1])))
-
-            # standoff from surface
-            standoff = (gripper.standoff_range[1] - gripper.standoff_range[0]) * np.random.rand() \
-                + gripper.standoff_range[0]
-            standoffs.append(standoff)
-            origins.append(point + normal * standoff)
-
-            transforms.append(
-                np.dot(np.dot(tra.translation_matrix(origins[-1]),
-                              trimesh.geometry.align_vectors([0, 0, -1], normal)),
-                       orientations[-1]))
+        
+        # Prepare for parallel processing
+        batch_size = max(1, len(points) // num_workers)
+        point_batches = [points[i:i+batch_size] for i in range(0, len(points), batch_size)]
+        normal_batches = [normals[i:i+batch_size] for i in range(0, len(normals), batch_size)]
+        
+        # Create batch data
+        batch_data = [(points_batch, normals_batch, gripper, mesh) 
+                     for points_batch, normals_batch in zip(point_batches, normal_batches)]
+        
+        # Process in parallel
+        all_points = []
+        all_normals = []
+        all_transforms = []
+        all_roll_angles = []
+        all_standoffs = []
+        
+        verboseprint("Sampling grasps in parallel...")
+        with mp.Pool(processes=num_workers) as pool:
+            total_points = sum(len(pb) for pb in point_batches)
+            pbar = tqdm(
+                total=total_points,
+                disable=silent,
+                desc=f"Sampling grasps (using {num_workers} workers)"
+            )
+            
+            for result in pool.imap(_process_random_points, batch_data):
+                batch_points, batch_normals, batch_transforms, batch_roll_angles, batch_standoffs = result
+                
+                all_points.extend(batch_points)
+                all_normals.extend(batch_normals)
+                all_transforms.extend(batch_transforms)
+                all_roll_angles.extend(batch_roll_angles)
+                all_standoffs.extend(batch_standoffs)
+                
+                pbar.update(len(batch_points))
+            
+            pbar.close()
+        
+        points = np.array(all_points)
+        normals = np.array(all_normals)
+        transforms = np.array(all_transforms)
+        roll_angles = np.array(all_roll_angles)
+        standoffs = np.array(all_standoffs)
+        
+        verboseprint(f"Generated {len(transforms):,} grasps with random sampling")
 
     verboseprint("Checking collisions...")
     collisions, _ = in_collision_with_gripper(
-        mesh, transforms, gripper_name=gripper_name, silent=silent, num_workers=args.num_workers)
+        mesh, transforms, gripper_name=gripper_name, silent=silent, num_workers=num_workers)
 
     verboseprint("Labelling grasps...")
     quality = {}
@@ -677,6 +864,8 @@ def sample_multiple_grasps(number_of_candidates, mesh, gripper_name, systematic_
     standoffs = np.array(f_standoffs)
     collisions = f_collisions
     quality[quality_key] = f_quality
+    
+    verboseprint(f"Final result: {len(transforms):,} valid grasps with quality >= {min_quality}")
 
     return points, normals, transforms, roll_angles, standoffs, collisions, quality
 
@@ -745,11 +934,16 @@ def make_parser():
     return parser
 
 
+def verboseprint(*args, **kwargs):
+    """Helper function to print verbose output."""
+    pass
+
 if __name__ == "__main__":
     # This guard is important for multiprocessing to work correctly
     parser = make_parser()
     args = parser.parse_args()
-
+    
+    # Define global verboseprint function
     verboseprint = print if not args.silent else lambda *a, **k: None
 
     if args.add_quality_metric:
