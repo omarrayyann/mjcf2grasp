@@ -17,6 +17,10 @@ parser.add_argument("--xml_file", type=str)
 parser.add_argument("--num_shakes", type=int, default=2)
 parser.add_argument("--shake_magnitude", type=float, default=0.1)
 parser.add_argument("--shake_steps", type=int, default=500)
+parser.add_argument("--approach_distance", type=float, default=0.1,
+                    help="Distance in meters for the gripper to approach from before grasping")
+parser.add_argument("--approach_steps", type=int, default=1000,
+                    help="Number of simulation steps for the approach phase")
 parser.add_argument("--render", action="store_true", 
                     help="Enable interactive viewer")
 parser.add_argument("--num_workers", type=int, default=mp.cpu_count(),
@@ -120,11 +124,48 @@ def test_single_grasp(grasp_data, object_name):
     pos = transform[:3, 3]
     quat = R.from_matrix(transform[:3, :3]).as_quat(scalar_first=True)
 
-    body_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, "gripper_base")
-    model.body_pos[body_id] = pos
-    model.body_quat[body_id] = quat
+    # Calculate approach position back along the gripper's z-axis
+    approach_distance = config.get('approach_distance', 0.1)  # Get from config or default to 10 cm
+    approach_vector = transform[:3, 2] * approach_distance  # z-axis of the transform
+    approach_pos = pos - approach_vector  # Move backward along z-axis
 
-    mujoco.mj_step(model, data)
+    # Position the gripper at the approach position
+    body_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, "gripper_base")
+    model.body_pos[body_id] = approach_pos
+    model.body_quat[body_id] = quat
+    
+    # Keep the gripper open
+    data.ctrl[0] = 1.0
+    
+    # Stabilize at approach position
+    for step in range(500):
+        mujoco.mj_step(model, data)
+    
+    # Move using velocity control to reach the grasp position
+    approach_steps = config.get('approach_steps', 1000)
+    velocity = approach_distance / (approach_steps * model.opt.timestep)  # Calculate required velocity
+    
+    for step in range(approach_steps):
+        # Set y-velocity to move towards target
+        data.ctrl[2] = velocity  # ctrl[2] is y-velocity
+        mujoco.mj_step(model, data)
+        
+        # Check if we've reached close enough to the target
+        current_pos = data.body("gripper_base").xpos
+        distance_to_target = np.linalg.norm(current_pos - pos)
+        if distance_to_target < 0.001:  # 1mm tolerance
+            break
+    
+    # Zero out all velocity controls
+    data.ctrl[1] = 0.0  # x-velocity
+    data.ctrl[2] = 0.0  # y-velocity  
+    data.ctrl[3] = 0.0  # z-velocity
+    
+    # Let it stabilize at the final position
+    for step in range(100):
+        mujoco.mj_step(model, data)
+    
+    # Now close the gripper
     data.ctrl[0] = -1.0
 
     # Close gripper
@@ -211,20 +252,70 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
                 pos = transform[:3, 3]
                 quat = R.from_matrix(transform[:3, :3]).as_quat(scalar_first=True)
 
-                body_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, "gripper_base")
-                model.body_pos[body_id] = pos
-                model.body_quat[body_id] = quat
+                # Calculate approach position back along the gripper's z-axis
+                approach_distance = args.approach_distance
+                approach_vector = transform[:3, 2] * approach_distance  # z-axis of the transform
+                approach_pos = pos - approach_vector  # Move backward along z-axis
 
-                mujoco.mj_step(model, data)
+                # Position the gripper at the approach position
+                body_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, "gripper_base")
+                model.body_pos[body_id] = approach_pos
+                model.body_quat[body_id] = quat
+                
+                # Keep the gripper open
+                data.ctrl[0] = 1.0
+                
+                # Stabilize at approach position
+                for step in range(500):
+                    mujoco.mj_step(model, data)
+                    if step % 50 == 0:
+                        viewer.sync()
+                        if not viewer.is_running():
+                            return successful_transforms, successful_qualities
+                
+                # Move using velocity control to reach the grasp position
+                approach_steps = args.approach_steps
+                velocity = approach_distance / (approach_steps * model.opt.timestep)  # Calculate required velocity
+                
+                for step in range(approach_steps):
+                    # Set y-velocity to move towards target
+                    data.ctrl[2] = velocity  # ctrl[2] is y-velocity
+                    mujoco.mj_step(model, data)
+                    
+                    # Check if we've reached close enough to the target
+                    current_pos = data.body("gripper_base").xpos
+                    distance_to_target = np.linalg.norm(current_pos - pos)
+                    if distance_to_target < 0.001:  # 1mm tolerance
+                        break
+                        
+                    if step % 50 == 0:
+                        viewer.sync()
+                        if not viewer.is_running():
+                            return successful_transforms, successful_qualities
+                
+                # Zero out all velocity controls
+                data.ctrl[1] = 0.0  # x-velocity
+                data.ctrl[2] = 0.0  # y-velocity  
+                data.ctrl[3] = 0.0  # z-velocity
+                
+                # Let it stabilize at the final position
+                for step in range(100):
+                    mujoco.mj_step(model, data)
+                    if step % 20 == 0:
+                        viewer.sync()
+                        if not viewer.is_running():
+                            return successful_transforms, successful_qualities
+                
+                # Now close the gripper
                 data.ctrl[0] = -1.0
 
                 # Close gripper
                 for step in range(1000):
                     mujoco.mj_step(model, data)
-                    # if step % 50 == 0:
-                    viewer.sync()
-                    if not viewer.is_running():
-                        return successful_transforms, successful_qualities
+                    if step % 50 == 0:
+                        viewer.sync()
+                        if not viewer.is_running():
+                            return successful_transforms, successful_qualities
 
                 # Stabilize grasp
                 for step in range(2000):
@@ -315,7 +406,9 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
             'mesh_path': args.mesh_path,
             'num_shakes': args.num_shakes,
             'shake_magnitude': args.shake_magnitude,
-            'shake_steps': args.shake_steps
+            'shake_steps': args.shake_steps,
+            'approach_distance': args.approach_distance,
+            'approach_steps': args.approach_steps
         }
         
         grasp_params = [(i, transform, quality, config) 
