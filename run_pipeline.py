@@ -23,26 +23,40 @@ for obj in data:
     xml_file = obj["xml"]
 
 
-    # print(f"\nProcessing object: {object_name} manifold")
-    # subprocess.run([
-    #     "./manifold", full_path, temp_abs_path, "-s"
-    # ], cwd="external_src/Manifold/build", check=True)
+    print(f"\nProcessing object: {object_name} manifold")
+    subprocess.run([
+        "./manifold", full_path, temp_abs_path, "-s"
+    ], cwd="external_src/Manifold/build", check=True)
 
-    # print(f"\nProcessing object: {object_name} simplification")
+    print(f"\nProcessing object: {object_name} simplification")
 
-    # subprocess.run([
-    #     "./simplify", "-i", temp_abs_path, "-o", output_abs_path, "-m", "-r", "0.02"
-    # ], cwd="external_src/Manifold/build", check=True)
+    subprocess.run([
+        "./simplify", "-i", temp_abs_path, "-o", output_abs_path, "-m", "-r", "0.02"
+    ], cwd="external_src/Manifold/build", check=True)
 
-    # print(f"Generating grasps for object: {object_name}")
-    # subprocess.run([
-    #     "python", "pipeline/0_generate_grasps.py",
-    #     "--object_file", output_abs_path,
-    #     "--quality", "antipodal",
-    #     "--output", f"output/{object_name}_grasps.json",
-    #     "--systematic_sampling",
-    #     "--num_workers", str(os.cpu_count())  # Use all available CPU cores
-    # ], check=True)
+    print(f"Generating grasps for object: {object_name}")
+    try:
+        subprocess.run([
+            "python", "pipeline/0_generate_grasps.py",
+            "--object_file", output_abs_path,
+            "--quality", "antipodal",
+            "--output", f"output/{object_name}_grasps.json",
+            "--systematic_sampling",
+            "--num_workers", str(os.cpu_count())  # Use all available CPU cores
+        ], check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error generating grasps for {object_name}: {str(e)}")
+        print("Trying again with fewer workers...")
+        # Try again with half the workers
+        num_workers = max(1, os.cpu_count() // 2)
+        subprocess.run([
+            "python", "pipeline/0_generate_grasps.py",
+            "--object_file", output_abs_path,
+            "--quality", "antipodal",
+            "--output", f"output/{object_name}_grasps.json",
+            "--systematic_sampling",
+            "--num_workers", str(num_workers)
+        ], check=True)
 
     env = os.environ.copy()
     env["LD_LIBRARY_PATH"] = "myenv/lib/python3.10/site-packages/PySide2/Qt/lib:" + env.get("LD_LIBRARY_PATH", "")
@@ -53,20 +67,39 @@ for obj in data:
     # ], check=True, env=env)
 
     print(f"Filtering grasps for object: {object_name} using MuJoCo")
-    subprocess.run([
-        "python", "pipeline/1_filter_mujoco.py", 
-        "--mesh_path", full_path, 
-        "--grasps_path", f"output/{object_name}_grasps.json",
-        "--xml_file", xml_file,
-        "--num_workers", str(os.cpu_count()),
-        # "--render",  # Enable rendering for visualization
-        "--max_successful", "1000"  # Stop after finding 20 successful grasps
-    ], check=True)
+    try:
+        subprocess.run([
+            "python", "pipeline/1_filter_mujoco.py", 
+            "--mesh_path", full_path, 
+            "--grasps_path", f"output/{object_name}_grasps.json",
+            "--xml_file", xml_file,
+            "--num_workers", str(os.cpu_count()),
+            # "--render",  # Enable rendering for visualization
+            "--max_successful", "1000"  # Stop after finding 1000 successful grasps
+        ], check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error filtering grasps for {object_name}: {str(e)}")
+        print("Trying again with fewer workers...")
+        # Try again with half the workers
+        num_workers = max(1, os.cpu_count() // 2)
+        subprocess.run([
+            "python", "pipeline/1_filter_mujoco.py", 
+            "--mesh_path", full_path, 
+            "--grasps_path", f"output/{object_name}_grasps.json",
+            "--xml_file", xml_file,
+            "--num_workers", str(num_workers),
+            # "--render",  # Enable rendering for visualization
+            "--max_successful", "1000"  # Stop after finding 1000 successful grasps
+        ], check=True)
 
     print(f"Visualizing filtered grasps for object: {object_name}")
-    subprocess.run([
-        "python", "scripts/visualize.py", object_name, "--filtered"
-    ], check=True, env=env)
+    try:
+        subprocess.run([
+            "python", "scripts/visualize.py", object_name, "--filtered"
+        ], check=True, env=env)
+    except subprocess.CalledProcessError as e:
+        print(f"Warning: Visualization for {object_name} failed: {str(e)}")
+        print("Continuing to next object...")
     
     # print(f"Visualizing comparison between filtered and unfiltered grasps for object: {object_name}")
     # subprocess.run([

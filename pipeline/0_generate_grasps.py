@@ -279,6 +279,127 @@ def _check_collision_worker(object_mesh, gripper_mesh, transform_batch):
     return min_distances
 
 
+def _quality_point_contacts_worker(batch_data):
+    """Worker function for processing point contact quality assessment in parallel.
+    
+    Arguments:
+        batch_data {tuple} -- (transform_batch, collision_batch, object_mesh, gripper_name)
+        
+    Returns:
+        list -- quality scores for each grasp in the batch
+    """
+    transform_batch, collision_batch, object_mesh, gripper_name = batch_data
+    
+    res = []
+    gripper = create_gripper(gripper_name)
+    
+    if trimesh.ray.has_embree:
+        intersector = trimesh.ray.ray_pyembree.RayMeshIntersector(
+            object_mesh, scale_to_box=True)
+    else:
+        intersector = trimesh.ray.ray_triangle.RayMeshIntersector(object_mesh)
+        
+    for p, colliding in zip(transform_batch, collision_batch):
+        if colliding:
+            res.append(-1)
+        else:
+            ray_origins, ray_directions = gripper.get_closing_rays(p)
+            locations, index_ray, index_tri = intersector.intersects_location(
+                ray_origins, ray_directions, multiple_hits=False)
+
+            if len(locations) == 0:
+                res.append(0)
+            else:
+                # this depends on the width of the gripper
+                valid_locations = np.linalg.norm(
+                    ray_origins[index_ray]-locations, axis=1) < 2.0*gripper.q
+
+                if sum(valid_locations) == 0:
+                    res.append(0)
+                else:
+                    contact_normals = object_mesh.face_normals[index_tri[valid_locations]]
+                    motion_normals = ray_directions[index_ray[valid_locations]]
+                    dot_prods = (motion_normals * contact_normals).sum(axis=1)
+                    res.append(np.cos(dot_prods).sum() / len(ray_origins))
+    
+    return res
+
+
+def _quality_antipodal_worker(batch_data):
+    """Worker function for processing antipodal quality assessment in parallel.
+    
+    Arguments:
+        batch_data {tuple} -- (transform_batch, collision_batch, object_mesh, gripper_name)
+        
+    Returns:
+        list -- quality scores for each grasp in the batch
+    """
+    transform_batch, collision_batch, object_mesh, gripper_name = batch_data
+    
+    res = []
+    gripper = create_gripper(gripper_name)
+    
+    if trimesh.ray.has_embree:
+        intersector = trimesh.ray.ray_pyembree.RayMeshIntersector(
+            object_mesh, scale_to_box=True)
+    else:
+        intersector = trimesh.ray.ray_triangle.RayMeshIntersector(object_mesh)
+        
+    for p, colliding in zip(transform_batch, collision_batch):
+        if colliding:
+            res.append(0)
+            continue
+        
+        ray_origins, ray_directions = gripper.get_closing_rays(p)
+        locations, index_ray, index_tri = intersector.intersects_location(
+            ray_origins, ray_directions, multiple_hits=False)
+
+        if locations.size == 0:
+            res.append(0)
+            continue
+            
+        # chose contact points for each finger [they are stored in an alternating fashion]
+        index_ray_left = np.array([i for i, num in enumerate(
+            index_ray) if num % 2 == 0 and np.linalg.norm(ray_origins[num]-locations[i]) < 2.0*gripper.q])
+        index_ray_right = np.array([i for i, num in enumerate(
+            index_ray) if num % 2 == 1 and np.linalg.norm(ray_origins[num]-locations[i]) < 2.0*gripper.q])
+
+        if index_ray_left.size == 0 or index_ray_right.size == 0:
+            res.append(0)
+            continue
+            
+        # select the contact point closest to the finger (which would be hit first during closing)
+        left_contact_idx = np.linalg.norm(
+            ray_origins[index_ray[index_ray_left]] - locations[index_ray_left], axis=1).argmin()
+        right_contact_idx = np.linalg.norm(
+            ray_origins[index_ray[index_ray_right]] - locations[index_ray_right], axis=1).argmin()
+        left_contact_point = locations[index_ray_left[left_contact_idx]]
+        right_contact_point = locations[index_ray_right[right_contact_idx]]
+
+        left_contact_normal = object_mesh.face_normals[index_tri[index_ray_left[left_contact_idx]]]
+        right_contact_normal = object_mesh.face_normals[
+            index_tri[index_ray_right[right_contact_idx]]]
+
+        l_to_r = (right_contact_point - left_contact_point) / \
+            np.linalg.norm(right_contact_point -
+                          left_contact_point)
+        r_to_l = (left_contact_point - right_contact_point) / \
+            np.linalg.norm(left_contact_point -
+                          right_contact_point)
+
+        qual_left = np.dot(left_contact_normal, r_to_l)
+        qual_right = np.dot(right_contact_normal, l_to_r)
+        if qual_left < 0 or qual_right < 0:
+            qual = 0
+        else:
+            qual = min(qual_left, qual_right)
+        
+        # Always append the quality score
+        res.append(qual)
+    
+    return res
+
+
 def in_collision_with_gripper(object_mesh, gripper_transforms, gripper_name, silent=False, num_workers=None):
     """Check collision of object with gripper.
 
@@ -340,7 +461,7 @@ def in_collision_with_gripper(object_mesh, gripper_transforms, gripper_name, sil
     return [d == 0 for d in min_distances], min_distances
 
 
-def grasp_quality_point_contacts(transforms, collisions, object_mesh, gripper_name='panda', silent=False):
+def grasp_quality_point_contacts(transforms, collisions, object_mesh, gripper_name='panda', silent=False, num_workers=None):
     """Grasp quality function
 
     Arguments:
@@ -351,43 +472,77 @@ def grasp_quality_point_contacts(transforms, collisions, object_mesh, gripper_na
     Keyword Arguments:
         gripper_name {str} -- name of gripper (default: {'panda'})
         silent {bool} -- verbosity (default: {False})
+        num_workers {int} -- number of parallel workers (default: {None})
 
     Returns:
         list of float -- quality of grasps [0..1]
     """
-    res = []
-    gripper = create_gripper(gripper_name)
-    if trimesh.ray.has_embree:
-        intersector = trimesh.ray.ray_pyembree.RayMeshIntersector(
-            object_mesh, scale_to_box=True)
-    else:
-        intersector = trimesh.ray.ray_triangle.RayMeshIntersector(object_mesh)
-    for p, colliding in tqdm(zip(transforms, collisions), total=len(transforms), disable=silent):
-        if colliding:
-            res.append(-1)
+    if num_workers is None:
+        num_workers = mp.cpu_count()
+    
+    # For small numbers, just use sequential processing
+    if len(transforms) < 100 or num_workers <= 1:
+        res = []
+        gripper = create_gripper(gripper_name)
+        if trimesh.ray.has_embree:
+            intersector = trimesh.ray.ray_pyembree.RayMeshIntersector(
+                object_mesh, scale_to_box=True)
         else:
-            ray_origins, ray_directions = gripper.get_closing_rays(p)
-            locations, index_ray, index_tri = intersector.intersects_location(
-                ray_origins, ray_directions, multiple_hits=False)
-
-            if len(locations) == 0:
-                res.append(0)
+            intersector = trimesh.ray.ray_triangle.RayMeshIntersector(object_mesh)
+            
+        for p, colliding in tqdm(zip(transforms, collisions), total=len(transforms), disable=silent):
+            if colliding:
+                res.append(-1)
             else:
-                # this depends on the width of the gripper
-                valid_locations = np.linalg.norm(
-                    ray_origins[index_ray]-locations, axis=1) < 2.0*gripper.q
+                ray_origins, ray_directions = gripper.get_closing_rays(p)
+                locations, index_ray, index_tri = intersector.intersects_location(
+                    ray_origins, ray_directions, multiple_hits=False)
 
-                if sum(valid_locations) == 0:
+                if len(locations) == 0:
                     res.append(0)
                 else:
-                    contact_normals = object_mesh.face_normals[index_tri[valid_locations]]
-                    motion_normals = ray_directions[index_ray[valid_locations]]
-                    dot_prods = (motion_normals * contact_normals).sum(axis=1)
-                    res.append(np.cos(dot_prods).sum() / len(ray_origins))
-    return res
+                    # this depends on the width of the gripper
+                    valid_locations = np.linalg.norm(
+                        ray_origins[index_ray]-locations, axis=1) < 2.0*gripper.q
+
+                    if sum(valid_locations) == 0:
+                        res.append(0)
+                    else:
+                        contact_normals = object_mesh.face_normals[index_tri[valid_locations]]
+                        motion_normals = ray_directions[index_ray[valid_locations]]
+                        dot_prods = (motion_normals * contact_normals).sum(axis=1)
+                        res.append(np.cos(dot_prods).sum() / len(ray_origins))
+        return res
+    
+    # Use parallel processing for larger numbers
+    # Split into batches for each worker
+    batch_size = max(1, len(transforms) // num_workers)
+    transform_batches = [transforms[i:i+batch_size] for i in range(0, len(transforms), batch_size)]
+    collision_batches = [collisions[i:i+batch_size] for i in range(0, len(collisions), batch_size)]
+    
+    # Create batch data
+    batch_data = [(t_batch, c_batch, object_mesh, gripper_name) 
+                 for t_batch, c_batch in zip(transform_batches, collision_batches)]
+    
+    # Process in parallel
+    all_results = []
+    with mp.Pool(processes=num_workers) as pool:
+        pbar = tqdm(
+            total=len(transforms), 
+            disable=silent,
+            desc=f"Computing point contact quality (using {num_workers} workers)"
+        )
+        
+        for result in pool.imap(_quality_point_contacts_worker, batch_data):
+            all_results.extend(result)
+            pbar.update(len(result))
+        
+        pbar.close()
+    
+    return all_results
 
 
-def grasp_quality_antipodal(transforms, collisions, object_mesh, gripper_name='panda', silent=False):
+def grasp_quality_antipodal(transforms, collisions, object_mesh, gripper_name='panda', silent=False, num_workers=None):
     """Grasp quality function.
 
     Arguments:
@@ -398,68 +553,103 @@ def grasp_quality_antipodal(transforms, collisions, object_mesh, gripper_name='p
     Keyword Arguments:
         gripper_name {str} -- name of gripper (default: {'panda'})
         silent {bool} -- verbosity (default: {False})
+        num_workers {int} -- number of parallel workers (default: {None})
 
     Returns:
         list of float -- quality of grasps [0..1]
     """
-    res = []
-    gripper = create_gripper(gripper_name)
-    if trimesh.ray.has_embree:
-        intersector = trimesh.ray.ray_pyembree.RayMeshIntersector(
-            object_mesh, scale_to_box=True)
-    else:
-        intersector = trimesh.ray.ray_triangle.RayMeshIntersector(object_mesh)
-    i = 0
-    for p, colliding in tqdm(zip(transforms, collisions), total=len(transforms), disable=silent):
-        if colliding:
-            res.append(0)
+    if num_workers is None:
+        num_workers = mp.cpu_count()
+    
+    # For small numbers, just use sequential processing
+    if len(transforms) < 100 or num_workers <= 1:
+        res = []
+        gripper = create_gripper(gripper_name)
+        if trimesh.ray.has_embree:
+            intersector = trimesh.ray.ray_pyembree.RayMeshIntersector(
+                object_mesh, scale_to_box=True)
         else:
+            intersector = trimesh.ray.ray_triangle.RayMeshIntersector(object_mesh)
+            
+        for p, colliding in tqdm(zip(transforms, collisions), total=len(transforms), disable=silent):
+            if colliding:
+                res.append(0)
+                continue
+                
             ray_origins, ray_directions = gripper.get_closing_rays(p)
             locations, index_ray, index_tri = intersector.intersects_location(
                 ray_origins, ray_directions, multiple_hits=False)
 
             if locations.size == 0:
                 res.append(0)
+                continue
+                
+            # chose contact points for each finger [they are stored in an alternating fashion]
+            index_ray_left = np.array([i for i, num in enumerate(
+                index_ray) if num % 2 == 0 and np.linalg.norm(ray_origins[num]-locations[i]) < 2.0*gripper.q])
+            index_ray_right = np.array([i for i, num in enumerate(
+                index_ray) if num % 2 == 1 and np.linalg.norm(ray_origins[num]-locations[i]) < 2.0*gripper.q])
+
+            if index_ray_left.size == 0 or index_ray_right.size == 0:
+                res.append(0)
+                continue
+                
+            # select the contact point closest to the finger (which would be hit first during closing)
+            left_contact_idx = np.linalg.norm(
+                ray_origins[index_ray[index_ray_left]] - locations[index_ray_left], axis=1).argmin()
+            right_contact_idx = np.linalg.norm(
+                ray_origins[index_ray[index_ray_right]] - locations[index_ray_right], axis=1).argmin()
+            left_contact_point = locations[index_ray_left[left_contact_idx]]
+            right_contact_point = locations[index_ray_right[right_contact_idx]]
+
+            left_contact_normal = object_mesh.face_normals[index_tri[index_ray_left[left_contact_idx]]]
+            right_contact_normal = object_mesh.face_normals[
+                index_tri[index_ray_right[right_contact_idx]]]
+
+            l_to_r = (right_contact_point - left_contact_point) / \
+                np.linalg.norm(right_contact_point -
+                               left_contact_point)
+            r_to_l = (left_contact_point - right_contact_point) / \
+                np.linalg.norm(left_contact_point -
+                               right_contact_point)
+
+            qual_left = np.dot(left_contact_normal, r_to_l)
+            qual_right = np.dot(right_contact_normal, l_to_r)
+            if qual_left < 0 or qual_right < 0:
+                qual = 0
             else:
-                # chose contact points for each finger [they are stored in an alternating fashion]
-                index_ray_left = np.array([i for i, num in enumerate(
-                    index_ray) if num % 2 == 0 and np.linalg.norm(ray_origins[num]-locations[i]) < 2.0*gripper.q])
-                index_ray_right = np.array([i for i, num in enumerate(
-                    index_ray) if num % 2 == 1 and np.linalg.norm(ray_origins[num]-locations[i]) < 2.0*gripper.q])
-
-                if index_ray_left.size == 0 or index_ray_right.size == 0:
-                    res.append(0)
-                else:
-                    # select the contact point closest to the finger (which would be hit first during closing)
-                    left_contact_idx = np.linalg.norm(
-                        ray_origins[index_ray[index_ray_left]] - locations[index_ray_left], axis=1).argmin()
-                    right_contact_idx = np.linalg.norm(
-                        ray_origins[index_ray[index_ray_right]] - locations[index_ray_right], axis=1).argmin()
-                    left_contact_point = locations[index_ray_left[left_contact_idx]]
-                    right_contact_point = locations[index_ray_right[right_contact_idx]]
-
-                    left_contact_normal = object_mesh.face_normals[index_tri[index_ray_left[left_contact_idx]]]
-                    right_contact_normal = object_mesh.face_normals[
-                        index_tri[index_ray_right[right_contact_idx]]]
-
-                    l_to_r = (right_contact_point - left_contact_point) / \
-                        np.linalg.norm(right_contact_point -
-                                       left_contact_point)
-                    r_to_l = (left_contact_point - right_contact_point) / \
-                        np.linalg.norm(left_contact_point -
-                                       right_contact_point)
-
-                    qual_left = np.dot(left_contact_normal, r_to_l)
-                    qual_right = np.dot(right_contact_normal, l_to_r)
-                    if qual_left < 0 or qual_right < 0:
-                        qual = 0
-                    else:
-                        # qual = qual_left * qual_right
-                        qual = min(qual_left, qual_right)
-                    # math.cos(math.atan(friction_coefficient))
-
-                    res.append(qual)
-    return res
+                qual = min(qual_left, qual_right)
+            
+            # Always append the quality score
+            res.append(qual)
+        return res
+    
+    # Use parallel processing for larger numbers
+    # Split into batches for each worker
+    batch_size = max(1, len(transforms) // num_workers)
+    transform_batches = [transforms[i:i+batch_size] for i in range(0, len(transforms), batch_size)]
+    collision_batches = [collisions[i:i+batch_size] for i in range(0, len(collisions), batch_size)]
+    
+    # Create batch data
+    batch_data = [(t_batch, c_batch, object_mesh, gripper_name) 
+                 for t_batch, c_batch in zip(transform_batches, collision_batches)]
+    
+    # Process in parallel
+    all_results = []
+    with mp.Pool(processes=num_workers) as pool:
+        pbar = tqdm(
+            total=len(transforms), 
+            disable=silent,
+            desc=f"Computing antipodal quality (using {num_workers} workers)"
+        )
+        
+        for result in pool.imap(_quality_antipodal_worker, batch_data):
+            all_results.extend(result)
+            pbar.update(len(result))
+        
+        pbar.close()
+    
+    return all_results
 
 
 def _raycast_collision_worker(object_mesh, origins_batch, expected_points_batch):
@@ -828,10 +1018,12 @@ def sample_multiple_grasps(number_of_candidates, mesh, gripper_name, systematic_
     quality_key = 'quality_' + type_of_quality
     if type_of_quality == 'antipodal':
         quality[quality_key] = grasp_quality_antipodal(
-            transforms, collisions, object_mesh=mesh, gripper_name=gripper_name, silent=silent)
+            transforms, collisions, object_mesh=mesh, gripper_name=gripper_name, 
+            silent=silent, num_workers=num_workers)
     elif type_of_quality == 'number_of_contacts':
         quality[quality_key] = grasp_quality_point_contacts(
-            transforms, collisions, object_mesh=mesh, gripper_name=gripper_name, silent=silent)
+            transforms, collisions, object_mesh=mesh, gripper_name=gripper_name, 
+            silent=silent, num_workers=num_workers)
     else:
         raise Exception("Quality metric unknown: ", quality)
 
@@ -968,14 +1160,16 @@ if __name__ == "__main__":
                 collisions,
                 object_mesh=obj.mesh,
                 gripper_name=grasps['gripper'],
-                silent=args.silent)
+                silent=args.silent,
+                num_workers=args.num_workers)
         elif key == 'quality_antipodal':
             grasps[key] = grasp_quality_antipodal(
                 grasp_tfs,
                 collisions,
                 object_mesh=obj.mesh,
                 gripper_name=grasps['gripper'],
-                silent=args.silent)
+                silent=args.silent,
+                num_workers=args.num_workers)
         else:
             raise Exception("Unknown quality metric: ", key)
 
