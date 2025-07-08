@@ -21,6 +21,12 @@ parser.add_argument('object_name', type=str)
 parser.add_argument('--filtered', action='store_true')
 parser.add_argument('--compare', action='store_true', 
                    help='Show both filtered (green) and unfiltered (red) grasps')
+parser.add_argument('--save-png', type=str, default=None, 
+                   help='Save visualization as PNG file to specified path')
+parser.add_argument('--render', action='store_true', default=True,
+                   help='Show interactive visualization window (default: True)')
+parser.add_argument('--no-render', dest='render', action='store_false',
+                   help='Do not show interactive visualization window')
 
 GRIPPER_PC = np.load(
     'assets/gripper_models/panda_pc.npy', allow_pickle=True).item()['points']
@@ -397,7 +403,9 @@ def draw_scene(
     visualize_diverse_grasps=False, 
     min_seperation_distance=0.03, 
     pc_color=None, 
-    plasma_coloring=False):
+    plasma_coloring=False,
+    save_png=None,
+    render=True):
     """
     Draws the 3D scene for the object and the scene.
     Args:
@@ -565,7 +573,19 @@ def draw_scene(
         else:
             tube_radius = 0.001                    
             mlab.plot3d(pts[:, 0], pts[:, 1], pts[:, 2], color=gripper_color, tube_radius=tube_radius, opacity=1)
-    mlab.show()
+    
+    # Save PNG if requested
+    if save_png:
+        print(f"Saving visualization to {save_png}")
+        mlab.savefig(save_png, size=(800, 600))
+    
+    # Show interactive window only if render is enabled
+    if render:
+        mlab.show()
+    else:
+        # If not rendering but we saved a PNG, close the figure to free memory
+        if save_png:
+            mlab.close()
 
     print('removed {} similar grasps'.format(removed))  
 
@@ -634,7 +654,9 @@ if args.compare:
             mesh=mesh,
             show_gripper_mesh=True,
             plasma_coloring=False,
-            gripper_color=colors
+            gripper_color=colors,
+            save_png=args.save_png,
+            render=args.render
         )
     except FileNotFoundError as e:
         print(f"Error: Could not find one of the required grasp files. Make sure both filtered and unfiltered files exist.")
@@ -674,5 +696,7 @@ else:
         grasp_scores=quality,
         mesh=mesh,
         show_gripper_mesh=True,  # Set to True if you want full gripper meshes
-        plasma_coloring=True
+        plasma_coloring=True,
+        save_png=args.save_png,
+        render=args.render
     )
