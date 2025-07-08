@@ -99,7 +99,7 @@ for obj in data:
     print(f"Visualizing filtered grasps for object: {object_name}")
     try:
         subprocess.run([
-            "python", "scripts/visualize.py", object_name, "--filtered", "--save-png", f"output/{object_name}_filtered_grasps.png", "--no-render"
+            "python", "scripts/visualize.py", object_name, "--filtered", "--save-png", f"output/{object_name}_filtered_grasps.png", "--no-render", 
         ], check=True, env=env)
     except subprocess.CalledProcessError as e:
         print(f"Warning: Visualization for {object_name} failed: {str(e)}")

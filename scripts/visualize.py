@@ -1,13 +1,9 @@
 from __future__ import print_function
 
-import matplotlib
-matplotlib.use('TkAgg')
 import json
 import trimesh
 import numpy as np
-import mayavi.mlab as mlab
-import numpy as np
-import trimesh
+import open3d as o3d
 import math
 import numpy as np
 import tensorflow as tf
@@ -27,6 +23,8 @@ parser.add_argument('--render', action='store_true', default=True,
                    help='Show interactive visualization window (default: True)')
 parser.add_argument('--no-render', dest='render', action='store_false',
                    help='Do not show interactive visualization window')
+parser.add_argument('--grasp-shape-only', action='store_true',
+                   help='Show only grasp shape lines without gripper mesh')
 
 GRIPPER_PC = np.load(
     'assets/gripper_models/panda_pc.npy', allow_pickle=True).item()['points']
@@ -381,15 +379,25 @@ def get_color_plasma_org(x):
 def get_color_plasma(x):
     return tuple([float(1 - x), float(x) , float(0)])
 
-def plot_mesh(mesh):
+def plot_mesh(mesh, color=None):
+    """Convert trimesh to open3d mesh and return it."""
     assert type(mesh) == trimesh.base.Trimesh
-    mlab.triangular_mesh (
-        mesh.vertices[:, 0],
-        mesh.vertices[:, 1],
-        mesh.vertices[:, 2],
-        mesh.faces,
-        colormap='Blues'
-    )
+    
+    # Create open3d mesh
+    o3d_mesh = o3d.geometry.TriangleMesh()
+    o3d_mesh.vertices = o3d.utility.Vector3dVector(mesh.vertices)
+    o3d_mesh.triangles = o3d.utility.Vector3iVector(mesh.faces)
+    
+    # Compute normals
+    o3d_mesh.compute_vertex_normals()
+    
+    # Set color if provided
+    if color is not None:
+        o3d_mesh.paint_uniform_color(color)
+    else:
+        o3d_mesh.paint_uniform_color([0.7, 0.7, 1.0])  # Light blue default
+    
+    return o3d_mesh
 
 def draw_scene(
     pc, 
@@ -407,7 +415,7 @@ def draw_scene(
     save_png=None,
     render=True):
     """
-    Draws the 3D scene for the object and the scene.
+    Draws the 3D scene for the object and the scene using Open3D.
     Args:
       pc: point cloud of the object
       grasps: list of 4x4 numpy array indicating the transformation of the grasps.
@@ -431,6 +439,9 @@ def draw_scene(
         pc.
     """
     
+    # Create list to hold all geometries
+    geometries = []
+    
     max_grasps = 200
     grasps = np.array(grasps)
 
@@ -438,41 +449,43 @@ def draw_scene(
         grasp_scores = np.array(grasp_scores)
 
     if len(grasps) > max_grasps:
-
         print('Downsampling grasps, there are too many')
         chosen_ones = np.random.randint(low=0, high=len(grasps), size=max_grasps)
         grasps = grasps[chosen_ones]
         if grasp_scores is not None:
             grasp_scores = grasp_scores[chosen_ones]
 
-    
+    # Add mesh to scene
     if mesh is not None:
         if type(mesh) == list:
             for elem in mesh:
-                plot_mesh(elem)
+                geometries.append(plot_mesh(elem))
         else:
-            plot_mesh(mesh)
+            geometries.append(plot_mesh(mesh))
 
-    if pc_color is None and pc is not None:
-        if plasma_coloring:
-            mlab.points3d(pc[:, 0], pc[:, 1], pc[:, 2], pc[:, 2], colormap='plasma')
+    # Add point cloud to scene
+    if pc is not None:
+        pcd = o3d.geometry.PointCloud()
+        pcd.points = o3d.utility.Vector3dVector(pc[:, :3])
+        
+        if pc_color is None:
+            if plasma_coloring:
+                # Create plasma-like coloring based on z-coordinate
+                z_values = pc[:, 2]
+                z_normalized = (z_values - np.min(z_values)) / (np.max(z_values) - np.min(z_values))
+                colors = np.zeros((len(pc), 3))
+                colors[:, 0] = z_normalized  # Red channel
+                colors[:, 1] = 1 - z_normalized  # Green channel
+                colors[:, 2] = 0.5  # Blue channel
+                pcd.colors = o3d.utility.Vector3dVector(colors)
+            else:
+                pcd.paint_uniform_color([0.1, 0.1, 1])
         else:
-            mlab.points3d(pc[:, 0], pc[:, 1], pc[:, 2], color=(0.1,0.1,1),scale_factor=0.01)
-    elif pc is not None:
-        if plasma_coloring:
-            mlab.points3d(pc[:, 0], pc[:, 1], pc[:, 2], pc_color[:, 0], colormap='plasma')
-        else:
-            rgba = np.zeros((pc.shape[0], 4), dtype=np.uint8)
-            rgba[:, :3] = np.asarray(pc_color)
-            rgba[:, 3] = 255
-            src = mlab.pipeline.scalar_scatter(pc[:, 0], pc[:, 1], pc[:, 2])
-            src.add_attribute(rgba, 'colors')
-            src.data.point_data.set_active_scalars('colors')
-            g = mlab.pipeline.glyph(src)
-            g.glyph.scale_mode = "data_scaling_off"
-            g.glyph.glyph.scale_factor = 0.01
+            pcd.colors = o3d.utility.Vector3dVector(pc_color)
+        
+        geometries.append(pcd)
 
-
+    # Create grasp visualization
     grasp_pc = np.squeeze(get_control_point_tensor(1, False), 0)
     print(grasp_pc.shape)
     grasp_pc[2, 2] = 0.059
@@ -494,10 +507,8 @@ def draw_scene(
     def transform_grasp_pc(g):
         output = np.matmul(grasp_pc, g[:3, :3].T)
         output += np.expand_dims(g[:3, 3], 0)
-
         return output
 
-    
     if grasp_scores is not None:
         indexes = np.argsort(-np.asarray(grasp_scores))
     else:
@@ -507,7 +518,6 @@ def draw_scene(
     
     selected_grasps_so_far = []
     removed = 0
-    
 
     if grasp_scores is not None:
         min_score = np.min(grasp_scores)        
@@ -540,63 +550,81 @@ def draw_scene(
                     print('selected', i)
                 selected_grasps_so_far.append(g)
 
+        # Determine grasp color
+        current_gripper_color = gripper_color
         if isinstance(gripper_color, list):
-            pass
+            current_gripper_color = gripper_color[i]
         elif grasp_scores is not None:
             normalized_score = (grasp_scores[i] - min_score) / (max_score - min_score + 0.0001)
             if grasp_color is not None:
-                gripper_color = grasp_color[ii]
+                current_gripper_color = grasp_color[ii]
             else:
-                gripper_color = get_color_plasma(normalized_score)
+                current_gripper_color = get_color_plasma(normalized_score)
 
             if min_score == 1.0:
-                gripper_color = (0.0, 1.0, 0.0)
+                current_gripper_color = (0.0, 1.0, 0.0)
 
-    
-        # if show_gripper_mesh:
-        #     object = Object('assets/gripper_models/rum_gripper/model.obj')
-        #     gripper_mesh = object.mesh
-        #     gripper_mesh.apply_transform(g)
-        #     mlab.triangular_mesh(
-        #         gripper_mesh.vertices[:, 0],
-        #         gripper_mesh.vertices[:, 1],
-        #         gripper_mesh.vertices[:, 2],
-        #         gripper_mesh.faces,
-        #         color=gripper_color,
-        #         opacity=1 if visualize_diverse_grasps else 0.5
-        #     )
-        # else:
-        pts = np.matmul(grasp_pc, g[:3, :3].T)
-        pts += np.expand_dims(g[:3, 3], 0)
-        if isinstance(gripper_color, list):
-            mlab.plot3d(pts[:, 0], pts[:, 1], pts[:, 2], color=gripper_color[i], tube_radius=0.003, opacity=1)
+        # Create gripper visualization
+        if show_gripper_mesh:
+            # Load and transform gripper mesh
+            object = Object('assets/gripper_models/rum_gripper/model.obj')
+            gripper_mesh = object.mesh
+            gripper_mesh.apply_transform(g)
+            o3d_gripper = plot_mesh(gripper_mesh, color=current_gripper_color)
+            geometries.append(o3d_gripper)
         else:
-            tube_radius = 0.001                    
-            mlab.plot3d(pts[:, 0], pts[:, 1], pts[:, 2], color=gripper_color, tube_radius=tube_radius, opacity=1)
-    
-    # Save PNG if requested
-    if save_png:
-        print(f"Saving visualization to {save_png}")
-        mlab.savefig(save_png, size=(800, 600))
-    
-    # Show interactive window only if render is enabled
-    if render:
-        mlab.show()
-    else:
-        # If not rendering but we saved a PNG, close the figure to free memory
+            # Create line set for grasp visualization
+            pts = np.matmul(grasp_pc, g[:3, :3].T)
+            pts += np.expand_dims(g[:3, 3], 0)
+            
+            # Create line set connecting the grasp points
+            lines = []
+            for j in range(len(pts) - 1):
+                lines.append([j, j + 1])
+            
+            line_set = o3d.geometry.LineSet()
+            line_set.points = o3d.utility.Vector3dVector(pts)
+            line_set.lines = o3d.utility.Vector2iVector(lines)
+            
+            # Set color for all lines
+            colors = [current_gripper_color] * len(lines)
+            line_set.colors = o3d.utility.Vector3dVector(colors)
+            
+            geometries.append(line_set)
+
+    # Create coordinate frame
+    # coord_frame = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.1)
+    # geometries.append(coord_frame)
+
+    # Visualize
+    if render or save_png:
+        vis = o3d.visualization.Visualizer()
+        vis.create_window(width=800, height=600)
+        
+        for geom in geometries:
+            vis.add_geometry(geom)
+        
+        # Set view options
+        render_option = vis.get_render_option()
+        render_option.background_color = np.array([0.1, 0.1, 0.1])
+        render_option.point_size = 2.0
+        render_option.line_width = 2.0
+        
         if save_png:
-            mlab.close()
+            print(f"Saving visualization to {save_png}")
+            vis.run()
+            vis.capture_screen_image(save_png)
+        
+        if render:
+            vis.run()
+        
+        vis.destroy_window()
 
     print('removed {} similar grasps'.format(removed))  
 
 def get_axis():
-    # hacky axis for mayavi
-    axis = np.array([[1,0,0], [0,1,0], [0,0,1]])
-    axis_x = np.array([np.linspace(0, 0.10, 50), np.zeros(50), np.zeros(50)]).T
-    axis_y = np.array([np.zeros(50), np.linspace(0, 0.10, 50), np.zeros(50)]).T
-    axis_z = np.array([np.zeros(50), np.zeros(50), np.linspace(0, 0.10, 50)]).T
-    axis = np.concatenate([axis_x, axis_y, axis_z], axis=0)
-    return axis
+    """Create coordinate frame for open3d"""
+    return o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.10)
 
 
 args = parser.parse_args()
@@ -652,7 +680,7 @@ if args.compare:
             grasps=all_transforms,
             grasp_scores=all_quality,
             mesh=mesh,
-            show_gripper_mesh=True,
+            show_gripper_mesh=not args.grasp_shape_only,
             plasma_coloring=False,
             gripper_color=colors,
             save_png=args.save_png,
@@ -684,7 +712,7 @@ else:
     transforms = np.array(data['transforms'])
     quality = np.array(data.get('quality_antipodal', data.get('quality_number_of_contacts', [1.0]*len(transforms))))
 
-    top_k = 100000
+    top_k = 1000
     top_indices = np.argsort(quality)[-top_k:][::-1]
     transforms = [transforms[i] for i in top_indices]
     quality = [quality[i] for i in top_indices]
@@ -695,7 +723,7 @@ else:
         grasps=transforms,
         grasp_scores=quality,
         mesh=mesh,
-        show_gripper_mesh=True,  # Set to True if you want full gripper meshes
+        show_gripper_mesh=not args.grasp_shape_only,  # Use the new option
         plasma_coloring=True,
         save_png=args.save_png,
         render=args.render
