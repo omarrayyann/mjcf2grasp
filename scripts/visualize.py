@@ -741,9 +741,15 @@ def get_axis():
 
 args = parser.parse_args()
 
-# Define file paths
-base_json_file = os.path.abspath(f"output/{args.object_name}_grasps.json")
-filtered_json_file = os.path.abspath(f"output/{args.object_name}_grasps_filtered.json")
+# Define file paths - check both new structure and old structure
+base_json_file = os.path.abspath(f"output/{args.object_name}/{args.object_name}_grasps.json")
+filtered_json_file = os.path.abspath(f"output/{args.object_name}/{args.object_name}_grasps_filtered.json")
+
+# Fallback to old structure if new structure doesn't exist
+if not os.path.exists(base_json_file):
+    base_json_file = os.path.abspath(f"output/{args.object_name}_grasps.json")
+if not os.path.exists(filtered_json_file):
+    filtered_json_file = os.path.abspath(f"output/{args.object_name}_grasps_filtered.json")
 
 # Load saved grasp data
 if args.compare:
@@ -808,7 +814,10 @@ else:
     else:
         extra = ''
     
-    json_file = os.path.abspath(f"output/{args.object_name}_grasps{extra}.json")
+    # Check new structure first, then fallback to old structure
+    json_file = os.path.abspath(f"output/{args.object_name}/{args.object_name}_grasps{extra}.json")
+    if not os.path.exists(json_file):
+        json_file = os.path.abspath(f"output/{args.object_name}_grasps{extra}.json")
     
     # Load saved grasp data
     with open(json_file, 'r') as f:
