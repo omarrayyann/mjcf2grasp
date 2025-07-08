@@ -598,27 +598,139 @@ def draw_scene(
 
     # Visualize
     if render or save_png:
-        vis = o3d.visualization.Visualizer()
-        vis.create_window(width=800, height=600)
-        
-        for geom in geometries:
-            vis.add_geometry(geom)
-        
-        # Set view options
-        render_option = vis.get_render_option()
-        render_option.background_color = np.array([0.1, 0.1, 0.1])
-        render_option.point_size = 2.0
-        render_option.line_width = 2.0
-        
         if save_png:
-            print(f"Saving visualization to {save_png}")
-            vis.run()
-            vis.capture_screen_image(save_png)
+            print(f"Creating 3x3 (9-shot) collage and saving to {save_png}")
+            # Create 9 different views for collage
+            import cv2
+            
+            images = []
+            
+            # First, create one working view to get the baseline
+            vis = o3d.visualization.Visualizer()
+            vis.create_window(width=800, height=800, visible=False)
+            
+            for geom in geometries:
+                vis.add_geometry(geom)
+            
+            # Set render options for high quality
+            render_option = vis.get_render_option()
+            render_option.background_color = np.array([0.1, 0.1, 0.1])
+            render_option.point_size = 4.0  # Increased point size
+            render_option.line_width = 4.0  # Increased line width
+            
+            # Get the view control and let it auto-fit
+            view_control = vis.get_view_control()
+            
+            # Define 9 diverse camera positions
+            # Row 1: Top views (looking down from different angles)
+            # Row 2: Eye level views (horizontal rotations)
+            # Row 3: Bottom views (looking up from different angles)
+            camera_setups = [
+                # Row 1: Top views
+                (0, -30, 0),      # Top-front
+                (90, -30, 0),     # Top-right
+                (180, -30, 0),    # Top-back
+                
+                # Row 2: Eye level views
+                (0, 0, 0),        # Front
+                (90, 0, 0),       # Right
+                (180, 0, 0),      # Back
+                
+                # Row 3: Bottom views
+                (0, 30, 0),       # Bottom-front
+                (90, 30, 0),      # Bottom-right
+                (270, 30, 0),     # Bottom-left
+            ]
+            
+            for i, (azimuth, elevation, roll) in enumerate(camera_setups):
+                # Reset view to default
+                view_control.reset_camera_local_rotate()
+                
+                # Apply rotations for diverse views
+                # First rotate around Y-axis (azimuth)
+                if azimuth != 0:
+                    view_control.rotate(azimuth * 400 / 90, 0)  # Scale rotation
+                
+                # Then rotate around X-axis (elevation - up/down)
+                if elevation != 0:
+                    view_control.rotate(0, elevation * 400 / 90)  # Scale rotation
+                
+                # Update and render
+                vis.poll_events()
+                vis.update_renderer()
+                
+                # Capture high-resolution image
+                temp_filename = f"temp_view_{i}.png"
+                vis.capture_screen_image(temp_filename)
+                
+                # Read image
+                img = cv2.imread(temp_filename)
+                if img is not None:
+                    images.append(img)
+                else:
+                    print(f"Warning: Failed to capture view {i}")
+                
+                # Clean up
+                import os
+                if os.path.exists(temp_filename):
+                    os.remove(temp_filename)
+            
+            vis.destroy_window()
+            
+            # Create collage (3x3 grid)
+            if len(images) == 9:
+                # Resize images to high resolution if needed
+                target_size = (800, 800)  # High resolution per image
+                resized_images = []
+                for img in images:
+                    if img.shape[:2] != target_size:
+                        img_resized = cv2.resize(img, target_size, interpolation=cv2.INTER_CUBIC)
+                    else:
+                        img_resized = img
+                    resized_images.append(img_resized)
+                
+                # Create 3x3 collage (2400x2400 final resolution)
+                row1 = np.hstack([resized_images[0], resized_images[1], resized_images[2]])
+                row2 = np.hstack([resized_images[3], resized_images[4], resized_images[5]])
+                row3 = np.hstack([resized_images[6], resized_images[7], resized_images[8]])
+                collage = np.vstack([row1, row2, row3])
+                
+                # Save high-quality collage
+                cv2.imwrite(save_png, collage, [cv2.IMWRITE_PNG_COMPRESSION, 1])  # Minimal compression
+                print(f"High-quality 3x3 collage saved to {save_png} (2400x2400 pixels)")
+            else:
+                print(f"Warning: Could not create all 9 views (got {len(images)}), falling back to single view")
+                # Fallback to single view
+                vis = o3d.visualization.Visualizer()
+                vis.create_window(width=800, height=600)
+                
+                for geom in geometries:
+                    vis.add_geometry(geom)
+                
+                render_option = vis.get_render_option()
+                render_option.background_color = np.array([0.1, 0.1, 0.1])
+                render_option.point_size = 2.0
+                render_option.line_width = 2.0
+                
+                vis.run()
+                vis.capture_screen_image(save_png)
+                vis.destroy_window()
         
         if render:
+            vis = o3d.visualization.Visualizer()
+            vis.create_window(width=800, height=600)
+            
+            for geom in geometries:
+                vis.add_geometry(geom)
+            
+            # Set view options
+            render_option = vis.get_render_option()
+            render_option.background_color = np.array([0.1, 0.1, 0.1])
+            render_option.point_size = 2.0
+            render_option.line_width = 2.0
+            
             vis.run()
-        
-        vis.destroy_window()
+            vis.destroy_window()
 
     print('removed {} similar grasps'.format(removed))  
 
