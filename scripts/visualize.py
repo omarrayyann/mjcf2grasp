@@ -833,7 +833,7 @@ else:
     transforms = np.array(data['transforms'])
     quality = np.array(data.get('quality_antipodal', data.get('quality_number_of_contacts', [1.0]*len(transforms))))
 
-    top_k = 1000
+    top_k = 2000
     top_indices = np.argsort(quality)[-top_k:][::-1]
     transforms = [transforms[i] for i in top_indices]
     quality = [quality[i] for i in top_indices]

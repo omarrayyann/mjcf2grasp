@@ -81,7 +81,7 @@ for obj in data:
             "--approach_distance", "0.1",   # Start gripper 10cm away from grasp point
             "--approach_steps", "1000",    # Number of steps for approach
             # "--render",  # Enable rendering for visualization
-            "--max_successful", "1000"  # Stop after finding 1000 successful grasps
+            "--max_successful", "2000"  # Stop after finding 1000 successful grasps
         ], check=True)
     except subprocess.CalledProcessError as e:
         print(f"Error filtering grasps for {object_name}: {str(e)}")
