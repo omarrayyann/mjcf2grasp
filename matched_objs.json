@@ -3,5 +3,30 @@
         "name": "Pan_16",
         "path": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/Kitchen Objects/Pan/Prefabs/Pan_16.obj",
         "xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/Kitchen Objects/Pan/Prefabs/Pan_16/Pan_16.xml"
+    },
+    {
+        "name": "Apple_5",
+        "path": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/Kitchen Objects/Apple/Prefabs/Apple_5.obj",
+        "xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/Kitchen Objects/Apple/Prefabs/Apple_5/Apple_5.xml"
+    },
+    {
+        "name": "Alarm_Clock_15",
+        "path": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/Bedroom Objects/AlarmClock/Prefabs/Alarm_Clock_15.obj",
+        "xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/Bedroom Objects/AlarmClock/Prefabs/Alarm_Clock_15/Alarm_Clock_15.xml"
+    },
+    {
+        "name": "Tomato_25",
+        "path": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/Kitchen Objects/Tomato/Prefabs/Tomato_25.obj",
+        "xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/Kitchen Objects/Tomato/Prefabs/Tomato_25/Tomato_25.xml"
+    },
+    {
+        "name": "Egg_13",
+        "path": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/Kitchen Objects/Egg/Prefabs/Egg_13.obj",
+        "xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/Kitchen Objects/Egg/Prefabs/Egg_13/Egg_13.xml"
+    },
+    {
+        "name": "Tennis_Racquet_5",
+        "path": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/Miscellaneous Objects/TennisRacquet/Prefabs/Tennis_Racquet_5.obj",
+        "xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/Miscellaneous Objects/TennisRacquet/Prefabs/Tennis_Racquet_5/Tennis_Racquet_5.xml"
     }
 ]

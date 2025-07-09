@@ -51,9 +51,8 @@ def is_object_grasped(model, data, object_name):
         if not geom1 or not geom2:
             continue
 
-
         if object_name.lower() in geom1.lower() or object_name.lower() in geom2.lower():
-            other = geom2 if "object" in geom1 else geom1
+            other = geom2 if object_name.lower() in geom1 else geom2
             if any(p in other.lower() for p in left_patterns):
                 left_finger_contact = True
             if any(p in other.lower() for p in right_patterns):

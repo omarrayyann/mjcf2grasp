@@ -1,0 +1,913 @@
+2025-07-09 03:58:01,855 INFO    MainThread:251615 [wandb_setup.py:_flush():80] Current SDK version is 0.21.0
+2025-07-09 03:58:01,855 INFO    MainThread:251615 [wandb_setup.py:_flush():80] Configure stats pid to 251615
+2025-07-09 03:58:01,855 INFO    MainThread:251615 [wandb_setup.py:_flush():80] Loading settings from /home/lambda1/.config/wandb/settings
+2025-07-09 03:58:01,855 INFO    MainThread:251615 [wandb_setup.py:_flush():80] Loading settings from /home/lambda1/Documents/thor-grasp/wandb/settings
+2025-07-09 03:58:01,855 INFO    MainThread:251615 [wandb_setup.py:_flush():80] Loading settings from environment variables
+2025-07-09 03:58:01,855 INFO    MainThread:251615 [wandb_init.py:setup_run_log_directory():703] Logging user logs to /home/lambda1/Documents/thor-grasp/wandb/run-20250709_035801-9tn4ow50/logs/debug.log
+2025-07-09 03:58:01,855 INFO    MainThread:251615 [wandb_init.py:setup_run_log_directory():704] Logging internal logs to /home/lambda1/Documents/thor-grasp/wandb/run-20250709_035801-9tn4ow50/logs/debug-internal.log
+2025-07-09 03:58:01,855 INFO    MainThread:251615 [wandb_init.py:init():830] calling init triggers
+2025-07-09 03:58:01,855 INFO    MainThread:251615 [wandb_init.py:init():835] wandb.init called with sweep_config: {}
+config: {'total_objects': 1, 'approach_distance': 0.1, 'approach_steps': 1000, 'max_successful_grasps': 1000, 'max_grasps_to_visualize': 2000, '_wandb': {}}
+2025-07-09 03:58:01,855 INFO    MainThread:251615 [wandb_init.py:init():871] starting backend
+2025-07-09 03:58:02,061 INFO    MainThread:251615 [wandb_init.py:init():874] sending inform_init request
+2025-07-09 03:58:02,063 INFO    MainThread:251615 [wandb_init.py:init():882] backend started and connected
+2025-07-09 03:58:02,064 INFO    MainThread:251615 [wandb_init.py:init():953] updated telemetry
+2025-07-09 03:58:02,068 INFO    MainThread:251615 [wandb_init.py:init():977] communicating run to backend with 90.0 second timeout
+2025-07-09 03:58:02,922 INFO    MainThread:251615 [wandb_init.py:init():1029] starting run threads in backend
+2025-07-09 03:58:03,019 INFO    MainThread:251615 [wandb_run.py:_console_start():2458] atexit reg
+2025-07-09 03:58:03,019 INFO    MainThread:251615 [wandb_run.py:_redirect():2306] redirect: wrap_raw
+2025-07-09 03:58:03,019 INFO    MainThread:251615 [wandb_run.py:_redirect():2375] Wrapping output streams.
+2025-07-09 03:58:03,019 INFO    MainThread:251615 [wandb_run.py:_redirect():2398] Redirects installed.
+2025-07-09 03:58:03,020 INFO    MainThread:251615 [wandb_init.py:init():1075] run started, returning control to user process
+2025-07-09 03:58:39,447 INFO    MsgRouterThr:251615 [mailbox.py:close():129] [no run ID] Closing mailbox, abandoning 1 handles.
+2025-07-09 03:58:40,051 ERROR   MainThread:251615 [redirect.py:_on_write():664] [all runs] error in stderr callback
+Traceback (most recent call last):
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/redirect.py", line 662, in _on_write
+    cb(written_data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 2385, in <lambda>
+    lambda data: self._console_raw_callback("stderr", data),
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 398, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 456, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1566, in _console_raw_callback
+    self._backend.interface.publish_output_raw(name, data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 771, in publish_output_raw
+    self._publish_output_raw(o)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 38, in _publish_output_raw
+    self._publish(rec)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_sock.py", line 39, in _publish
+    self._sock_client.send_record_publish(record)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 170, in send_record_publish
+    self.send_server_request(server_req)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 150, in send_server_request
+    self._send_message(msg)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 147, in _send_message
+    self._sendall_with_error_handle(header + data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 126, in _sendall_with_error_handle
+    sent = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe
+2025-07-09 03:58:40,053 ERROR   MainThread:251615 [redirect.py:_on_write():664] [all runs] error in stderr callback
+Traceback (most recent call last):
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/redirect.py", line 662, in _on_write
+    cb(written_data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 2385, in <lambda>
+    lambda data: self._console_raw_callback("stderr", data),
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 398, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 456, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1566, in _console_raw_callback
+    self._backend.interface.publish_output_raw(name, data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 771, in publish_output_raw
+    self._publish_output_raw(o)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 38, in _publish_output_raw
+    self._publish(rec)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_sock.py", line 39, in _publish
+    self._sock_client.send_record_publish(record)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 170, in send_record_publish
+    self.send_server_request(server_req)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 150, in send_server_request
+    self._send_message(msg)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 147, in _send_message
+    self._sendall_with_error_handle(header + data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 126, in _sendall_with_error_handle
+    sent = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe
+2025-07-09 03:58:40,053 ERROR   MainThread:251615 [redirect.py:_on_write():664] [all runs] error in stderr callback
+Traceback (most recent call last):
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/redirect.py", line 662, in _on_write
+    cb(written_data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 2385, in <lambda>
+    lambda data: self._console_raw_callback("stderr", data),
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 398, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 456, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1566, in _console_raw_callback
+    self._backend.interface.publish_output_raw(name, data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 771, in publish_output_raw
+    self._publish_output_raw(o)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 38, in _publish_output_raw
+    self._publish(rec)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_sock.py", line 39, in _publish
+    self._sock_client.send_record_publish(record)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 170, in send_record_publish
+    self.send_server_request(server_req)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 150, in send_server_request
+    self._send_message(msg)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 147, in _send_message
+    self._sendall_with_error_handle(header + data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 126, in _sendall_with_error_handle
+    sent = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe
+2025-07-09 03:58:40,053 ERROR   MainThread:251615 [redirect.py:_on_write():664] [all runs] error in stderr callback
+Traceback (most recent call last):
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/redirect.py", line 662, in _on_write
+    cb(written_data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 2385, in <lambda>
+    lambda data: self._console_raw_callback("stderr", data),
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 398, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 456, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1566, in _console_raw_callback
+    self._backend.interface.publish_output_raw(name, data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 771, in publish_output_raw
+    self._publish_output_raw(o)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 38, in _publish_output_raw
+    self._publish(rec)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_sock.py", line 39, in _publish
+    self._sock_client.send_record_publish(record)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 170, in send_record_publish
+    self.send_server_request(server_req)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 150, in send_server_request
+    self._send_message(msg)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 147, in _send_message
+    self._sendall_with_error_handle(header + data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 126, in _sendall_with_error_handle
+    sent = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe
+2025-07-09 03:58:40,053 ERROR   MainThread:251615 [redirect.py:_on_write():664] [all runs] error in stderr callback
+Traceback (most recent call last):
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/redirect.py", line 662, in _on_write
+    cb(written_data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 2385, in <lambda>
+    lambda data: self._console_raw_callback("stderr", data),
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 398, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 456, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1566, in _console_raw_callback
+    self._backend.interface.publish_output_raw(name, data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 771, in publish_output_raw
+    self._publish_output_raw(o)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 38, in _publish_output_raw
+    self._publish(rec)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_sock.py", line 39, in _publish
+    self._sock_client.send_record_publish(record)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 170, in send_record_publish
+    self.send_server_request(server_req)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 150, in send_server_request
+    self._send_message(msg)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 147, in _send_message
+    self._sendall_with_error_handle(header + data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 126, in _sendall_with_error_handle
+    sent = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe
+2025-07-09 03:58:40,053 ERROR   MainThread:251615 [redirect.py:_on_write():664] [all runs] error in stderr callback
+Traceback (most recent call last):
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/redirect.py", line 662, in _on_write
+    cb(written_data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 2385, in <lambda>
+    lambda data: self._console_raw_callback("stderr", data),
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 398, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 456, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1566, in _console_raw_callback
+    self._backend.interface.publish_output_raw(name, data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 771, in publish_output_raw
+    self._publish_output_raw(o)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 38, in _publish_output_raw
+    self._publish(rec)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_sock.py", line 39, in _publish
+    self._sock_client.send_record_publish(record)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 170, in send_record_publish
+    self.send_server_request(server_req)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 150, in send_server_request
+    self._send_message(msg)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 147, in _send_message
+    self._sendall_with_error_handle(header + data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 126, in _sendall_with_error_handle
+    sent = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe
+2025-07-09 03:58:40,054 ERROR   MainThread:251615 [redirect.py:_on_write():664] [all runs] error in stderr callback
+Traceback (most recent call last):
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/redirect.py", line 662, in _on_write
+    cb(written_data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 2385, in <lambda>
+    lambda data: self._console_raw_callback("stderr", data),
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 398, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 456, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1566, in _console_raw_callback
+    self._backend.interface.publish_output_raw(name, data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 771, in publish_output_raw
+    self._publish_output_raw(o)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 38, in _publish_output_raw
+    self._publish(rec)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_sock.py", line 39, in _publish
+    self._sock_client.send_record_publish(record)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 170, in send_record_publish
+    self.send_server_request(server_req)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 150, in send_server_request
+    self._send_message(msg)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 147, in _send_message
+    self._sendall_with_error_handle(header + data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 126, in _sendall_with_error_handle
+    sent = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe
+2025-07-09 03:58:40,054 ERROR   MainThread:251615 [redirect.py:_on_write():664] [all runs] error in stderr callback
+Traceback (most recent call last):
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/redirect.py", line 662, in _on_write
+    cb(written_data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 2385, in <lambda>
+    lambda data: self._console_raw_callback("stderr", data),
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 398, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 456, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1566, in _console_raw_callback
+    self._backend.interface.publish_output_raw(name, data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 771, in publish_output_raw
+    self._publish_output_raw(o)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 38, in _publish_output_raw
+    self._publish(rec)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_sock.py", line 39, in _publish
+    self._sock_client.send_record_publish(record)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 170, in send_record_publish
+    self.send_server_request(server_req)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 150, in send_server_request
+    self._send_message(msg)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 147, in _send_message
+    self._sendall_with_error_handle(header + data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 126, in _sendall_with_error_handle
+    sent = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe
+2025-07-09 03:58:40,054 ERROR   MainThread:251615 [redirect.py:_on_write():664] [all runs] error in stderr callback
+Traceback (most recent call last):
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/redirect.py", line 662, in _on_write
+    cb(written_data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 2385, in <lambda>
+    lambda data: self._console_raw_callback("stderr", data),
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 398, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 456, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1566, in _console_raw_callback
+    self._backend.interface.publish_output_raw(name, data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 771, in publish_output_raw
+    self._publish_output_raw(o)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 38, in _publish_output_raw
+    self._publish(rec)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_sock.py", line 39, in _publish
+    self._sock_client.send_record_publish(record)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 170, in send_record_publish
+    self.send_server_request(server_req)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 150, in send_server_request
+    self._send_message(msg)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 147, in _send_message
+    self._sendall_with_error_handle(header + data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 126, in _sendall_with_error_handle
+    sent = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe
+2025-07-09 03:58:40,054 ERROR   MainThread:251615 [redirect.py:_on_write():664] [all runs] error in stderr callback
+Traceback (most recent call last):
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/redirect.py", line 662, in _on_write
+    cb(written_data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 2385, in <lambda>
+    lambda data: self._console_raw_callback("stderr", data),
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 398, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 456, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1566, in _console_raw_callback
+    self._backend.interface.publish_output_raw(name, data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 771, in publish_output_raw
+    self._publish_output_raw(o)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 38, in _publish_output_raw
+    self._publish(rec)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_sock.py", line 39, in _publish
+    self._sock_client.send_record_publish(record)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 170, in send_record_publish
+    self.send_server_request(server_req)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 150, in send_server_request
+    self._send_message(msg)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 147, in _send_message
+    self._sendall_with_error_handle(header + data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 126, in _sendall_with_error_handle
+    sent = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe
+2025-07-09 03:58:40,055 ERROR   MainThread:251615 [redirect.py:_on_write():664] [all runs] error in stderr callback
+Traceback (most recent call last):
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/redirect.py", line 662, in _on_write
+    cb(written_data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 2385, in <lambda>
+    lambda data: self._console_raw_callback("stderr", data),
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 398, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 456, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1566, in _console_raw_callback
+    self._backend.interface.publish_output_raw(name, data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 771, in publish_output_raw
+    self._publish_output_raw(o)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 38, in _publish_output_raw
+    self._publish(rec)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_sock.py", line 39, in _publish
+    self._sock_client.send_record_publish(record)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 170, in send_record_publish
+    self.send_server_request(server_req)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 150, in send_server_request
+    self._send_message(msg)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 147, in _send_message
+    self._sendall_with_error_handle(header + data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 126, in _sendall_with_error_handle
+    sent = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe
+2025-07-09 03:58:40,055 ERROR   MainThread:251615 [redirect.py:_on_write():664] [all runs] error in stderr callback
+Traceback (most recent call last):
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/redirect.py", line 662, in _on_write
+    cb(written_data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 2385, in <lambda>
+    lambda data: self._console_raw_callback("stderr", data),
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 398, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 456, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1566, in _console_raw_callback
+    self._backend.interface.publish_output_raw(name, data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 771, in publish_output_raw
+    self._publish_output_raw(o)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 38, in _publish_output_raw
+    self._publish(rec)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_sock.py", line 39, in _publish
+    self._sock_client.send_record_publish(record)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 170, in send_record_publish
+    self.send_server_request(server_req)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 150, in send_server_request
+    self._send_message(msg)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 147, in _send_message
+    self._sendall_with_error_handle(header + data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 126, in _sendall_with_error_handle
+    sent = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe
+2025-07-09 03:58:40,055 ERROR   MainThread:251615 [redirect.py:_on_write():664] [all runs] error in stderr callback
+Traceback (most recent call last):
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/redirect.py", line 662, in _on_write
+    cb(written_data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 2385, in <lambda>
+    lambda data: self._console_raw_callback("stderr", data),
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 398, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 456, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1566, in _console_raw_callback
+    self._backend.interface.publish_output_raw(name, data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 771, in publish_output_raw
+    self._publish_output_raw(o)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 38, in _publish_output_raw
+    self._publish(rec)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_sock.py", line 39, in _publish
+    self._sock_client.send_record_publish(record)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 170, in send_record_publish
+    self.send_server_request(server_req)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 150, in send_server_request
+    self._send_message(msg)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 147, in _send_message
+    self._sendall_with_error_handle(header + data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 126, in _sendall_with_error_handle
+    sent = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe
+2025-07-09 03:58:40,055 ERROR   MainThread:251615 [redirect.py:_on_write():664] [all runs] error in stderr callback
+Traceback (most recent call last):
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/redirect.py", line 662, in _on_write
+    cb(written_data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 2385, in <lambda>
+    lambda data: self._console_raw_callback("stderr", data),
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 398, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 456, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1566, in _console_raw_callback
+    self._backend.interface.publish_output_raw(name, data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 771, in publish_output_raw
+    self._publish_output_raw(o)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 38, in _publish_output_raw
+    self._publish(rec)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_sock.py", line 39, in _publish
+    self._sock_client.send_record_publish(record)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 170, in send_record_publish
+    self.send_server_request(server_req)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 150, in send_server_request
+    self._send_message(msg)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 147, in _send_message
+    self._sendall_with_error_handle(header + data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 126, in _sendall_with_error_handle
+    sent = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe
+2025-07-09 03:58:40,055 ERROR   MainThread:251615 [redirect.py:_on_write():664] [all runs] error in stderr callback
+Traceback (most recent call last):
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/redirect.py", line 662, in _on_write
+    cb(written_data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 2385, in <lambda>
+    lambda data: self._console_raw_callback("stderr", data),
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 398, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 456, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1566, in _console_raw_callback
+    self._backend.interface.publish_output_raw(name, data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 771, in publish_output_raw
+    self._publish_output_raw(o)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 38, in _publish_output_raw
+    self._publish(rec)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_sock.py", line 39, in _publish
+    self._sock_client.send_record_publish(record)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 170, in send_record_publish
+    self.send_server_request(server_req)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 150, in send_server_request
+    self._send_message(msg)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 147, in _send_message
+    self._sendall_with_error_handle(header + data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 126, in _sendall_with_error_handle
+    sent = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe
+2025-07-09 03:58:40,056 ERROR   MainThread:251615 [redirect.py:_on_write():664] [all runs] error in stderr callback
+Traceback (most recent call last):
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/redirect.py", line 662, in _on_write
+    cb(written_data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 2385, in <lambda>
+    lambda data: self._console_raw_callback("stderr", data),
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 398, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 456, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1566, in _console_raw_callback
+    self._backend.interface.publish_output_raw(name, data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 771, in publish_output_raw
+    self._publish_output_raw(o)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 38, in _publish_output_raw
+    self._publish(rec)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_sock.py", line 39, in _publish
+    self._sock_client.send_record_publish(record)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 170, in send_record_publish
+    self.send_server_request(server_req)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 150, in send_server_request
+    self._send_message(msg)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 147, in _send_message
+    self._sendall_with_error_handle(header + data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 126, in _sendall_with_error_handle
+    sent = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe
+2025-07-09 03:58:40,056 ERROR   MainThread:251615 [redirect.py:_on_write():664] [all runs] error in stderr callback
+Traceback (most recent call last):
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/redirect.py", line 662, in _on_write
+    cb(written_data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 2385, in <lambda>
+    lambda data: self._console_raw_callback("stderr", data),
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 398, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 456, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1566, in _console_raw_callback
+    self._backend.interface.publish_output_raw(name, data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 771, in publish_output_raw
+    self._publish_output_raw(o)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 38, in _publish_output_raw
+    self._publish(rec)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_sock.py", line 39, in _publish
+    self._sock_client.send_record_publish(record)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 170, in send_record_publish
+    self.send_server_request(server_req)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 150, in send_server_request
+    self._send_message(msg)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 147, in _send_message
+    self._sendall_with_error_handle(header + data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 126, in _sendall_with_error_handle
+    sent = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe
+2025-07-09 03:58:40,056 ERROR   MainThread:251615 [redirect.py:_on_write():664] [all runs] error in stderr callback
+Traceback (most recent call last):
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/redirect.py", line 662, in _on_write
+    cb(written_data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 2385, in <lambda>
+    lambda data: self._console_raw_callback("stderr", data),
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 398, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 456, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1566, in _console_raw_callback
+    self._backend.interface.publish_output_raw(name, data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 771, in publish_output_raw
+    self._publish_output_raw(o)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 38, in _publish_output_raw
+    self._publish(rec)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_sock.py", line 39, in _publish
+    self._sock_client.send_record_publish(record)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 170, in send_record_publish
+    self.send_server_request(server_req)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 150, in send_server_request
+    self._send_message(msg)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 147, in _send_message
+    self._sendall_with_error_handle(header + data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 126, in _sendall_with_error_handle
+    sent = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe
+2025-07-09 03:58:40,056 ERROR   MainThread:251615 [redirect.py:_on_write():664] [all runs] error in stderr callback
+Traceback (most recent call last):
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/redirect.py", line 662, in _on_write
+    cb(written_data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 2385, in <lambda>
+    lambda data: self._console_raw_callback("stderr", data),
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 398, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 456, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1566, in _console_raw_callback
+    self._backend.interface.publish_output_raw(name, data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 771, in publish_output_raw
+    self._publish_output_raw(o)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 38, in _publish_output_raw
+    self._publish(rec)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_sock.py", line 39, in _publish
+    self._sock_client.send_record_publish(record)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 170, in send_record_publish
+    self.send_server_request(server_req)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 150, in send_server_request
+    self._send_message(msg)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 147, in _send_message
+    self._sendall_with_error_handle(header + data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 126, in _sendall_with_error_handle
+    sent = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe
+2025-07-09 03:58:40,057 ERROR   MainThread:251615 [redirect.py:_on_write():664] [all runs] error in stderr callback
+Traceback (most recent call last):
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/redirect.py", line 662, in _on_write
+    cb(written_data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 2385, in <lambda>
+    lambda data: self._console_raw_callback("stderr", data),
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 398, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 456, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1566, in _console_raw_callback
+    self._backend.interface.publish_output_raw(name, data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 771, in publish_output_raw
+    self._publish_output_raw(o)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 38, in _publish_output_raw
+    self._publish(rec)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_sock.py", line 39, in _publish
+    self._sock_client.send_record_publish(record)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 170, in send_record_publish
+    self.send_server_request(server_req)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 150, in send_server_request
+    self._send_message(msg)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 147, in _send_message
+    self._sendall_with_error_handle(header + data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 126, in _sendall_with_error_handle
+    sent = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe
+2025-07-09 03:58:40,057 ERROR   MainThread:251615 [redirect.py:_on_write():664] [all runs] error in stderr callback
+Traceback (most recent call last):
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/redirect.py", line 662, in _on_write
+    cb(written_data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 2385, in <lambda>
+    lambda data: self._console_raw_callback("stderr", data),
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 398, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 456, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1566, in _console_raw_callback
+    self._backend.interface.publish_output_raw(name, data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 771, in publish_output_raw
+    self._publish_output_raw(o)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 38, in _publish_output_raw
+    self._publish(rec)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_sock.py", line 39, in _publish
+    self._sock_client.send_record_publish(record)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 170, in send_record_publish
+    self.send_server_request(server_req)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 150, in send_server_request
+    self._send_message(msg)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 147, in _send_message
+    self._sendall_with_error_handle(header + data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 126, in _sendall_with_error_handle
+    sent = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe
+2025-07-09 03:58:40,057 ERROR   MainThread:251615 [redirect.py:_on_write():664] [all runs] error in stderr callback
+Traceback (most recent call last):
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/redirect.py", line 662, in _on_write
+    cb(written_data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 2385, in <lambda>
+    lambda data: self._console_raw_callback("stderr", data),
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 398, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 456, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1566, in _console_raw_callback
+    self._backend.interface.publish_output_raw(name, data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 771, in publish_output_raw
+    self._publish_output_raw(o)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 38, in _publish_output_raw
+    self._publish(rec)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_sock.py", line 39, in _publish
+    self._sock_client.send_record_publish(record)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 170, in send_record_publish
+    self.send_server_request(server_req)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 150, in send_server_request
+    self._send_message(msg)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 147, in _send_message
+    self._sendall_with_error_handle(header + data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 126, in _sendall_with_error_handle
+    sent = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe
+2025-07-09 03:58:40,057 ERROR   MainThread:251615 [redirect.py:_on_write():664] [all runs] error in stderr callback
+Traceback (most recent call last):
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/redirect.py", line 662, in _on_write
+    cb(written_data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 2385, in <lambda>
+    lambda data: self._console_raw_callback("stderr", data),
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 398, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 456, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1566, in _console_raw_callback
+    self._backend.interface.publish_output_raw(name, data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 771, in publish_output_raw
+    self._publish_output_raw(o)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 38, in _publish_output_raw
+    self._publish(rec)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_sock.py", line 39, in _publish
+    self._sock_client.send_record_publish(record)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 170, in send_record_publish
+    self.send_server_request(server_req)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 150, in send_server_request
+    self._send_message(msg)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 147, in _send_message
+    self._sendall_with_error_handle(header + data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 126, in _sendall_with_error_handle
+    sent = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe
+2025-07-09 03:58:40,057 ERROR   MainThread:251615 [redirect.py:_on_write():664] [all runs] error in stderr callback
+Traceback (most recent call last):
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/redirect.py", line 662, in _on_write
+    cb(written_data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 2385, in <lambda>
+    lambda data: self._console_raw_callback("stderr", data),
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 398, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 456, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1566, in _console_raw_callback
+    self._backend.interface.publish_output_raw(name, data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 771, in publish_output_raw
+    self._publish_output_raw(o)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 38, in _publish_output_raw
+    self._publish(rec)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_sock.py", line 39, in _publish
+    self._sock_client.send_record_publish(record)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 170, in send_record_publish
+    self.send_server_request(server_req)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 150, in send_server_request
+    self._send_message(msg)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 147, in _send_message
+    self._sendall_with_error_handle(header + data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 126, in _sendall_with_error_handle
+    sent = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe
+2025-07-09 03:58:40,058 ERROR   MainThread:251615 [redirect.py:_on_write():664] [all runs] error in stderr callback
+Traceback (most recent call last):
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/redirect.py", line 662, in _on_write
+    cb(written_data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 2385, in <lambda>
+    lambda data: self._console_raw_callback("stderr", data),
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 398, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 456, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1566, in _console_raw_callback
+    self._backend.interface.publish_output_raw(name, data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 771, in publish_output_raw
+    self._publish_output_raw(o)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 38, in _publish_output_raw
+    self._publish(rec)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_sock.py", line 39, in _publish
+    self._sock_client.send_record_publish(record)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 170, in send_record_publish
+    self.send_server_request(server_req)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 150, in send_server_request
+    self._send_message(msg)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 147, in _send_message
+    self._sendall_with_error_handle(header + data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 126, in _sendall_with_error_handle
+    sent = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe
+2025-07-09 03:58:40,058 ERROR   MainThread:251615 [redirect.py:_on_write():664] [all runs] error in stderr callback
+Traceback (most recent call last):
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/redirect.py", line 662, in _on_write
+    cb(written_data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 2385, in <lambda>
+    lambda data: self._console_raw_callback("stderr", data),
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 398, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 456, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1566, in _console_raw_callback
+    self._backend.interface.publish_output_raw(name, data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 771, in publish_output_raw
+    self._publish_output_raw(o)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 38, in _publish_output_raw
+    self._publish(rec)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_sock.py", line 39, in _publish
+    self._sock_client.send_record_publish(record)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 170, in send_record_publish
+    self.send_server_request(server_req)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 150, in send_server_request
+    self._send_message(msg)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 147, in _send_message
+    self._sendall_with_error_handle(header + data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 126, in _sendall_with_error_handle
+    sent = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe
+2025-07-09 03:58:40,058 ERROR   MainThread:251615 [redirect.py:_on_write():664] [all runs] error in stderr callback
+Traceback (most recent call last):
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/redirect.py", line 662, in _on_write
+    cb(written_data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 2385, in <lambda>
+    lambda data: self._console_raw_callback("stderr", data),
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 398, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 456, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1566, in _console_raw_callback
+    self._backend.interface.publish_output_raw(name, data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 771, in publish_output_raw
+    self._publish_output_raw(o)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 38, in _publish_output_raw
+    self._publish(rec)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_sock.py", line 39, in _publish
+    self._sock_client.send_record_publish(record)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 170, in send_record_publish
+    self.send_server_request(server_req)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 150, in send_server_request
+    self._send_message(msg)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 147, in _send_message
+    self._sendall_with_error_handle(header + data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 126, in _sendall_with_error_handle
+    sent = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe
+2025-07-09 03:58:40,059 ERROR   MainThread:251615 [redirect.py:_on_write():664] [all runs] error in stderr callback
+Traceback (most recent call last):
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/redirect.py", line 662, in _on_write
+    cb(written_data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 2385, in <lambda>
+    lambda data: self._console_raw_callback("stderr", data),
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 398, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 456, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1566, in _console_raw_callback
+    self._backend.interface.publish_output_raw(name, data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 771, in publish_output_raw
+    self._publish_output_raw(o)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 38, in _publish_output_raw
+    self._publish(rec)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_sock.py", line 39, in _publish
+    self._sock_client.send_record_publish(record)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 170, in send_record_publish
+    self.send_server_request(server_req)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 150, in send_server_request
+    self._send_message(msg)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 147, in _send_message
+    self._sendall_with_error_handle(header + data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 126, in _sendall_with_error_handle
+    sent = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe
+2025-07-09 03:58:40,059 ERROR   MainThread:251615 [redirect.py:_on_write():664] [all runs] error in stderr callback
+Traceback (most recent call last):
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/redirect.py", line 662, in _on_write
+    cb(written_data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 2385, in <lambda>
+    lambda data: self._console_raw_callback("stderr", data),
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 398, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 456, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1566, in _console_raw_callback
+    self._backend.interface.publish_output_raw(name, data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 771, in publish_output_raw
+    self._publish_output_raw(o)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 38, in _publish_output_raw
+    self._publish(rec)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_sock.py", line 39, in _publish
+    self._sock_client.send_record_publish(record)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 170, in send_record_publish
+    self.send_server_request(server_req)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 150, in send_server_request
+    self._send_message(msg)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 147, in _send_message
+    self._sendall_with_error_handle(header + data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 126, in _sendall_with_error_handle
+    sent = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe
+2025-07-09 03:58:40,059 ERROR   MainThread:251615 [redirect.py:_on_write():664] [all runs] error in stderr callback
+Traceback (most recent call last):
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/redirect.py", line 662, in _on_write
+    cb(written_data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 2385, in <lambda>
+    lambda data: self._console_raw_callback("stderr", data),
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 398, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 456, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1566, in _console_raw_callback
+    self._backend.interface.publish_output_raw(name, data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 771, in publish_output_raw
+    self._publish_output_raw(o)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 38, in _publish_output_raw
+    self._publish(rec)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_sock.py", line 39, in _publish
+    self._sock_client.send_record_publish(record)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 170, in send_record_publish
+    self.send_server_request(server_req)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 150, in send_server_request
+    self._send_message(msg)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 147, in _send_message
+    self._sendall_with_error_handle(header + data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 126, in _sendall_with_error_handle
+    sent = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe
+2025-07-09 03:58:40,059 ERROR   MainThread:251615 [redirect.py:_on_write():664] [all runs] error in stderr callback
+Traceback (most recent call last):
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/redirect.py", line 662, in _on_write
+    cb(written_data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 2385, in <lambda>
+    lambda data: self._console_raw_callback("stderr", data),
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 398, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 456, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1566, in _console_raw_callback
+    self._backend.interface.publish_output_raw(name, data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 771, in publish_output_raw
+    self._publish_output_raw(o)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 38, in _publish_output_raw
+    self._publish(rec)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_sock.py", line 39, in _publish
+    self._sock_client.send_record_publish(record)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 170, in send_record_publish
+    self.send_server_request(server_req)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 150, in send_server_request
+    self._send_message(msg)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 147, in _send_message
+    self._sendall_with_error_handle(header + data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 126, in _sendall_with_error_handle
+    sent = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe
+2025-07-09 03:58:40,059 ERROR   MainThread:251615 [redirect.py:_on_write():664] [all runs] error in stderr callback
+Traceback (most recent call last):
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/redirect.py", line 662, in _on_write
+    cb(written_data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 2385, in <lambda>
+    lambda data: self._console_raw_callback("stderr", data),
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 398, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 456, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1566, in _console_raw_callback
+    self._backend.interface.publish_output_raw(name, data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 771, in publish_output_raw
+    self._publish_output_raw(o)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 38, in _publish_output_raw
+    self._publish(rec)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_sock.py", line 39, in _publish
+    self._sock_client.send_record_publish(record)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 170, in send_record_publish
+    self.send_server_request(server_req)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 150, in send_server_request
+    self._send_message(msg)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 147, in _send_message
+    self._sendall_with_error_handle(header + data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 126, in _sendall_with_error_handle
+    sent = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe
+2025-07-09 03:58:40,060 ERROR   MainThread:251615 [redirect.py:_on_write():664] [all runs] error in stderr callback
+Traceback (most recent call last):
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/redirect.py", line 662, in _on_write
+    cb(written_data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 2385, in <lambda>
+    lambda data: self._console_raw_callback("stderr", data),
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 398, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 456, in wrapper_fn
+    return func(self, *args, **kwargs)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/wandb_run.py", line 1566, in _console_raw_callback
+    self._backend.interface.publish_output_raw(name, data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface.py", line 771, in publish_output_raw
+    self._publish_output_raw(o)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_shared.py", line 38, in _publish_output_raw
+    self._publish(rec)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/interface/interface_sock.py", line 39, in _publish
+    self._sock_client.send_record_publish(record)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 170, in send_record_publish
+    self.send_server_request(server_req)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 150, in send_server_request
+    self._send_message(msg)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 147, in _send_message
+    self._sendall_with_error_handle(header + data)
+  File "/home/lambda1/Documents/thor-grasp/myenv/lib/python3.10/site-packages/wandb/sdk/lib/sock_client.py", line 126, in _sendall_with_error_handle
+    sent = self._sock.send(data)
+BrokenPipeError: [Errno 32] Broken pipe
