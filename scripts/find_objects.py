@@ -80,6 +80,7 @@ def find_objs_with_matching_subfolder(base_dir):
 
     for root, dirs, files in os.walk(base_dir):
         for file in files:
+
             if file.endswith('.obj'):
                 obj_name = os.path.splitext(file)[0]
                 obj_path = os.path.join(root, file)
@@ -89,8 +90,14 @@ def find_objs_with_matching_subfolder(base_dir):
                 # Ensure matching subfolder exists and JSON file exists
                 if obj_name in dirs and os.path.isfile(json_path):
                     subfolder_path = os.path.join(root, obj_name)
-                    # if obj_name.lower() not in all_pickup_types:
-                    #     continue
+                    found_object = False
+                    for pickup_type in all_pickup_types:
+                        if pickup_type in obj_name.lower():
+                            found_object = True
+                            break
+                    if not found_object:
+                        print(f"Skipping {obj_name} as it is not a recognized pickup type.")
+                        continue
 
                     for subfile in os.listdir(subfolder_path):
                         if subfile.endswith('.xml') and 'old' not in subfile.lower():

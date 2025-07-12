@@ -543,6 +543,9 @@ if __name__ == "__main__":
             "quality_antipodal": successful_qualities,
             "object": original_data.get('object', "unknown_object"),
             "object_scale": original_data.get('object_scale', 1.0),
+            "object_position": original_data.get('object_position', [0, 0, 0]),
+            "object_rotation": original_data.get('object_rotation', [1, 0, 0, 0]),
+            "approach_distance": args.approach_distance
         }, f, indent=2)
 
     tqdm.write(f"Saved {len(successful_transforms)} successful grasps to {output_path}")

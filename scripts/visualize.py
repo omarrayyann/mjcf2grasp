@@ -609,8 +609,8 @@ def draw_scene(
             geometries.append(line_set)
 
     # Create coordinate frame
-    coord_frame = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.1)
-    geometries.append(coord_frame)
+    # coord_frame = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.1)
+    # geometries.append(coord_frame)
 
     # Visualize
     if render or save_png:
@@ -859,7 +859,7 @@ else:
     transforms = np.array(data['transforms'])
     quality = np.array(data.get('quality_antipodal', data.get('quality_number_of_contacts', [1.0]*len(transforms))))
 
-    top_k = 1
+    top_k = 2000
     top_indices = np.argsort(quality)[-top_k:][::-1]
     transforms = [transforms[i] for i in top_indices]
     quality = [quality[i] for i in top_indices]

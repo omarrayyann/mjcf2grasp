@@ -130,16 +130,16 @@ for obj in data:
             "total_steps": 4  # manifold, grasp gen, filtering, visualization
         })
 
-    # print(f"\nProcessing object: {object_name} manifold")
-    # subprocess.run([
-    #     "./manifold", full_path, temp_abs_path, "-s"
-    # ], cwd="external_src/Manifold/build", check=True)
+    print(f"\nProcessing object: {object_name} manifold")
+    subprocess.run([
+        "./manifold", full_path, temp_abs_path, "-s"
+    ], cwd="external_src/Manifold/build", check=True)
 
-    # print(f"\nProcessing object: {object_name} simplification")
+    print(f"\nProcessing object: {object_name} simplification")
 
-    # subprocess.run([
-    #     "./simplify", "-i", temp_abs_path, "-o", output_abs_path, "-m", "-r", "0.8"
-    # ], cwd="external_src/Manifold/build", check=True)
+    subprocess.run([
+        "./simplify", "-i", temp_abs_path, "-o", output_abs_path, "-m", "-r", "0.8"
+    ], cwd="external_src/Manifold/build", check=True)
 
     # Check if grasp generation is needed
     if os.path.exists(grasp_file_path):
@@ -152,7 +152,7 @@ for obj in data:
                 "--object_file", output_abs_path,
                 "--quality", "antipodal",
                 "--output", grasp_file_path,
-                # "--systematic_sampling",
+                "--systematic_sampling",
                 "--scale", str(scale[0]),
                 "--position", str(position[0]), str(position[1]), str(position[2]),
                 "--rotation", str(rotation[0]), str(rotation[1]), str(rotation[2]), str(rotation[3]),
@@ -175,13 +175,13 @@ for obj in data:
     # env = os.environ.copy()
     # env["LD_LIBRARY_PATH"] = "myenv/lib/python3.10/site-packages/PySide2/Qt/lib:" + env.get("LD_LIBRARY_PATH", "")
     
-    env = os.environ.copy()
-    env["LD_LIBRARY_PATH"] = "myenv/lib/python3.10/site-packages/PySide2/Qt/lib:" + env.get("LD_LIBRARY_PATH", "")
+    # env = os.environ.copy()
+    # env["LD_LIBRARY_PATH"] = "myenv/lib/python3.10/site-packages/PySide2/Qt/lib:" + env.get("LD_LIBRARY_PATH", "")
 
-    print(f"Visualizing initial grasps for object: {object_name}")
-    subprocess.run([
-        "python", "scripts/visualize.py", object_name, "--render", "--grasp-shape-only",
-    ], check=True, env=env)
+    # print(f"Visualizing initial grasps for object: {object_name}")
+    # subprocess.run([
+    #     "python", "scripts/visualize.py", object_name, "--render", "--grasp-shape-only",
+    # ], check=True, env=env)
 
     # Check if filtering is needed
     if os.path.exists(filtered_file_path):
@@ -213,8 +213,8 @@ for obj in data:
                 "--num_workers", str(num_workers),
                 "--approach_distance", "0.1",   # Start gripper 10cm away from grasp point
                 "--approach_steps", "1000",    # Number of steps for approach
-                "--render",  # Enable rendering for visualization
-                "--max_successful", "1000"  # Stop after finding 1000 successful grasps
+                # "--render",  # Enable rendering for visualization
+                "--max_successful", "2000"  # Stop after finding 1000 successful grasps
             ], check=True)
 
     # Check if visualization is needed
@@ -228,12 +228,12 @@ for obj in data:
             # Create high-quality visualization with organized file names
             subprocess.run([
                 "python", "scripts/visualize.py", object_name,
-                #   "--filtered", 
+                  "--filtered", 
                 "--save-png", 
                 filtered_viz_path, 
                 "--no-render",
                   "--grasp-shape-only"
-            ], check=True, env=env)
+            ], check=True)
             
             # # Also create a comparison visualization
             # print(f"Creating comparison visualization for object: {object_name}")
