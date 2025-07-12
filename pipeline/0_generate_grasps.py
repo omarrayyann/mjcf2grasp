@@ -56,6 +56,21 @@ class Object(object):
         self.scale = scale
         self.mesh.apply_scale(self.scale)
 
+    def set_transform(self, position, rotation):
+        if len(rotation) != 4:
+            raise ValueError("Rotation must be a quaternion in xyzw format.")
+        if not np.isclose(np.linalg.norm(rotation), 1.0):
+            raise ValueError("Rotation must be a unit quaternion.")
+        if len(position) != 3:
+            raise ValueError("Position must be a 3D vector.")
+        rotation = [rotation[3], rotation[0], rotation[1], rotation[2]]
+        matrix = tra.quaternion_matrix(rotation)
+        matrix[3, 3] = 1.0
+        matrix[:3, 3] = position
+        self.position = position
+        self.rotation = rotation
+        self.mesh.apply_transform(matrix)
+
     def resize(self, size=1.0):
         """Set longest of all three lengths in Cartesian space.
 
@@ -1089,6 +1104,11 @@ def make_parser():
     parser.add_argument('--quality', choices=['number_of_contacts', 'antipodal'],
                         default='number_of_contacts',
                         help='Which type of quality metric to evaluate.')
+    
+    parser.add_argument('--position', type=float, nargs=3, default=[0, 0, 0],
+                        help='Position of the object in the world frame (x, y, z).')
+    parser.add_argument('--rotation', type=float, nargs=4, default=[0, 0, 0, 1],
+                        help='Rotation of the object in quaternion format (x, y, z, w).')
 
     parser.add_argument('--single_standoff', action='store_true',
                         help='Use the closest possible standoff.')
@@ -1192,6 +1212,10 @@ if __name__ == "__main__":
         else:
             obj.rescale(args.scale)
 
+        obj.set_transform(
+            position=args.position,
+            rotation=args.rotation,
+        )
         gripper = create_gripper(args.gripper)
 
         points, normals, transforms, roll_angles, standoffs, collisions, qualities\
@@ -1212,6 +1236,8 @@ if __name__ == "__main__":
         grasps = {
             'object': obj.filename,
             'object_scale': obj.scale,
+            'object_position': obj.position,
+            'object_rotation': obj.rotation,
             'object_class': args.classname,
             'object_dataset': args.dataset,
             'gripper': args.gripper,

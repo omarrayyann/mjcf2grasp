@@ -2,26 +2,106 @@ import os
 import json
 import argparse
 
+ALL_PICKUP_TYPES_THOR = [  # per API reference, may be incomplete or outdated
+    "AlarmClock",
+    "AluminumFoil",
+    "Apple",
+    "AppleSliced",
+    # "BaseballBat",
+    "Book",
+    "Boots",
+    "Bottle",
+    "Bowl",
+    "Box",
+    "Bread",
+    "BreadSliced",
+    "ButterKnife",
+    "Candle",
+    "CD",
+    "CellPhone",
+    "Cloth",
+    "CreditCard",
+    "Cup",
+    "DishSponge",
+    "Dumbbell",
+    "Egg",
+    "EggCracked",
+    "Fork",
+    "HandTowel",
+    "Kettle",
+    "KeyChain",
+    "Knife",
+    "Ladle",
+    "Laptop",
+    "Lettuce",
+    "LettuceSliced",
+    "Mug",
+    "Newspaper",
+    "Pan",
+    "PaperTowelRoll",
+    "Pen",
+    "Pencil",
+    "PepperShaker",
+    "Pillow",
+    "Plate",
+    "Plunger",
+    "Pot",
+    "Potato",
+    "PotatoSliced",
+    "RemoteControl",
+    "SaltShaker",
+    # "Sandwich", #rose: i think this should be pickupable
+    "ScrubBrush",
+    "SoapBar",
+    "SoapBottle",
+    "Spatula",
+    "Spoon",
+    "SprayBottle",
+    "Statue",
+    "TableTopDecor",
+    "TeddyBear",
+    "TennisRacket",
+    "TissueBox",
+    "ToiletPaper",
+    "Tomato",
+    "TomatoSliced",
+    "Towel",
+    "Vase",
+    "Watch",
+    "WateringCan",
+    "WineBottle",
+]
+
 def find_objs_with_matching_subfolder(base_dir):
     result = []
+    all_pickup_types = set(ALL_PICKUP_TYPES_THOR)
+    all_pickup_types = [item.lower() for item in all_pickup_types]
+    # print(all_pickup_types)
 
     for root, dirs, files in os.walk(base_dir):
         for file in files:
             if file.endswith('.obj'):
                 obj_name = os.path.splitext(file)[0]
                 obj_path = os.path.join(root, file)
+                json_filename = obj_name + '.json'
+                json_path = os.path.join(root, json_filename)
 
-                if obj_name in dirs:
+                # Ensure matching subfolder exists and JSON file exists
+                if obj_name in dirs and os.path.isfile(json_path):
                     subfolder_path = os.path.join(root, obj_name)
+                    # if obj_name.lower() not in all_pickup_types:
+                    #     continue
 
                     for subfile in os.listdir(subfolder_path):
                         if subfile.endswith('.xml') and 'old' not in subfile.lower():
                             abs_obj_path = os.path.abspath(obj_path)
                             abs_xml_path = os.path.abspath(os.path.join(subfolder_path, subfile))
+                            abs_json_path = os.path.abspath(json_path)
 
                             result.append({
                                 "name": obj_name,
                                 "path": abs_obj_path,
+                                "json": abs_json_path,
                                 "xml": abs_xml_path
                             })
                             break  # Stop after the first valid .xml file
@@ -33,7 +113,7 @@ def save_to_json(data, output_path):
         json.dump(data, f, indent=4)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Find .obj files with matching subfolder and valid .xml inside it.")
+    parser = argparse.ArgumentParser(description="Find .obj files with matching subfolder, valid .xml, and same-named .json.")
     parser.add_argument("directory", help="Base directory to search")
     parser.add_argument("--output", default="matched_objs.json", help="Output JSON file name")
 
@@ -42,4 +122,4 @@ if __name__ == "__main__":
     matched_objs = find_objs_with_matching_subfolder(args.directory)
     save_to_json(matched_objs, args.output)
 
-    print(f"Found {len(matched_objs)} matching .obj files with valid .xml. Results saved to {args.output}")
+    print(f"Found {len(matched_objs)} matching .obj files with valid .xml and .json. Results saved to {args.output}")

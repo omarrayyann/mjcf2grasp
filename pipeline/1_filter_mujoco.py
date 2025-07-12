@@ -52,7 +52,7 @@ def is_object_grasped(model, data, object_name):
             continue
 
         if object_name.lower() in geom1.lower() or object_name.lower() in geom2.lower():
-            other = geom2 if object_name.lower() in geom1 else geom2
+            other = geom2 if object_name.lower() in geom1.lower() else geom1
             if any(p in other.lower() for p in left_patterns):
                 left_finger_contact = True
             if any(p in other.lower() for p in right_patterns):
@@ -517,11 +517,12 @@ if __name__ == "__main__":
     root.append(include)
 
     worldbody = root.find("worldbody")
-    # body = ET.Element("body", {"name": "object_body", "gravcomp": "1"})
-    # joint = ET.Element("joint", {"type": "free", "damping": "10."})
-    # geom = ET.Element("geom", {"name": "object", "type": "mesh", "mesh": "object_mesh"})
-    # body.extend([joint, geom])
-    # worldbody.append(body)
+    geom = ET.Element("geom", {"name": "x", "type": "sphere", "size": "0.01", "rgba": "1 0 0 1", "pos": "0.2 0 0", "contype": "0", "conaffinity": "0"})
+    worldbody.append(geom)
+    gem = ET.Element("geom", {"name": "y", "type": "sphere", "size": "0.01", "rgba": "0 1 0 1", "pos": "0 0.2 0", "contype": "0", "conaffinity": "0"})
+    worldbody.append(gem)
+    gemm = ET.Element("geom", {"name": "z", "type": "sphere", "size": "0.01", "rgba": "0 0 1 1", "pos": "0 0 0.2", "contype": "0", "conaffinity": "0"})
+    worldbody.append(gemm)
 
     xml_content = ET.tostring(root, encoding="unicode")
     model = mujoco.MjModel.from_xml_string(xml_content)

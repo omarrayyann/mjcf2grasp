@@ -60,6 +60,33 @@ for obj in data:
     full_path = obj["path"]
     object_name = os.path.splitext(os.path.basename(full_path))[0]
     xml_file = obj["xml"]
+    json_file = obj["json"]
+
+    scale = [1.0, 1.0, 1.0]  # Default scale
+    position = [0.0, 0.0, 0.0]  # Default position
+    rotation = [0.0, 0.0, 0.0, 1.0]  # Default rotation (no rotation)
+    with open(json_file, 'r') as f:
+        data = json.load(f)
+        meshes = data['meshes']
+        if len(meshes) == 1:
+            scale = meshes[0]['parentRelativeScale']
+            scale = [scale['x'], scale['y'], scale['z']]
+            position = meshes[0]['parentRelativePosition']
+            position = [position['x'], position['y'], position['z']]
+            rotation = meshes[0]['parentRelativeRotation']
+            rotation = [rotation['x'], rotation['y'], rotation['z'], rotation['w']]
+        else:
+            for mesh in meshes:
+                print(f"Object Name: {mesh['meshName']}")
+                if mesh['meshName'].lower() == object_name.lower():
+                    scale = mesh['parentRelativeScale']
+                    scale = [scale['x'], scale['y'], scale['z']]
+                    position = mesh['parentRelativePosition']
+                    position = [position['x'], position['y'], position['z']]
+                    rotation = mesh['parentRelativeRotation']
+                    rotation = [rotation['x'], rotation['y'], rotation['z'], rotation['w']]
+                    print(f"Found matching mesh: {mesh['meshName']}")
+                    break
     
     print(f"\n{'='*80}")
     print(f"Processing object {processed_objects + 1}/{len(data)}: {object_name}")
@@ -103,16 +130,16 @@ for obj in data:
             "total_steps": 4  # manifold, grasp gen, filtering, visualization
         })
 
-    print(f"\nProcessing object: {object_name} manifold")
-    subprocess.run([
-        "./manifold", full_path, temp_abs_path, "-s"
-    ], cwd="external_src/Manifold/build", check=True)
+    # print(f"\nProcessing object: {object_name} manifold")
+    # subprocess.run([
+    #     "./manifold", full_path, temp_abs_path, "-s"
+    # ], cwd="external_src/Manifold/build", check=True)
 
-    print(f"\nProcessing object: {object_name} simplification")
+    # print(f"\nProcessing object: {object_name} simplification")
 
-    subprocess.run([
-        "./simplify", "-i", temp_abs_path, "-o", output_abs_path, "-m", "-r", "0.02"
-    ], cwd="external_src/Manifold/build", check=True)
+    # subprocess.run([
+    #     "./simplify", "-i", temp_abs_path, "-o", output_abs_path, "-m", "-r", "0.8"
+    # ], cwd="external_src/Manifold/build", check=True)
 
     # Check if grasp generation is needed
     if os.path.exists(grasp_file_path):
@@ -125,8 +152,11 @@ for obj in data:
                 "--object_file", output_abs_path,
                 "--quality", "antipodal",
                 "--output", grasp_file_path,
-                "--systematic_sampling",
-                "--num_workers", str(os.cpu_count())  # Use all available CPU cores
+                # "--systematic_sampling",
+                "--scale", str(scale[0]),
+                "--position", str(position[0]), str(position[1]), str(position[2]),
+                "--rotation", str(rotation[0]), str(rotation[1]), str(rotation[2]), str(rotation[3]),
+                "--num_workers", str(os.cpu_count()),  # Use all available CPU cores
             ], check=True)
         except subprocess.CalledProcessError as e:
             print(f"Error generating grasps for {object_name}: {str(e)}")
@@ -148,10 +178,10 @@ for obj in data:
     env = os.environ.copy()
     env["LD_LIBRARY_PATH"] = "myenv/lib/python3.10/site-packages/PySide2/Qt/lib:" + env.get("LD_LIBRARY_PATH", "")
 
-    # print(f"Visualizing initial grasps for object: {object_name}")
-    # subprocess.run([
-    #     "python", "scripts/visualize.py", object_name
-    # ], check=True, env=env)
+    print(f"Visualizing initial grasps for object: {object_name}")
+    subprocess.run([
+        "python", "scripts/visualize.py", object_name, "--render", "--grasp-shape-only",
+    ], check=True, env=env)
 
     # Check if filtering is needed
     if os.path.exists(filtered_file_path):
@@ -183,7 +213,7 @@ for obj in data:
                 "--num_workers", str(num_workers),
                 "--approach_distance", "0.1",   # Start gripper 10cm away from grasp point
                 "--approach_steps", "1000",    # Number of steps for approach
-                # "--render",  # Enable rendering for visualization
+                "--render",  # Enable rendering for visualization
                 "--max_successful", "1000"  # Stop after finding 1000 successful grasps
             ], check=True)
 
@@ -197,9 +227,12 @@ for obj in data:
         try:
             # Create high-quality visualization with organized file names
             subprocess.run([
-                "python", "scripts/visualize.py", object_name, "--filtered", 
-                "--save-png", filtered_viz_path, 
-                "--no-render", "--grasp-shape-only"
+                "python", "scripts/visualize.py", object_name,
+                #   "--filtered", 
+                "--save-png", 
+                filtered_viz_path, 
+                "--no-render",
+                  "--grasp-shape-only"
             ], check=True, env=env)
             
             # # Also create a comparison visualization
@@ -340,6 +373,8 @@ if USE_WANDB:
 
 # Create a summary table
 summary_data = []
+
+
 for obj in data[:processed_objects]:
     object_name = os.path.splitext(os.path.basename(obj["path"]))[0]
     object_dir = os.path.join("output", object_name)

@@ -25,6 +25,10 @@ parser.add_argument('--no-render', dest='render', action='store_false',
                    help='Do not show interactive visualization window')
 parser.add_argument('--grasp-shape-only', action='store_true',
                    help='Show only grasp shape lines without gripper mesh')
+parser.add_argument('--position', type=float, nargs=3, default=[0, 0, 0],
+                   help='Set position of the object in the scene (default: [0, 0, 0])')
+parser.add_argument('--rotation', type=float, nargs=4, default=[0, 0, 0, 1],
+                   help='Set rotation of the object in the scene as quaternion (default: [0, 0, 0, 1])')
 
 GRIPPER_PC = np.load(
     'assets/gripper_models/panda_pc.npy', allow_pickle=True).item()['points']
@@ -62,6 +66,18 @@ class Object(object):
         """
         self.scale = scale
         self.mesh.apply_scale(self.scale)
+
+    def set_transform(self, position, rotation):
+        if len(rotation) != 4:
+            raise ValueError("Rotation must be a quaternion in xyzw format.")
+        if not np.isclose(np.linalg.norm(rotation), 1.0):
+            raise ValueError("Rotation must be a unit quaternion.")
+        if len(position) != 3:
+            raise ValueError("Position must be a 3D vector.")
+        matrix = tra.quaternion_matrix(rotation)
+        matrix[3, 3] = 1.0
+        matrix[:3, 3] = position
+        self.mesh.apply_transform(matrix)
 
     def resize(self, size=1.0):
         """Set longest of all three lengths in Cartesian space.
@@ -593,8 +609,8 @@ def draw_scene(
             geometries.append(line_set)
 
     # Create coordinate frame
-    # coord_frame = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.1)
-    # geometries.append(coord_frame)
+    coord_frame = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.1)
+    geometries.append(coord_frame)
 
     # Visualize
     if render or save_png:
@@ -764,6 +780,11 @@ if args.compare:
         # Load object mesh from either file (they should be the same)
         mesh = trimesh.load(base_data['object'])
         mesh.apply_scale(base_data['object_scale'])
+
+        pose = np.identity(4)
+        pose[:3, 3] = base_data['object_position']
+        pose[:3, :3] = tra.quaternion_matrix(base_data['object_rotation'])
+        mesh.apply_transform(pose)
         
         # Get all transforms
         all_transforms = np.array(base_data['transforms'])
@@ -829,11 +850,16 @@ else:
     # Apply scale
     mesh.apply_scale(data['object_scale'])
 
+    pose = tra.quaternion_matrix(data['object_rotation'])
+    pose[:3, 3] = data['object_position']
+    pose[3,3] = 1.0
+    mesh.apply_transform(pose)
+
     # Extract grasp info
     transforms = np.array(data['transforms'])
     quality = np.array(data.get('quality_antipodal', data.get('quality_number_of_contacts', [1.0]*len(transforms))))
 
-    top_k = 2000
+    top_k = 1
     top_indices = np.argsort(quality)[-top_k:][::-1]
     transforms = [transforms[i] for i in top_indices]
     quality = [quality[i] for i in top_indices]
