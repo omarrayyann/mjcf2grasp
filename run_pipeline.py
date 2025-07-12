@@ -169,7 +169,7 @@ for obj in data:
                 "--xml_file", xml_file_path,
                 "--num_workers", str(num_workers),
                 "--approach_distance", "0.1",
-                "--approach_steps", "1000000",
+                "--approach_steps", "1000",
                 # "--render",
                 "--max_successful", "2000"
             ], check=True)
@@ -184,9 +184,9 @@ for obj in data:
             subprocess.run([
                 "python", "scripts/visualize.py", object_name,
                   "--filtered", 
-                # "--save-png", 
-                # filtered_viz_path, 
-                # "--no-render",
+                "--save-png", 
+                filtered_viz_path, 
+                "--no-render",
                   "--grasp-shape-only"
             ], check=True)
         
