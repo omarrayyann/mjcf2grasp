@@ -107,7 +107,7 @@ for obj in data:
     print(f"\nProcessing object: {object_name} simplification")
 
     subprocess.run([
-        "./simplify", "-i", temp_abs_path, "-o", output_abs_path, "-m", "-r", "0.8"
+        "./simplify", "-i", temp_abs_path, "-o", output_abs_path, "-m", "-r", "0.5"
     ], cwd="external_src/Manifold/build", check=True)
 
     if os.path.exists(grasp_file_path):

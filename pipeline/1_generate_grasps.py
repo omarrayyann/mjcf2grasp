@@ -236,10 +236,19 @@ class RumGripper(object):
             self.ray_origins.T).T, transform[:3, :3].dot(self.ray_directions.T).T
 
 
-def compute_grasp_widths(transforms, object_mesh, gripper_name='panda'):
+def _compute_widths_batch(batch_data):
+    """Worker function for computing grasp widths in parallel.
+    
+    Arguments:
+        batch_data {tuple} -- (transforms_batch, object_mesh, gripper_name)
+        
+    Returns:
+        list -- grasp widths for the batch
+    """
+    transforms_batch, object_mesh, gripper_name = batch_data
     from trimesh.ray.ray_triangle import RayMeshIntersector
     import trimesh
-
+    
     gripper = create_gripper(gripper_name)
     widths = []
 
@@ -249,7 +258,7 @@ def compute_grasp_widths(transforms, object_mesh, gripper_name='panda'):
     else:
         intersector = RayMeshIntersector(object_mesh)
 
-    for tf in transforms:
+    for tf in transforms_batch:
         ray_origins, ray_directions = gripper.get_closing_rays(tf)
 
         # Intersect rays with mesh
@@ -281,6 +290,36 @@ def compute_grasp_widths(transforms, object_mesh, gripper_name='panda'):
 
     return widths
 
+
+def compute_grasp_widths(transforms, object_mesh, gripper_name='panda', num_workers=None):
+
+    if num_workers is None:
+        num_workers = mp.cpu_count()
+    
+    if len(transforms) < 50 or num_workers <= 1:
+        return _compute_widths_batch((transforms, object_mesh, gripper_name))
+    
+    batch_size = max(1, len(transforms) // num_workers)
+    batches = [transforms[i:i+batch_size] for i in range(0, len(transforms), batch_size)]
+    
+    batch_data = [(batch, object_mesh, gripper_name) for batch in batches]
+    
+    all_widths = []
+    with mp.Pool(processes=num_workers) as pool:
+        print(f"Computing grasp widths using {num_workers} workers...")
+        pbar = tqdm(
+            total=len(transforms),
+            desc=f"Computing widths (using {num_workers} workers)"
+        )
+        
+        for result in pool.imap(_compute_widths_batch, batch_data):
+            all_widths.extend(result)
+            pbar.update(len(result))
+        
+        pbar.close()
+    
+    return all_widths
+
 def get_available_grippers():
     """Get list of names of all available grippers.
 
@@ -295,21 +334,7 @@ def get_available_grippers():
 
 
 def create_gripper(name, configuration=None, root_folder=''):
-    """Create a gripper object.
-
-    Arguments:
-        name {str} -- name of the gripper
-
-    Keyword Arguments:
-        configuration {list of float} -- configuration (default: {None})
-        root_folder {str} -- base folder for model files (default: {''})
-
-    Raises:
-        Exception: If the gripper name is unknown.
-
-    Returns:
-        [type] -- gripper object
-    """
+   
     if name.lower() == 'panda':
         return PandaGripper(q=configuration, root_folder=root_folder)
     elif name.lower() == 'rum':
@@ -1277,7 +1302,7 @@ if __name__ == "__main__":
                                      silent=args.silent,
                                      num_workers=args.num_workers)
         
-        grasp_widths = compute_grasp_widths(transforms, obj.mesh, gripper_name=args.gripper)
+        grasp_widths = compute_grasp_widths(transforms, obj.mesh, gripper_name=args.gripper, num_workers=args.num_workers)
         
         # Sort all features by quality score (highest quality first)
         quality_key = 'quality_' + args.quality
