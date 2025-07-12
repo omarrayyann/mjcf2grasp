@@ -1,18 +1,14 @@
 [
     {
-        "name": "Kettle_1",
-        "xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/Kitchen Objects/Kettle/Prefabs/Kettle_1/Kettle_1.xml"
+        "name": "Vase_Flat_1",
+        "xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/Miscellaneous Objects/Vase/Prefabs/Vase_Flat_1/Vase_Flat_1.xml"
     },
     {
-        "name": "Laptop_12",
-        "xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/Living Room and Bedroom Objects/Laptop_Full/Prefabs/Laptop_12/Laptop_12.xml"
+        "name": "Vase_Tall_4",
+        "xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/Miscellaneous Objects/Vase/Prefabs/Vase_Tall_4/Vase_Tall_4.xml"
     },
     {
-        "name": "Pan_16",
-        "xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/Kitchen Objects/Pan/Prefabs/Pan_16/Pan_16.xml"
-    },
-    {
-        "name": "Clothes_Dryer_2",
-        "xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/ManipulaTHOR Objects/ClothesDryers/Prefabs/Clothes_Dryer_2/Clothes_Dryer_2.xml"
+        "name": "Vase_Medium_4",
+        "xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/Miscellaneous Objects/Vase/Prefabs/Vase_Medium_4/Vase_Medium_4.xml"
     }
 ]
