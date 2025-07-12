@@ -4,14 +4,10 @@ import subprocess
 import wandb
 from datetime import datetime
 
-# Configuration
-USE_WANDB = False  # Set to False to disable wandb logging
+USE_WANDB = False
 
-# Load JSON data from file
 with open("matched_objs.json", "r") as f:
     data = json.load(f)
-
-# Initialize wandb
 if USE_WANDB:
     wandb.init(
         project="thor-grasp-pipeline",
@@ -25,7 +21,6 @@ if USE_WANDB:
         }
     )
 
-    # Define wandb charts for better visualization
     wandb.define_metric("step")
     wandb.define_metric("completion_percentage", step_metric="step")
     wandb.define_metric("processed_objects", step_metric="step")
@@ -40,7 +35,6 @@ if USE_WANDB:
 else:
     print(f"Starting processing of {len(data)} objects (wandb disabled)")
 
-# Base paths
 thor_assets_path = "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets"
 base_input_path = "../../../assets/objects"
 temp_folder = "tmp"
@@ -50,59 +44,35 @@ temp_abs_path = os.path.abspath(temp_path)
 output_path = os.path.join(temp_folder, "output.obj")
 output_abs_path = os.path.abspath(output_path)
 
-# Track progress
 processed_objects = 0
 failed_objects = []
 total_steps_skipped = 0
 
 for obj in data:
-    # Get full .obj path and derive object name (without extension)
-    full_path = obj["path"]
-    object_name = os.path.splitext(os.path.basename(full_path))[0]
-    xml_file = obj["xml"]
-    json_file = obj["json"]
-
-    scale = [1.0, 1.0, 1.0]  # Default scale
-    position = [0.0, 0.0, 0.0]  # Default position
-    rotation = [0.0, 0.0, 0.0, 1.0]  # Default rotation (no rotation)
-    with open(json_file, 'r') as f:
-        data = json.load(f)
-        meshes = data['meshes']
-        if len(meshes) == 1:
-            scale = meshes[0]['parentRelativeScale']
-            scale = [scale['x'], scale['y'], scale['z']]
-            position = meshes[0]['parentRelativePosition']
-            position = [position['x'], position['y'], position['z']]
-            rotation = meshes[0]['parentRelativeRotation']
-            rotation = [rotation['x'], rotation['y'], rotation['z'], rotation['w']]
-        else:
-            for mesh in meshes:
-                print(f"Object Name: {mesh['meshName']}")
-                if mesh['meshName'].lower() == object_name.lower():
-                    scale = mesh['parentRelativeScale']
-                    scale = [scale['x'], scale['y'], scale['z']]
-                    position = mesh['parentRelativePosition']
-                    position = [position['x'], position['y'], position['z']]
-                    rotation = mesh['parentRelativeRotation']
-                    rotation = [rotation['x'], rotation['y'], rotation['z'], rotation['w']]
-                    print(f"Found matching mesh: {mesh['meshName']}")
-                    break
+    object_name = obj["name"]
+    xml_file_path = obj["xml"]
     
-    print(f"\n{'='*80}")
-    print(f"Processing object {processed_objects + 1}/{len(data)}: {object_name}")
-    print(f"{'='*80}")
+    print(f"Converting XML to OBJ for {object_name}")
+    try:
+        subprocess.run([
+            "python", "pipeline/0_generate_mesh.py",
+            xml_file_path,
+            temp_path
+        ], check=True)
+        print(f"✓ Successfully created combined mesh: {temp_path}")
+    except subprocess.CalledProcessError as e:
+        print(f"✗ Error converting XML to OBJ for {object_name}: {str(e)}")
+        failed_objects.append(object_name)
+        continue
     
-    # Create object-specific output directory
     object_output_dir = os.path.join("output", object_name)
     os.makedirs(object_output_dir, exist_ok=True)
     print(f"Created output directory: {object_output_dir}")
     
-    # Check what steps can be skipped
     grasp_file_path = os.path.join(object_output_dir, f"{object_name}_grasps.json")
     filtered_file_path = os.path.join(object_output_dir, f"{object_name}_grasps_filtered.json")
     filtered_viz_path = os.path.join(object_output_dir, f"{object_name}_filtered_grasps_9shot.png")
     
-    # Also check old locations
     old_grasp_file = f"output/{object_name}_grasps.json"
     old_filtered_file = f"output/{object_name}_grasps_filtered.json"
     
@@ -120,19 +90,18 @@ for obj in data:
     else:
         print(f"🔄 Will run all steps: manifold processing, grasp generation, filtering, and visualization")
     
-    # Log current object to wandb
     if USE_WANDB:
         wandb.log({
             "current_object": object_name,
             "progress": (processed_objects + 1) / len(data),
             "processed_count": processed_objects + 1,
             "steps_to_skip": len(steps_to_skip),
-            "total_steps": 4  # manifold, grasp gen, filtering, visualization
+            "total_steps": 4
         })
 
-    print(f"\nProcessing object: {object_name} manifold")
+    print(f"\nProcessing object: {object_name} manifold (using combined mesh from XML)")
     subprocess.run([
-        "./manifold", full_path, temp_abs_path, "-s"
+        "./manifold", temp_abs_path, temp_abs_path, "-s"
     ], cwd="external_src/Manifold/build", check=True)
 
     print(f"\nProcessing object: {object_name} simplification")
@@ -141,30 +110,25 @@ for obj in data:
         "./simplify", "-i", temp_abs_path, "-o", output_abs_path, "-m", "-r", "0.8"
     ], cwd="external_src/Manifold/build", check=True)
 
-    # Check if grasp generation is needed
     if os.path.exists(grasp_file_path):
         print(f"✓ Grasp file already exists for {object_name}, skipping grasp generation")
     else:
         print(f"Generating grasps for object: {object_name}")
         try:
             subprocess.run([
-                "python", "pipeline/0_generate_grasps.py",
+                "python", "pipeline/1_generate_grasps.py",
                 "--object_file", output_abs_path,
                 "--quality", "antipodal",
                 "--output", grasp_file_path,
                 "--systematic_sampling",
-                "--scale", str(scale[0]),
-                "--position", str(position[0]), str(position[1]), str(position[2]),
-                "--rotation", str(rotation[0]), str(rotation[1]), str(rotation[2]), str(rotation[3]),
-                "--num_workers", str(os.cpu_count()),  # Use all available CPU cores
+               "--num_workers", str(os.cpu_count()),
             ], check=True)
         except subprocess.CalledProcessError as e:
             print(f"Error generating grasps for {object_name}: {str(e)}")
             print("Trying again with fewer workers...")
-            # Try again with half the workers
             num_workers = max(1, os.cpu_count() // 2)
             subprocess.run([
-                "python", "pipeline/0_generate_grasps.py",
+                "python", "pipeline/1_generate_grasps.py",
                 "--object_file", output_abs_path,
                 "--quality", "antipodal",
                 "--output", grasp_file_path,
@@ -172,52 +136,44 @@ for obj in data:
                 "--num_workers", str(num_workers)
             ], check=True)
 
-    # env = os.environ.copy()
-    # env["LD_LIBRARY_PATH"] = "myenv/lib/python3.10/site-packages/PySide2/Qt/lib:" + env.get("LD_LIBRARY_PATH", "")
-    
-    # env = os.environ.copy()
-    # env["LD_LIBRARY_PATH"] = "myenv/lib/python3.10/site-packages/PySide2/Qt/lib:" + env.get("LD_LIBRARY_PATH", "")
-
     # print(f"Visualizing initial grasps for object: {object_name}")
     # subprocess.run([
     #     "python", "scripts/visualize.py", object_name, "--render", "--grasp-shape-only",
-    # ], check=True, env=env)
+    # ], check=True)
+    # #, env=env)
 
-    # Check if filtering is needed
     if os.path.exists(filtered_file_path):
         print(f"✓ Filtered grasps file already exists for {object_name}, skipping filtering")
     else:
         print(f"Filtering grasps for object: {object_name} using MuJoCo")
         try:
             subprocess.run([
-                "python", "pipeline/1_filter_mujoco.py", 
-                "--mesh_path", full_path, 
+                "python", "pipeline/2_filter_mujoco.py", 
+                "--object_name", object_name, 
                 "--grasps_path", grasp_file_path,
-                "--xml_file", xml_file,
+                "--xml_file", xml_file_path,
                 "--num_workers", str(os.cpu_count()),
-                "--approach_distance", "0.1",   # Start gripper 10cm away from grasp point
-                "--approach_steps", "1000",    # Number of steps for approach
-                "--render",  # Enable rendering for visualization
-                "--max_successful", "2000"  # Stop after finding 1000 successful grasps
+                "--approach_distance", "0.1",
+                "--approach_steps", "1000",
+                # "--render",
+                "--max_successful", "2000"
             ], check=True)
         except subprocess.CalledProcessError as e:
             print(f"Error filtering grasps for {object_name}: {str(e)}")
             print("Trying again with fewer workers...")
-            # Try again with half the workers
             num_workers = max(1, os.cpu_count() // 2)
             subprocess.run([
-                "python", "pipeline/1_filter_mujoco.py", 
-                "--mesh_path", full_path, 
+                "python", "pipeline/2_filter_mujoco.py", 
+                "--object_name", object_name, 
                 "--grasps_path", grasp_file_path,
-                "--xml_file", xml_file,
+                "--xml_file", xml_file_path,
                 "--num_workers", str(num_workers),
-                "--approach_distance", "0.1",   # Start gripper 10cm away from grasp point
-                "--approach_steps", "1000",    # Number of steps for approach
-                # "--render",  # Enable rendering for visualization
-                "--max_successful", "2000"  # Stop after finding 1000 successful grasps
+                "--approach_distance", "0.1",
+                "--approach_steps", "1000000",
+                # "--render",
+                "--max_successful", "2000"
             ], check=True)
 
-    # Check if visualization is needed
     if os.path.exists(filtered_viz_path):
         print(f"✓ Visualization already exists for {object_name}, skipping visualization")
         visualization_success = True
@@ -225,25 +181,15 @@ for obj in data:
         print(f"Visualizing filtered grasps for object: {object_name}")
         visualization_success = False
         try:
-            # Create high-quality visualization with organized file names
             subprocess.run([
                 "python", "scripts/visualize.py", object_name,
                   "--filtered", 
-                "--save-png", 
-                filtered_viz_path, 
-                "--no-render",
+                # "--save-png", 
+                # filtered_viz_path, 
+                # "--no-render",
                   "--grasp-shape-only"
             ], check=True)
-            
-            # # Also create a comparison visualization
-            # print(f"Creating comparison visualization for object: {object_name}")
-            # comparison_viz_path = os.path.join(object_output_dir, f"{object_name}_comparison_9shot.png")
-            # subprocess.run([
-            #     "python", "scripts/visualize.py", object_name, "--compare",
-            #     "--save-png", comparison_viz_path, 
-            #     "--no-render", "--grasp-shape-only"
-            # ], check=True, env=env)
-            
+        
             visualization_success = True
             
         except subprocess.CalledProcessError as e:
@@ -251,17 +197,11 @@ for obj in data:
             print("Continuing to next object...")
             failed_objects.append(object_name)
     
-    # Upload visualization to wandb (regardless of whether it was just created or already existed)
     if USE_WANDB and os.path.exists(filtered_viz_path):
         wandb.log({
             f"{object_name}_filtered_grasps": wandb.Image(filtered_viz_path, caption=f"Filtered grasps for {object_name}"),
             f"visualization_success": visualization_success
         })
-    
-    # if os.path.exists(comparison_viz_path):
-    #     wandb.log({
-    #         f"{object_name}_comparison": wandb.Image(comparison_viz_path, caption=f"Filtered vs Unfiltered comparison for {object_name}")
-    #     })
     
     if not visualization_success:
         if USE_WANDB:
@@ -271,19 +211,16 @@ for obj in data:
                 "visualization_success": False
             })
     
-    # Move existing JSON files to the object directory if they exist in the old location
     old_grasp_file = f"output/{object_name}_grasps.json"
     old_filtered_file = f"output/{object_name}_grasps_filtered.json"
     
     grasp_count = 0
     filtered_count = 0
     
-    # Handle grasp file (either existing in new location or move from old)
     if os.path.exists(old_grasp_file) and not os.path.exists(grasp_file_path):
         os.rename(old_grasp_file, grasp_file_path)
         print(f"Moved {old_grasp_file} to {grasp_file_path}")
     
-    # Count grasps in the file
     if os.path.exists(grasp_file_path):
         try:
             with open(grasp_file_path, 'r') as f:
@@ -292,12 +229,10 @@ for obj in data:
         except:
             pass
     
-    # Handle filtered file (either existing in new location or move from old)
     if os.path.exists(old_filtered_file) and not os.path.exists(filtered_file_path):
         os.rename(old_filtered_file, filtered_file_path)
         print(f"Moved {old_filtered_file} to {filtered_file_path}")
     
-    # Count filtered grasps
     if os.path.exists(filtered_file_path):
         try:
             with open(filtered_file_path, 'r') as f:
@@ -306,31 +241,26 @@ for obj in data:
         except:
             pass
     
-    # Log object completion statistics
     processed_objects += 1
     filter_success_rate = (filtered_count / grasp_count * 100) if grasp_count > 0 else 0
     completion_percentage = (processed_objects / len(data)) * 100
     
     if USE_WANDB:
         wandb.log({
-            # Progress tracking
             "completion_percentage": completion_percentage,
             "processed_objects": processed_objects,
             "remaining_objects": len(data) - processed_objects,
             "overall_progress": processed_objects / len(data),
             
-            # Current object stats
             f"object_completed": object_name,
             f"grasp_count": grasp_count,
             f"filtered_count": filtered_count,
             f"filter_success_rate": filter_success_rate,
             f"visualization_success": visualization_success,
             
-            # Running totals for charts
             "step": processed_objects,
         })
     
-    # Log a progress bar visualization
     progress_bar_width = 50
     filled_width = int(progress_bar_width * (processed_objects / len(data)))
     progress_bar = "█" * filled_width + "░" * (progress_bar_width - filled_width)
@@ -344,7 +274,6 @@ for obj in data:
         print(f"  - Filter success rate: {filter_success_rate:.1f}%")
     print("=" * 80)
 
-# Final summary
 print(f"\n{'='*80}")
 print(f"PIPELINE COMPLETE!")
 print(f"{'='*80}")
@@ -354,13 +283,11 @@ if failed_objects:
     print(f"Failed visualizations: {len(failed_objects)}")
     print(f"Failed objects: {', '.join(failed_objects)}")
 
-# Estimate time saved
-estimated_time_per_step = 2  # minutes (rough estimate)
+estimated_time_per_step = 2
 estimated_time_saved = total_steps_skipped * estimated_time_per_step
 if estimated_time_saved > 0:
     print(f"⏱️  Estimated time saved: ~{estimated_time_saved} minutes ({estimated_time_saved/60:.1f} hours)")
 
-# Log final summary
 if USE_WANDB:
     wandb.log({
         "pipeline_complete": True,
@@ -371,7 +298,6 @@ if USE_WANDB:
         "success_rate": (processed_objects - len(failed_objects)) / processed_objects * 100 if processed_objects > 0 else 0
     })
 
-# Create a summary table
 summary_data = []
 
 
@@ -379,7 +305,6 @@ for obj in data[:processed_objects]:
     object_name = os.path.splitext(os.path.basename(obj["path"]))[0]
     object_dir = os.path.join("output", object_name)
     
-    # Get grasp counts
     grasp_file = os.path.join(object_dir, f"{object_name}_grasps.json")
     filtered_file = os.path.join(object_dir, f"{object_name}_grasps_filtered.json")
     
@@ -410,7 +335,6 @@ for obj in data[:processed_objects]:
         "✓" if object_name not in failed_objects else "✗"
     ])
 
-# Create wandb table
 if USE_WANDB:
     table = wandb.Table(
         columns=["Object", "Original Grasps", "Filtered Grasps", "Success Rate", "Visualization"],

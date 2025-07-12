@@ -70,7 +70,7 @@ class Object(object):
         self.position = position
         self.rotation = rotation
         self.mesh.apply_transform(matrix)
-
+\
     def resize(self, size=1.0):
         """Set longest of all three lengths in Cartesian space.
 
@@ -235,6 +235,51 @@ class RumGripper(object):
         return transform[:3, :].dot(
             self.ray_origins.T).T, transform[:3, :3].dot(self.ray_directions.T).T
 
+
+def compute_grasp_widths(transforms, object_mesh, gripper_name='panda'):
+    from trimesh.ray.ray_triangle import RayMeshIntersector
+    import trimesh
+
+    gripper = create_gripper(gripper_name)
+    widths = []
+
+    # Use Embree if available
+    if trimesh.ray.has_embree:
+        intersector = trimesh.ray.ray_pyembree.RayMeshIntersector(object_mesh)
+    else:
+        intersector = RayMeshIntersector(object_mesh)
+
+    for tf in transforms:
+        ray_origins, ray_directions = gripper.get_closing_rays(tf)
+
+        # Intersect rays with mesh
+        locations, index_ray, index_tri = intersector.intersects_location(
+            ray_origins, ray_directions, multiple_hits=False)
+
+        if len(locations) < 2:
+            widths.append(0.0)
+            continue
+
+        # Finger ray indices: even = left, odd = right
+        left_hits = [(i, loc) for i, loc in zip(index_ray, locations) if i % 2 == 0]
+        right_hits = [(i, loc) for i, loc in zip(index_ray, locations) if i % 2 == 1]
+
+        if not left_hits or not right_hits:
+            widths.append(0.0)
+            continue
+
+        # Choose the nearest contact point (shortest distance from ray origin)
+        def closest_hit(hits):
+            return min(hits, key=lambda x: np.linalg.norm(ray_origins[x[0]][:3] - x[1]))[1]
+
+        contact_left = closest_hit(left_hits)
+        contact_right = closest_hit(right_hits)
+
+        # Compute Euclidean distance between contacts
+        width = np.linalg.norm(contact_left - contact_right)
+        widths.append(width)
+
+    return widths
 
 def get_available_grippers():
     """Get list of names of all available grippers.
@@ -1231,6 +1276,25 @@ if __name__ == "__main__":
                                      min_quality=args.min_quality,
                                      silent=args.silent,
                                      num_workers=args.num_workers)
+        
+        grasp_widths = compute_grasp_widths(transforms, obj.mesh, gripper_name=args.gripper)
+        
+        # Sort all features by quality score (highest quality first)
+        quality_key = 'quality_' + args.quality
+        quality_scores = qualities[quality_key]
+        sort_indices = np.argsort(quality_scores)[::-1]  # Descending order
+        
+        # Apply sorting to all arrays/lists
+        transforms = transforms[sort_indices]
+        points = points[sort_indices]
+        normals = normals[sort_indices]
+        roll_angles = roll_angles[sort_indices]
+        standoffs = standoffs[sort_indices]
+        collisions = [collisions[i] for i in sort_indices]
+        grasp_widths = [grasp_widths[i] for i in sort_indices]
+        sorted_quality_scores = [quality_scores[i] for i in sort_indices]
+        
+        verboseprint(f"Sorted grasps by quality. Best quality: {sorted_quality_scores[0]:.4f}, Worst: {sorted_quality_scores[-1]:.4f}")
 
         # save transforms
         grasps = {
@@ -1248,8 +1312,9 @@ if __name__ == "__main__":
             'mesh_points': [p.tolist() for p in points],
             'mesh_normals': [n.tolist() for n in normals],
             'collisions': collisions,
+            'grasp_widths': grasp_widths,
+            quality_key: sorted_quality_scores,
         }
-        grasps.update(qualities)
 
         with open(args.output, 'w') as f:
             verboseprint("Writing results to:", args.output)

@@ -12,8 +12,8 @@ class PandaGripper:
     def __init__(self, q=0.04, num_contact_points_per_finger=10, root_folder=''):
         self.q = q
         fn_base = root_folder + 'assets/gripper_models/rum_gripper/meshes/simple_body.stl'
-        fn_finger_l = root_folder + 'assets/gripper_models/rum_gripper/meshes/left_finger_adjusted.stl'
-        fn_finger_r = root_folder + 'assets/gripper_models/rum_gripper/meshes/right_finger_adjusted.stl'
+        fn_finger_l = root_folder + 'assets/gripper_models/rum_gripper/meshes/simple_left.stl'
+        fn_finger_r = root_folder + 'assets/gripper_models/rum_gripper/meshes/simple_right.stl'
         self.base = trimesh.load(fn_base)
         self.finger_l = trimesh.load(fn_finger_l)
         self.finger_r = trimesh.load(fn_finger_r)

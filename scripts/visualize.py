@@ -429,7 +429,9 @@ def draw_scene(
     pc_color=None, 
     plasma_coloring=False,
     save_png=None,
-    render=True):
+    render=True,
+    grasp_widths=None
+    ):
     """
     Draws the 3D scene for the object and the scene using Open3D.
     Args:
@@ -458,11 +460,18 @@ def draw_scene(
     # Create list to hold all geometries
     geometries = []
     
-    max_grasps = 200
+    max_grasps = 2000
     grasps = np.array(grasps)
+
+    if len(grasps) == 0:
+        print('No grasps to visualize')
+        return geometries
 
     if grasp_scores is not None:
         grasp_scores = np.array(grasp_scores)
+
+    if grasp_widths is not None:
+        grasp_widths = np.array(grasp_widths)
 
     if len(grasps) > max_grasps:
         print('Downsampling grasps, there are too many')
@@ -470,6 +479,8 @@ def draw_scene(
         grasps = grasps[chosen_ones]
         if grasp_scores is not None:
             grasp_scores = grasp_scores[chosen_ones]
+        if grasp_widths is not None:
+            grasp_widths = grasp_widths[chosen_ones]
 
     # Add mesh to scene
     if mesh is not None:
@@ -502,23 +513,7 @@ def draw_scene(
         geometries.append(pcd)
 
     # Create grasp visualization
-    grasp_pc = np.squeeze(get_control_point_tensor(1, False), 0)
-    print(grasp_pc.shape)
-    grasp_pc[2, 2] = 0.059
-    grasp_pc[3, 2] = 0.059
-
-    mid_point = 0.5*(grasp_pc[2, :] + grasp_pc[3, :])
-
-    modified_grasp_pc = []
-    modified_grasp_pc.append(np.zeros((3,), np.float32))
-    modified_grasp_pc.append(mid_point)
-    modified_grasp_pc.append(grasp_pc[2])
-    modified_grasp_pc.append(grasp_pc[4])
-    modified_grasp_pc.append(grasp_pc[2])
-    modified_grasp_pc.append(grasp_pc[3])
-    modified_grasp_pc.append(grasp_pc[5])
-
-    grasp_pc = np.asarray(modified_grasp_pc)
+    
 
     def transform_grasp_pc(g):
         output = np.matmul(grasp_pc, g[:3, :3].T)
@@ -548,6 +543,33 @@ def draw_scene(
         
         g = grasps[i]
         is_diverse = True
+
+        grasp_pc = np.squeeze(get_control_point_tensor(1, False), 0)
+        print(grasp_pc.shape)
+        grasp_pc[2, 2] = 0.059
+        grasp_pc[3, 2] = 0.059
+
+        grasp_width = grasp_widths[i] + 0.03
+
+        grasp_pc[2,0] = grasp_width * 0.5  # Left finger base
+        grasp_pc[3,0] = -grasp_width * 0.5  # Left finger tip
+        grasp_pc[4,0] = grasp_width * 0.5  # Left finger base (duplicate)
+        grasp_pc[5,0] = -grasp_width * 0.5  # Right finger base
+
+        mid_point = 0.5*(grasp_pc[2, :] + grasp_pc[3, :])
+
+        modified_grasp_pc = []
+        modified_grasp_pc.append(np.zeros((3,), np.float32))
+        modified_grasp_pc.append(mid_point)
+        modified_grasp_pc.append(grasp_pc[2])
+        modified_grasp_pc.append(grasp_pc[4])
+        modified_grasp_pc.append(grasp_pc[2])
+        modified_grasp_pc.append(grasp_pc[3])
+        modified_grasp_pc.append(grasp_pc[5])
+
+        grasp_pc = np.asarray(modified_grasp_pc)
+
+
         for prevg in selected_grasps_so_far:
             distance = np.linalg.norm(prevg[:3, 3] - g[:3, 3])
     
@@ -588,29 +610,29 @@ def draw_scene(
             gripper_mesh.apply_transform(g)
             o3d_gripper = plot_mesh(gripper_mesh, color=current_gripper_color)
             geometries.append(o3d_gripper)
-        else:
-            # Create line set for grasp visualization
-            pts = np.matmul(grasp_pc, g[:3, :3].T)
-            pts += np.expand_dims(g[:3, 3], 0)
-            
-            # Create line set connecting the grasp points
-            lines = []
-            for j in range(len(pts) - 1):
-                lines.append([j, j + 1])
-            
-            line_set = o3d.geometry.LineSet()
-            line_set.points = o3d.utility.Vector3dVector(pts)
-            line_set.lines = o3d.utility.Vector2iVector(lines)
-            
-            # Set color for all lines
-            colors = [current_gripper_color] * len(lines)
-            line_set.colors = o3d.utility.Vector3dVector(colors)
-            
-            geometries.append(line_set)
+        # Create line set for grasp visualization
+        pts = np.matmul(grasp_pc, g[:3, :3].T)
+        pts += np.expand_dims(g[:3, 3], 0)
+        
+        # Create line set connecting the grasp points
+        lines = []
+        for j in range(len(pts) - 1):
+            lines.append([j, j + 1])
+        
+        line_set = o3d.geometry.LineSet()
+        line_set.points = o3d.utility.Vector3dVector(pts)
+        line_set.lines = o3d.utility.Vector2iVector(lines)
+        
+        # Set color for all lines
+        colors = [current_gripper_color] * len(lines)
+        line_set.colors = o3d.utility.Vector3dVector(colors)
+        # make lines thicker
+
+        geometries.append(line_set)
 
     # Create coordinate frame
-    # coord_frame = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.1)
-    # geometries.append(coord_frame)
+    coord_frame = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.1)
+    geometries.append(coord_frame)
 
     # Visualize
     if render or save_png:
@@ -630,9 +652,9 @@ def draw_scene(
             
             # Set render options for high quality
             render_option = vis.get_render_option()
-            render_option.background_color = np.array([0.1, 0.1, 0.1])
-            render_option.point_size = 4.0  # Increased point size
-            render_option.line_width = 4.0  # Increased line width
+            render_option.background_color = np.array([0.0, 0.0, 0.0])
+            render_option.point_size = 2.0  # Increased point size
+            render_option.line_width = 2.0  # Increased line width
             
             # Get the view control and let it auto-fit
             view_control = vis.get_view_control()
@@ -724,7 +746,7 @@ def draw_scene(
                     vis.add_geometry(geom)
                 
                 render_option = vis.get_render_option()
-                render_option.background_color = np.array([0.1, 0.1, 0.1])
+                render_option.background_color = np.array([0.0, 0.0, 0.0])
                 render_option.point_size = 2.0
                 render_option.line_width = 2.0
                 
@@ -741,7 +763,7 @@ def draw_scene(
             
             # Set view options
             render_option = vis.get_render_option()
-            render_option.background_color = np.array([0.1, 0.1, 0.1])
+            render_option.background_color = np.array([0.0, 0.0, 0.0])
             render_option.point_size = 2.0
             render_option.line_width = 2.0
             
@@ -858,11 +880,17 @@ else:
     # Extract grasp info
     transforms = np.array(data['transforms'])
     quality = np.array(data.get('quality_antipodal', data.get('quality_number_of_contacts', [1.0]*len(transforms))))
+    grasp_widths = np.array(data.get('grasp_widths', [0.0]*len(transforms)))
 
     top_k = 2000
-    top_indices = np.argsort(quality)[-top_k:][::-1]
-    transforms = [transforms[i] for i in top_indices]
-    quality = [quality[i] for i in top_indices]
+    # top_indices = np.argsort(quality)[-top_k:][::-1]
+    # transforms = [transforms[i] for i in top_indices]
+    # quality = [quality[i] for i in top_indices]
+    # grasp_widths = [grasp_widths[i] for i in top_indices]
+
+    transforms = transforms[:top_k]
+    quality = quality[:top_k]
+    grasp_widths = grasp_widths[:top_k]
 
     # Visualize
     draw_scene( 
@@ -873,5 +901,7 @@ else:
         show_gripper_mesh=not args.grasp_shape_only,  # Use the new option
         plasma_coloring=True,
         save_png=args.save_png,
-        render=args.render
+        render=args.render,
+        grasp_widths=grasp_widths
     )
+

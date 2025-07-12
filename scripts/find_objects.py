@@ -92,7 +92,10 @@ def find_objs_with_matching_subfolder(base_dir):
                     subfolder_path = os.path.join(root, obj_name)
                     found_object = False
                     for pickup_type in all_pickup_types:
-                        if pickup_type in obj_name.lower():
+                        # seperate object name by underscores
+                        object_subnames = obj_name.lower().split('_')
+                        # check if any subname matches the pickup type
+                        if any(subname in pickup_type for subname in object_subnames):
                             found_object = True
                             break
                     if not found_object:
@@ -107,8 +110,6 @@ def find_objs_with_matching_subfolder(base_dir):
 
                             result.append({
                                 "name": obj_name,
-                                "path": abs_obj_path,
-                                "json": abs_json_path,
                                 "xml": abs_xml_path
                             })
                             break  # Stop after the first valid .xml file

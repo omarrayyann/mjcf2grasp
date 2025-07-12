@@ -1,8 +1,6 @@
 [
     {
-        "name": "Vase_Medium_4",
-        "path": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/Miscellaneous Objects/Vase/Prefabs/Vase_Medium_4.obj",
-        "json": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/Miscellaneous Objects/Vase/Prefabs/Vase_Medium_4.json",
-        "xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/Miscellaneous Objects/Vase/Prefabs/Vase_Medium_4/Vase_Medium_4.xml"
+        "name": "Laptop_12",
+        "xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/Living Room and Bedroom Objects/Laptop_Full/Prefabs/Laptop_12/Laptop_12.xml"
     }
 ]

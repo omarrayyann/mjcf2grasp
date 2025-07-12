@@ -11,7 +11,7 @@ from scipy.spatial.transform import Rotation as R
 from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--mesh_path", type=str)
+parser.add_argument("--object_name", type=str)
 parser.add_argument("--grasps_path", type=str)
 parser.add_argument("--xml_file", type=str)
 parser.add_argument("--num_shakes", type=int, default=2)
@@ -88,26 +88,13 @@ def test_single_grasp(grasp_data, object_name):
     i, transform, quality, config = grasp_data
     
     # Create a new MuJoCo model and data for this process
-    mesh_file = os.path.abspath(config['mesh_path'])
     xml_path = os.path.join(os.path.dirname(__file__), "../assets/scene.xml")
     tree = ET.parse(xml_path)
     root = tree.getroot()
 
-    object_name = os.path.splitext(os.path.basename(mesh_file))[0]
 
     include = ET.Element("include", {"file": args.xml_file})
     root.append(include)
-
-    # asset = root.find("asset")
-    # mesh = ET.Element("mesh", {"file": mesh_file, "scale": "1 1 1", "name":"object_mesh"})
-    # asset.append(mesh)
-
-    # worldbody = root.find("worldbody")
-    # body = ET.Element("body", {"name": "object_body", "gravcomp": "1"})
-    # joint = ET.Element("joint", {"type": "free", "damping": "10."})
-    # geom = ET.Element("geom", {"name": "object", "type": "mesh", "mesh": "object_mesh"})
-    # body.extend([joint, geom])
-    # worldbody.append(body)
 
     xml_content = ET.tostring(root, encoding="unicode")
     model = mujoco.MjModel.from_xml_string(xml_content)
@@ -143,7 +130,6 @@ def test_single_grasp(grasp_data, object_name):
     # Move using velocity control to reach the grasp position
     approach_steps = config.get('approach_steps', 1000)
     velocity = approach_distance / (approach_steps * model.opt.timestep)  # Calculate required velocity
-    
     for step in range(approach_steps):
         # Set y-velocity to move towards target
         data.ctrl[2] = velocity  # ctrl[2] is y-velocity
@@ -234,11 +220,13 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
         grasp_data = json.load(f)
     transforms = np.array(grasp_data["transforms"])
     qualities = np.array(grasp_data.get("quality_antipodal", [1.0] * len(transforms)))
-
+    
+    width = np.array(grasp_data.get("grasp_widths", [0.1] * len(transforms)))
     # Handle viewer mode separately (can't parallelize with viewer)
     if use_viewer:
         successful_transforms = []
         successful_qualities = []
+        successful_widths = []
         
         with mujoco.viewer.launch_passive(model, data, show_left_ui=True, show_right_ui=True) as viewer:
             pbar = tqdm(enumerate(zip(transforms, qualities)), 
@@ -250,6 +238,9 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
 
                 pos = transform[:3, 3]
                 quat = R.from_matrix(transform[:3, :3]).as_quat(scalar_first=True)
+
+                geom_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_GEOM, "test_sphere")
+                model.geom_pos[geom_id] = pos
 
                 # Calculate approach position back along the gripper's z-axis
                 approach_distance = args.approach_distance
@@ -270,7 +261,7 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
                     if step % 50 == 0:
                         viewer.sync()
                         if not viewer.is_running():
-                            return successful_transforms, successful_qualities
+                            return successful_transforms, successful_qualities, successful_widths
                 
                 # Move using velocity control to reach the grasp position
                 approach_steps = args.approach_steps
@@ -290,7 +281,7 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
                     if step % 50 == 0:
                         viewer.sync()
                         if not viewer.is_running():
-                            return successful_transforms, successful_qualities
+                            return successful_transforms, successful_qualities, successful_widths
                 
                 # Zero out all velocity controls
                 data.ctrl[1] = 0.0  # x-velocity
@@ -303,7 +294,7 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
                     if step % 20 == 0:
                         viewer.sync()
                         if not viewer.is_running():
-                            return successful_transforms, successful_qualities
+                            return successful_transforms, successful_qualities, successful_widths
                 
                 # Now close the gripper
                 data.ctrl[0] = -1.0
@@ -314,7 +305,7 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
                     if step % 50 == 0:
                         viewer.sync()
                         if not viewer.is_running():
-                            return successful_transforms, successful_qualities
+                            return successful_transforms, successful_qualities, successful_widths
 
                 # Stabilize grasp
                 for step in range(2000):
@@ -322,7 +313,7 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
                     if step % 20 == 0:
                         viewer.sync()
                         if not viewer.is_running():
-                            return successful_transforms, successful_qualities
+                            return successful_transforms, successful_qualities, successful_widths
 
                 if not check_grasp(model, data, object_name, store_initial=True):
                     pbar.set_description(f"Testing grasps ({len(successful_transforms)}/{i+1} successful)")
@@ -347,7 +338,7 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
                             if step % 5 == 0:
                                 viewer.sync()
                                 if not viewer.is_running():
-                                    return successful_transforms, successful_qualities
+                                    return successful_transforms, successful_qualities, successful_widths
 
                             # Check grasp at quarter and three-quarter points
                             if step == total_steps // 4 or step == 3 * total_steps // 4:
@@ -366,7 +357,7 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
                             if step % 20 == 0:
                                 viewer.sync()
                                 if not viewer.is_running():
-                                    return successful_transforms, successful_qualities
+                                    return successful_transforms, successful_qualities, successful_widths
 
                     # Reset control for this direction
                     data.ctrl[ctrl_idx] = 0
@@ -380,11 +371,13 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
                 if shake_success and final_grasp_check:
                     successful_transforms.append(transform.tolist())
                     successful_qualities.append(quality)
+                    successful_widths.append(width[i])
+                    
                     
                     # Check if we've reached the maximum number of successful grasps
                     if args.max_successful > 0 and len(successful_transforms) >= args.max_successful:
                         tqdm.write(f"Found {len(successful_transforms)} successful grasps (reached max_successful limit)")
-                        return successful_transforms, successful_qualities
+                        return successful_transforms, successful_qualities, successful_widths
                 
                 # Update progress bar with success rate
                 pbar.set_description(f"Testing grasps ({len(successful_transforms)}/{i+1} successful)")
@@ -394,15 +387,14 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
                     mujoco.mj_step(model, data)
                     viewer.sync()
                     if not viewer.is_running():
-                        return successful_transforms, successful_qualities
+                        return successful_transforms, successful_qualities, successful_widths
                         
-        return successful_transforms, successful_qualities
+        return successful_transforms, successful_qualities, successful_widths
     
     # Parallel processing for non-viewer mode
     else:
         # Prepare grasp data for parallel processing
         config = {
-            'mesh_path': args.mesh_path,
             'num_shakes': args.num_shakes,
             'shake_magnitude': args.shake_magnitude,
             'shake_steps': args.shake_steps,
@@ -418,6 +410,7 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
         
         successful_transforms = []
         successful_qualities = []
+        successful_widths = []
         
         # Use a manager to share progress information
         with mp.Manager() as manager:
@@ -440,7 +433,7 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
                     
                     if transform_result is not None:
                         success_count.value += 1
-                        successful_transforms.append((i, transform_result, quality_result))
+                        successful_transforms.append((i, transform_result, quality_result, width[i]))
                         
                         # Check if we've reached the maximum number of successful grasps
                         if args.max_successful > 0 and success_count.value >= args.max_successful:
@@ -493,25 +486,22 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
             # Sort results by original index
             successful_transforms.sort()
             # Extract just the transform and quality, discarding the index
-            successful_transforms_only = [t for _, t, _ in successful_transforms]
-            successful_qualities_only = [q for _, _, q in successful_transforms]
+            successful_transforms_only = [t for _, t, _, _ in successful_transforms]
+            successful_qualities_only = [q for _, _, q, _ in successful_transforms]
+            successful_widths_only = [w for _, _, _, w in successful_transforms]
             
         pbar.close()
-        return successful_transforms_only, successful_qualities_only
+        return successful_transforms_only, successful_qualities_only, successful_widths_only
 
 
 if __name__ == "__main__":
     # Only needed for the interactive viewer mode or as a baseline model for the parallel version
-    mesh_file = os.path.abspath(args.mesh_path)
+
     xml_path = os.path.join(os.path.dirname(__file__), "../assets/scene.xml")
     tree = ET.parse(xml_path)
     root = tree.getroot()
 
-    # asset = root.find("asset")
-    # mesh = ET.Element("mesh", {"file": mesh_file, "scale": "1 1 1", "name":"object_mesh"})
-    # asset.append(mesh)
-
-    object_name = os.path.splitext(os.path.basename(mesh_file))[0]
+    object_name = args.object_name
 
     include = ET.Element("include", {"file": args.xml_file})
     root.append(include)
@@ -529,7 +519,7 @@ if __name__ == "__main__":
     data = mujoco.MjData(model)
 
     # Run the simulation
-    successful_transforms, successful_qualities = run_simulation_with_viewer(model, data, object_name, args.render)
+    successful_transforms, successful_qualities, successful_widths = run_simulation_with_viewer(model, data, object_name, args.render)
 
     # Save updated successful grasps
     output_path = args.grasps_path.replace(".json", "_filtered.json")
@@ -545,7 +535,8 @@ if __name__ == "__main__":
             "object_scale": original_data.get('object_scale', 1.0),
             "object_position": original_data.get('object_position', [0, 0, 0]),
             "object_rotation": original_data.get('object_rotation', [1, 0, 0, 0]),
-            "approach_distance": args.approach_distance
+            "approach_distance": args.approach_distance,
+            "grasp_widths": successful_widths,
         }, f, indent=2)
 
     tqdm.write(f"Saved {len(successful_transforms)} successful grasps to {output_path}")
