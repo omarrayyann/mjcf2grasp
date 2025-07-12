@@ -4,7 +4,7 @@ import subprocess
 import wandb
 from datetime import datetime
 
-USE_WANDB = False
+USE_WANDB = True
 
 with open("matched_objs.json", "r") as f:
     data = json.load(f)
