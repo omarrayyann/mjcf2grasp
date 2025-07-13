@@ -1,8 +1,9 @@
 """
 Visualization script for grasps from a JSON file.
 
-This script supports both interactive and headless rendering modes:
+This script supports both interactive and headless rendering modes with robust fallback handling:
 
+RENDERING MODES:
 1. Headless mode (default): 
    - No display window is shown
    - Suitable for servers without display
@@ -12,16 +13,37 @@ This script supports both interactive and headless rendering modes:
    - Shows interactive 3D window
    - Use --render flag to enable
 
-3. Headless rendering techniques:
-   - Prefers Open3D OffscreenRenderer for true headless operation
-   - Falls back to hidden window rendering if OffscreenRenderer unavailable
-   - Similar to the example provided using OffscreenRenderer
+HEADLESS RENDERING OPTIONS:
+- Traditional (recommended): Stable hidden window method using Open3D Visualizer
+- Experimental: OffscreenRenderer for true headless operation (may have geometry compatibility issues)
 
-Usage examples:
-    python visualize.py object_name                          # Headless mode (no display)
-    python visualize.py object_name --save-png output.png    # Headless + save image
-    python visualize.py object_name --render                 # Interactive mode
-    python visualize.py object_name --display                # Force display mode
+The script automatically falls back to traditional rendering if OffscreenRenderer fails,
+ensuring robust operation across different environments and geometry types.
+
+COMMAND-LINE OPTIONS:
+  --render                    Show interactive visualization window
+  --save-png <file>          Save visualization as PNG (supports 9-shot collage)
+  --use-offscreen            Enable experimental OffscreenRenderer (may be unstable with LineSet geometries)
+  --force-traditional        Force stable traditional hidden window rendering (recommended)
+  --compare                  Show both filtered (green) and unfiltered (red) grasps
+  --filtered                 Show only filtered grasps
+  --grasp-shape-only         Show only grasp lines without gripper mesh
+
+USAGE EXAMPLES:
+    # Headless mode (no display, no output)
+    python visualize.py object_name
+    
+    # Headless mode with 9-shot collage output (recommended)
+    python visualize.py object_name --save-png output.png --force-traditional
+    
+    # Interactive mode
+    python visualize.py object_name --render
+    
+    # Experimental OffscreenRenderer (may fail with complex geometries)
+    python visualize.py object_name --save-png output.png --use-offscreen
+    
+    # Compare filtered vs unfiltered grasps
+    python visualize.py object_name --compare --render
 """
 
 from __future__ import print_function
@@ -44,9 +66,11 @@ try:
     from open3d.visualization.rendering import OffscreenRenderer, MaterialRecord
     # Disable OffscreenRenderer by default due to stability issues with complex geometries
     OFFSCREEN_AVAILABLE = False  # Set to True to enable experimental OffscreenRenderer
-    print("OffscreenRenderer available but disabled by default. Using stable fallback method.")
+    print("OffscreenRenderer available but disabled by default for stability.")
+    print("Use --use-offscreen to enable experimental OffscreenRenderer.")
+    print("Use --force-traditional to force stable traditional rendering.")
 except ImportError:
-    print("Warning: OffscreenRenderer not available. Falling back to hidden window rendering.")
+    print("Warning: OffscreenRenderer not available. Using stable fallback method.")
     OFFSCREEN_AVAILABLE = False
 parser = argparse.ArgumentParser(description='Visualize grasps from a JSON file.')
 parser.add_argument('object_name', type=str)
@@ -62,7 +86,9 @@ parser.add_argument('--no-render', dest='render', action='store_false',
 parser.add_argument('--display', action='store_true', 
                    help='Force display mode even if no --render flag (overrides headless)')
 parser.add_argument('--use-offscreen', action='store_true',
-                   help='Enable experimental OffscreenRenderer (may be unstable)')
+                   help='Enable experimental OffscreenRenderer (may be unstable with complex geometries)')
+parser.add_argument('--force-traditional', action='store_true',
+                   help='Force traditional hidden window rendering (recommended for stability)')
 parser.add_argument('--grasp-shape-only', action='store_true',
                    help='Show only grasp shape lines without gripper mesh')
 parser.add_argument('--position', type=float, nargs=3, default=[0, 0, 0],
@@ -435,6 +461,131 @@ def get_color_plasma_org(x):
 def get_color_plasma(x):
     return tuple([float(1 - x), float(x) , float(0)])
 
+def convert_lineset_to_mesh(line_set, tube_radius=0.002):
+    """
+    Convert a LineSet to a mesh representation for OffscreenRenderer compatibility.
+    Creates small spheres at each line endpoint and cylinders for line segments.
+    """
+    try:
+        import open3d as o3d
+        
+        # Get points and lines
+        points = np.asarray(line_set.points)
+        lines = np.asarray(line_set.lines)
+        colors = np.asarray(line_set.colors) if len(line_set.colors) > 0 else None
+        
+        if len(points) == 0 or len(lines) == 0:
+            return None
+            
+        # Create a combined mesh for all line segments
+        combined_mesh = o3d.geometry.TriangleMesh()
+        
+        # For each line segment, create a small cylinder
+        for i, line in enumerate(lines):
+            start_point = points[line[0]]
+            end_point = points[line[1]]
+            
+            # Create a cylinder between the two points
+            height = np.linalg.norm(end_point - start_point)
+            if height < 1e-6:  # Skip degenerate lines
+                continue
+                
+            # Create cylinder
+            cylinder = o3d.geometry.TriangleMesh.create_cylinder(
+                radius=tube_radius, height=height, resolution=8
+            )
+            
+            # Align cylinder with line direction
+            direction = (end_point - start_point) / height
+            z_axis = np.array([0, 0, 1])
+            
+            # Calculate rotation to align z-axis with direction
+            if np.allclose(direction, z_axis):
+                rotation_matrix = np.eye(3)
+            elif np.allclose(direction, -z_axis):
+                rotation_matrix = np.array([[-1, 0, 0], [0, -1, 0], [0, 0, -1]])
+            else:
+                # Use Rodrigues' rotation formula
+                v = np.cross(z_axis, direction)
+                s = np.linalg.norm(v)
+                c = np.dot(z_axis, direction)
+                
+                vx = np.array([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
+                rotation_matrix = np.eye(3) + vx + np.dot(vx, vx) * ((1 - c) / (s * s))
+            
+            # Apply transformation
+            cylinder.rotate(rotation_matrix, center=(0, 0, 0))
+            cylinder.translate(start_point + direction * height / 2)
+            
+            # Set color if available
+            if colors is not None and i < len(colors):
+                color = colors[i]
+                cylinder.paint_uniform_color(color)
+            else:
+                cylinder.paint_uniform_color([0.6, 0.8, 0.6])  # Default green
+            
+            # Merge with combined mesh
+            combined_mesh += cylinder
+        
+        # Also add small spheres at endpoints for better visibility
+        for point in points:
+            sphere = o3d.geometry.TriangleMesh.create_sphere(radius=tube_radius * 1.5, resolution=8)
+            sphere.translate(point)
+            sphere.paint_uniform_color([0.8, 0.4, 0.4])  # Red spheres for endpoints
+            combined_mesh += sphere
+        
+        # Compute normals for the combined mesh
+        combined_mesh.compute_vertex_normals()
+        
+        return combined_mesh
+        
+    except Exception as e:
+        print(f"Warning: Failed to convert LineSet to mesh: {e}")
+        return None
+
+def prepare_geometry_for_offscreen(geom):
+    """
+    Prepare geometry for OffscreenRenderer by ensuring compatibility.
+    Converts problematic geometries and validates attributes.
+    """
+    try:
+        # Handle LineSet - convert to mesh
+        if isinstance(geom, o3d.geometry.LineSet):
+            print("Converting LineSet to mesh for OffscreenRenderer compatibility")
+            mesh_geom = convert_lineset_to_mesh(geom)
+            if mesh_geom is not None:
+                return mesh_geom
+            else:
+                print("Warning: Failed to convert LineSet, skipping")
+                return None
+        
+        # Handle TriangleMesh - ensure it has normals
+        elif isinstance(geom, o3d.geometry.TriangleMesh):
+            if len(geom.vertices) == 0:
+                print("Warning: Empty mesh, skipping")
+                return None
+            
+            # Ensure normals exist
+            if len(geom.vertex_normals) == 0:
+                geom.compute_vertex_normals()
+            
+            return geom
+        
+        # Handle PointCloud
+        elif isinstance(geom, o3d.geometry.PointCloud):
+            if len(geom.points) == 0:
+                print("Warning: Empty point cloud, skipping")
+                return None
+            return geom
+        
+        # Other geometry types - try to use as-is
+        else:
+            return geom
+            
+    except Exception as e:
+        print(f"Warning: Failed to prepare geometry: {e}")
+        return None
+
 def plot_mesh(mesh, color=None):
     """Convert trimesh to open3d mesh and return it."""
     assert type(mesh) == trimesh.base.Trimesh
@@ -735,37 +886,34 @@ def draw_scene(
                             renderer = OffscreenRenderer(width, height)
                             renderer.scene.set_background([0.0, 0.0, 0.0, 1.0])
                             
-                            # Add geometries with better error handling
+                            # Add geometries with robust error handling
                             geom_added = False
                             for j, geom in enumerate(geometries):
                                 try:
-                                    # Validate geometry before adding
-                                    if hasattr(geom, 'vertices') and len(geom.vertices) == 0:
-                                        print(f"Warning: Geometry {j} has no vertices, skipping")
+                                    # Prepare geometry for OffscreenRenderer compatibility
+                                    prepared_geom = prepare_geometry_for_offscreen(geom)
+                                    if prepared_geom is None:
+                                        print(f"Warning: Could not prepare geometry {j}, skipping")
                                         continue
-                                    if hasattr(geom, 'points') and len(geom.points) == 0:
-                                        print(f"Warning: Geometry {j} has no points, skipping")
-                                        continue
-                                        
-                                    # Ensure normals exist for meshes
-                                    if hasattr(geom, 'triangles') and hasattr(geom, 'vertex_normals'):
-                                        if len(geom.vertex_normals) == 0:
-                                            geom.compute_vertex_normals()
                                     
+                                    # Create material
                                     mat = MaterialRecord()
                                     mat.shader = "defaultUnlit"  # Use simpler shader to avoid attribute issues
                                     
-                                    # Set basic color without relying on complex attributes
-                                    if hasattr(geom, 'triangles'):  # Mesh
+                                    # Set basic color based on geometry type
+                                    if isinstance(prepared_geom, o3d.geometry.TriangleMesh):
                                         mat.base_color = [0.8, 0.8, 0.8, 1.0]
-                                    else:  # Point cloud or line set
+                                    elif isinstance(prepared_geom, o3d.geometry.PointCloud):
                                         mat.base_color = [0.6, 0.8, 0.6, 1.0]
+                                    else:
+                                        mat.base_color = [0.7, 0.7, 0.7, 1.0]
                                     
-                                    renderer.scene.add_geometry(f"geom_{j}", geom, mat)
+                                    renderer.scene.add_geometry(f"geom_{j}", prepared_geom, mat)
                                     geom_added = True
                                     
                                 except Exception as geom_e:
                                     print(f"Warning: Failed to add geometry {j}: {geom_e}")
+                                    # Continue with next geometry instead of failing completely
                                     continue
                             
                             if not geom_added:
@@ -818,7 +966,9 @@ def draw_scene(
                 print(f"Generated {len(images)} views using OffscreenRenderer")
                 
             except Exception as e:
-                print(f"OffscreenRenderer 9-shot failed ({e}), falling back to traditional method")
+                print(f"OffscreenRenderer 9-shot failed: {e}")
+                print("This is often due to LineSet compatibility issues or missing attributes.")
+                print("Falling back to traditional hidden window method...")
                 OFFSCREEN_AVAILABLE = False
                 images = []  # Clear any partial results
         
@@ -1015,11 +1165,14 @@ args = parser.parse_args()
 if hasattr(args, 'display') and args.display:
     args.render = True
 
-# Handle OffscreenRenderer override
-if hasattr(args, 'use_offscreen') and args.use_offscreen:
+# Handle OffscreenRenderer override and traditional rendering preference
+if hasattr(args, 'force_traditional') and args.force_traditional:
+    OFFSCREEN_AVAILABLE = False
+    print("Traditional rendering forced by user")
+elif hasattr(args, 'use_offscreen') and args.use_offscreen:
     if 'OffscreenRenderer' in globals():
         OFFSCREEN_AVAILABLE = True
-        print("OffscreenRenderer enabled by user request")
+        print("OffscreenRenderer enabled by user request (experimental)")
     else:
         print("Warning: OffscreenRenderer not available even though requested")
 
