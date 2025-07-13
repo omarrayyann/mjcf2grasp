@@ -134,5 +134,5 @@ def plot_gripper(gripper):
 
 
 if __name__ == '__main__':
-    gripper = PandaGripper(root_folder='/home/lambda1/Documents/thor-grasp/')  # Adjust if needed
+    gripper = PandaGripper(root_folder='/scratch/olr7742/ai2/thor-grasp/')  # Adjust if needed
     plot_gripper(gripper)
