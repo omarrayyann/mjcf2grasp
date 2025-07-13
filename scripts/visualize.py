@@ -460,7 +460,7 @@ def draw_scene(
     # Create list to hold all geometries
     geometries = []
     
-    max_grasps = 2000
+    max_grasps = 200
     grasps = np.array(grasps)
 
     if len(grasps) == 0:
@@ -631,8 +631,8 @@ def draw_scene(
         geometries.append(line_set)
 
     # Create coordinate frame
-    coord_frame = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.1)
-    geometries.append(coord_frame)
+    # coord_frame = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.1)
+    # geometries.append(coord_frame)
 
     # Visualize
     if render or save_png:
