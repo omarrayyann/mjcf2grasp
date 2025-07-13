@@ -292,30 +292,24 @@ def _compute_widths_batch(batch_data):
 
 
 def compute_grasp_widths(transforms, object_mesh, gripper_name='panda', num_workers=None):
-    """Compute grasp widths efficiently, optimized for HPC environments."""
-    
+
     if num_workers is None:
         num_workers = mp.cpu_count()
     
-    # Optimize worker count for HPC environments
-    # Too many workers cause overhead and memory issues
-    optimal_workers = min(num_workers, max(1, len(transforms) // 10), 32)
-    
-    if len(transforms) < 50 or optimal_workers <= 1:
+    if len(transforms) < 50 or num_workers <= 1:
         return _compute_widths_batch((transforms, object_mesh, gripper_name))
     
-    # Use larger batch sizes for fewer workers to reduce overhead
-    batch_size = max(5, len(transforms) // optimal_workers)
+    batch_size = max(1, len(transforms) // num_workers)
     batches = [transforms[i:i+batch_size] for i in range(0, len(transforms), batch_size)]
     
     batch_data = [(batch, object_mesh, gripper_name) for batch in batches]
     
     all_widths = []
-    with mp.Pool(processes=optimal_workers) as pool:
-        print(f"Computing grasp widths using {optimal_workers} workers (optimized from {num_workers})...")
+    with mp.Pool(processes=num_workers) as pool:
+        print(f"Computing grasp widths using {num_workers} workers...")
         pbar = tqdm(
             total=len(transforms),
-            desc=f"Computing widths (using {optimal_workers} workers)"
+            desc=f"Computing widths (using {num_workers} workers)"
         )
         
         for result in pool.imap(_compute_widths_batch, batch_data):
@@ -509,12 +503,8 @@ def in_collision_with_gripper(object_mesh, gripper_transforms, gripper_name, sil
     if num_workers is None:
         num_workers = mp.cpu_count()
     
-    # Optimize worker count for HPC environments
-    # Too many workers cause overhead, especially for collision checking
-    optimal_workers = min(num_workers, max(1, len(gripper_transforms) // 20), 16)
-    
     # For small numbers of transforms, it's faster to use the sequential version
-    if len(gripper_transforms) < 100 or optimal_workers <= 1:
+    if len(gripper_transforms) < 100 or num_workers <= 1:
         manager = trimesh.collision.CollisionManager()
         manager.add_object('object', object_mesh)
         gripper_meshes = [create_gripper(gripper_name).hand]
@@ -528,9 +518,9 @@ def in_collision_with_gripper(object_mesh, gripper_transforms, gripper_name, sil
     # Use parallel processing for larger numbers of transforms
     gripper_mesh = create_gripper(gripper_name).hand
     
-    # Split transforms into larger batches to reduce overhead
+    # Split transforms into batches for each worker
     num_transforms = len(gripper_transforms)
-    batch_size = max(10, num_transforms // optimal_workers)  # Larger batches
+    batch_size = max(1, num_transforms // num_workers)
     batches = [gripper_transforms[i:i+batch_size] for i in range(0, num_transforms, batch_size)]
     
     # Create a partial function with fixed arguments
@@ -543,10 +533,10 @@ def in_collision_with_gripper(object_mesh, gripper_transforms, gripper_name, sil
     pbar = tqdm(
         total=num_transforms, 
         disable=silent,
-        desc=f"Checking collisions (using {optimal_workers} workers, optimized from {num_workers})"
+        desc=f"Checking collisions (using {num_workers} workers)"
     )
     
-    with mp.Pool(processes=optimal_workers) as pool:
+    with mp.Pool(processes=num_workers) as pool:
         for batch_result in pool.imap(worker_func, batches):
             min_distances.extend(batch_result)
             pbar.update(len(batch_result))  # Update by actual number of transforms processed
@@ -575,11 +565,8 @@ def grasp_quality_point_contacts(transforms, collisions, object_mesh, gripper_na
     if num_workers is None:
         num_workers = mp.cpu_count()
     
-    # Optimize worker count for HPC environments
-    optimal_workers = min(num_workers, max(1, len(transforms) // 25), 20)
-    
     # For small numbers, just use sequential processing
-    if len(transforms) < 100 or optimal_workers <= 1:
+    if len(transforms) < 100 or num_workers <= 1:
         res = []
         gripper = create_gripper(gripper_name)
         if trimesh.ray.has_embree:
@@ -613,8 +600,8 @@ def grasp_quality_point_contacts(transforms, collisions, object_mesh, gripper_na
         return res
     
     # Use parallel processing for larger numbers
-    # Split into larger batches to reduce overhead
-    batch_size = max(10, len(transforms) // optimal_workers)
+    # Split into batches for each worker
+    batch_size = max(1, len(transforms) // num_workers)
     transform_batches = [transforms[i:i+batch_size] for i in range(0, len(transforms), batch_size)]
     collision_batches = [collisions[i:i+batch_size] for i in range(0, len(collisions), batch_size)]
     
@@ -624,11 +611,11 @@ def grasp_quality_point_contacts(transforms, collisions, object_mesh, gripper_na
     
     # Process in parallel
     all_results = []
-    with mp.Pool(processes=optimal_workers) as pool:
+    with mp.Pool(processes=num_workers) as pool:
         pbar = tqdm(
             total=len(transforms), 
             disable=silent,
-            desc=f"Computing point contact quality (using {optimal_workers} workers, optimized from {num_workers})"
+            desc=f"Computing point contact quality (using {num_workers} workers)"
         )
         
         for result in pool.imap(_quality_point_contacts_worker, batch_data):
@@ -659,11 +646,8 @@ def grasp_quality_antipodal(transforms, collisions, object_mesh, gripper_name='p
     if num_workers is None:
         num_workers = mp.cpu_count()
     
-    # Optimize worker count for HPC environments
-    optimal_workers = min(num_workers, max(1, len(transforms) // 25), 20)
-    
     # For small numbers, just use sequential processing
-    if len(transforms) < 100 or optimal_workers <= 1:
+    if len(transforms) < 100 or num_workers <= 1:
         res = []
         gripper = create_gripper(gripper_name)
         if trimesh.ray.has_embree:
@@ -726,8 +710,8 @@ def grasp_quality_antipodal(transforms, collisions, object_mesh, gripper_name='p
         return res
     
     # Use parallel processing for larger numbers
-    # Split into larger batches to reduce overhead
-    batch_size = max(10, len(transforms) // optimal_workers)
+    # Split into batches for each worker
+    batch_size = max(1, len(transforms) // num_workers)
     transform_batches = [transforms[i:i+batch_size] for i in range(0, len(transforms), batch_size)]
     collision_batches = [collisions[i:i+batch_size] for i in range(0, len(collisions), batch_size)]
     
@@ -737,11 +721,11 @@ def grasp_quality_antipodal(transforms, collisions, object_mesh, gripper_name='p
     
     # Process in parallel
     all_results = []
-    with mp.Pool(processes=optimal_workers) as pool:
+    with mp.Pool(processes=num_workers) as pool:
         pbar = tqdm(
             total=len(transforms), 
             disable=silent,
-            desc=f"Computing antipodal quality (using {optimal_workers} workers, optimized from {num_workers})"
+            desc=f"Computing antipodal quality (using {num_workers} workers)"
         )
         
         for result in pool.imap(_quality_antipodal_worker, batch_data):

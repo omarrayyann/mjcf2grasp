@@ -35,7 +35,7 @@ if USE_WANDB:
 else:
     print(f"Starting processing of {len(data)} objects (wandb disabled)")
 
-thor_assets_path = "/scratch/olr7742/ai2/thor-grasp/assets/Thor-Assets"
+thor_assets_path = "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets"
 base_input_path = "../../../assets/objects"
 temp_folder = "tmp"
 os.makedirs(temp_folder, exist_ok=True)
@@ -115,21 +115,18 @@ for obj in data:
     else:
         print(f"Generating grasps for object: {object_name}")
         try:
-            # Optimize worker count for HPC environments (cap at 32 workers)
-            optimal_workers = min(os.cpu_count(), 32)
             subprocess.run([
                 "python", "pipeline/1_generate_grasps.py",
                 "--object_file", output_abs_path,
                 "--quality", "antipodal",
                 "--output", grasp_file_path,
                 "--systematic_sampling",
-               "--num_workers", str(optimal_workers),
+               "--num_workers", str(os.cpu_count()),
             ], check=True)
         except subprocess.CalledProcessError as e:
             print(f"Error generating grasps for {object_name}: {str(e)}")
             print("Trying again with fewer workers...")
-            # Further reduce workers on error
-            num_workers = max(1, optimal_workers // 2)
+            num_workers = max(1, os.cpu_count() // 2)
             subprocess.run([
                 "python", "pipeline/1_generate_grasps.py",
                 "--object_file", output_abs_path,
@@ -150,14 +147,12 @@ for obj in data:
     else:
         print(f"Filtering grasps for object: {object_name} using MuJoCo")
         try:
-            # Optimize worker count for HPC environments (cap at 24 workers for MuJoCo)
-            optimal_workers = min(os.cpu_count(), 24)
             subprocess.run([
                 "python", "pipeline/2_filter_mujoco.py", 
                 "--object_name", object_name, 
                 "--grasps_path", grasp_file_path,
                 "--xml_file", xml_file_path,
-                "--num_workers", str(optimal_workers),
+                "--num_workers", str(os.cpu_count()),
                 "--approach_distance", "0.1",
                 "--approach_steps", "1000",
                 # "--render",
@@ -166,8 +161,7 @@ for obj in data:
         except subprocess.CalledProcessError as e:
             print(f"Error filtering grasps for {object_name}: {str(e)}")
             print("Trying again with fewer workers...")
-            # Further reduce workers on error
-            num_workers = max(1, optimal_workers // 2)
+            num_workers = max(1, os.cpu_count() // 2)
             subprocess.run([
                 "python", "pipeline/2_filter_mujoco.py", 
                 "--object_name", object_name, 
