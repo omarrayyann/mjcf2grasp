@@ -1,3 +1,29 @@
+"""
+Visualization script for grasps from a JSON file.
+
+This script supports both interactive and headless rendering modes:
+
+1. Headless mode (default): 
+   - No display window is shown
+   - Suitable for servers without display
+   - Use with --save-png to render and save images
+
+2. Interactive mode:
+   - Shows interactive 3D window
+   - Use --render flag to enable
+
+3. Headless rendering techniques:
+   - Prefers Open3D OffscreenRenderer for true headless operation
+   - Falls back to hidden window rendering if OffscreenRenderer unavailable
+   - Similar to the example provided using OffscreenRenderer
+
+Usage examples:
+    python visualize.py object_name                          # Headless mode (no display)
+    python visualize.py object_name --save-png output.png    # Headless + save image
+    python visualize.py object_name --render                 # Interactive mode
+    python visualize.py object_name --display                # Force display mode
+"""
+
 from __future__ import print_function
 
 import json
@@ -12,6 +38,16 @@ import trimesh.transformations as tra
 import os
 import argparse
 import json
+
+# Try to import OffscreenRenderer for headless rendering
+try:
+    from open3d.visualization.rendering import OffscreenRenderer, MaterialRecord
+    # Disable OffscreenRenderer by default due to stability issues with complex geometries
+    OFFSCREEN_AVAILABLE = False  # Set to True to enable experimental OffscreenRenderer
+    print("OffscreenRenderer available but disabled by default. Using stable fallback method.")
+except ImportError:
+    print("Warning: OffscreenRenderer not available. Falling back to hidden window rendering.")
+    OFFSCREEN_AVAILABLE = False
 parser = argparse.ArgumentParser(description='Visualize grasps from a JSON file.')
 parser.add_argument('object_name', type=str)
 parser.add_argument('--filtered', action='store_true')
@@ -19,10 +55,14 @@ parser.add_argument('--compare', action='store_true',
                    help='Show both filtered (green) and unfiltered (red) grasps')
 parser.add_argument('--save-png', type=str, default=None, 
                    help='Save visualization as PNG file to specified path')
-parser.add_argument('--render', action='store_true', default=True,
-                   help='Show interactive visualization window (default: True)')
+parser.add_argument('--render', action='store_true', default=False,
+                   help='Show interactive visualization window (default: False, headless)')
 parser.add_argument('--no-render', dest='render', action='store_false',
-                   help='Do not show interactive visualization window')
+                   help='Do not show interactive visualization window (headless mode)')
+parser.add_argument('--display', action='store_true', 
+                   help='Force display mode even if no --render flag (overrides headless)')
+parser.add_argument('--use-offscreen', action='store_true',
+                   help='Enable experimental OffscreenRenderer (may be unstable)')
 parser.add_argument('--grasp-shape-only', action='store_true',
                    help='Show only grasp shape lines without gripper mesh')
 parser.add_argument('--position', type=float, nargs=3, default=[0, 0, 0],
@@ -641,77 +681,218 @@ def draw_scene(
         
         images = []
         
-        # First, create one working view to get the baseline
-        vis = o3d.visualization.Visualizer()
-        vis.create_window(width=800, height=800, visible=False)
+        # First, try OffscreenRenderer for 9-shot collage if available
+        global OFFSCREEN_AVAILABLE
+        if OFFSCREEN_AVAILABLE:
+            try:
+                print("Using OffscreenRenderer for 9-shot collage")
+                width, height = 800, 800
+                
+                # Define 9 diverse camera positions
+                camera_setups = [
+                    # Row 1: Top views
+                    (0, -30, 0),      # Top-front
+                    (90, -30, 0),     # Top-right
+                    (180, -30, 0),    # Top-back
+                    
+                    # Row 2: Eye level views
+                    (0, 0, 0),        # Front
+                    (90, 0, 0),       # Right
+                    (180, 0, 0),      # Back
+                    
+                    # Row 3: Bottom views
+                    (0, 30, 0),       # Bottom-front
+                    (90, 30, 0),      # Bottom-right
+                    (270, 30, 0),     # Bottom-left
+                ]
+                
+                # Calculate scene bounds for camera positioning
+                all_points = []
+                for geom in geometries:
+                    try:
+                        if hasattr(geom, 'vertices') and len(geom.vertices) > 0:
+                            all_points.extend(np.asarray(geom.vertices))
+                        elif hasattr(geom, 'points') and len(geom.points) > 0:
+                            all_points.extend(np.asarray(geom.points))
+                    except Exception as e:
+                        print(f"Warning: Failed to extract points from geometry: {e}")
+                        continue
+                
+                if all_points and len(all_points) > 0:
+                    all_points = np.array(all_points)
+                    bounds_min = np.min(all_points, axis=0)
+                    bounds_max = np.max(all_points, axis=0)
+                    center = (bounds_min + bounds_max) / 2.0
+                    extent = np.max(bounds_max - bounds_min)
+                    
+                    # Validate that we have reasonable bounds
+                    if extent <= 0 or not np.isfinite(extent):
+                        raise ValueError(f"Invalid scene extent: {extent}")
+                    
+                    for i, (azimuth, elevation, roll) in enumerate(camera_setups):
+                        try:
+                            # Create renderer for this view
+                            renderer = OffscreenRenderer(width, height)
+                            renderer.scene.set_background([0.0, 0.0, 0.0, 1.0])
+                            
+                            # Add geometries with better error handling
+                            geom_added = False
+                            for j, geom in enumerate(geometries):
+                                try:
+                                    # Validate geometry before adding
+                                    if hasattr(geom, 'vertices') and len(geom.vertices) == 0:
+                                        print(f"Warning: Geometry {j} has no vertices, skipping")
+                                        continue
+                                    if hasattr(geom, 'points') and len(geom.points) == 0:
+                                        print(f"Warning: Geometry {j} has no points, skipping")
+                                        continue
+                                        
+                                    # Ensure normals exist for meshes
+                                    if hasattr(geom, 'triangles') and hasattr(geom, 'vertex_normals'):
+                                        if len(geom.vertex_normals) == 0:
+                                            geom.compute_vertex_normals()
+                                    
+                                    mat = MaterialRecord()
+                                    mat.shader = "defaultUnlit"  # Use simpler shader to avoid attribute issues
+                                    
+                                    # Set basic color without relying on complex attributes
+                                    if hasattr(geom, 'triangles'):  # Mesh
+                                        mat.base_color = [0.8, 0.8, 0.8, 1.0]
+                                    else:  # Point cloud or line set
+                                        mat.base_color = [0.6, 0.8, 0.6, 1.0]
+                                    
+                                    renderer.scene.add_geometry(f"geom_{j}", geom, mat)
+                                    geom_added = True
+                                    
+                                except Exception as geom_e:
+                                    print(f"Warning: Failed to add geometry {j}: {geom_e}")
+                                    continue
+                            
+                            if not geom_added:
+                                print(f"Warning: No geometries could be added for view {i}")
+                                continue
+                            
+                            # Calculate camera position based on azimuth and elevation
+                            azimuth_rad = np.radians(azimuth)
+                            elevation_rad = np.radians(elevation)
+                            
+                            distance = extent * 2.5  # Increased distance for better view
+                            eye_x = center[0] + distance * np.cos(elevation_rad) * np.cos(azimuth_rad)
+                            eye_y = center[1] + distance * np.cos(elevation_rad) * np.sin(azimuth_rad)
+                            eye_z = center[2] + distance * np.sin(elevation_rad)
+                            
+                            eye = np.array([eye_x, eye_y, eye_z])
+                            up = np.array([0, 0, 1])  # z-axis is "up"
+                            
+                            # Validate camera parameters
+                            if not np.isfinite(eye).all():
+                                print(f"Warning: Invalid camera position for view {i}")
+                                continue
+                            
+                            renderer.setup_camera(60.0, center, eye, up)
+                            
+                            # Render to image
+                            img = renderer.render_to_image()
+                            
+                            # Validate image
+                            if img is None:
+                                print(f"Warning: Failed to render view {i}")
+                                continue
+                            
+                            # Convert to numpy array (OpenCV format)
+                            img_array = np.asarray(img)
+                            if img_array.shape[2] == 4:  # RGBA to RGB
+                                img_array = img_array[:, :, :3]
+                            
+                            # Convert RGB to BGR for OpenCV
+                            img_bgr = cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)
+                            images.append(img_bgr)
+                            
+                        except Exception as view_e:
+                            print(f"Warning: Failed to render view {i}: {view_e}")
+                            continue
+                else:
+                    print("Warning: No valid points found for camera setup")
+                    raise ValueError("No valid geometry points")
+                
+                print(f"Generated {len(images)} views using OffscreenRenderer")
+                
+            except Exception as e:
+                print(f"OffscreenRenderer 9-shot failed ({e}), falling back to traditional method")
+                OFFSCREEN_AVAILABLE = False
+                images = []  # Clear any partial results
         
-        for geom in geometries:
-            vis.add_geometry(geom)
-        
-        # Set render options for high quality
-        render_option = vis.get_render_option()
-        render_option.background_color = np.array([0.0, 0.0, 0.0])
-        render_option.point_size = 2.0  # Increased point size
-        render_option.line_width = 2.0  # Increased line width
-        
-        # Get the view control and let it auto-fit
-        view_control = vis.get_view_control()
-        
-        # Define 9 diverse camera positions
-        # Row 1: Top views (looking down from different angles)
-        # Row 2: Eye level views (horizontal rotations)
-        # Row 3: Bottom views (looking up from different angles)
-        camera_setups = [
-            # Row 1: Top views
-            (0, -30, 0),      # Top-front
-            (90, -30, 0),     # Top-right
-            (180, -30, 0),    # Top-back
+        # Fallback to traditional method if OffscreenRenderer failed or unavailable
+        if not OFFSCREEN_AVAILABLE or len(images) == 0:
+            print("Using traditional method for 9-shot collage")
+            # Create one working view to get the baseline
+            vis = o3d.visualization.Visualizer()
+            vis.create_window(width=800, height=800, visible=False)
             
-            # Row 2: Eye level views
-            (0, 0, 0),        # Front
-            (90, 0, 0),       # Right
-            (180, 0, 0),      # Back
+            for geom in geometries:
+                vis.add_geometry(geom)
             
-            # Row 3: Bottom views
-            (0, 30, 0),       # Bottom-front
-            (90, 30, 0),      # Bottom-right
-            (270, 30, 0),     # Bottom-left
-        ]
-        
-        for i, (azimuth, elevation, roll) in enumerate(camera_setups):
-            # Reset view to default
-            view_control.reset_camera_local_rotate()
+            # Set render options for high quality
+            render_option = vis.get_render_option()
+            render_option.background_color = np.array([0.0, 0.0, 0.0])
+            render_option.point_size = 2.0  # Increased point size
+            render_option.line_width = 2.0  # Increased line width
             
-            # Apply rotations for diverse views
-            # First rotate around Y-axis (azimuth)
-            if azimuth != 0:
-                view_control.rotate(azimuth * 400 / 90, 0)  # Scale rotation
+            # Get the view control and let it auto-fit
+            view_control = vis.get_view_control()
             
-            # Then rotate around X-axis (elevation - up/down)
-            if elevation != 0:
-                view_control.rotate(0, elevation * 400 / 90)  # Scale rotation
+            # Define 9 diverse camera positions
+            camera_setups = [
+                # Row 1: Top views
+                (0, -30, 0),      # Top-front
+                (90, -30, 0),     # Top-right
+                (180, -30, 0),    # Top-back
+                
+                # Row 2: Eye level views
+                (0, 0, 0),        # Front
+                (90, 0, 0),       # Right
+                (180, 0, 0),      # Back
+                
+                # Row 3: Bottom views
+                (0, 30, 0),       # Bottom-front
+                (90, 30, 0),      # Bottom-right
+                (270, 30, 0),     # Bottom-left
+            ]
             
-            # Update and render
-            vis.poll_events()
-            vis.update_renderer()
+            for i, (azimuth, elevation, roll) in enumerate(camera_setups):
+                # Reset view to default
+                view_control.reset_camera_local_rotate()
+                
+                # Apply rotations for diverse views
+                # First rotate around Y-axis (azimuth)
+                if azimuth != 0:
+                    view_control.rotate(azimuth * 400 / 90, 0)  # Scale rotation
+                
+                # Then rotate around X-axis (elevation - up/down)
+                if elevation != 0:
+                    view_control.rotate(0, elevation * 400 / 90)  # Scale rotation
+                
+                # Update and render
+                vis.poll_events()
+                vis.update_renderer()
+                
+                # Capture high-resolution image
+                temp_filename = f"temp_view_{i}.png"
+                vis.capture_screen_image(temp_filename)
+                
+                # Read image
+                img = cv2.imread(temp_filename)
+                if img is not None:
+                    images.append(img)
+                else:
+                    print(f"Warning: Failed to capture view {i}")
+                
+                # Clean up
+                import os
+                if os.path.exists(temp_filename):
+                    os.remove(temp_filename)
             
-            # Capture high-resolution image
-            temp_filename = f"temp_view_{i}.png"
-            vis.capture_screen_image(temp_filename)
-            
-            # Read image
-            img = cv2.imread(temp_filename)
-            if img is not None:
-                images.append(img)
-            else:
-                print(f"Warning: Failed to capture view {i}")
-            
-            # Clean up
-            import os
-            if os.path.exists(temp_filename):
-                os.remove(temp_filename)
-        
-        vis.destroy_window()
+            vis.destroy_window()
         
         # Create collage (3x3 grid)
         if len(images) == 9:
@@ -737,21 +918,65 @@ def draw_scene(
         else:
             print(f"Warning: Could not create all 9 views (got {len(images)}), falling back to single view")
             # Fallback to single view
-            vis = o3d.visualization.Visualizer()
-            vis.create_window(width=800, height=600, visible=False)
+            if OFFSCREEN_AVAILABLE:
+                try:
+                    # Single view with OffscreenRenderer
+                    width, height = 800, 600
+                    renderer = OffscreenRenderer(width, height)
+                    renderer.scene.set_background([0.0, 0.0, 0.0, 1.0])
+                    
+                    for i, geom in enumerate(geometries):
+                        mat = MaterialRecord()
+                        mat.shader = "defaultLit"
+                        mat.base_color = [0.7, 0.7, 0.7, 1.0]
+                        renderer.scene.add_geometry(f"geom_{i}", geom, mat)
+                    
+                    # Calculate camera parameters
+                    if geometries:
+                        all_points = []
+                        for geom in geometries:
+                            if hasattr(geom, 'vertices'):
+                                all_points.extend(np.asarray(geom.vertices))
+                            elif hasattr(geom, 'points'):
+                                all_points.extend(np.asarray(geom.points))
+                        
+                        if all_points:
+                            all_points = np.array(all_points)
+                            bounds_min = np.min(all_points, axis=0)
+                            bounds_max = np.max(all_points, axis=0)
+                            center = (bounds_min + bounds_max) / 2.0
+                            extent = np.max(bounds_max - bounds_min)
+                            
+                            eye = center + np.array([extent * 1.5, extent * 1.5, extent * 1.5])
+                            up = np.array([0, 0, 1])
+                            
+                            renderer.setup_camera(60.0, center, eye, up)
+                            img = renderer.render_to_image()
+                            o3d.io.write_image(save_png, img)
+                            print(f"Single view headless rendering saved to {save_png}")
+                        
+                except Exception as e:
+                    print(f"Fallback OffscreenRenderer failed ({e}), using traditional single view")
+                    OFFSCREEN_AVAILABLE = False
             
-            for geom in geometries:
-                vis.add_geometry(geom)
-            
-            render_option = vis.get_render_option()
-            render_option.background_color = np.array([0.0, 0.0, 0.0])
-            render_option.point_size = 2.0
-            render_option.line_width = 2.0
-            
-            vis.poll_events()
-            vis.update_renderer()
-            vis.capture_screen_image(save_png)
-            vis.destroy_window()
+            if not OFFSCREEN_AVAILABLE:
+                # Traditional single view fallback
+                vis = o3d.visualization.Visualizer()
+                vis.create_window(width=800, height=600, visible=False)
+                
+                for geom in geometries:
+                    vis.add_geometry(geom)
+                
+                render_option = vis.get_render_option()
+                render_option.background_color = np.array([0.0, 0.0, 0.0])
+                render_option.point_size = 2.0
+                render_option.line_width = 2.0
+                
+                vis.poll_events()
+                vis.update_renderer()
+                vis.capture_screen_image(save_png)
+                vis.destroy_window()
+                print(f"Fallback single view saved to {save_png}")
     
     elif render:
         # Only create interactive window if render=True
@@ -769,10 +994,12 @@ def draw_scene(
         
         vis.run()
         vis.destroy_window()
+    else:
+        # Headless mode - no rendering or saving
+        print("Running in headless mode (no display). Use --save-png to save visualization or --render to show interactive window.")
     
     # If neither render nor save_png, just return without creating any windows
     if not render and not save_png:
-        print("No visualization requested (--no-render and no --save-png)")
         return geometries
 
     print('removed {} similar grasps'.format(removed))  
@@ -783,6 +1010,23 @@ def get_axis():
 
 
 args = parser.parse_args()
+
+# Handle display override - if --display is set, force render=True
+if hasattr(args, 'display') and args.display:
+    args.render = True
+
+# Handle OffscreenRenderer override
+if hasattr(args, 'use_offscreen') and args.use_offscreen:
+    if 'OffscreenRenderer' in globals():
+        OFFSCREEN_AVAILABLE = True
+        print("OffscreenRenderer enabled by user request")
+    else:
+        print("Warning: OffscreenRenderer not available even though requested")
+
+# If neither render nor save_png is specified, assume headless mode
+if not args.render and not args.save_png:
+    print("No visualization mode specified. Running in headless mode.")
+    print("Use --render for interactive display or --save-png <file> to save image.")
 
 # Define file paths - check both new structure and old structure
 base_json_file = os.path.abspath(f"output/{args.object_name}/{args.object_name}_grasps.json")
