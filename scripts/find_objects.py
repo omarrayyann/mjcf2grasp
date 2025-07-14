@@ -111,6 +111,10 @@ def find_objs_with_matching_subfolder(base_dir):
 
                             result.append({"name": obj_name, "xml": abs_xml_path})
                             break
+    
+    # shuffle
+    import random
+    random.shuffle(result)
 
     return result
 

@@ -981,7 +981,7 @@ def make_parser():
     parser.add_argument('--scale', type=float, default=1.0,
                         help='Scale the object.')
     parser.add_argument('--resize', type=float,
-                        help=)
+                        help="Resize the object to a specific size (in meters).")
     parser.add_argument('--use_stl', action='store_true',
                         help='Use STL instead of obj.')
     parser.add_argument('--gripper', choices=get_available_grippers().keys(), default='rum',
