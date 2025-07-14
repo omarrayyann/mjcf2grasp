@@ -3,7 +3,11 @@ from __future__ import print_function
 import json
 import trimesh
 import numpy as np
-import open3d as o3d
+import matplotlib
+matplotlib.use('Agg')  # Use non-interactive backend for headless operation
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import math
 import numpy as np
 import tensorflow as tf
@@ -395,25 +399,26 @@ def get_color_plasma_org(x):
 def get_color_plasma(x):
     return tuple([float(1 - x), float(x) , float(0)])
 
-def plot_mesh(mesh, color=None):
-    """Convert trimesh to open3d mesh and return it."""
-    assert type(mesh) == trimesh.base.Trimesh
+def plot_mesh_matplotlib(ax, mesh, color=None, alpha=0.3):
+    """Plot trimesh using matplotlib 3D."""
+    if color is None:
+        color = [0.7, 0.7, 1.0]
     
-    # Create open3d mesh
-    o3d_mesh = o3d.geometry.TriangleMesh()
-    o3d_mesh.vertices = o3d.utility.Vector3dVector(mesh.vertices)
-    o3d_mesh.triangles = o3d.utility.Vector3iVector(mesh.faces)
+    # Create a 3D collection from the mesh faces
+    vertices = mesh.vertices
+    faces = mesh.faces
     
-    # Compute normals
-    o3d_mesh.compute_vertex_normals()
+    # Create a collection of triangles
+    triangles = []
+    for face in faces:
+        triangle = vertices[face]
+        triangles.append(triangle)
     
-    # Set color if provided
-    if color is not None:
-        o3d_mesh.paint_uniform_color(color)
-    else:
-        o3d_mesh.paint_uniform_color([0.7, 0.7, 1.0])  # Light blue default
+    # Add the collection to the plot
+    collection = Poly3DCollection(triangles, alpha=alpha, facecolor=color, edgecolor='none', linewidth=0.0)
+    ax.add_collection3d(collection)
     
-    return o3d_mesh
+    return collection
 
 def draw_scene(
     pc, 
@@ -433,7 +438,7 @@ def draw_scene(
     grasp_widths=None
     ):
     """
-    Draws the 3D scene for the object and the scene using Open3D.
+    Draws the 3D scene for the object and the scene using matplotlib.
     Args:
       pc: point cloud of the object
       grasps: list of 4x4 numpy array indicating the transformation of the grasps.
@@ -457,15 +462,12 @@ def draw_scene(
         pc.
     """
     
-    # Create list to hold all geometries
-    geometries = []
-    
     max_grasps = 200
     grasps = np.array(grasps)
 
     if len(grasps) == 0:
         print('No grasps to visualize')
-        return geometries
+        return
 
     if grasp_scores is not None:
         grasp_scores = np.array(grasp_scores)
@@ -482,19 +484,85 @@ def draw_scene(
         if grasp_widths is not None:
             grasp_widths = grasp_widths[chosen_ones]
 
+    # Create matplotlib figure and axes
+    if save_png:
+        # Create 3x3 collage for PNG output
+        fig = plt.figure(figsize=(24, 24), facecolor='black')  # Large figure for high resolution
+        
+        # Define 9 diverse camera positions
+        camera_setups = [
+            # Row 1: Top views
+            (0, 60),      # azim=0, elev=60 (top-front)
+            (60, 60),     # azim=60, elev=60 (top-right)
+            (120, 60),    # azim=120, elev=60 (top-back-right)
+            
+            # Row 2: Eye level views
+            (0, 0),       # azim=0, elev=0 (front)
+            (60, 0),      # azim=60, elev=0 (right)
+            (120, 0),     # azim=120, elev=0 (back-right)
+            
+            # Row 3: Bottom views
+            (0, -60),     # azim=0, elev=-60 (bottom-front)
+            (60, -60),    # azim=60, elev=-60 (bottom-right)
+            (120, -60),   # azim=120, elev=-60 (bottom-back-right)
+        ]
+        
+        for view_idx, (azim, elev) in enumerate(camera_setups):
+            ax = fig.add_subplot(3, 3, view_idx + 1, projection='3d')
+            _plot_single_view(ax, pc, grasps, grasp_scores, grasp_color, gripper_color, mesh, 
+                            show_gripper_mesh, grasps_selection, visualize_diverse_grasps,
+                            min_seperation_distance, pc_color, plasma_coloring, grasp_widths, azim, elev)
+        
+        plt.tight_layout()
+        plt.savefig(save_png, dpi=100, bbox_inches='tight', facecolor='black')
+        plt.close()
+        print(f"High-quality 3x3 collage saved to {save_png}")
+        
+    elif render:
+        # Single interactive view
+        fig = plt.figure(figsize=(12, 10), facecolor='black')
+        ax = fig.add_subplot(111, projection='3d')
+        
+        _plot_single_view(ax, pc, grasps, grasp_scores, grasp_color, gripper_color, mesh, 
+                        show_gripper_mesh, grasps_selection, visualize_diverse_grasps,
+                        min_seperation_distance, pc_color, plasma_coloring, grasp_widths)
+        
+        plt.show()
+    
+    # If neither render nor save_png, just return without creating any windows
+    if not render and not save_png:
+        print("No visualization requested (--no-render and no --save-png)")
+
+
+def _plot_single_view(ax, pc, grasps, grasp_scores, grasp_color, gripper_color, mesh, 
+                     show_gripper_mesh, grasps_selection, visualize_diverse_grasps,
+                     min_seperation_distance, pc_color, plasma_coloring, grasp_widths,
+                     azim=45, elev=30):
+    """Plot a single 3D view using matplotlib."""
+    
+    # Set background color to black and remove grid
+    ax.xaxis.pane.fill = False
+    ax.yaxis.pane.fill = False
+    ax.zaxis.pane.fill = False
+    ax.xaxis.pane.set_edgecolor('black')
+    ax.yaxis.pane.set_edgecolor('black')
+    ax.zaxis.pane.set_edgecolor('black')
+    ax.xaxis.pane.set_alpha(0.0)
+    ax.yaxis.pane.set_alpha(0.0)
+    ax.zaxis.pane.set_alpha(0.0)
+    ax.grid(False)
+    ax.set_facecolor('black')
+    
     # Add mesh to scene
     if mesh is not None:
         if type(mesh) == list:
             for elem in mesh:
-                geometries.append(plot_mesh(elem))
+                plot_mesh_matplotlib(ax, elem, color=[0.7, 0.7, 1.0], alpha=0.3)
         else:
-            geometries.append(plot_mesh(mesh))
+            plot_mesh_matplotlib(ax, mesh, color=[0.7, 0.7, 1.0], alpha=0.3)
 
     # Add point cloud to scene
     if pc is not None:
-        pcd = o3d.geometry.PointCloud()
-        pcd.points = o3d.utility.Vector3dVector(pc[:, :3])
-        
         if pc_color is None:
             if plasma_coloring:
                 # Create plasma-like coloring based on z-coordinate
@@ -504,22 +572,14 @@ def draw_scene(
                 colors[:, 0] = z_normalized  # Red channel
                 colors[:, 1] = 1 - z_normalized  # Green channel
                 colors[:, 2] = 0.5  # Blue channel
-                pcd.colors = o3d.utility.Vector3dVector(colors)
             else:
-                pcd.paint_uniform_color([0.1, 0.1, 1])
+                colors = 'blue'
         else:
-            pcd.colors = o3d.utility.Vector3dVector(pc_color)
+            colors = pc_color
         
-        geometries.append(pcd)
+        ax.scatter(pc[:, 0], pc[:, 1], pc[:, 2], c=colors, s=1, alpha=0.6)
 
-    # Create grasp visualization
-    
-
-    def transform_grasp_pc(g):
-        output = np.matmul(grasp_pc, g[:3, :3].T)
-        output += np.expand_dims(g[:3, 3], 0)
-        return output
-
+    # Process grasps
     if grasp_scores is not None:
         indexes = np.argsort(-np.asarray(grasp_scores))
     else:
@@ -533,7 +593,6 @@ def draw_scene(
     if grasp_scores is not None:
         min_score = np.min(grasp_scores)        
         max_score = np.max(grasp_scores)
-        top5 = np.array(grasp_scores).argsort()[-5:][::-1]
 
     for ii in range(len(grasps)):
         i = indexes[ii]
@@ -548,7 +607,10 @@ def draw_scene(
         grasp_pc[2, 2] = 0.059
         grasp_pc[3, 2] = 0.059
 
-        grasp_width = grasp_widths[i] + 0.03
+        if grasp_widths is not None:
+            grasp_width = grasp_widths[i] + 0.03
+        else:
+            grasp_width = 0.08
 
         grasp_pc[2,0] = grasp_width * 0.5  # Left finger base
         grasp_pc[3,0] = -grasp_width * 0.5  # Left finger tip
@@ -567,7 +629,6 @@ def draw_scene(
         modified_grasp_pc.append(grasp_pc[5])
 
         grasp_pc = np.asarray(modified_grasp_pc)
-
 
         for prevg in selected_grasps_so_far:
             distance = np.linalg.norm(prevg[:3, 3] - g[:3, 3])
@@ -589,11 +650,11 @@ def draw_scene(
 
         # Determine grasp color
         current_gripper_color = gripper_color
-        if isinstance(gripper_color, list):
+        if isinstance(gripper_color, list) and len(gripper_color) > i:
             current_gripper_color = gripper_color[i]
         elif grasp_scores is not None:
             normalized_score = (grasp_scores[i] - min_score) / (max_score - min_score + 0.0001)
-            if grasp_color is not None:
+            if grasp_color is not None and len(grasp_color) > ii:
                 current_gripper_color = grasp_color[ii]
             else:
                 current_gripper_color = get_color_plasma(normalized_score)
@@ -604,182 +665,58 @@ def draw_scene(
         # Create gripper visualization
         if show_gripper_mesh:
             # Load and transform gripper mesh
-            object = Object('assets/gripper_models/rum_gripper/model.obj')
-            gripper_mesh = object.mesh
-            gripper_mesh.apply_transform(g)
-            o3d_gripper = plot_mesh(gripper_mesh, color=current_gripper_color)
-            geometries.append(o3d_gripper)
-        # Create line set for grasp visualization
+            try:
+                object = Object('assets/gripper_models/rum_gripper/model.obj')
+                gripper_mesh = object.mesh.copy()
+                gripper_mesh.apply_transform(g)
+                plot_mesh_matplotlib(ax, gripper_mesh, color=current_gripper_color, alpha=0.5)
+            except:
+                print("Warning: Could not load gripper mesh, showing lines only")
+        
+        # Create line visualization for grasp
         pts = np.matmul(grasp_pc, g[:3, :3].T)
         pts += np.expand_dims(g[:3, 3], 0)
         
-        # Create line set connecting the grasp points
-        lines = []
+        # Draw lines connecting the grasp points
         for j in range(len(pts) - 1):
-            lines.append([j, j + 1])
-        
-        line_set = o3d.geometry.LineSet()
-        line_set.points = o3d.utility.Vector3dVector(pts)
-        line_set.lines = o3d.utility.Vector2iVector(lines)
-        
-        # Set color for all lines
-        colors = [current_gripper_color] * len(lines)
-        line_set.colors = o3d.utility.Vector3dVector(colors)
-        # make lines thicker
+            ax.plot([pts[j, 0], pts[j+1, 0]], 
+                   [pts[j, 1], pts[j+1, 1]], 
+                   [pts[j, 2], pts[j+1, 2]], 
+                   color=current_gripper_color, linewidth=2)
 
-        geometries.append(line_set)
-
-    # Create coordinate frame
-    # coord_frame = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.1)
-    # geometries.append(coord_frame)
-
-    # Visualize
-    if save_png:
-        print(f"Creating 3x3 (9-shot) collage and saving to {save_png}")
-        # Create 9 different views for collage
-        import cv2
-        
-        images = []
-        
-        # First, create one working view to get the baseline
-        vis = o3d.visualization.Visualizer()
-        vis.create_window(width=800, height=800, visible=False)
-        
-        for geom in geometries:
-            vis.add_geometry(geom)
-        
-        # Set render options for high quality
-        render_option = vis.get_render_option()
-        render_option.background_color = np.array([0.0, 0.0, 0.0])
-        render_option.point_size = 2.0  # Increased point size
-        render_option.line_width = 2.0  # Increased line width
-        
-        # Get the view control and let it auto-fit
-        view_control = vis.get_view_control()
-        
-        # Define 9 diverse camera positions
-        # Row 1: Top views (looking down from different angles)
-        # Row 2: Eye level views (horizontal rotations)
-        # Row 3: Bottom views (looking up from different angles)
-        camera_setups = [
-            # Row 1: Top views
-            (0, -30, 0),      # Top-front
-            (90, -30, 0),     # Top-right
-            (180, -30, 0),    # Top-back
-            
-            # Row 2: Eye level views
-            (0, 0, 0),        # Front
-            (90, 0, 0),       # Right
-            (180, 0, 0),      # Back
-            
-            # Row 3: Bottom views
-            (0, 30, 0),       # Bottom-front
-            (90, 30, 0),      # Bottom-right
-            (270, 30, 0),     # Bottom-left
-        ]
-        
-        for i, (azimuth, elevation, roll) in enumerate(camera_setups):
-            # Reset view to default
-            view_control.reset_camera_local_rotate()
-            
-            # Apply rotations for diverse views
-            # First rotate around Y-axis (azimuth)
-            if azimuth != 0:
-                view_control.rotate(azimuth * 400 / 90, 0)  # Scale rotation
-            
-            # Then rotate around X-axis (elevation - up/down)
-            if elevation != 0:
-                view_control.rotate(0, elevation * 400 / 90)  # Scale rotation
-            
-            # Update and render
-            vis.poll_events()
-            vis.update_renderer()
-            
-            # Capture high-resolution image
-            temp_filename = f"temp_view_{i}.png"
-            vis.capture_screen_image(temp_filename)
-            
-            # Read image
-            img = cv2.imread(temp_filename)
-            if img is not None:
-                images.append(img)
-            else:
-                print(f"Warning: Failed to capture view {i}")
-            
-            # Clean up
-            import os
-            if os.path.exists(temp_filename):
-                os.remove(temp_filename)
-        
-        vis.destroy_window()
-        
-        # Create collage (3x3 grid)
-        if len(images) == 9:
-            # Resize images to high resolution if needed
-            target_size = (800, 800)  # High resolution per image
-            resized_images = []
-            for img in images:
-                if img.shape[:2] != target_size:
-                    img_resized = cv2.resize(img, target_size, interpolation=cv2.INTER_CUBIC)
-                else:
-                    img_resized = img
-                resized_images.append(img_resized)
-            
-            # Create 3x3 collage (2400x2400 final resolution)
-            row1 = np.hstack([resized_images[0], resized_images[1], resized_images[2]])
-            row2 = np.hstack([resized_images[3], resized_images[4], resized_images[5]])
-            row3 = np.hstack([resized_images[6], resized_images[7], resized_images[8]])
-            collage = np.vstack([row1, row2, row3])
-            
-            # Save high-quality collage
-            cv2.imwrite(save_png, collage, [cv2.IMWRITE_PNG_COMPRESSION, 1])  # Minimal compression
-            print(f"High-quality 3x3 collage saved to {save_png} (2400x2400 pixels)")
-        else:
-            print(f"Warning: Could not create all 9 views (got {len(images)}), falling back to single view")
-            # Fallback to single view
-            vis = o3d.visualization.Visualizer()
-            vis.create_window(width=800, height=600, visible=False)
-            
-            for geom in geometries:
-                vis.add_geometry(geom)
-            
-            render_option = vis.get_render_option()
-            render_option.background_color = np.array([0.0, 0.0, 0.0])
-            render_option.point_size = 2.0
-            render_option.line_width = 2.0
-            
-            vis.poll_events()
-            vis.update_renderer()
-            vis.capture_screen_image(save_png)
-            vis.destroy_window()
+    # Set equal aspect ratio and view
+    if mesh is not None:
+        # Get mesh bounds for setting axis limits
+        bounds = mesh.bounds
+        center = mesh.center_mass
+        max_extent = np.max(mesh.extents)
+    elif pc is not None:
+        bounds = np.array([np.min(pc, axis=0), np.max(pc, axis=0)])
+        center = np.mean(pc, axis=0)
+        max_extent = np.max(bounds[1] - bounds[0])
+    else:
+        center = np.array([0, 0, 0])
+        max_extent = 1.0
     
-    elif render:
-        # Only create interactive window if render=True
-        vis = o3d.visualization.Visualizer()
-        vis.create_window(width=800, height=600)
-        
-        for geom in geometries:
-            vis.add_geometry(geom)
-        
-        # Set view options
-        render_option = vis.get_render_option()
-        render_option.background_color = np.array([0.0, 0.0, 0.0])
-        render_option.point_size = 2.0
-        render_option.line_width = 2.0
-        
-        vis.run()
-        vis.destroy_window()
+    # Set axis limits with tighter zoom (reduced from /2 to /2.5 for more zoom)
+    zoom_factor = 2.5
+    ax.set_xlim(center[0] - max_extent/zoom_factor, center[0] + max_extent/zoom_factor)
+    ax.set_ylim(center[1] - max_extent/zoom_factor, center[1] + max_extent/zoom_factor)
+    ax.set_zlim(center[2] - max_extent/zoom_factor, center[2] + max_extent/zoom_factor)
     
-    # If neither render nor save_png, just return without creating any windows
-    if not render and not save_png:
-        print("No visualization requested (--no-render and no --save-png)")
-        return geometries
-
+    # Set view angle
+    ax.view_init(elev=elev, azim=azim)
+    
+    # Set labels
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Z')
+    
     print('removed {} similar grasps'.format(removed))  
 
 def get_axis():
-    """Create coordinate frame for open3d"""
-    return o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.10)
+    """Create coordinate frame using matplotlib - deprecated, not needed anymore"""
+    pass
 
 
 args = parser.parse_args()

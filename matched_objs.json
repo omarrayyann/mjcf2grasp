@@ -1,14 +1,6 @@
 [
     {
-        "name": "Vase_Flat_1",
-        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/Thor-Assets/Miscellaneous Objects/Vase/Prefabs/Vase_Flat_1/Vase_Flat_1.xml"
-    },
-    {
-        "name": "Vase_Tall_4",
-        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/Thor-Assets/Miscellaneous Objects/Vase/Prefabs/Vase_Tall_4/Vase_Tall_4.xml"
-    },
-    {
-        "name": "Vase_Medium_4",
-        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/Thor-Assets/Miscellaneous Objects/Vase/Prefabs/Vase_Medium_4/Vase_Medium_4.xml"
+        "name": "Tennis_Racquet_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/Thor-Assets/Miscellaneous Objects/TennisRacquet/Prefabs/Tennis_Racquet_3/Tennis_Racquet_3.xml"
     }
 ]
