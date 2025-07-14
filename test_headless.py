@@ -5,7 +5,7 @@ Test script to verify headless rendering functionality
 
 import sys
 import os
-sys.path.append('/home/lambda1/Documents/thor-grasp')
+sys.path.append('/scratch/olr7742/ai2/thor-grasp')
 
 # Test the visualization script with headless mode
 print("Testing headless visualization...")

@@ -16,6 +16,9 @@ import trimesh.transformations as tra
 import os
 import argparse
 import json
+from multiprocessing import Pool, cpu_count
+from PIL import Image
+import io
 parser = argparse.ArgumentParser(description='Visualize grasps from a JSON file.')
 parser.add_argument('object_name', type=str)
 parser.add_argument('--filtered', action='store_true')
@@ -420,226 +423,6 @@ def plot_mesh_matplotlib(ax, mesh, color=None, alpha=0.3):
     
     return collection
 
-def _prepare_grasp_geometry(pc, grasps, grasp_scores, grasp_color, gripper_color, mesh, 
-                           show_gripper_mesh, grasps_selection, visualize_diverse_grasps,
-                           min_seperation_distance, pc_color, plasma_coloring, grasp_widths):
-    """Prepare all geometry data once for efficient multi-view rendering."""
-    
-    # Process grasps
-    if grasp_scores is not None:
-        indexes = np.argsort(-np.asarray(grasp_scores))
-    else:
-        indexes = range(len(grasps))
-
-    print(f'Preparing {len(grasps)} grasps...')
-    
-    selected_grasps_so_far = []
-    removed = 0
-
-    if grasp_scores is not None:
-        min_score = np.min(grasp_scores)        
-        max_score = np.max(grasp_scores)
-    
-    # Prepare point cloud data
-    pc_data = None
-    if pc is not None:
-        pc_colors = None
-        if pc_color is None:
-            if plasma_coloring:
-                # Create plasma-like coloring based on z-coordinate
-                z_values = pc[:, 2]
-                z_normalized = (z_values - np.min(z_values)) / (np.max(z_values) - np.min(z_values))
-                pc_colors = np.zeros((len(pc), 3))
-                pc_colors[:, 0] = z_normalized  # Red channel
-                pc_colors[:, 1] = 1 - z_normalized  # Green channel
-                pc_colors[:, 2] = 0.5  # Blue channel
-            else:
-                pc_colors = 'blue'
-        else:
-            pc_colors = pc_color
-        
-        pc_data = {'points': pc, 'colors': pc_colors}
-    
-    # Prepare grasp lines
-    grasp_lines = []
-    grasp_line_colors = []
-    
-    # Prepare gripper meshes
-    gripper_meshes = []
-    gripper_mesh_colors = []
-
-    for ii in range(len(grasps)):
-        i = indexes[ii]
-        if grasps_selection is not None:
-            if grasps_selection[i] == False:
-                continue
-        
-        g = grasps[i]
-        is_diverse = True
-
-        grasp_pc = np.squeeze(get_control_point_tensor(1, False), 0)
-        grasp_pc[2, 2] = 0.059
-        grasp_pc[3, 2] = 0.059
-
-        if grasp_widths is not None:
-            grasp_width = grasp_widths[i] + 0.03
-        else:
-            grasp_width = 0.08
-
-        grasp_pc[2,0] = grasp_width * 0.5  # Left finger base
-        grasp_pc[3,0] = -grasp_width * 0.5  # Left finger tip
-        grasp_pc[4,0] = grasp_width * 0.5  # Left finger base (duplicate)
-        grasp_pc[5,0] = -grasp_width * 0.5  # Right finger base
-
-        mid_point = 0.5*(grasp_pc[2, :] + grasp_pc[3, :])
-
-        modified_grasp_pc = []
-        modified_grasp_pc.append(np.zeros((3,), np.float32))
-        modified_grasp_pc.append(mid_point)
-        modified_grasp_pc.append(grasp_pc[2])
-        modified_grasp_pc.append(grasp_pc[4])
-        modified_grasp_pc.append(grasp_pc[2])
-        modified_grasp_pc.append(grasp_pc[3])
-        modified_grasp_pc.append(grasp_pc[5])
-
-        grasp_pc = np.asarray(modified_grasp_pc)
-
-        for prevg in selected_grasps_so_far:
-            distance = np.linalg.norm(prevg[:3, 3] - g[:3, 3])
-    
-            if distance < min_seperation_distance:
-                is_diverse = False
-                break
-        
-        if visualize_diverse_grasps:
-            if not is_diverse:
-                removed += 1
-                continue
-            else:
-                selected_grasps_so_far.append(g)
-
-        # Determine grasp color
-        current_gripper_color = gripper_color
-        if isinstance(gripper_color, list) and len(gripper_color) > i:
-            current_gripper_color = gripper_color[i]
-        elif grasp_scores is not None:
-            normalized_score = (grasp_scores[i] - min_score) / (max_score - min_score + 0.0001)
-            if grasp_color is not None and len(grasp_color) > ii:
-                current_gripper_color = grasp_color[ii]
-            else:
-                current_gripper_color = get_color_plasma(normalized_score)
-
-            if min_score == 1.0:
-                current_gripper_color = (0.0, 1.0, 0.0)
-
-        # Prepare gripper mesh
-        if show_gripper_mesh:
-            try:
-                object = Object('assets/gripper_models/rum_gripper/model.obj')
-                gripper_mesh = object.mesh.copy()
-                gripper_mesh.apply_transform(g)
-                gripper_meshes.append(gripper_mesh)
-                gripper_mesh_colors.append(current_gripper_color)
-            except:
-                pass  # Skip if can't load mesh
-        
-        # Prepare grasp lines
-        pts = np.matmul(grasp_pc, g[:3, :3].T)
-        pts += np.expand_dims(g[:3, 3], 0)
-        
-        # Store line segments
-        for j in range(len(pts) - 1):
-            grasp_lines.append([pts[j], pts[j+1]])
-            grasp_line_colors.append(current_gripper_color)
-
-    # Calculate bounds for consistent axis limits
-    bounds_data = None
-    if mesh is not None:
-        center = mesh.center_mass
-        max_extent = np.max(mesh.extents)
-        bounds_data = {'center': center, 'max_extent': max_extent}
-    elif pc is not None:
-        bounds = np.array([np.min(pc, axis=0), np.max(pc, axis=0)])
-        center = np.mean(pc, axis=0)
-        max_extent = np.max(bounds[1] - bounds[0])
-        bounds_data = {'center': center, 'max_extent': max_extent}
-    else:
-        bounds_data = {'center': np.array([0, 0, 0]), 'max_extent': 1.0}
-
-    print(f'Prepared {len(grasp_lines)} grasp lines and {len(gripper_meshes)} gripper meshes')
-    print(f'Removed {removed} similar grasps')
-
-    return {
-        'mesh': mesh,
-        'pc_data': pc_data,
-        'grasp_lines': grasp_lines,
-        'grasp_line_colors': grasp_line_colors,
-        'gripper_meshes': gripper_meshes,
-        'gripper_mesh_colors': gripper_mesh_colors,
-        'bounds_data': bounds_data
-    }
-
-
-def _render_prepared_scene(ax, grasp_data, azim=45, elev=30):
-    """Render pre-prepared geometry data with specified camera view."""
-    
-    # Set background color to black and remove grid
-    ax.xaxis.pane.fill = False
-    ax.yaxis.pane.fill = False
-    ax.zaxis.pane.fill = False
-    ax.xaxis.pane.set_edgecolor('black')
-    ax.yaxis.pane.set_edgecolor('black')
-    ax.zaxis.pane.set_edgecolor('black')
-    ax.xaxis.pane.set_alpha(0.0)
-    ax.yaxis.pane.set_alpha(0.0)
-    ax.zaxis.pane.set_alpha(0.0)
-    ax.grid(False)
-    ax.set_facecolor('black')
-    
-    # Add mesh to scene
-    if grasp_data['mesh'] is not None:
-        mesh = grasp_data['mesh']
-        if type(mesh) == list:
-            for elem in mesh:
-                plot_mesh_matplotlib(ax, elem, color=[0.7, 0.7, 1.0], alpha=0.3)
-        else:
-            plot_mesh_matplotlib(ax, mesh, color=[0.7, 0.7, 1.0], alpha=0.3)
-
-    # Add point cloud to scene
-    if grasp_data['pc_data'] is not None:
-        pc_data = grasp_data['pc_data']
-        ax.scatter(pc_data['points'][:, 0], pc_data['points'][:, 1], pc_data['points'][:, 2], 
-                  c=pc_data['colors'], s=1, alpha=0.6)
-
-    # Add gripper meshes
-    for mesh, color in zip(grasp_data['gripper_meshes'], grasp_data['gripper_mesh_colors']):
-        plot_mesh_matplotlib(ax, mesh, color=color, alpha=0.5)
-    
-    # Add grasp lines
-    for line, color in zip(grasp_data['grasp_lines'], grasp_data['grasp_line_colors']):
-        ax.plot([line[0][0], line[1][0]], 
-               [line[0][1], line[1][1]], 
-               [line[0][2], line[1][2]], 
-               color=color, linewidth=2)
-
-    # Set axis limits with tighter zoom
-    bounds = grasp_data['bounds_data']
-    zoom_factor = 2.5
-    center = bounds['center']
-    max_extent = bounds['max_extent']
-    
-    ax.set_xlim(center[0] - max_extent/zoom_factor, center[0] + max_extent/zoom_factor)
-    ax.set_ylim(center[1] - max_extent/zoom_factor, center[1] + max_extent/zoom_factor)
-    ax.set_zlim(center[2] - max_extent/zoom_factor, center[2] + max_extent/zoom_factor)
-    
-    # Set view angle
-    ax.view_init(elev=elev, azim=azim)
-    
-    # Set labels
-    ax.set_xlabel('X')
-    ax.set_ylabel('Y')
-    ax.set_zlabel('Z')
-
 def draw_scene(
     pc, 
     grasps=[], 
@@ -704,53 +487,21 @@ def draw_scene(
         if grasp_widths is not None:
             grasp_widths = grasp_widths[chosen_ones]
 
-    # Prepare geometry data once (much more efficient!)
-    print("Preparing grasp geometry...")
-    grasp_data = _prepare_grasp_geometry(pc, grasps, grasp_scores, grasp_color, gripper_color, mesh, 
-                                        show_gripper_mesh, grasps_selection, visualize_diverse_grasps,
-                                        min_seperation_distance, pc_color, plasma_coloring, grasp_widths)
-    
     # Create matplotlib figure and axes
     if save_png:
-        # Create 3x3 collage for PNG output
-        fig = plt.figure(figsize=(12, 12), facecolor='black')  # Large figure for high resolution
-        
-        # Define 9 diverse camera positions
-        camera_setups = [
-            # Row 1: Top views
-            (0, 60),      # azim=0, elev=60 (top-front)
-            (60, 60),     # azim=60, elev=60 (top-right)
-            (120, 60),    # azim=120, elev=60 (top-back-right)
-            
-            # Row 2: Eye level views
-            (0, 0),       # azim=0, elev=0 (front)
-            (60, 0),      # azim=60, elev=0 (right)
-            (120, 0),     # azim=120, elev=0 (back-right)
-            
-            # Row 3: Bottom views
-            (0, -60),     # azim=0, elev=-60 (bottom-front)
-            (60, -60),    # azim=60, elev=-60 (bottom-right)
-            (120, -60),   # azim=120, elev=-60 (bottom-back-right)
-        ]
-        
-        print("Rendering multiple views...")
-        for view_idx, (azim, elev) in enumerate(camera_setups):
-            print(f"  View {view_idx + 1}/9: azim={azim}, elev={elev}")
-            ax = fig.add_subplot(3, 3, view_idx + 1, projection='3d')
-            _render_prepared_scene(ax, grasp_data, azim, elev)
-        
-        plt.tight_layout()
-        plt.savefig(save_png, dpi=100, bbox_inches='tight', facecolor='black')
-        plt.close()
-        print(f"High-quality 3x3 collage saved to {save_png}")
+        # Create 3x3 collage for PNG output using parallel rendering
+        _create_parallel_collage(pc, grasps, grasp_scores, grasp_color, gripper_color, mesh, 
+                                show_gripper_mesh, grasps_selection, visualize_diverse_grasps,
+                                min_seperation_distance, pc_color, plasma_coloring, grasp_widths, save_png)
         
     elif render:
         # Single interactive view
         fig = plt.figure(figsize=(12, 10), facecolor='black')
         ax = fig.add_subplot(111, projection='3d')
         
-        print("Rendering single view...")
-        _render_prepared_scene(ax, grasp_data, azim=45, elev=30)
+        _plot_single_view(ax, pc, grasps, grasp_scores, grasp_color, gripper_color, mesh, 
+                        show_gripper_mesh, grasps_selection, visualize_diverse_grasps,
+                        min_seperation_distance, pc_color, plasma_coloring, grasp_widths)
         
         plt.show()
     
@@ -938,6 +689,104 @@ def _plot_single_view(ax, pc, grasps, grasp_scores, grasp_color, gripper_color, 
     ax.set_zlabel('Z')
     
     print('removed {} similar grasps'.format(removed))  
+
+
+def _render_single_view_to_image(args):
+    """Render a single view and return the image data as bytes.
+    
+    This function is designed to be used with multiprocessing.
+    """
+    (view_idx, azim, elev, pc, grasps, grasp_scores, grasp_color, gripper_color, 
+     mesh, show_gripper_mesh, grasps_selection, visualize_diverse_grasps,
+     min_seperation_distance, pc_color, plasma_coloring, grasp_widths) = args
+    
+    # Create a single subplot figure for this view
+    fig = plt.figure(figsize=(10, 10), facecolor='black')
+    ax = fig.add_subplot(111, projection='3d')
+    
+    # Render this specific view
+    _plot_single_view(ax, pc, grasps, grasp_scores, grasp_color, gripper_color, mesh, 
+                     show_gripper_mesh, grasps_selection, visualize_diverse_grasps,
+                     min_seperation_distance, pc_color, plasma_coloring, grasp_widths, azim, elev)
+    
+    # Save to bytes buffer
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png', dpi=100, bbox_inches='tight', facecolor='black', pad_inches=0)
+    plt.close(fig)
+    
+    # Return view index and image data
+    buf.seek(0)
+    return view_idx, buf.getvalue()
+
+
+def _create_parallel_collage(pc, grasps, grasp_scores, grasp_color, gripper_color, mesh, 
+                           show_gripper_mesh, grasps_selection, visualize_diverse_grasps,
+                           min_seperation_distance, pc_color, plasma_coloring, grasp_widths, save_png):
+    """Create a 3x3 collage using parallel rendering of individual views."""
+    
+    # Define 9 diverse camera positions
+    camera_setups = [
+        # Row 1: Top views
+        (0, 60),      # azim=0, elev=60 (top-front)
+        (60, 60),     # azim=60, elev=60 (top-right)
+        (120, 60),    # azim=120, elev=60 (top-back-right)
+        
+        # Row 2: Eye level views
+        (0, 0),       # azim=0, elev=0 (front)
+        (60, 0),      # azim=60, elev=0 (right)
+        (120, 0),     # azim=120, elev=0 (back-right)
+        
+        # Row 3: Bottom views
+        (0, -60),     # azim=0, elev=-60 (bottom-front)
+        (60, -60),    # azim=60, elev=-60 (bottom-right)
+        (120, -60),   # azim=120, elev=-60 (bottom-back-right)
+    ]
+    
+    # Prepare arguments for parallel processing
+    args_list = []
+    for view_idx, (azim, elev) in enumerate(camera_setups):
+        args_list.append((view_idx, azim, elev, pc, grasps, grasp_scores, grasp_color, gripper_color, 
+                         mesh, show_gripper_mesh, grasps_selection, visualize_diverse_grasps,
+                         min_seperation_distance, pc_color, plasma_coloring, grasp_widths))
+    
+    print(f"Rendering 9 views in parallel using {min(len(args_list), cpu_count())} processes...")
+    start_time = time.time()
+    
+    # Render views in parallel
+    with Pool(processes=min(len(args_list), cpu_count())) as pool:
+        results = pool.map(_render_single_view_to_image, args_list)
+    
+    parallel_time = time.time() - start_time
+    print(f"Parallel rendering completed in {parallel_time:.2f} seconds")
+    
+    # Sort results by view index to maintain correct order
+    results.sort(key=lambda x: x[0])
+    
+    # Load images and combine into 3x3 grid
+    images = []
+    for view_idx, image_data in results:
+        img = Image.open(io.BytesIO(image_data))
+        images.append(img)
+    
+    # Create 3x3 collage
+    img_width, img_height = images[0].size
+    collage_width = img_width * 3
+    collage_height = img_height * 3
+    
+    collage = Image.new('RGB', (collage_width, collage_height), color='black')
+    
+    for i, img in enumerate(images):
+        row = i // 3
+        col = i % 3
+        x = col * img_width
+        y = row * img_height
+        collage.paste(img, (x, y))
+    
+    # Save the final collage
+    collage.save(save_png)
+    total_time = time.time() - start_time
+    print(f"High-quality 3x3 collage saved to {save_png} (total time: {total_time:.2f}s)")
+
 
 def get_axis():
     """Create coordinate frame using matplotlib - deprecated, not needed anymore"""
