@@ -1,13 +1,3 @@
-
-
-
-
-
-
-
-
-
-
 from __future__ import print_function
 
 import argparse
@@ -1010,7 +1000,7 @@ def make_parser():
                         help='Only store one grasp (highest quality) if there are multiple per with the same position.')
 
     parser.add_argument('--min_quality', type=float, default=0.5,
-                        help=)
+                        help="min quality")
 
     parser.add_argument('--num_samples', type=int, default=100,
                         help='Number of samples.')
