@@ -17,6 +17,20 @@ pip install -r requirements.txt
    ```bash
    python scripts/find_objects.py <directory> --output matched_objs.json
    ```
+   
+   Example output format:
+   ```json
+   [
+       {
+           "name": "Keychain_3",
+           "xml": "/path/to/assets/KeyChain/Prefabs/Keychain_3/Keychain_3.xml"
+       },
+       {
+           "name": "Laptop_12", 
+           "xml": "/path/to/assets/Laptop_Full/Prefabs/Laptop_12/Laptop_12.xml"
+       }
+   ]
+   ```
 
 2. **Run Pipeline**: Run `run_pipeline.py` to process each object through the pipeline stages
    ```bash
