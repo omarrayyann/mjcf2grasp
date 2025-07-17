@@ -1,5 +1,10 @@
 # Thor Grasp
 
+<img height="200" alt="tennis" src="https://github.com/user-attachments/assets/528f1dda-dc60-4434-b04b-c0b67b336bc4" />
+<img height="200" alt="cup" src="https://github.com/user-attachments/assets/606a5504-e749-4efc-babd-a077974f51e9" />
+<img height="200" alt="pan_shake" src="https://github.com/user-attachments/assets/03f89c0c-da8c-4a72-93bb-f9f24ba9874a" />
+<img height="200" alt="pan" src="https://github.com/user-attachments/assets/3747d172-cb9e-4b4f-a9f6-8c8e5a0ab2bf" />
+
 Pipeline for generating grasps samples for Thor objects then evaluating and filtering them.
 
 ## Installation
