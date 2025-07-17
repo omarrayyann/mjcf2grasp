@@ -1,13 +1,3 @@
-
-
-
-
-
-
-
-
-
-
 from __future__ import print_function
 
 import argparse
@@ -981,7 +971,7 @@ def make_parser():
     parser.add_argument('--scale', type=float, default=1.0,
                         help='Scale the object.')
     parser.add_argument('--resize', type=float,
-                        help=)
+                        help="Resize the object to a specific size (in meters).")
     parser.add_argument('--use_stl', action='store_true',
                         help='Use STL instead of obj.')
     parser.add_argument('--gripper', choices=get_available_grippers().keys(), default='rum',
@@ -1009,8 +999,8 @@ def make_parser():
     parser.add_argument('--filter_best_per_position', action='store_true',
                         help='Only store one grasp (highest quality) if there are multiple per with the same position.')
 
-    parser.add_argument('--min_quality', type=float, default=0.5,
-                        help=)
+    parser.add_argument('--min_quality', type=float, default=0.005,
+                        help="min quality")
 
     parser.add_argument('--num_samples', type=int, default=100,
                         help='Number of samples.')
@@ -1119,21 +1109,21 @@ if __name__ == "__main__":
         grasp_widths = compute_grasp_widths(transforms, obj.mesh, gripper_name=args.gripper, num_workers=args.num_workers)
         
         
-        quality_key = 'quality_' + args.quality
-        quality_scores = qualities[quality_key]
-        sort_indices = np.argsort(quality_scores)[::-1]  
+        # quality_key = 'quality_' + args.quality
+        # quality_scores = qualities[quality_key]
+        # sort_indices = np.argsort(quality_scores)[::-1]  
         
         
-        transforms = transforms[sort_indices]
-        points = points[sort_indices]
-        normals = normals[sort_indices]
-        roll_angles = roll_angles[sort_indices]
-        standoffs = standoffs[sort_indices]
-        collisions = [collisions[i] for i in sort_indices]
-        grasp_widths = [grasp_widths[i] for i in sort_indices]
-        sorted_quality_scores = [quality_scores[i] for i in sort_indices]
+        # transforms = transforms[sort_indices]
+        # points = points[sort_indices]
+        # normals = normals[sort_indices]
+        # roll_angles = roll_angles[sort_indices]
+        # standoffs = standoffs[sort_indices]
+        # collisions = [collisions[i] for i in sort_indices]
+        # grasp_widths = [grasp_widths[i] for i in sort_indices]
+        # sorted_quality_scores = [quality_scores[i] for i in sort_indices]
         
-        verboseprint(f"Sorted grasps by quality. Best quality: {sorted_quality_scores[0]:.4f}, Worst: {sorted_quality_scores[-1]:.4f}")
+        # verboseprint(f"Sorted grasps by quality. Best quality: {sorted_quality_scores[0]:.4f}, Worst: {sorted_quality_scores[-1]:.4f}")
 
         
         grasps = {
@@ -1152,7 +1142,7 @@ if __name__ == "__main__":
             'mesh_normals': [n.tolist() for n in normals],
             'collisions': collisions,
             'grasp_widths': grasp_widths,
-            quality_key: sorted_quality_scores,
+            # quality_key: sorted_quality_scores,
         }
 
         with open(args.output, 'w') as f:
