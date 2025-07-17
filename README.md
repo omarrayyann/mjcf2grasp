@@ -1,6 +1,6 @@
 # Thor Grasp
 
-Pipeline for generating grasps samples for objects then evaluating and filtering them.
+Pipeline for generating grasps samples for Thor objects then evaluating and filtering them.
 
 ## Installation
 
