@@ -1,7 +1,16 @@
 # Thor Grasp
 
-A pipeline for generating grasps samples for objects then evaluating and filtering them.
+Pipeline for generating grasps samples for objects then evaluating and filtering them.
 
+## Installation
+
+```bash
+pip install -r requirements.txt
+```
+
+**External dependencies**:
+   - Install [Manifold library](https://github.com/hjwdzh/Manifold) under external_src
+   - Install [PyMeshLab](https://github.com/cnr-isti-vclab/PyMeshLab) under external_src
 ## Steps
 
 1. **Find Objects**: Run `scripts/find_objects.py` to scan for valid objects and generate `matched_objs.json`
@@ -13,9 +22,6 @@ A pipeline for generating grasps samples for objects then evaluating and filteri
    ```bash
    python run_pipeline.py
    ```
-
-## Pipeline Scripts
-
-- `0_generate_mesh.py` - Combines meshes from MuJoCo XML into a single OBJ file
-- `1_generate_grasps.py` - Samples grasp poses for the object mesh  
-- `2_filter_mujoco.py` - Filters grasps using MuJoCo
+- `pipeline/0_generate_mesh.py` - Combines meshes from MuJoCo XML into a single OBJ file
+- `pipeline/1_generate_grasps.py` - Samples grasp poses for the object mesh  
+- `pipeline/2_filter_mujoco.py` - Filters grasps using MuJoCo
