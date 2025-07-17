@@ -1,5 +1,5 @@
 # Thor Grasp
-Pipeline for generating grasps samples for Thor objects then evaluating and filtering them.
+Pipeline for generating grasps samples for Thor objects then evaluating and filtering them in MuJoCo.
 
 <p>
   <img src="https://github.com/user-attachments/assets/528f1dda-dc60-4434-b04b-c0b67b336bc4" alt="tennis" width="20%" height="auto" />
