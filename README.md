@@ -1,12 +1,13 @@
 # Thor Grasp
 Pipeline for generating grasps samples for Thor objects then evaluating and filtering them.
 
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/528f1dda-dc60-4434-b04b-c0b67b336bc4" alt="tennis" style="width: 25%; height: auto;" />
-  <img src="https://github.com/user-attachments/assets/606a5504-e749-4efc-babd-a077974f51e9" alt="cup" style="width: 25%; height: auto;" />
-  <img src="https://github.com/user-attachments/assets/03f89c0c-da8c-4a72-93bb-f9f24ba9874a" alt="pan_shake" style="width: 25%; height: auto;" />
-  <img src="https://github.com/user-attachments/assets/3747d172-cb9e-4b4f-a9f6-8c8e5a0ab2bf" alt="pan" style="width: 25%; height: auto;" />
+<p>
+  <img src="https://github.com/user-attachments/assets/528f1dda-dc60-4434-b04b-c0b67b336bc4" alt="tennis" width="15%" height="auto" />
+  <img src="https://github.com/user-attachments/assets/df1ec21f-c457-4ad6-a611-2f16d0ac4f61" alt="cup" width="15%" height="auto" />
+  <img src="https://github.com/user-attachments/assets/03f89c0c-da8c-4a72-93bb-f9f24ba9874a" alt="pan_shake" width="15%" height="auto" />
+  <img src="https://github.com/user-attachments/assets/0b7d68ed-6f1f-4855-a0e4-b17e3e1c2fb0" alt="pan" width="15%" height="auto" />
 </p>
+
 
 
 
