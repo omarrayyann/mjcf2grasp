@@ -4,7 +4,7 @@ import subprocess
 import wandb
 from datetime import datetime
 
-USE_WANDB = True
+USE_WANDB = False
 
 with open("matched_objs.json", "r") as f:
     data = json.load(f)
@@ -136,11 +136,11 @@ for obj in data:
                 "--num_workers", str(num_workers)
             ], check=True)
 
-    # print(f"Visualizing initial grasps for object: {object_name}")
-    # subprocess.run([
-    #     "python", "scripts/visualize.py", object_name, "--render", "--grasp-shape-only",
-    # ], check=True)
-    # #, env=env)
+    print(f"Visualizing initial grasps for object: {object_name}")
+    subprocess.run([
+        "python", "scripts/visualize_render.py", object_name, "--render", "--grasp-shape-only",
+    ], check=True)
+    #, env=env)
 
     if os.path.exists(filtered_file_path):
         print(f"✓ Filtered grasps file already exists for {object_name}, skipping filtering")
@@ -155,7 +155,7 @@ for obj in data:
                 "--num_workers", str(os.cpu_count()),
                 "--approach_distance", "0.1",
                 "--approach_steps", "1000",
-                # "--render",
+                "--render",
                 "--max_successful", "2000"
             ], check=True)
         except subprocess.CalledProcessError as e:
@@ -186,7 +186,7 @@ for obj in data:
                   "--filtered", 
                 "--save-png", 
                 filtered_viz_path, 
-                "--no-render",
+                # "--no-render",
                   "--grasp-shape-only"
             ], check=True)
         

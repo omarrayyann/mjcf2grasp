@@ -1002,7 +1002,7 @@ def make_parser():
     parser.add_argument('--min_quality', type=float, default=0.5,
                         help="min quality")
 
-    parser.add_argument('--num_samples', type=int, default=100,
+    parser.add_argument('--num_samples', type=int, default=100000,
                         help='Number of samples.')
     parser.add_argument('--output', type=str, default="grasps.json",
                         help='File to store the results (json).')
