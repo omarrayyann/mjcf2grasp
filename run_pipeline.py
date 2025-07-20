@@ -105,11 +105,32 @@ for obj in data:
     ], cwd="external_src/Manifold/build", check=True)
 
     print(f"\nProcessing object: {object_name} simplification")
-
-    subprocess.run([
-        "./simplify", "-i", temp_abs_path, "-o", output_abs_path, "-m", "-r", "0.5"
-    ], cwd="external_src/Manifold/build", check=True)
-
+    
+    simplify_success = False
+    try:
+        subprocess.run([
+            "./simplify", "-i", temp_abs_path, "-o", output_abs_path, "-m", "-r", "0.5"
+        ], cwd="external_src/Manifold/build", check=True)
+        simplify_success = True
+    except subprocess.CalledProcessError as e:
+        print(f"✗ Simplify failed for {object_name}, retrying manifold and simplify...")
+        
+        try:
+            subprocess.run([
+                "./manifold", temp_abs_path, temp_abs_path, "-s"
+            ], cwd="external_src/Manifold/build", check=True)
+    
+            subprocess.run([
+                "./simplify", "-i", temp_abs_path, "-o", output_abs_path, "-m", "-r", "0.5"
+            ], cwd="external_src/Manifold/build", check=True)
+            simplify_success = True
+        except subprocess.CalledProcessError as e2:
+            print(f"✗ Simplify still failed for {object_name} after re-running manifold: {str(e2)}")
+            failed_objects.append(object_name)
+    
+    if not simplify_success:
+        continue
+    
     if os.path.exists(grasp_file_path):
         print(f"✓ Grasp file already exists for {object_name}, skipping grasp generation")
     else:
@@ -226,6 +247,11 @@ for obj in data:
             with open(grasp_file_path, 'r') as f:
                 grasp_data = json.load(f)
                 grasp_count = len(grasp_data.get('transforms', []))
+                try:
+                    os.remove(grasp_file_path)
+                    print(f"🗑️  Deleted unfiltered grasp file: {grasp_file_path}")
+                except Exception as e:
+                    print(f"⚠️  Could not delete unfiltered grasp file: {str(e)}")
         except:
             pass
     
