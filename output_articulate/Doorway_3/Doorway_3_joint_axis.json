@@ -1,0 +1,149 @@
+{
+  "object_name": "Doorway_3",
+  "source_xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/ManipulaTHOR Objects/Doorways/Prefabs/Doorway_3/Doorway_3.xml",
+  "primary_joint": {
+    "name": "Doorway_3_doorway_door_3_joint_0",
+    "type": "hinge",
+    "axis": "0 1 0",
+    "range": "0 1.5707963267948966",
+    "pos": "-0 0 0",
+    "limited": "false",
+    "damping": "0.10000000000000001",
+    "frictionloss": "0",
+    "parent_body": "Doorway_3_doorway_door_3",
+    "body_hierarchy": "Doorway_3/Doorway_3_doorway_3/Doorway_3_doorway_door_3",
+    "position": {
+      "x": -0.45709991455078147,
+      "y": -0.02878459701538083,
+      "z": -0.0013
+    },
+    "rotation_axis": {
+      "x": 0.0,
+      "y": 1.0,
+      "z": 0.0
+    },
+    "local_position": {
+      "x": -0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "local_axis": {
+      "x": 0.0,
+      "y": 1.0,
+      "z": 0.0
+    },
+    "parent_position": {
+      "x": -0.45709991455078147,
+      "y": -0.02878459701538083,
+      "z": -0.0013
+    },
+    "parent_rotation": {
+      "w": 0.0,
+      "x": 0.0,
+      "y": 1.0,
+      "z": 0.0
+    }
+  },
+  "all_joints": [
+    {
+      "name": "Doorway_3_free",
+      "type": "free",
+      "axis": "0 0 1",
+      "range": "0 0",
+      "pos": "0 0 0",
+      "limited": "false",
+      "damping": "0.10000000000000001",
+      "frictionloss": "0",
+      "parent_body": "Doorway_3",
+      "body_hierarchy": "Doorway_3",
+      "position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "rotation_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "local_position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "parent_position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "parent_rotation": {
+        "w": 1.0,
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    },
+    {
+      "name": "Doorway_3_doorway_door_3_joint_0",
+      "type": "hinge",
+      "axis": "0 1 0",
+      "range": "0 1.5707963267948966",
+      "pos": "-0 0 0",
+      "limited": "false",
+      "damping": "0.10000000000000001",
+      "frictionloss": "0",
+      "parent_body": "Doorway_3_doorway_door_3",
+      "body_hierarchy": "Doorway_3/Doorway_3_doorway_3/Doorway_3_doorway_door_3",
+      "position": {
+        "x": -0.45709991455078147,
+        "y": -0.02878459701538083,
+        "z": -0.0013
+      },
+      "rotation_axis": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "local_position": {
+        "x": -0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "parent_position": {
+        "x": -0.45709991455078147,
+        "y": -0.02878459701538083,
+        "z": -0.0013
+      },
+      "parent_rotation": {
+        "w": 0.0,
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      }
+    }
+  ],
+  "analysis": {
+    "primary_joint": {
+      "name": "Doorway_3_doorway_door_3_joint_0",
+      "type": "hinge",
+      "axis": "0 1 0",
+      "range": "0 1.5707963267948966",
+      "reasoning": "The hinge joint 'Doorway_3_doorway_door_3_joint_0' is the primary articulation axis because it allows the door to swing open and closed, which is the main function of a doorway. The axis of rotation is aligned with the typical axis for door hinges, allowing for the expected movement of a door."
+    },
+    "confidence": "high",
+    "alternative_joints": [
+      "Doorway_3_free"
+    ],
+    "movement_description": "The hinge joint allows the door to rotate around the y-axis, enabling it to open and close within a range of 0 to 1.5707963267948966 radians (90 degrees)."
+  }
+}

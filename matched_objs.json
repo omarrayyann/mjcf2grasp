@@ -1,6 +1,42 @@
 [
     {
+        "name": "Doorway_8",
+        "xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/ManipulaTHOR Objects/Doorways/Prefabs/Doorway_8/Doorway_8.xml"
+    },
+    {
+        "name": "Doorway_1",
+        "xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/ManipulaTHOR Objects/Doorways/Prefabs/Doorway_1/Doorway_1.xml"
+    },
+    {
+        "name": "Doorway_7",
+        "xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/ManipulaTHOR Objects/Doorways/Prefabs/Doorway_7/Doorway_7.xml"
+    },
+    {
+        "name": "Doorway_5",
+        "xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/ManipulaTHOR Objects/Doorways/Prefabs/Doorway_5/Doorway_5.xml"
+    },
+    {
         "name": "Doorway_10",
         "xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/ManipulaTHOR Objects/Doorways/Prefabs/Doorway_10/Doorway_10.xml"
+    },
+    {
+        "name": "Doorway_3",
+        "xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/ManipulaTHOR Objects/Doorways/Prefabs/Doorway_3/Doorway_3.xml"
+    },
+    {
+        "name": "Doorway_4",
+        "xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/ManipulaTHOR Objects/Doorways/Prefabs/Doorway_4/Doorway_4.xml"
+    },
+    {
+        "name": "Doorway_9",
+        "xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/ManipulaTHOR Objects/Doorways/Prefabs/Doorway_9/Doorway_9.xml"
+    },
+    {
+        "name": "Doorway_2",
+        "xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/ManipulaTHOR Objects/Doorways/Prefabs/Doorway_2/Doorway_2.xml"
+    },
+    {
+        "name": "Doorway_6",
+        "xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/ManipulaTHOR Objects/Doorways/Prefabs/Doorway_6/Doorway_6.xml"
     }
 ]

@@ -1,0 +1,192 @@
+{
+  "object_name": "Doorway_10",
+  "source_xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/ManipulaTHOR Objects/Doorways/Prefabs/Doorway_10/Doorway_10.xml",
+  "primary_joint": {
+    "name": "Doorway_10_doorway_door_10_joint_0",
+    "type": "hinge",
+    "axis": "0 1 0",
+    "range": "0 1.5707963267948966",
+    "pos": "-0 0 0",
+    "limited": "false",
+    "damping": "0.10000000000000001",
+    "frictionloss": "0",
+    "parent_body": "Doorway_10_doorway_door_10",
+    "body_hierarchy": "Doorway_10/Doorway_10_doorway_10/Doorway_10_doorway_door_10",
+    "position": {
+      "x": -0.4553399682044985,
+      "y": -0.03566020599365238,
+      "z": -0.00076
+    },
+    "rotation_axis": {
+      "x": 0.0,
+      "y": 1.0,
+      "z": 0.0
+    },
+    "local_position": {
+      "x": -0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "local_axis": {
+      "x": 0.0,
+      "y": 1.0,
+      "z": 0.0
+    },
+    "parent_position": {
+      "x": -0.4553399682044985,
+      "y": -0.03566020599365238,
+      "z": -0.00076
+    },
+    "parent_rotation": {
+      "w": 0.0,
+      "x": 0.0,
+      "y": 1.0,
+      "z": 0.0
+    }
+  },
+  "all_joints": [
+    {
+      "name": "Doorway_10_free",
+      "type": "free",
+      "axis": "0 0 1",
+      "range": "0 0",
+      "pos": "0 0 0",
+      "limited": "false",
+      "damping": "0.10000000000000001",
+      "frictionloss": "0",
+      "parent_body": "Doorway_10",
+      "body_hierarchy": "Doorway_10",
+      "position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "rotation_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "local_position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "parent_position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "parent_rotation": {
+        "w": 1.0,
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    },
+    {
+      "name": "Doorway_10_doorway_door_10_joint_0",
+      "type": "hinge",
+      "axis": "0 1 0",
+      "range": "0 1.5707963267948966",
+      "pos": "-0 0 0",
+      "limited": "false",
+      "damping": "0.10000000000000001",
+      "frictionloss": "0",
+      "parent_body": "Doorway_10_doorway_door_10",
+      "body_hierarchy": "Doorway_10/Doorway_10_doorway_10/Doorway_10_doorway_door_10",
+      "position": {
+        "x": -0.4553399682044985,
+        "y": -0.03566020599365238,
+        "z": -0.00076
+      },
+      "rotation_axis": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "local_position": {
+        "x": -0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "parent_position": {
+        "x": -0.4553399682044985,
+        "y": -0.03566020599365238,
+        "z": -0.00076
+      },
+      "parent_rotation": {
+        "w": 0.0,
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      }
+    },
+    {
+      "name": "Doorway_10_doorway_handle_10_joint_0",
+      "type": "hinge",
+      "axis": "0 0 1",
+      "range": "-1.5707963267948966 0",
+      "pos": "0 0 0",
+      "limited": "false",
+      "damping": "0.10000000000000001",
+      "frictionloss": "0",
+      "parent_body": "Doorway_10_doorway_handle_10",
+      "body_hierarchy": "Doorway_10/Doorway_10_doorway_10/Doorway_10_doorway_door_10/Doorway_10_doorway_handle_10",
+      "position": {
+        "x": 0.40110963582992565,
+        "y": -0.1365752803421021,
+        "z": -0.00076
+      },
+      "rotation_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -1.0000000000000004
+      },
+      "local_position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "parent_position": {
+        "x": 0.40110963582992565,
+        "y": -0.1365752803421021,
+        "z": -0.00076
+      },
+      "parent_rotation": {
+        "w": 0.0,
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      }
+    }
+  ],
+  "analysis": {
+    "primary_joint": {
+      "name": "Doorway_10_doorway_door_10_joint_0",
+      "type": "hinge",
+      "axis": "0 1 0",
+      "range": "0 1.5707963267948966",
+      "reasoning": "The joint named 'Doorway_10_doorway_door_10_joint_0' is a hinge joint, which is typically used for rotational movement such as opening and closing doors. Given the context of the object being a 'Doorway', this joint likely represents the main hinge that allows the door to swing open and closed, which is the primary function of a doorway."
+    },
+    "confidence": "high",
+    "alternative_joints": [
+      "Doorway_10_doorway_handle_10_joint_0"
+    ],
+    "movement_description": "The expected movement is a rotational swing around the y-axis, allowing the door to open up to 90 degrees (1.5707963267948966 radians)."
+  }
+}

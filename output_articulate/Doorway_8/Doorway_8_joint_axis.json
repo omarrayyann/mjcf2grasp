@@ -1,0 +1,149 @@
+{
+  "object_name": "Doorway_8",
+  "source_xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/ManipulaTHOR Objects/Doorways/Prefabs/Doorway_8/Doorway_8.xml",
+  "primary_joint": {
+    "name": "Doorway_8_doorway_door_8_joint_0",
+    "type": "hinge",
+    "axis": "0 1 0",
+    "range": "0 1.5707963267948966",
+    "pos": "-0 0 0",
+    "limited": "false",
+    "damping": "0.10000000000000001",
+    "frictionloss": "0",
+    "parent_body": "Doorway_8_doorway_door_8",
+    "body_hierarchy": "Doorway_8/Doorway_8_doorway_8/Doorway_8_doorway_door_8",
+    "position": {
+      "x": -0.45539993047714256,
+      "y": -0.034300205993652355,
+      "z": 5e-05
+    },
+    "rotation_axis": {
+      "x": 0.0,
+      "y": 1.0,
+      "z": 0.0
+    },
+    "local_position": {
+      "x": -0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "local_axis": {
+      "x": 0.0,
+      "y": 1.0,
+      "z": 0.0
+    },
+    "parent_position": {
+      "x": -0.45539993047714256,
+      "y": -0.034300205993652355,
+      "z": 5e-05
+    },
+    "parent_rotation": {
+      "w": 0.0,
+      "x": 0.0,
+      "y": 1.0,
+      "z": 0.0
+    }
+  },
+  "all_joints": [
+    {
+      "name": "Doorway_8_free",
+      "type": "free",
+      "axis": "0 0 1",
+      "range": "0 0",
+      "pos": "0 0 0",
+      "limited": "false",
+      "damping": "0.10000000000000001",
+      "frictionloss": "0",
+      "parent_body": "Doorway_8",
+      "body_hierarchy": "Doorway_8",
+      "position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "rotation_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "local_position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "parent_position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "parent_rotation": {
+        "w": 1.0,
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    },
+    {
+      "name": "Doorway_8_doorway_door_8_joint_0",
+      "type": "hinge",
+      "axis": "0 1 0",
+      "range": "0 1.5707963267948966",
+      "pos": "-0 0 0",
+      "limited": "false",
+      "damping": "0.10000000000000001",
+      "frictionloss": "0",
+      "parent_body": "Doorway_8_doorway_door_8",
+      "body_hierarchy": "Doorway_8/Doorway_8_doorway_8/Doorway_8_doorway_door_8",
+      "position": {
+        "x": -0.45539993047714256,
+        "y": -0.034300205993652355,
+        "z": 5e-05
+      },
+      "rotation_axis": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "local_position": {
+        "x": -0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "parent_position": {
+        "x": -0.45539993047714256,
+        "y": -0.034300205993652355,
+        "z": 5e-05
+      },
+      "parent_rotation": {
+        "w": 0.0,
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      }
+    }
+  ],
+  "analysis": {
+    "primary_joint": {
+      "name": "Doorway_8_doorway_door_8_joint_0",
+      "type": "hinge",
+      "axis": "0 1 0",
+      "range": "0 1.5707963267948966",
+      "reasoning": "The joint named 'Doorway_8_doorway_door_8_joint_0' is a hinge joint, which is typically used for rotational movement such as opening and closing doors. Given the context of the object being a 'Doorway', this hinge joint is likely responsible for the primary function of the door, which is to open and close. The axis of rotation (0 1 0) suggests a vertical hinge, which is common for doors."
+    },
+    "confidence": "high",
+    "alternative_joints": [
+      "Doorway_8_free"
+    ],
+    "movement_description": "The expected movement is the rotational opening and closing of the door around a vertical axis, allowing passage through the doorway."
+  }
+}

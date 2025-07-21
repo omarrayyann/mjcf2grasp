@@ -25,6 +25,8 @@ parser.add_argument('--no-render', dest='render', action='store_false',
                    help='Do not show interactive visualization window')
 parser.add_argument('--grasp-shape-only', action='store_true',
                    help='Show only grasp shape lines without gripper mesh')
+parser.add_argument('--articulated', action='store_true',
+                   help='Look for grasp files in output_articulated directory instead of output')
 parser.add_argument('--position', type=float, nargs=3, default=[0, 0, 0],
                    help='Set position of the object in the scene (default: [0, 0, 0])')
 parser.add_argument('--rotation', type=float, nargs=4, default=[0, 0, 0, 1],
@@ -758,14 +760,15 @@ def get_axis():
 args = parser.parse_args()
 
 # Define file paths - check both new structure and old structure
-base_json_file = os.path.abspath(f"output/{args.object_name}/{args.object_name}_grasps.json")
-filtered_json_file = os.path.abspath(f"output/{args.object_name}/{args.object_name}_grasps_filtered.json")
+output_dir = "output_articulate" if args.articulated else "output"
+base_json_file = os.path.abspath(f"{output_dir}/{args.object_name}/{args.object_name}_grasps.json")
+filtered_json_file = os.path.abspath(f"{output_dir}/{args.object_name}/{args.object_name}_grasps_filtered.json")
 
 # Fallback to old structure if new structure doesn't exist
 if not os.path.exists(base_json_file):
-    base_json_file = os.path.abspath(f"output/{args.object_name}_grasps.json")
+    base_json_file = os.path.abspath(f"{output_dir}/{args.object_name}_grasps.json")
 if not os.path.exists(filtered_json_file):
-    filtered_json_file = os.path.abspath(f"output/{args.object_name}_grasps_filtered.json")
+    filtered_json_file = os.path.abspath(f"{output_dir}/{args.object_name}_grasps_filtered.json")
 
 # Load saved grasp data
 if args.compare:
@@ -836,9 +839,9 @@ else:
         extra = ''
     
     # Check new structure first, then fallback to old structure
-    json_file = os.path.abspath(f"output/{args.object_name}/{args.object_name}_grasps{extra}.json")
+    json_file = os.path.abspath(f"{output_dir}/{args.object_name}/{args.object_name}_grasps{extra}.json")
     if not os.path.exists(json_file):
-        json_file = os.path.abspath(f"output/{args.object_name}_grasps{extra}.json")
+        json_file = os.path.abspath(f"{output_dir}/{args.object_name}_grasps{extra}.json")
     
     # Load saved grasp data
     with open(json_file, 'r') as f:
