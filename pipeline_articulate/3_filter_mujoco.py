@@ -738,9 +738,6 @@ if __name__ == "__main__":
                 # Extract grasp center position
                 grasp_pos = np.array(transform)[:3, 3]
                 
-                # Calculate closest point on joint axis to grasp center
-                # Point on line formula: P = A + t * d
-                # where A is axis position, d is axis direction, t is parameter
                 axis_pos = joint_axis_info['position']
                 axis_dir = joint_axis_info['axis_normalized']
                 
