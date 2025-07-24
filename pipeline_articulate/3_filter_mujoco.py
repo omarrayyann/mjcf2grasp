@@ -29,6 +29,24 @@ parser.add_argument(
     default=1000,
     help="Number of simulation steps for the approach phase",
 )
+parser.add_argument(
+    "--articulation_loops",
+    type=int,
+    default=3,
+    help="Number of articulation loops (forward and backward) to perform",
+)
+parser.add_argument(
+    "--waypoint_pause",
+    type=float,
+    default=0.025,
+    help="Pause time in seconds between each waypoint",
+)
+parser.add_argument(
+    "--endpoint_pause",
+    type=float,
+    default=0.5,
+    help="Pause time in seconds at the endpoints of articulation",
+)
 parser.add_argument("--render", action="store_true", help="Enable interactive viewer")
 parser.add_argument(
     "--num_workers",
@@ -559,26 +577,66 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
                 # Execute articulation movement through waypoints
                 time.sleep(1.0)
                 if waypoints:
-                    print(f"Moving through {len(waypoints)} articulation waypoints")
-                    for wp_idx, (wp_pos, wp_quat) in enumerate(waypoints):
-                        print(f"Moving to waypoint {wp_idx}/{len(waypoints)}")
-
-                        # Set the target position
-                        data.mocap_pos[0] = wp_pos
-                        data.mocap_quat[0] = wp_quat
-
-                        # Run simulation for a fixed number of steps for each waypoint
-                        for step in range(200):
-                            mujoco.mj_step(model, data)
-                            if step % 10 == 0:
-                                viewer.sync()
-                                if not viewer.is_running():
-                                    return (
-                                        successful_transforms,
-                                        successful_qualities,
-                                        successful_widths,
-                                    )
-                        time.sleep(0.025)
+                    # Use command-line argument for the number of loops
+                    num_loops = args.articulation_loops
+                    
+                    print(f"Moving through {len(waypoints)} articulation waypoints for {num_loops} loops")
+                    
+                    for loop_idx in range(num_loops):
+                        print(f"Loop {loop_idx+1}/{num_loops}")
+                        
+                        # Forward direction (0 to end)
+                        print("Forward articulation movement...")
+                        for wp_idx, (wp_pos, wp_quat) in enumerate(waypoints):
+                            print(f"Moving to waypoint {wp_idx+1}/{len(waypoints)} (forward)")
+                            
+                            # Set the target position
+                            data.mocap_pos[0] = wp_pos
+                            data.mocap_quat[0] = wp_quat
+                            
+                            # Run simulation for a fixed number of steps for each waypoint
+                            for step in range(200):
+                                mujoco.mj_step(model, data)
+                                if step % 10 == 0:
+                                    viewer.sync()
+                                    if not viewer.is_running():
+                                        return (
+                                            successful_transforms,
+                                            successful_qualities,
+                                            successful_widths,
+                                        )
+                            time.sleep(args.waypoint_pause)
+                        
+                        # Brief pause at the end position
+                        time.sleep(args.endpoint_pause)
+                        
+                        # Backward direction (end to 0)
+                        print("Backward articulation movement...")
+                        for wp_idx in range(len(waypoints)-1, -1, -1):
+                            wp_pos, wp_quat = waypoints[wp_idx]
+                            print(f"Moving to waypoint {len(waypoints)-wp_idx}/{len(waypoints)} (backward)")
+                            
+                            # Set the target position
+                            data.mocap_pos[0] = wp_pos
+                            data.mocap_quat[0] = wp_quat
+                            
+                            # Run simulation for a fixed number of steps for each waypoint
+                            for step in range(200):
+                                mujoco.mj_step(model, data)
+                                if step % 10 == 0:
+                                    viewer.sync()
+                                    if not viewer.is_running():
+                                        return (
+                                            successful_transforms,
+                                            successful_qualities,
+                                            successful_widths,
+                                        )
+                            time.sleep(args.waypoint_pause)
+                        
+                        # Brief pause at the initial position before next loop
+                        time.sleep(args.endpoint_pause)
+                    
+                    print("Completed all articulation loops")
                 else:
                     print("No articulation waypoints calculated")
 
