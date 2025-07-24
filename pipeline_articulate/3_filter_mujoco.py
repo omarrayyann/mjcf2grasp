@@ -309,7 +309,7 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
             )
 
             for i, (transform, quality) in pbar:
-                if i < 660:  # 660
+                if i < 646:  # 646
                     continue
                 pos = transform[:3, 3]
                 quat = R.from_matrix(transform[:3, :3]).as_quat(scalar_first=True)
@@ -370,8 +370,8 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
                 velocity = approach_distance / (approach_steps * model.opt.timestep)
 
                 current_time = time.time()
-                for step in range(approach_steps + 1):
-                    while time.time() - current_time < 0.5:
+                for step in range(approach_steps):
+                    while time.time() - current_time < 1.0:
                         mujoco.mj_step(model, data)
                         viewer.sync()
                     current_time = time.time()
@@ -380,10 +380,219 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
                     data.mocap_pos[0] = new_pos
                     data.mocap_quat[0] = quat
 
-                data.ctrl[0] = -1.0
-                while True:
+                data.mocap_pos[0] = pos
+                for _ in range(1000):
                     mujoco.mj_step(model, data)
                     viewer.sync()
+
+                data.ctrl[0] = -1.0
+
+                for _ in range(1000):
+                    mujoco.mj_step(model, data)
+                    viewer.sync()
+                print("Gripper closed")
+                time.sleep(2.0)
+
+                # HERE
+                # Helper functions for quaternion operations since we don't want to rely on trimesh.transformations
+                def rotation_matrix_from_axis_angle(axis, angle):
+                    """Create a rotation matrix from axis and angle."""
+                    axis = axis / np.linalg.norm(axis)  # Normalize axis
+                    c = np.cos(angle)
+                    s = np.sin(angle)
+                    t = 1.0 - c
+                    x, y, z = axis
+
+                    return np.array(
+                        [
+                            [t * x * x + c, t * x * y - z * s, t * x * z + y * s],
+                            [t * x * y + z * s, t * y * y + c, t * y * z - x * s],
+                            [t * x * z - y * s, t * y * z + x * s, t * z * z + c],
+                        ]
+                    )
+
+                def rotate_vector(vector, rotation_matrix):
+                    """Rotate a vector using a rotation matrix."""
+                    return np.dot(rotation_matrix, vector)
+
+                def quat_multiply(q1, q2):
+                    """Multiply two quaternions."""
+                    w1, x1, y1, z1 = q1
+                    w2, x2, y2, z2 = q2
+                    w = w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2
+                    x = w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2
+                    y = w1 * y2 + y1 * w2 + z1 * x2 - x1 * z2
+                    z = w1 * z2 + z1 * w2 + x1 * y2 - y1 * x2
+                    return np.array([w, x, y, z])
+
+                def axis_angle_to_quat(axis, angle):
+                    """Convert axis-angle to quaternion."""
+                    axis = axis / np.linalg.norm(axis)  # Normalize axis
+                    half_angle = angle * 0.5
+                    s = np.sin(half_angle)
+                    return np.array(
+                        [np.cos(half_angle), axis[0] * s, axis[1] * s, axis[2] * s]
+                    )
+
+                # Load joint axis information for articulation
+                joint_axis_path = os.path.join(
+                    os.path.dirname(args.grasps_path),
+                    f"{args.object_name}_joint_axis.json",
+                )
+
+                joint_info = None
+
+                if os.path.exists(joint_axis_path):
+                    with open(joint_axis_path, "r") as f:
+                        joint_info = json.load(f)
+                    print(f"Loaded joint axis information from: {joint_axis_path}")
+                else:
+                    print(
+                        f"Warning: No joint axis information found at {joint_axis_path}"
+                    )
+
+                # Calculate articulation waypoints
+                num_waypoints = 200
+                waypoints = []
+
+                if joint_info and "primary_joint" in joint_info:
+                    primary_joint = joint_info["primary_joint"]
+                    joint_type = primary_joint.get("type")
+                    joint_range_str = primary_joint.get("range", "0 0")
+                    joint_range = [float(x) for x in joint_range_str.split()]
+
+                    # Get the position and orientation of the object
+                    object_body = data.body(args.object_name)
+                    object_pos = object_body.xpos.copy()
+
+                    # Current gripper position and orientation
+                    gripper_pos = data.body("gripper_base").xpos.copy()
+                    gripper_quat = data.body("gripper_base").xquat.copy()
+
+                    print(
+                        f"Object position: {object_pos}, gripper position: {gripper_pos}"
+                    )
+                    print(f"Joint type: {joint_type}")
+
+                    # Calculate waypoints based on joint type
+                    if joint_type == "hinge":
+                        # For a hinge joint, we'll rotate around the axis
+                        # Get the rotation axis in world coordinates
+                        rotation_axis = primary_joint.get(
+                            "rotation_axis", {"x": 0, "y": 0, "z": 0}
+                        )
+                        axis_world = np.array(
+                            [
+                                rotation_axis.get("x", 0),
+                                rotation_axis.get("y", 0),
+                                rotation_axis.get("z", 0),
+                            ]
+                        )
+
+                        # Get joint position in world coordinates
+                        joint_position = primary_joint.get(
+                            "position", {"x": 0, "y": 0, "z": 0}
+                        )
+                        pivot_point = np.array(
+                            [
+                                joint_position.get("x", 0),
+                                joint_position.get("y", 0),
+                                joint_position.get("z", 0),
+                            ]
+                        )
+
+                        # Use range to determine how far to rotate
+                        max_angle = joint_range[
+                            1
+                        ]  # Use the upper limit of the joint range
+                        if max_angle == 0:
+                            max_angle = (
+                                np.pi / 2
+                            )  # Default to 90 degrees if range is not specified
+
+                        # Get the relative position of gripper from pivot point
+                        rel_pos = gripper_pos - pivot_point
+
+                        # Calculate waypoints for rotating around the axis
+                        for i in range(num_waypoints + 1):
+                            angle = i * max_angle / num_waypoints
+
+                            # Create rotation matrix for this angle
+                            rotation_matrix = rotation_matrix_from_axis_angle(
+                                axis_world, angle
+                            )
+
+                            # Rotate the relative position and add back the pivot point
+                            new_rel_pos = rotate_vector(rel_pos, rotation_matrix)
+                            new_pos = pivot_point + new_rel_pos
+
+                            # Calculate new orientation - gripper should follow the rotation
+                            rotation_quat = axis_angle_to_quat(axis_world, angle)
+                            new_quat = quat_multiply(rotation_quat, gripper_quat)
+
+                            waypoints.append((new_pos, new_quat))
+                            print(f"Waypoint {i}: pos={new_pos}, angle={angle}")
+
+                    elif joint_type == "slide":
+                        # For a slide joint, we'll move along the axis
+                        # Get the slide direction in world coordinates
+                        axis_str = primary_joint.get("axis", "0 0 0")
+                        slide_axis = np.array([float(x) for x in axis_str.split()])
+
+                        max_distance = joint_range[
+                            1
+                        ]  # Use the upper limit of the joint range
+                        if max_distance == 0:
+                            max_distance = (
+                                0.2  # Default to 20cm if range is not specified
+                            )
+
+                        # Calculate waypoints for sliding along the axis
+                        for i in range(num_waypoints + 1):
+                            distance = i * max_distance / num_waypoints
+                            new_pos = gripper_pos + slide_axis * distance
+                            waypoints.append(
+                                (new_pos, gripper_quat.copy())
+                            )  # Maintain the same orientation
+                            print(f"Waypoint {i}: pos={new_pos}, distance={distance}")
+
+                # Execute articulation movement through waypoints
+                time.sleep(1.0)
+                if waypoints:
+                    print(f"Moving through {len(waypoints)} articulation waypoints")
+                    for wp_idx, (wp_pos, wp_quat) in enumerate(waypoints):
+                        print(f"Moving to waypoint {wp_idx}/{len(waypoints)}")
+
+                        # Set the target position
+                        data.mocap_pos[0] = wp_pos
+                        data.mocap_quat[0] = wp_quat
+
+                        # Run simulation for a fixed number of steps for each waypoint
+                        for step in range(200):
+                            mujoco.mj_step(model, data)
+                            if step % 10 == 0:
+                                viewer.sync()
+                                if not viewer.is_running():
+                                    return (
+                                        successful_transforms,
+                                        successful_qualities,
+                                        successful_widths,
+                                    )
+                        time.sleep(0.025)
+                else:
+                    print("No articulation waypoints calculated")
+
+                # Continue with regular simulation
+                for step in range(500):
+                    mujoco.mj_step(model, data)
+                    if step % 20 == 0:
+                        viewer.sync()
+                        if not viewer.is_running():
+                            return (
+                                successful_transforms,
+                                successful_qualities,
+                                successful_widths,
+                            )
 
                 for step in range(approach_steps):
                     data.ctrl[2] = velocity

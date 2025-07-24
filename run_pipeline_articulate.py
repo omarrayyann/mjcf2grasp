@@ -141,9 +141,9 @@ def run_grasp_filtering_stage(object_name, grasps_path, xml_file, output_dir):
                 "--num_workers",
                 "4",  # Reasonable number for articulated objects
                 "--approach_distance",
-                "0.5",
+                "1.0",
                 "--approach_steps",
-                "4",
+                "5",
                 "--max_successful",
                 "500",  # Limit for handle grasps
                 "--num_shakes",
