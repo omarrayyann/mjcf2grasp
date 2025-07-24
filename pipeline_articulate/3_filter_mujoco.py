@@ -76,6 +76,35 @@ def get_joint_position(model, data, joint_name):
     return data.joint(joint_id).qpos
 
 
+def check_sufficient_joint_movement(
+    joint_positions, min_movement=0.0001, window_size=4
+):
+    """
+    Check if there's sufficient joint movement across a sliding window of positions.
+
+    Args:
+        joint_positions: List of joint position values recorded at waypoints
+        min_movement: Minimum required change to consider movement sufficient
+        window_size: Number of waypoints to check across
+
+    Returns:
+        True if there's sufficient movement, False otherwise
+    """
+    if len(joint_positions) < window_size:
+        return True  # Not enough data points to make determination
+
+    for i in range(len(joint_positions) - window_size + 1):
+        window = joint_positions[i : i + window_size]
+        movement = max(window) - min(window)
+        if movement < min_movement:
+            print(
+                f"Insufficient joint movement detected: {movement} (below {min_movement})"
+            )
+            return False
+
+    return True
+
+
 def is_grasping(model, data, handle_name):
     left_patterns = ["left_finger", "finger_l", "gripper_finger_left"]
     right_patterns = ["right_finger", "finger_r", "gripper_finger_right"]
@@ -614,6 +643,21 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
 
                 # Execute articulation movement through waypoints
                 time.sleep(1.0)
+
+                # Check if grasp is successful before attempting articulation
+                if not is_grasping(model, data, object_name):
+                    print(
+                        "Grasp is not successful before articulation, skipping this grasp"
+                    )
+                    pbar.set_description(
+                        f"Testing grasps ({len(successful_transforms)}/{i + 1} successful)"
+                    )
+                    continue
+
+                # Track joint positions during articulation to check for sufficient movement
+                joint_positions = []
+                articulation_success = True
+
                 if waypoints:
                     # Use command-line argument for the number of loops
                     num_loops = args.articulation_loops
@@ -623,6 +667,9 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
                     )
 
                     for loop_idx in range(num_loops):
+                        if not articulation_success:
+                            break
+
                         print(f"Loop {loop_idx + 1}/{num_loops}")
 
                         # Forward direction (0 to end)
@@ -648,12 +695,33 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
                                             successful_widths,
                                         )
                             time.sleep(args.waypoint_pause)
+
+                            # Check if still grasping
+                            is_currently_grasping = is_grasping(
+                                model, data, object_name
+                            )
+                            joint_position = get_joint_position(
+                                model, data, primary_joint["name"]
+                            )
+                            joint_positions.append(joint_position)
+
                             print(
-                                f"Grasping at waypoint {wp_idx + 1}: {is_grasping(model, data, object_name)}"
+                                f"Grasping at waypoint {wp_idx + 1}: {is_currently_grasping}"
                             )
                             print(
-                                f"Joint position for {primary_joint['name']}: {get_joint_position(model, data, primary_joint['name'])}"
+                                f"Joint position for {primary_joint['name']}: {joint_position}"
                             )
+
+                            # If grip is lost, mark as failed and exit loop
+                            if not is_currently_grasping:
+                                print(
+                                    "Lost grasp during articulation, marking as failed"
+                                )
+                                articulation_success = False
+                                break
+
+                        if not articulation_success:
+                            break
 
                         # Brief pause at the end position
                         time.sleep(args.endpoint_pause)
@@ -682,19 +750,76 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
                                             successful_widths,
                                         )
                             time.sleep(args.waypoint_pause)
+
+                            # Check if still grasping
+                            is_currently_grasping = is_grasping(
+                                model, data, object_name
+                            )
+                            joint_position = get_joint_position(
+                                model, data, primary_joint["name"]
+                            )
+                            joint_positions.append(joint_position)
+
                             print(
-                                f"Grasping at waypoint {wp_idx + 1}: {is_grasping(model, data, object_name)}"
+                                f"Grasping at waypoint {wp_idx + 1}: {is_currently_grasping}"
                             )
                             print(
-                                f"Joint position for {primary_joint['name']}: {get_joint_position(model, data, primary_joint['name'])}"
+                                f"Joint position for {primary_joint['name']}: {joint_position}"
                             )
+
+                            # If grip is lost, mark as failed and exit loop
+                            if not is_currently_grasping:
+                                print(
+                                    "Lost grasp during articulation, marking as failed"
+                                )
+                                articulation_success = False
+                                break
 
                         # Brief pause at the initial position before next loop
                         time.sleep(args.endpoint_pause)
 
-                    print("Completed all articulation loops")
+                    # Check if there was sufficient joint movement across the articulation
+                    sufficient_movement = check_sufficient_joint_movement(
+                        joint_positions
+                    )
+                    if not sufficient_movement:
+                        print(
+                            "Insufficient joint movement during articulation, marking as failed"
+                        )
+                        articulation_success = False
+
+                    # Print min and max joint positions to help with debugging
+                    if joint_positions:
+                        min_pos = min(joint_positions)
+                        max_pos = max(joint_positions)
+                        total_movement = max_pos - min_pos
+                        print(
+                            f"Total joint movement: {total_movement} (min: {min_pos}, max: {max_pos})"
+                        )
+
+                    if articulation_success:
+                        print("Completed all articulation loops successfully")
+                    else:
+                        print("Articulation failed, skipping this grasp")
+                        pbar.set_description(
+                            f"Testing grasps ({len(successful_transforms)}/{i + 1} successful)"
+                        )
+                        continue
                 else:
                     print("No articulation waypoints calculated")
+
+                # If we have joint info but articulation failed, skip this grasp
+                if (
+                    joint_info
+                    and "primary_joint" in joint_info
+                    and waypoints
+                    and not articulation_success
+                ):
+                    print("Skipping grasp due to failed articulation")
+                    pbar.set_description(
+                        f"Testing grasps ({len(successful_transforms)}/{i + 1} successful)"
+                    )
+                    continue
 
                 # Continue with regular simulation
                 for step in range(500):
