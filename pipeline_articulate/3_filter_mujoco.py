@@ -69,6 +69,44 @@ if args.render:
     args.num_workers = 1
 
 
+def get_joint_position(model, data, joint_name):
+    joint_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_JOINT, joint_name)
+    if joint_id < 0:
+        raise ValueError(f"Joint '{joint_name}' not found in the model.")
+    return data.joint(joint_id).qpos
+
+
+def is_grasping(model, data, handle_name):
+    left_patterns = ["left_finger", "finger_l", "gripper_finger_left"]
+    right_patterns = ["right_finger", "finger_r", "gripper_finger_right"]
+
+    for i in range(data.ncon):
+        contact = data.contact[i]
+        geom1 = mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_GEOM, contact.geom1)
+        geom2 = mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_GEOM, contact.geom2)
+
+        if not geom1 or not geom2:
+            continue
+
+        if handle_name.lower() in geom1.lower() or handle_name.lower() in geom2.lower():
+            other = geom2 if handle_name.lower() in geom1.lower() else geom1
+            if any(p in other.lower() for p in left_patterns) or any(
+                p in other.lower() for p in right_patterns
+            ):
+                return True
+
+        if (
+            any(p in geom1.lower() for p in left_patterns)
+            and any(p in geom2.lower() for p in right_patterns)
+        ) or (
+            any(p in geom2.lower() for p in left_patterns)
+            and any(p in geom1.lower() for p in right_patterns)
+        ):
+            return False
+
+    return False
+
+
 def merge_xml_contents(base_xml_content, additional_xml_content):
     """
     Merges two XML contents by copying elements from the additional XML into the base XML
@@ -579,21 +617,25 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
                 if waypoints:
                     # Use command-line argument for the number of loops
                     num_loops = args.articulation_loops
-                    
-                    print(f"Moving through {len(waypoints)} articulation waypoints for {num_loops} loops")
-                    
+
+                    print(
+                        f"Moving through {len(waypoints)} articulation waypoints for {num_loops} loops"
+                    )
+
                     for loop_idx in range(num_loops):
-                        print(f"Loop {loop_idx+1}/{num_loops}")
-                        
+                        print(f"Loop {loop_idx + 1}/{num_loops}")
+
                         # Forward direction (0 to end)
                         print("Forward articulation movement...")
                         for wp_idx, (wp_pos, wp_quat) in enumerate(waypoints):
-                            print(f"Moving to waypoint {wp_idx+1}/{len(waypoints)} (forward)")
-                            
+                            print(
+                                f"Moving to waypoint {wp_idx + 1}/{len(waypoints)} (forward)"
+                            )
+
                             # Set the target position
                             data.mocap_pos[0] = wp_pos
                             data.mocap_quat[0] = wp_quat
-                            
+
                             # Run simulation for a fixed number of steps for each waypoint
                             for step in range(200):
                                 mujoco.mj_step(model, data)
@@ -606,20 +648,28 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
                                             successful_widths,
                                         )
                             time.sleep(args.waypoint_pause)
-                        
+                            print(
+                                f"Grasping at waypoint {wp_idx + 1}: {is_grasping(model, data, object_name)}"
+                            )
+                            print(
+                                f"Joint position for {primary_joint['name']}: {get_joint_position(model, data, primary_joint['name'])}"
+                            )
+
                         # Brief pause at the end position
                         time.sleep(args.endpoint_pause)
-                        
+
                         # Backward direction (end to 0)
                         print("Backward articulation movement...")
-                        for wp_idx in range(len(waypoints)-1, -1, -1):
+                        for wp_idx in range(len(waypoints) - 1, -1, -1):
                             wp_pos, wp_quat = waypoints[wp_idx]
-                            print(f"Moving to waypoint {len(waypoints)-wp_idx}/{len(waypoints)} (backward)")
-                            
+                            print(
+                                f"Moving to waypoint {len(waypoints) - wp_idx}/{len(waypoints)} (backward)"
+                            )
+
                             # Set the target position
                             data.mocap_pos[0] = wp_pos
                             data.mocap_quat[0] = wp_quat
-                            
+
                             # Run simulation for a fixed number of steps for each waypoint
                             for step in range(200):
                                 mujoco.mj_step(model, data)
@@ -632,10 +682,16 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
                                             successful_widths,
                                         )
                             time.sleep(args.waypoint_pause)
-                        
+                            print(
+                                f"Grasping at waypoint {wp_idx + 1}: {is_grasping(model, data, object_name)}"
+                            )
+                            print(
+                                f"Joint position for {primary_joint['name']}: {get_joint_position(model, data, primary_joint['name'])}"
+                            )
+
                         # Brief pause at the initial position before next loop
                         time.sleep(args.endpoint_pause)
-                    
+
                     print("Completed all articulation loops")
                 else:
                     print("No articulation waypoints calculated")
