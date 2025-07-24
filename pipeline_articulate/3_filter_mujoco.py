@@ -51,6 +51,75 @@ if args.render:
     args.num_workers = 1
 
 
+def merge_xml_contents(base_xml_content, additional_xml_content):
+    """
+    Merges two XML contents by copying elements from the additional XML into the base XML
+    under the appropriate mujoco tags.
+
+    Args:
+        base_xml_content (str): The base XML content as a string
+        additional_xml_content (str): The additional XML content to merge into the base
+
+    Returns:
+        str: The merged XML content as a string
+    """
+    # Parse both XML contents
+    base_root = ET.fromstring(base_xml_content)
+    additional_root = ET.fromstring(additional_xml_content)
+
+    # Make sure both are mujoco elements
+    if base_root.tag != "mujoco" or additional_root.tag != "mujoco":
+        raise ValueError("Both XML contents must have 'mujoco' as the root element")
+
+    # Dictionary to keep track of sections we've already processed
+    processed_sections = {}
+
+    # Process each child of additional_root
+    for additional_child in additional_root:
+        tag_name = additional_child.tag
+
+        # Find the corresponding section in the base XML
+        base_section = base_root.find(tag_name)
+
+        # If section exists in base, merge the contents
+        if base_section is not None:
+            # Skip if we've already processed this section
+            if tag_name in processed_sections:
+                continue
+
+            # Copy all elements from additional to base
+            for element in additional_child:
+                # Check if element with same name/attributes already exists to avoid duplicates
+                is_duplicate = False
+                for existing in base_section:
+                    if element.tag == existing.tag and all(
+                        attr in existing.attrib and existing.attrib[attr] == val
+                        for attr, val in element.attrib.items()
+                        if attr != "name"
+                    ):
+                        # For elements with name attribute, check if names match
+                        if "name" in element.attrib and "name" in existing.attrib:
+                            if element.attrib["name"] == existing.attrib["name"]:
+                                is_duplicate = True
+                                break
+                        else:
+                            is_duplicate = True
+                            break
+
+                # Add if not a duplicate
+                if not is_duplicate:
+                    base_section.append(element)
+
+            processed_sections[tag_name] = True
+        else:
+            # If section doesn't exist in base, add it
+            base_root.append(additional_child)
+            processed_sections[tag_name] = True
+
+    # Convert the merged XML back to string
+    return ET.tostring(base_root, encoding="unicode")
+
+
 def is_object_grasped(model, data, object_name):
     left_finger_contact = False
     right_finger_contact = False
@@ -110,6 +179,15 @@ def test_single_grasp(grasp_data, object_name):
     root.append(include)
 
     xml_content = ET.tostring(root, encoding="unicode")
+
+    robot_xml_path = os.path.join(
+        os.path.dirname(__file__),
+        "../assets/gripper_models/rum_gripper/model_articulate.xml",
+    )
+    with open(robot_xml_path, "r") as f:
+        robot_xml_content = f.read()
+    xml_content = merge_xml_contents(xml_content, robot_xml_content)
+
     model = mujoco.MjModel.from_xml_string(xml_content)
     data = mujoco.MjData(model)
 
@@ -138,7 +216,6 @@ def test_single_grasp(grasp_data, object_name):
     approach_steps = config.get("approach_steps", 1000)
     velocity = approach_distance / (approach_steps * model.opt.timestep)
     for step in range(approach_steps):
-
         data.ctrl[2] = velocity
         mujoco.mj_step(model, data)
 
@@ -175,7 +252,6 @@ def test_single_grasp(grasp_data, object_name):
             total_steps = config["shake_steps"] * 2
 
             for step in range(total_steps):
-
                 angle = 2 * np.pi * step / total_steps
                 position = config["shake_magnitude"] * np.sin(angle)
                 data.ctrl[ctrl_idx] = position
@@ -208,7 +284,7 @@ def test_single_grasp(grasp_data, object_name):
         return i, None, None
 
 
-def run_simulation_with_viewer(model, data, object_name, use_viewer):
+def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer):
     """Run the simulation with or without interactive viewer"""
 
     with open(args.grasps_path, "r") as f:
@@ -233,26 +309,50 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
             )
 
             for i, (transform, quality) in pbar:
-                mujoco.mj_resetData(model, data)
-
+                if i < 660:  # 660
+                    continue
                 pos = transform[:3, 3]
                 quat = R.from_matrix(transform[:3, :3]).as_quat(scalar_first=True)
-
-                geom_id = mujoco.mj_name2id(
-                    model, mujoco.mjtObj.mjOBJ_GEOM, "test_sphere"
-                )
-                model.geom_pos[geom_id] = pos
 
                 approach_distance = args.approach_distance
                 approach_vector = transform[:3, 2] * approach_distance
                 approach_pos = pos - approach_vector
 
-                body_id = mujoco.mj_name2id(
-                    model, mujoco.mjtObj.mjOBJ_BODY, "gripper_base"
-                )
-                model.body_pos[body_id] = approach_pos
-                model.body_quat[body_id] = quat
+                # change position od body gripper_base in xml
 
+                tree = ET.ElementTree(ET.fromstring(xml_content))
+                root = tree.getroot()
+                gripper_base = root.find(".//body[@name='gripper_base']")
+                if gripper_base is not None:
+                    gripper_base.set(
+                        "pos", f"{approach_pos[0]} {approach_pos[1]} {approach_pos[2]}"
+                    )
+                    gripper_base.set("quat", f"{quat[0]} {quat[1]} {quat[2]} {quat[3]}")
+                target_ee_pose = root.find(".//body[@name='target_ee_pose']")
+                if target_ee_pose is not None:
+                    target_ee_pose.set(
+                        "pos", f"{approach_pos[0]} {approach_pos[1]} {approach_pos[2]}"
+                    )
+                    target_ee_pose.set(
+                        "quat", f"{quat[0]} {quat[1]} {quat[2]} {quat[3]}"
+                    )
+
+                model = mujoco.MjModel.from_xml_string(
+                    ET.tostring(root, encoding="unicode")
+                )
+                data = mujoco.MjData(model)
+
+                viewer.close()
+                time.sleep(0.1)
+                del viewer
+                viewer = mujoco.viewer.launch_passive(
+                    model, data, show_left_ui=False, show_right_ui=False
+                )
+
+                geom_id = mujoco.mj_name2id(
+                    model, mujoco.mjtObj.mjOBJ_GEOM, "test_sphere"
+                )
+                model.geom_pos[geom_id] = pos
                 data.ctrl[0] = 1.0
 
                 for step in range(500):
@@ -269,8 +369,23 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
                 approach_steps = args.approach_steps
                 velocity = approach_distance / (approach_steps * model.opt.timestep)
 
-                for step in range(approach_steps):
+                current_time = time.time()
+                for step in range(approach_steps + 1):
+                    while time.time() - current_time < 0.5:
+                        mujoco.mj_step(model, data)
+                        viewer.sync()
+                    current_time = time.time()
+                    print("update")
+                    new_pos = approach_pos + (step / approach_steps) * approach_vector
+                    data.mocap_pos[0] = new_pos
+                    data.mocap_quat[0] = quat
 
+                data.ctrl[0] = -1.0
+                while True:
+                    mujoco.mj_step(model, data)
+                    viewer.sync()
+
+                for step in range(approach_steps):
                     data.ctrl[2] = velocity
                     mujoco.mj_step(model, data)
 
@@ -329,7 +444,7 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
 
                 if not check_grasp(model, data, object_name, store_initial=True):
                     pbar.set_description(
-                        f"Testing grasps ({len(successful_transforms)}/{i+1} successful)"
+                        f"Testing grasps ({len(successful_transforms)}/{i + 1} successful)"
                     )
                     continue
 
@@ -404,7 +519,7 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
                         )
 
                 pbar.set_description(
-                    f"Testing grasps ({len(successful_transforms)}/{i+1} successful)"
+                    f"Testing grasps ({len(successful_transforms)}/{i + 1} successful)"
                 )
 
                 for _ in range(100):
@@ -420,7 +535,6 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
         return successful_transforms, successful_qualities, successful_widths
 
     else:
-
         config = {
             "num_shakes": args.num_shakes,
             "shake_magnitude": args.shake_magnitude,
@@ -441,7 +555,6 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
         successful_widths = []
 
         with mp.Manager() as manager:
-
             success_count = manager.Value("i", 0)
             processed_count = manager.Value("i", 0)
             lock = manager.Lock()
@@ -480,7 +593,6 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
             )
 
             with mp.Pool(processes=num_workers) as pool:
-
                 results = [
                     pool.apply_async(
                         test_single_grasp,
@@ -492,7 +604,6 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
 
                 completed = 0
                 while completed < len(results):
-
                     if should_stop.value:
                         pool.terminate()
                         tqdm.write(
@@ -502,7 +613,6 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
 
                     for i, r in enumerate(results):
                         if r is not None and r.ready() and not r.successful():
-
                             try:
                                 r.get()
                             except Exception as e:
@@ -534,94 +644,94 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
 
 
 if __name__ == "__main__":
-
     xml_path = os.path.join(os.path.dirname(__file__), "../assets/scene.xml")
     tree = ET.parse(xml_path)
     root = tree.getroot()
 
     object_name = args.object_name
 
-    include = ET.Element("include", {"file": args.xml_file})
+    # Load and modify the XML file to remove free joints
+    try:
+        with open(args.xml_file, "r") as f:
+            obj_xml_content = f.read()
+
+        # Parse the XML
+        obj_tree = ET.fromstring(obj_xml_content)
+
+        # Find and remove all joints with type="free"
+        free_joints = obj_tree.findall(".//joint[@type='free']")
+        if free_joints:
+            print(f"Found {len(free_joints)} free joints to remove")
+            for joint in free_joints:
+                # Find the parent of the joint directly
+                for parent in obj_tree.findall(".//*"):
+                    for child in parent.findall("joint"):
+                        if (
+                            child.get("name") == joint.get("name")
+                            and child.get("type") == "free"
+                        ):
+                            parent.remove(child)
+                            print(f"Removed free joint: {joint.get('name')}")
+
+        # Update the original file with the modifications
+        with open(args.xml_file, "w") as f:
+            f.write(ET.tostring(obj_tree, encoding="unicode"))
+
+        # Create include element using the updated file
+        include = ET.Element("include", {"file": args.xml_file})
+    except Exception as e:
+        print(f"Error modifying XML to remove free joints: {e}")
+        # Fall back to using original file if modification fails
+        include = ET.Element("include", {"file": args.xml_file})
+
     root.append(include)
 
     worldbody = root.find("worldbody")
-    
-    # Add coordinate system reference spheres
-    geom = ET.Element(
-        "geom",
-        {
-            "name": "x",
-            "type": "sphere",
-            "size": "0.01",
-            "rgba": "1 0 0 1",
-            "pos": "0.2 0 0",
-            "contype": "0",
-            "conaffinity": "0",
-        },
-    )
-    worldbody.append(geom)
-    gem = ET.Element(
-        "geom",
-        {
-            "name": "y",
-            "type": "sphere",
-            "size": "0.01",
-            "rgba": "0 1 0 1",
-            "pos": "0 0.2 0",
-            "contype": "0",
-            "conaffinity": "0",
-        },
-    )
-    worldbody.append(gem)
-    gemm = ET.Element(
-        "geom",
-        {
-            "name": "z",
-            "type": "sphere",
-            "size": "0.01",
-            "rgba": "0 0 1 1",
-            "pos": "0 0 0.2",
-            "contype": "0",
-            "conaffinity": "0",
-        },
-    )
-    worldbody.append(gemm)
-    
+
     # Add joint axis visualization cylinder
     # Try to load joint axis information from the analysis file
     joint_axis_file = args.grasps_path.replace("_grasps.json", "_joint_axis.json")
     if os.path.exists(joint_axis_file):
         try:
-            with open(joint_axis_file, 'r') as f:
+            with open(joint_axis_file, "r") as f:
                 joint_data = json.load(f)
-            
-            primary_joint = joint_data.get('primary_joint')
+
+            primary_joint = joint_data.get("primary_joint")
             if primary_joint:
                 # Use parent_position and parent_rotation from the joint axis analysis
-                if 'parent_position' in primary_joint and 'parent_rotation' in primary_joint:
-                    parent_pos = primary_joint['parent_position']
-                    parent_rot = primary_joint['parent_rotation']
-                    
+                if (
+                    "parent_position" in primary_joint
+                    and "parent_rotation" in primary_joint
+                ):
+                    parent_pos = primary_joint["parent_position"]
+                    parent_rot = primary_joint["parent_rotation"]
+
                     # Get global position
-                    global_pos = [parent_pos['x'], parent_pos['y'], parent_pos['z']]
-                    
+                    global_pos = [parent_pos["x"], parent_pos["y"], parent_pos["z"]]
+
                     # Format position for MuJoCo
                     cylinder_pos = f"{global_pos[0]} {global_pos[1]} {global_pos[2]}"
-                    
+
                     # Get the rotation axis for display
-                    rotation_axis = primary_joint.get('rotation_axis', {'x': 0, 'y': 1, 'z': 0})
-                    global_axis = [rotation_axis['x'], rotation_axis['y'], rotation_axis['z']]
-                    
+                    rotation_axis = primary_joint.get(
+                        "rotation_axis", {"x": 0, "y": 1, "z": 0}
+                    )
+                    global_axis = [
+                        rotation_axis["x"],
+                        rotation_axis["y"],
+                        rotation_axis["z"],
+                    ]
+
                     # Calculate quaternion to align cylinder with the joint axis
                     # MuJoCo cylinders are aligned with Z-axis by default
                     default_axis = np.array([0, 0, 1])
                     joint_axis_vec = np.array(global_axis)
-                    
+
                     # Normalize the joint axis
                     joint_axis_norm = np.linalg.norm(joint_axis_vec)
                     if joint_axis_norm > 0:
                         joint_axis_vec = joint_axis_vec / joint_axis_norm
-                    
+
                     # Calculate rotation to align cylinder Z-axis with joint axis
                     if np.allclose(default_axis, joint_axis_vec):
                         # Already aligned
@@ -632,20 +742,25 @@ if __name__ == "__main__":
                     else:
                         # General case: use rotation between vectors
                         from scipy.spatial.transform import Rotation as R_scipy
+
                         # Create rotation that aligns default_axis with joint_axis_vec
                         cross_product = np.cross(default_axis, joint_axis_vec)
                         dot_product = np.dot(default_axis, joint_axis_vec)
-                        
+
                         # Handle the rotation
                         if np.linalg.norm(cross_product) > 1e-6:
                             # Normal case
-                            rotation = R_scipy.align_vectors([joint_axis_vec], [default_axis])[0]
-                            quat = rotation.as_quat(scalar_first=True)  # [w, x, y, z] format
+                            rotation = R_scipy.align_vectors(
+                                [joint_axis_vec], [default_axis]
+                            )[0]
+                            quat = rotation.as_quat(
+                                scalar_first=True
+                            )  # [w, x, y, z] format
                         else:
                             quat = [1, 0, 0, 0]  # Identity if vectors are parallel
-                    
+
                     quat_str = f"{quat[0]} {quat[1]} {quat[2]} {quat[3]}"
-                    
+
                     # Add the joint axis cylinder (100m long)
                     joint_cylinder = ET.Element(
                         "geom",
@@ -661,7 +776,7 @@ if __name__ == "__main__":
                         },
                     )
                     worldbody.append(joint_cylinder)
-                    
+
                     # Add a small sphere at the joint position for better visibility
                     joint_sphere = ET.Element(
                         "geom",
@@ -676,40 +791,48 @@ if __name__ == "__main__":
                         },
                     )
                     worldbody.append(joint_sphere)
-                    
+
                     # Store joint axis info for grasp-to-axis visualization
                     joint_axis_info = {
-                        'position': np.array(global_pos),
-                        'axis': np.array(global_axis),
-                        'axis_normalized': joint_axis_vec
+                        "position": np.array(global_pos),
+                        "axis": np.array(global_axis),
+                        "axis_normalized": joint_axis_vec,
                     }
-                    
+
                     print(f"Added joint axis visualization:")
                     print(f"  Joint: {primary_joint['name']}")
-                    print(f"  Global Position: [{global_pos[0]:.3f}, {global_pos[1]:.3f}, {global_pos[2]:.3f}]")
-                    print(f"  Global Axis: [{global_axis[0]:.3f}, {global_axis[1]:.3f}, {global_axis[2]:.3f}]")
-                    print(f"  Quaternion: [{quat[0]:.3f}, {quat[1]:.3f}, {quat[2]:.3f}, {quat[3]:.3f}]")
+                    print(
+                        f"  Global Position: [{global_pos[0]:.3f}, {global_pos[1]:.3f}, {global_pos[2]:.3f}]"
+                    )
+                    print(
+                        f"  Global Axis: [{global_axis[0]:.3f}, {global_axis[1]:.3f}, {global_axis[2]:.3f}]"
+                    )
+                    print(
+                        f"  Quaternion: [{quat[0]:.3f}, {quat[1]:.3f}, {quat[2]:.3f}, {quat[3]:.3f}]"
+                    )
                     print(f"  Joint Type: {primary_joint.get('type', 'unknown')}")
                     print(f"  Joint Range: {primary_joint.get('range', 'unlimited')}")
-                    
+
                     # Store joint axis info for grasp-to-axis visualization
                     joint_axis_info = {
-                        'position': np.array(global_pos),
-                        'axis': np.array(global_axis),
-                        'axis_normalized': joint_axis_vec
+                        "position": np.array(global_pos),
+                        "axis": np.array(global_axis),
+                        "axis_normalized": joint_axis_vec,
                     }
-                    
+
                 else:
                     joint_axis_info = None
-                    print("Warning: parent_position or parent_rotation not found in joint data")
+                    print(
+                        "Warning: parent_position or parent_rotation not found in joint data"
+                    )
                     print("Available fields:", list(primary_joint.keys()))
-                
+
                 # Print additional debugging information
                 print(f"  Joint Type: {primary_joint.get('type', 'unknown')}")
                 print(f"  Joint Range: {primary_joint.get('range', 'unlimited')}")
-                if 'body_hierarchy' in primary_joint:
+                if "body_hierarchy" in primary_joint:
                     print(f"  Body Hierarchy: {primary_joint['body_hierarchy']}")
-                    
+
             else:
                 joint_axis_info = None
                 print("Warning: No primary joint found in joint analysis")
@@ -722,48 +845,54 @@ if __name__ == "__main__":
     else:
         joint_axis_info = None
         print(f"Warning: Joint axis file not found: {joint_axis_file}")
-        print("Run Stage 1 (joint axis analysis) first to generate joint axis visualization")
+        print(
+            "Run Stage 1 (joint axis analysis) first to generate joint axis visualization"
+        )
 
     # Add grasp-to-axis perpendicular cylinders if we have joint axis info
     if joint_axis_info is not None:
         # Load grasp data to get grasp centers
         try:
-            with open(args.grasps_path, 'r') as f:
+            with open(args.grasps_path, "r") as f:
                 grasp_data = json.load(f)
             transforms = grasp_data.get("transforms", [])
-            
-            print(f"\nAdding grasp-to-axis perpendicular visualization for {len(transforms)} grasps...")
-            
-            for i, transform in enumerate(transforms[:1]):  # Limit to first 20 grasps to avoid clutter
+
+            print(
+                f"\nAdding grasp-to-axis perpendicular visualization for {len(transforms)} grasps..."
+            )
+
+            for i, transform in enumerate(
+                transforms[:1]
+            ):  # Limit to first 20 grasps to avoid clutter
                 # Extract grasp center position
                 grasp_pos = np.array(transform)[:3, 3]
-                
-                axis_pos = joint_axis_info['position']
-                axis_dir = joint_axis_info['axis_normalized']
-                
+
+                axis_pos = joint_axis_info["position"]
+                axis_dir = joint_axis_info["axis_normalized"]
+
                 # Vector from axis position to grasp position
                 to_grasp = grasp_pos - axis_pos
-                
+
                 # Project onto axis direction to find closest point parameter
                 t = np.dot(to_grasp, axis_dir)
-                
+
                 # Closest point on axis
                 closest_on_axis = axis_pos + t * axis_dir
-                
+
                 # Vector from closest point on axis to grasp center (perpendicular)
                 perp_vector = grasp_pos - closest_on_axis
                 perp_distance = np.linalg.norm(perp_vector)
-                
+
                 # Skip if distance is too small (grasp is very close to axis)
                 if perp_distance < 0.001:
                     continue
-                
+
                 # Calculate midpoint for cylinder position
                 cylinder_center = (grasp_pos + closest_on_axis) / 2
-                
+
                 # Calculate orientation to align cylinder with perpendicular vector
                 perp_normalized = perp_vector / perp_distance
-                
+
                 # Align cylinder (default Z-axis) with perpendicular direction
                 default_axis = np.array([0, 0, 1])
                 if np.allclose(default_axis, perp_normalized):
@@ -772,23 +901,30 @@ if __name__ == "__main__":
                     perp_quat = [0, 1, 0, 0]  # 180 degrees around X
                 else:
                     from scipy.spatial.transform import Rotation as R_scipy
-                    rotation = R_scipy.align_vectors([perp_normalized], [default_axis])[0]
+
+                    rotation = R_scipy.align_vectors([perp_normalized], [default_axis])[
+                        0
+                    ]
                     perp_quat = rotation.as_quat(scalar_first=True)  # [w, x, y, z]
-                
+
                 # Format for MuJoCo
-                cylinder_pos_str = f"{cylinder_center[0]} {cylinder_center[1]} {cylinder_center[2]}"
-                quat_str = f"{perp_quat[0]} {perp_quat[1]} {perp_quat[2]} {perp_quat[3]}"
-                
+                cylinder_pos_str = (
+                    f"{cylinder_center[0]} {cylinder_center[1]} {cylinder_center[2]}"
+                )
+                quat_str = (
+                    f"{perp_quat[0]} {perp_quat[1]} {perp_quat[2]} {perp_quat[3]}"
+                )
+
                 # Add perpendicular cylinder (green) - make it very long for visibility
                 # Extend the cylinder much further in both directions
                 extended_length = max(perp_distance * 5, 2.0)  # At least 2 meters long
-                
+
                 perp_cylinder = ET.Element(
                     "geom",
                     {
                         "name": f"grasp_to_axis_{i}",
                         "type": "cylinder",
-                        "size": f"0.003 {extended_length/2}",  # radius 0.3cm, half-length for extended cylinder
+                        "size": f"0.003 {extended_length / 2}",  # radius 0.3cm, half-length for extended cylinder
                         "rgba": "0 1 0 0.4",  # Semi-transparent green
                         "pos": cylinder_pos_str,
                         "quat": quat_str,
@@ -797,7 +933,7 @@ if __name__ == "__main__":
                     },
                 )
                 worldbody.append(perp_cylinder)
-                
+
                 # Add small sphere at grasp center
                 grasp_sphere = ET.Element(
                     "geom",
@@ -812,7 +948,7 @@ if __name__ == "__main__":
                     },
                 )
                 worldbody.append(grasp_sphere)
-                
+
                 # Add small sphere at closest point on axis
                 axis_point_sphere = ET.Element(
                     "geom",
@@ -827,36 +963,40 @@ if __name__ == "__main__":
                     },
                 )
                 worldbody.append(axis_point_sphere)
-                
+
                 # Add circular trajectory visualization showing how the grasp moves during joint rotation
                 circle_center = closest_on_axis  # Center of rotation on the joint axis
                 radius = perp_distance  # Distance from joint axis to grasp center
-                
+
                 # Create a circle in 3D space around the joint axis
                 # We need to create a coordinate system where the joint axis is one axis
                 joint_axis = axis_dir  # Already normalized
-                
+
                 # Find two perpendicular vectors to the joint axis to define the plane of rotation
                 # Start with an arbitrary vector and use Gram-Schmidt to get perpendicular vectors
                 if abs(joint_axis[0]) < 0.9:
                     arbitrary = np.array([1, 0, 0])
                 else:
                     arbitrary = np.array([0, 1, 0])
-                
+
                 # First perpendicular vector (in the plane of rotation)
                 perp1 = arbitrary - np.dot(arbitrary, joint_axis) * joint_axis
                 perp1 = perp1 / np.linalg.norm(perp1)
-                
+
                 # Second perpendicular vector (in the plane of rotation)
                 perp2 = np.cross(joint_axis, perp1)
                 perp2 = perp2 / np.linalg.norm(perp2)
-                
+
                 # Find the angle of the current grasp position relative to perp1
-                current_vector = perp_vector / perp_distance  # Normalized vector from axis to grasp
-                current_angle = np.arctan2(np.dot(current_vector, perp2), np.dot(current_vector, perp1))
-                
+                current_vector = (
+                    perp_vector / perp_distance
+                )  # Normalized vector from axis to grasp
+                current_angle = np.arctan2(
+                    np.dot(current_vector, perp2), np.dot(current_vector, perp1)
+                )
+
                 # Get joint range from the primary joint data
-                joint_range_str = primary_joint.get('range', '0 0')
+                joint_range_str = primary_joint.get("range", "0 0")
                 try:
                     range_parts = joint_range_str.split()
                     if len(range_parts) >= 2:
@@ -870,23 +1010,31 @@ if __name__ == "__main__":
                     # Default to full circle if range parsing fails
                     min_angle = 0
                     max_angle = 2 * np.pi
-                
+
                 # Calculate the angle range for trajectory
                 angle_range = max_angle - min_angle
-                
+
                 # Create trajectory points only within the joint's valid range
-                num_trajectory_points = max(12, int(24 * angle_range / (2 * np.pi)))  # Scale points with range
+                num_trajectory_points = max(
+                    12, int(24 * angle_range / (2 * np.pi))
+                )  # Scale points with range
                 for j in range(num_trajectory_points):
                     # Angle for this trajectory point (within joint range)
                     # Start from current position and span the joint range
-                    progress = j / (num_trajectory_points - 1) if num_trajectory_points > 1 else 0
+                    progress = (
+                        j / (num_trajectory_points - 1)
+                        if num_trajectory_points > 1
+                        else 0
+                    )
                     angle = current_angle + min_angle + (progress * angle_range)
-                    
+
                     # Calculate 3D position on the circle
-                    circle_point = (circle_center + 
-                                  radius * np.cos(angle) * perp1 + 
-                                  radius * np.sin(angle) * perp2)
-                    
+                    circle_point = (
+                        circle_center
+                        + radius * np.cos(angle) * perp1
+                        + radius * np.sin(angle) * perp2
+                    )
+
                     # Color spheres differently based on position in range
                     if j == 0:
                         # First sphere (start position) - bright red
@@ -898,7 +1046,7 @@ if __name__ == "__main__":
                         # Middle spheres - gradient from red to orange
                         progress_color = progress
                         color = f"{1.0} {progress_color * 0.5} 0 0.7"
-                    
+
                     # Add trajectory sphere
                     trajectory_sphere = ET.Element(
                         "geom",
@@ -913,31 +1061,47 @@ if __name__ == "__main__":
                         },
                     )
                     worldbody.append(trajectory_sphere)
-                
-                print(f"  Grasp {i}: Added trajectory with {num_trajectory_points} points")
-                print(f"    Center: [{circle_center[0]:.3f}, {circle_center[1]:.3f}, {circle_center[2]:.3f}]")
+
+                print(
+                    f"  Grasp {i}: Added trajectory with {num_trajectory_points} points"
+                )
+                print(
+                    f"    Center: [{circle_center[0]:.3f}, {circle_center[1]:.3f}, {circle_center[2]:.3f}]"
+                )
                 print(f"    Radius: {radius:.3f}m")
-                print(f"    Joint range: {min_angle:.3f} to {max_angle:.3f} rad ({np.degrees(min_angle):.1f}° to {np.degrees(max_angle):.1f}°)")
+                print(
+                    f"    Joint range: {min_angle:.3f} to {max_angle:.3f} rad ({np.degrees(min_angle):.1f}° to {np.degrees(max_angle):.1f}°)"
+                )
                 print(f"    Current grasp angle: {np.degrees(current_angle):.1f}°")
-            
-            print(f"Added perpendicular cylinders for {min(len(transforms), 20)} grasps")
-            
+
+            print(
+                f"Added perpendicular cylinders for {min(len(transforms), 20)} grasps"
+            )
+
         except Exception as e:
             print(f"Warning: Could not add grasp-to-axis visualization: {e}")
     else:
         print("No joint axis info available for grasp-to-axis visualization")
 
     xml_content = ET.tostring(root, encoding="unicode")
+
+    robot_xml_path = os.path.join(
+        os.path.dirname(__file__),
+        "../assets/gripper_models/rum_gripper/model_articulate.xml",
+    )
+    with open(robot_xml_path, "r") as f:
+        robot_xml_content = f.read()
+    xml_content = merge_xml_contents(xml_content, robot_xml_content)
+
     model = mujoco.MjModel.from_xml_string(xml_content)
     data = mujoco.MjData(model)
 
     successful_transforms, successful_qualities, successful_widths = (
-        run_simulation_with_viewer(model, data, object_name, args.render)
+        run_simulation_with_viewer(model, data, xml_content, object_name, args.render)
     )
 
     output_path = args.grasps_path.replace(".json", "_filtered.json")
     with open(output_path, "w") as f:
-
         with open(args.grasps_path, "r") as original_f:
             original_data = json.load(original_f)
 

@@ -1,16 +1,13 @@
 <mujoco model="iiwa14_scene">
+    <include file="assets/gripper_models/rum_gripper/model.xml"/>
     <statistic extent="0.3" center="0 0.075 0"/>
+    <option gravity="0 0 0"/>
     <visual>
         <headlight diffuse="0.3 0.3 0.3" ambient="0.2 0.2 0.2" specular="0 0 0"/>
         <rgba haze="0.15 0.25 0.35 1"/>
         <global azimuth="-120" elevation="-20" offwidth="1280" offheight="720"/>
         <quality shadowsize="0"/>
     </visual>
-    <compiler angle="radian" meshdir="" texturedir=""/>
-    <option integrator="implicitfast" impratio="10" cone="elliptic" noslip_iterations="2" gravity="0 0 0">
-        <flag multiccd="enable"/>
-    </option>
-
 
     <asset>
         <texture type="skybox" builtin="gradient" rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512" height="3072"/>
@@ -44,6 +41,19 @@
         <!-- <geom name="wall" type="plane" size="2 2 0.01" pos="0 0 0" euler="0 0 0" rgba=".8 .8 .8 1"/>
         <geom name="wall2" type="plane" size="2 2 0.01" pos="0 0 0" euler="0 0 0" rgba=".8 .8 .8 1"/> -->
 
+        <geom name="floor" type="plane" size="2 2 0.01" pos="0 0 0" euler="0 0 0" rgba=".8 .8 .8 1"
+            material="floor_material"/>
+
+        <body name="box_body" pos="0 0 0.2" euler="0 0 0">
+            <joint type="free" name="box_joint"/>
+            <geom name="box_ground" type="box" size="0.02 0.02 0.02" pos="0 0 0" euler="0 0 0" rgba=".8 .8 .8 1"/>
+        </body>
 
     </worldbody>
+
+    <equality>
+        <weld name="test" solref="0.02 1" solimp="0.90000000000000002 0.94999999999999996 0.001" body1="target_ee_pose"
+            body2="gripper_base" active="true"/>
+    </equality>
+
 </mujoco>

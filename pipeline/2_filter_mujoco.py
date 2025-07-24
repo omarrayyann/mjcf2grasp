@@ -138,7 +138,6 @@ def test_single_grasp(grasp_data, object_name):
     approach_steps = config.get("approach_steps", 1000)
     velocity = approach_distance / (approach_steps * model.opt.timestep)
     for step in range(approach_steps):
-
         data.ctrl[2] = velocity
         mujoco.mj_step(model, data)
 
@@ -175,7 +174,6 @@ def test_single_grasp(grasp_data, object_name):
             total_steps = config["shake_steps"] * 2
 
             for step in range(total_steps):
-
                 angle = 2 * np.pi * step / total_steps
                 position = config["shake_magnitude"] * np.sin(angle)
                 data.ctrl[ctrl_idx] = position
@@ -270,7 +268,6 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
                 velocity = approach_distance / (approach_steps * model.opt.timestep)
 
                 for step in range(approach_steps):
-
                     data.ctrl[2] = velocity
                     mujoco.mj_step(model, data)
 
@@ -329,7 +326,7 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
 
                 if not check_grasp(model, data, object_name, store_initial=True):
                     pbar.set_description(
-                        f"Testing grasps ({len(successful_transforms)}/{i+1} successful)"
+                        f"Testing grasps ({len(successful_transforms)}/{i + 1} successful)"
                     )
                     continue
 
@@ -404,7 +401,7 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
                         )
 
                 pbar.set_description(
-                    f"Testing grasps ({len(successful_transforms)}/{i+1} successful)"
+                    f"Testing grasps ({len(successful_transforms)}/{i + 1} successful)"
                 )
 
                 for _ in range(100):
@@ -420,7 +417,6 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
         return successful_transforms, successful_qualities, successful_widths
 
     else:
-
         config = {
             "num_shakes": args.num_shakes,
             "shake_magnitude": args.shake_magnitude,
@@ -441,7 +437,6 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
         successful_widths = []
 
         with mp.Manager() as manager:
-
             success_count = manager.Value("i", 0)
             processed_count = manager.Value("i", 0)
             lock = manager.Lock()
@@ -480,7 +475,6 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
             )
 
             with mp.Pool(processes=num_workers) as pool:
-
                 results = [
                     pool.apply_async(
                         test_single_grasp,
@@ -492,7 +486,6 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
 
                 completed = 0
                 while completed < len(results):
-
                     if should_stop.value:
                         pool.terminate()
                         tqdm.write(
@@ -502,7 +495,6 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
 
                     for i, r in enumerate(results):
                         if r is not None and r.ready() and not r.successful():
-
                             try:
                                 r.get()
                             except Exception as e:
@@ -533,8 +525,76 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
         )
 
 
-if __name__ == "__main__":
+def merge_xml_contents(base_xml_content, additional_xml_content):
+    """
+    Merges two XML contents by copying elements from the additional XML into the base XML
+    under the appropriate mujoco tags.
 
+    Args:
+        base_xml_content (str): The base XML content as a string
+        additional_xml_content (str): The additional XML content to merge into the base
+
+    Returns:
+        str: The merged XML content as a string
+    """
+    # Parse both XML contents
+    base_root = ET.fromstring(base_xml_content)
+    additional_root = ET.fromstring(additional_xml_content)
+
+    # Make sure both are mujoco elements
+    if base_root.tag != "mujoco" or additional_root.tag != "mujoco":
+        raise ValueError("Both XML contents must have 'mujoco' as the root element")
+
+    # Dictionary to keep track of sections we've already processed
+    processed_sections = {}
+
+    # Process each child of additional_root
+    for additional_child in additional_root:
+        tag_name = additional_child.tag
+
+        # Find the corresponding section in the base XML
+        base_section = base_root.find(tag_name)
+
+        # If section exists in base, merge the contents
+        if base_section is not None:
+            # Skip if we've already processed this section
+            if tag_name in processed_sections:
+                continue
+
+            # Copy all elements from additional to base
+            for element in additional_child:
+                # Check if element with same name/attributes already exists to avoid duplicates
+                is_duplicate = False
+                for existing in base_section:
+                    if element.tag == existing.tag and all(
+                        attr in existing.attrib and existing.attrib[attr] == val
+                        for attr, val in element.attrib.items()
+                        if attr != "name"
+                    ):
+                        # For elements with name attribute, check if names match
+                        if "name" in element.attrib and "name" in existing.attrib:
+                            if element.attrib["name"] == existing.attrib["name"]:
+                                is_duplicate = True
+                                break
+                        else:
+                            is_duplicate = True
+                            break
+
+                # Add if not a duplicate
+                if not is_duplicate:
+                    base_section.append(element)
+
+            processed_sections[tag_name] = True
+        else:
+            # If section doesn't exist in base, add it
+            base_root.append(additional_child)
+            processed_sections[tag_name] = True
+
+    # Convert the merged XML back to string
+    return ET.tostring(base_root, encoding="unicode")
+
+
+if __name__ == "__main__":
     xml_path = os.path.join(os.path.dirname(__file__), "../assets/scene.xml")
     tree = ET.parse(xml_path)
     root = tree.getroot()
@@ -543,49 +603,15 @@ if __name__ == "__main__":
 
     include = ET.Element("include", {"file": args.xml_file})
     root.append(include)
-
-    worldbody = root.find("worldbody")
-    geom = ET.Element(
-        "geom",
-        {
-            "name": "x",
-            "type": "sphere",
-            "size": "0.01",
-            "rgba": "1 0 0 1",
-            "pos": "0.2 0 0",
-            "contype": "0",
-            "conaffinity": "0",
-        },
-    )
-    worldbody.append(geom)
-    gem = ET.Element(
-        "geom",
-        {
-            "name": "y",
-            "type": "sphere",
-            "size": "0.01",
-            "rgba": "0 1 0 1",
-            "pos": "0 0.2 0",
-            "contype": "0",
-            "conaffinity": "0",
-        },
-    )
-    worldbody.append(gem)
-    gemm = ET.Element(
-        "geom",
-        {
-            "name": "z",
-            "type": "sphere",
-            "size": "0.01",
-            "rgba": "0 0 1 1",
-            "pos": "0 0 0.2",
-            "contype": "0",
-            "conaffinity": "0",
-        },
-    )
-    worldbody.append(gemm)
-
     xml_content = ET.tostring(root, encoding="unicode")
+
+    gripper_xml_path = os.path.join(
+        os.path.dirname(__file__), "../assets/gripper_models/rum_gripper/model.xml"
+    )
+    with open(gripper_xml_path, "r") as f:
+        additional_xml_content = f.read()
+    xml_content = merge_xml_contents(xml_content, additional_xml_content)
+
     model = mujoco.MjModel.from_xml_string(xml_content)
     data = mujoco.MjData(model)
 
@@ -595,7 +621,6 @@ if __name__ == "__main__":
 
     output_path = args.grasps_path.replace(".json", "_filtered.json")
     with open(output_path, "w") as f:
-
         with open(args.grasps_path, "r") as original_f:
             original_data = json.load(original_f)
 

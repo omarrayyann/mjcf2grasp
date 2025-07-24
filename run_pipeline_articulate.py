@@ -12,7 +12,7 @@ Current Stages:
 - Stage 3: Filter grasps using MuJoCo simulation
 
 Future Stages:
-- Stage 4: Plan articulation motions (grasp → pull/push → release)  
+- Stage 4: Plan articulation motions (grasp → pull/push → release)
 - Stage 5: Validate articulation in MuJoCo with joint constraints
 """
 
@@ -23,19 +23,23 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+
 def load_articulated_objects():
     matched_file = "matched_objs.json"
-    
+
     if not os.path.exists(matched_file):
         print(f"Error: {matched_file} not found!")
-        print("Please run 'python scripts/find_objects.py' first to generate object list")
+        print(
+            "Please run 'python scripts/find_objects.py' first to generate object list"
+        )
         return []
-    
+
     with open(matched_file, "r") as f:
         data = json.load(f)
-    
+
     print(f"Loaded {len(data)} articulatable objects for processing")
     return data
+
 
 def run_joint_axis_finding_stage(object_name, xml_file, output_dir):
     """
@@ -43,62 +47,70 @@ def run_joint_axis_finding_stage(object_name, xml_file, output_dir):
     """
     print(f"\nStage 1: Joint Axis Analysis for {object_name}")
     print(f"   XML file: {xml_file}")
-    
+
     joint_axis_path = os.path.join(output_dir, f"{object_name}_joint_axis.json")
-    
+
     if os.path.exists(joint_axis_path):
         print(f"   Joint axis analysis already exists, skipping...")
         return True, joint_axis_path
-    
+
     try:
         print(f"   Analyzing joints with LLM to find primary articulation axis...")
-        subprocess.run([
-            "python", "pipeline_articulate/1_find_axis_joint.py",
-            xml_file,
-            joint_axis_path,
-            "--object_name", object_name
-        ], check=True)
-        
+        subprocess.run(
+            [
+                "python",
+                "pipeline_articulate/1_find_axis_joint.py",
+                xml_file,
+                joint_axis_path,
+                "--object_name",
+                object_name,
+            ],
+            check=True,
+        )
+
         print(f"   Joint axis analysis saved: {joint_axis_path}")
-        
+
         # Load and report joint analysis results
-        with open(joint_axis_path, 'r') as f:
+        with open(joint_axis_path, "r") as f:
             joint_data = json.load(f)
-        
-        primary_joint = joint_data.get('primary_joint')
-        analysis = joint_data.get('analysis', {})
-        all_joints = joint_data.get('all_joints', [])
-        
+
+        primary_joint = joint_data.get("primary_joint")
+        analysis = joint_data.get("analysis", {})
+        all_joints = joint_data.get("all_joints", [])
+
         print(f"   Total joints found: {len(all_joints)}")
-        
+
         if primary_joint:
             print(f"   Primary joint: {primary_joint['name']}")
             print(f"   Joint type: {primary_joint['type']}")
             print(f"   Joint axis: {primary_joint['axis']}")
             print(f"   Joint range: {primary_joint.get('range', 'unlimited')}")
-            confidence = analysis.get('confidence', 'unknown')
+            confidence = analysis.get("confidence", "unknown")
             print(f"   Analysis confidence: {confidence}")
-            
-            reasoning = analysis.get('primary_joint', {}).get('reasoning', 'No reasoning provided')
+
+            reasoning = analysis.get("primary_joint", {}).get(
+                "reasoning", "No reasoning provided"
+            )
             print(f"   Reasoning: {reasoning}")
-            
+
             # Check for alternative joints
-            alternatives = analysis.get('alternative_joints', [])
+            alternatives = analysis.get("alternative_joints", [])
             if alternatives:
                 print(f"   Alternative joints: {alternatives}")
         else:
             print(f"   Warning: No primary joint identified")
-            error = analysis.get('error', 'Unknown error')
+            error = analysis.get("error", "Unknown error")
             print(f"   Error: {error}")
-        
+
         return True, joint_axis_path
-        
+
     except subprocess.CalledProcessError as e:
         print(f"   Error in joint axis analysis: {str(e)}")
         return False, None
     except Exception as e:
         print(f"   Unexpected error: {str(e)}")
         return False, None
+
 
 def run_grasp_filtering_stage(object_name, grasps_path, xml_file, output_dir):
     """
@@ -107,48 +119,64 @@ def run_grasp_filtering_stage(object_name, grasps_path, xml_file, output_dir):
     print(f"\nStage 3: Grasp Filtering for {object_name}")
     print(f"   Grasps file: {grasps_path}")
     print(f"   XML file: {xml_file}")
-    
+
     filtered_grasps_path = grasps_path.replace(".json", "_filtered.json")
-    
+
     if os.path.exists(filtered_grasps_path):
         print(f"   Filtered grasps already exist, skipping...")
         return True, filtered_grasps_path
-    
+
     try:
         print(f"   Filtering grasps using MuJoCo simulation...")
-        subprocess.run([
-            "python", "pipeline_articulate/3_filter_mujoco.py",
-            "--object_name", object_name,
-            "--grasps_path", grasps_path,
-            "--xml_file", xml_file,
-            "--num_workers", "4",  # Reasonable number for articulated objects
-            "--approach_distance", "1.5",
-            "--approach_steps", "100000000",
-            "--max_successful", "500",  # Limit for handle grasps
-            "--num_shakes", "2",
-            "--shake_magnitude", "0.05",  # Gentler shaking for handles
-            "--shake_steps", "300",
-            "--render",  # Enable rendering for debugging
-        ], check=True)
-        
+        subprocess.run(
+            [
+                "mjpython",
+                "pipeline_articulate/3_filter_mujoco.py",
+                "--object_name",
+                object_name,
+                "--grasps_path",
+                grasps_path,
+                "--xml_file",
+                xml_file,
+                "--num_workers",
+                "4",  # Reasonable number for articulated objects
+                "--approach_distance",
+                "0.5",
+                "--approach_steps",
+                "4",
+                "--max_successful",
+                "500",  # Limit for handle grasps
+                "--num_shakes",
+                "2",
+                "--shake_magnitude",
+                "0.05",  # Gentler shaking for handles
+                "--shake_steps",
+                "300",
+                "--render",  # Enable rendering for debugging
+            ],
+            check=True,
+        )
+
         print(f"   Filtered grasps saved: {filtered_grasps_path}")
-        
+
         # Load and report filtering statistics
-        with open(grasps_path, 'r') as f:
+        with open(grasps_path, "r") as f:
             original_grasps = json.load(f)
-        with open(filtered_grasps_path, 'r') as f:
+        with open(filtered_grasps_path, "r") as f:
             filtered_grasps = json.load(f)
-        
-        original_count = len(original_grasps.get('transforms', []))
-        filtered_count = len(filtered_grasps.get('transforms', []))
-        success_rate = (filtered_count / original_count * 100) if original_count > 0 else 0
-        
+
+        original_count = len(original_grasps.get("transforms", []))
+        filtered_count = len(filtered_grasps.get("transforms", []))
+        success_rate = (
+            (filtered_count / original_count * 100) if original_count > 0 else 0
+        )
+
         print(f"   Original grasps: {original_count}")
         print(f"   Successful grasps: {filtered_count}")
         print(f"   Success rate: {success_rate:.1f}%")
-        
+
         return True, filtered_grasps_path
-        
+
     except subprocess.CalledProcessError as e:
         print(f"   Error in grasp filtering: {str(e)}")
         return False, None
@@ -156,63 +184,85 @@ def run_grasp_filtering_stage(object_name, grasps_path, xml_file, output_dir):
         print(f"   Unexpected error: {str(e)}")
         return False, None
 
+
 def run_grasp_generation_stage(object_name, handle_mesh_path, output_dir):
     """
     Stage 2: Generate grasps for the handle mesh using the grasp generation pipeline
     """
     print(f"\nStage 2: Grasp Generation for {object_name}")
     print(f"   Handle mesh: {handle_mesh_path}")
-    
+
     grasps_output_path = os.path.join(output_dir, f"{object_name}_grasps.json")
-    
+
     if os.path.exists(grasps_output_path):
         print(f"   Grasps already exist, skipping...")
         return True, grasps_output_path
-    
+
     try:
         print(f"   Generating grasps for handle mesh...")
-        subprocess.run([
-            "python", "pipeline_articulate/2_generate_grasps.py",
-            "--object_file", handle_mesh_path,
-            "--output", grasps_output_path,
-            "--gripper", "panda",  # Use panda gripper for articulated objects
-            "--num_samples", "50000",  # Moderate number of samples for handles
-            "--quality", "antipodal",  # Antipodal quality for better grasps
-            "--min_quality", "0.01",  # Lower threshold for handle grasps
-            "--systematic_sampling",  # Use systematic sampling for coverage
-            "--classname", "articulated_handle",
-            "--dataset", "thor_articulated"
-        ], check=True)
-        
+        subprocess.run(
+            [
+                "python",
+                "pipeline_articulate/2_generate_grasps.py",
+                "--object_file",
+                handle_mesh_path,
+                "--output",
+                grasps_output_path,
+                "--gripper",
+                "panda",  # Use panda gripper for articulated objects
+                "--num_samples",
+                "50000",  # Moderate number of samples for handles
+                "--quality",
+                "antipodal",  # Antipodal quality for better grasps
+                "--min_quality",
+                "0.01",  # Lower threshold for handle grasps
+                "--systematic_sampling",  # Use systematic sampling for coverage
+                "--classname",
+                "articulated_handle",
+                "--dataset",
+                "thor_articulated",
+            ],
+            check=True,
+        )
+
         print(f"   Grasps generated: {grasps_output_path}")
-        
+
         # Load and report grasp statistics
-        with open(grasps_output_path, 'r') as f:
+        with open(grasps_output_path, "r") as f:
             grasps_data = json.load(f)
-        
-        num_grasps = len(grasps_data.get('transforms', []))
+
+        num_grasps = len(grasps_data.get("transforms", []))
         print(f"   Total grasps generated: {num_grasps}")
-        
+
         if num_grasps > 0:
             print(f"   Gripper: {grasps_data.get('gripper', 'unknown')}")
             print(f"   Object scale: {grasps_data.get('object_scale', 1.0)}")
-            
+
             # Visualize the generated grasps
             print(f"   Visualizing generated grasps for {object_name}...")
             try:
-                subprocess.run([
-                    "python", "scripts/visualize_render.py", object_name, 
-                    "--render", "--grasp-shape-only", "--articulated"
-                ], check=True)
+                subprocess.run(
+                    [
+                        "python",
+                        "scripts/visualize_render.py",
+                        object_name,
+                        "--render",
+                        "--grasp-shape-only",
+                        "--articulated",
+                    ],
+                    check=True,
+                )
                 print(f"   Grasp visualization completed for {object_name}")
             except subprocess.CalledProcessError as e:
-                print(f"   Warning: Grasp visualization failed for {object_name}: {str(e)}")
+                print(
+                    f"   Warning: Grasp visualization failed for {object_name}: {str(e)}"
+                )
                 # Continue processing even if visualization fails
         else:
             print(f"   Warning: No valid grasps generated for {object_name}")
-        
+
         return True, grasps_output_path
-        
+
     except subprocess.CalledProcessError as e:
         print(f"   Error in grasp generation: {str(e)}")
         return False, None
@@ -220,48 +270,58 @@ def run_grasp_generation_stage(object_name, handle_mesh_path, output_dir):
         print(f"   Unexpected error: {str(e)}")
         return False, None
 
+
 def run_handle_detection_stage(obj, output_dir):
     object_name = obj["name"]
     xml_file_path = obj["xml"]
-    
+
     print(f"\nStage 0: Handle Detection for {object_name}")
     print(f"   XML: {xml_file_path}")
-    
+
     handle_mesh_path = os.path.join(output_dir, f"{object_name}_handles.obj")
     full_mesh_path = os.path.join(output_dir, f"{object_name}_full.obj")
-    
+
     if os.path.exists(handle_mesh_path) and os.path.exists(full_mesh_path):
         print(f"   Handle and full meshes already exist, skipping...")
         return True, handle_mesh_path, full_mesh_path
-    
+
     try:
         if not os.path.exists(handle_mesh_path):
             print(f"   Generating handle-only mesh with LLM analysis...")
-            subprocess.run([
-                "python", "pipeline_articulate/0_generate_mesh.py",
-                xml_file_path,
-                handle_mesh_path,
-                "--handles-only"
-            ], check=True)
+            subprocess.run(
+                [
+                    "python",
+                    "pipeline_articulate/0_generate_mesh.py",
+                    xml_file_path,
+                    handle_mesh_path,
+                    "--handles-only",
+                ],
+                check=True,
+            )
             print(f"   Handle mesh created: {handle_mesh_path}")
-        
+
         if not os.path.exists(full_mesh_path):
             print(f"   Generating full object mesh for reference...")
-            subprocess.run([
-                "python", "pipeline_articulate/0_generate_mesh.py",
-                xml_file_path,
-                full_mesh_path
-            ], check=True)
+            subprocess.run(
+                [
+                    "python",
+                    "pipeline_articulate/0_generate_mesh.py",
+                    xml_file_path,
+                    full_mesh_path,
+                ],
+                check=True,
+            )
             print(f"   Full mesh created: {full_mesh_path}")
-        
+
         return True, handle_mesh_path, full_mesh_path
-        
+
     except subprocess.CalledProcessError as e:
         print(f"   Error in handle detection: {str(e)}")
         return False, None, None
     except Exception as e:
         print(f"   Unexpected error: {str(e)}")
         return False, None, None
+
 
 def main():
     print("ARTICULATED OBJECT GRASPING PIPELINE")
@@ -275,67 +335,69 @@ def main():
     print("  Stage 2: Grasp generation for handle meshes")
     print("  Stage 3: Grasp filtering using MuJoCo simulation")
     print("=" * 50)
-    
+
     articulated_objects = load_articulated_objects()
-    
+
     if not articulated_objects:
         print("No articulatable objects found to process!")
         return 1
-    
+
     output_base = "output_articulate"
     os.makedirs(output_base, exist_ok=True)
-    
+
     processed_objects = 0
     failed_objects = []
     successful_objects = []
-    
+
     for i, obj in enumerate(articulated_objects):
         object_name = obj["name"]
-        
-        print(f"\nProcessing {i+1}/{len(articulated_objects)}: {object_name}")
+
+        print(f"\nProcessing {i + 1}/{len(articulated_objects)}: {object_name}")
         print("=" * 60)
-        
+
         object_output_dir = os.path.join(output_base, object_name)
         os.makedirs(object_output_dir, exist_ok=True)
-        
+
         # Stage 0: Handle Detection and Mesh Generation
-        success, handle_mesh, full_mesh = run_handle_detection_stage(obj, object_output_dir)
-        
+        success, handle_mesh, full_mesh = run_handle_detection_stage(
+            obj, object_output_dir
+        )
+
         if not success:
             failed_objects.append(object_name)
             print(f"   Failed at Stage 0 (handle detection) for {object_name}")
             continue
-        
+
         # Stage 1: Joint Axis Finding (run early to understand articulation)
         joint_axis_success = False
         joint_axis_path = None
-        
+
         if success:  # Run joint analysis after handle detection
             joint_axis_success, joint_axis_path = run_joint_axis_finding_stage(
                 object_name, obj["xml"], object_output_dir
             )
-        
+
         # Stage 2: Grasp Generation (only if handle mesh exists and has handles)
         grasps_success = False
         grasps_path = None
-        
+
         if handle_mesh and os.path.exists(handle_mesh):
             print(f"   Handle mesh exists: {handle_mesh}")
-            
+
             # Check if handles were actually found
-            handle_info_path = handle_mesh.replace('.obj', '_handle_info.json')
+            handle_info_path = handle_mesh.replace(".obj", "_handle_info.json")
             if os.path.exists(handle_info_path):
                 print(f"   Handle info file found: {handle_info_path}")
-                with open(handle_info_path, 'r') as f:
+                with open(handle_info_path, "r") as f:
                     handle_info = json.load(f)
-                handles = handle_info.get('identified_handles', [])
-                
+                handles = handle_info.get("identified_handles", [])
+
                 print(f"   Handle info content: {handle_info}")
-                
+
                 if handles:
                     print(f"   Handle components found: {len(handles)}")
                     print(f"   Handles: {handles}")
-                    
+
                     # Run grasp generation
                     grasps_success, grasps_path = run_grasp_generation_stage(
                         object_name, handle_mesh, object_output_dir
@@ -357,49 +419,65 @@ def main():
         else:
             print(f"   Error: Handle mesh not found: {handle_mesh}")
             print(f"   Cannot proceed with grasp generation")
-        
+
         # Stage 3: Grasp Filtering (only if grasp generation was successful)
         filtering_success = False
         filtered_grasps_path = None
         # continue
-        
-        if grasps_success and grasps_path and os.path.exists(grasps_path):
+
+        if 1 or grasps_success and grasps_path and os.path.exists(grasps_path):
             filtering_success, filtered_grasps_path = run_grasp_filtering_stage(
                 object_name, grasps_path, obj["xml"], object_output_dir
             )
-            
+
             # Visualize filtered grasps if filtering was successful
             if filtering_success and filtered_grasps_path:
                 print(f"   Visualizing filtered grasps for {object_name}...")
                 try:
-                    subprocess.run([
-                        "python", "scripts/visualize_render.py", object_name, 
-                        "--filtered", "--render", "--grasp-shape-only", "--articulated"
-                    ], check=True)
-                    print(f"   Filtered grasp visualization completed for {object_name}")
+                    subprocess.run(
+                        [
+                            "python",
+                            "scripts/visualize_render.py",
+                            object_name,
+                            "--filtered",
+                            "--render",
+                            "--grasp-shape-only",
+                            "--articulated",
+                        ],
+                        check=True,
+                    )
+                    print(
+                        f"   Filtered grasp visualization completed for {object_name}"
+                    )
                 except subprocess.CalledProcessError as e:
-                    print(f"   Warning: Filtered grasp visualization failed for {object_name}: {str(e)}")
-        
+                    print(
+                        f"   Warning: Filtered grasp visualization failed for {object_name}: {str(e)}"
+                    )
+
         # Record results
         if success:
             processed_objects += 1
-            successful_objects.append({
-                "name": object_name,
-                "handle_mesh": handle_mesh,
-                "full_mesh": full_mesh,
-                "grasps": grasps_path if grasps_success else None,
-                "filtered_grasps": filtered_grasps_path if filtering_success else None,
-                "joint_axis": joint_axis_path if joint_axis_success else None,
-                "xml": obj["xml"],
-                "output_dir": object_output_dir,
-                "stages_completed": {
-                    "handle_detection": True,
-                    "joint_axis_analysis": joint_axis_success,
-                    "grasp_generation": grasps_success,
-                    "grasp_filtering": filtering_success
+            successful_objects.append(
+                {
+                    "name": object_name,
+                    "handle_mesh": handle_mesh,
+                    "full_mesh": full_mesh,
+                    "grasps": grasps_path if grasps_success else None,
+                    "filtered_grasps": filtered_grasps_path
+                    if filtering_success
+                    else None,
+                    "joint_axis": joint_axis_path if joint_axis_success else None,
+                    "xml": obj["xml"],
+                    "output_dir": object_output_dir,
+                    "stages_completed": {
+                        "handle_detection": True,
+                        "joint_axis_analysis": joint_axis_success,
+                        "grasp_generation": grasps_success,
+                        "grasp_filtering": filtering_success,
+                    },
                 }
-            })
-            
+            )
+
             if filtering_success and joint_axis_success:
                 status = "Fully processed (all stages)"
             elif grasps_success and joint_axis_success:
@@ -412,30 +490,41 @@ def main():
         else:
             failed_objects.append(object_name)
             print(f"   Failed to process {object_name}")
-        
+
         progress = (i + 1) / len(articulated_objects) * 100
-        print(f"   Progress: {progress:.1f}% ({i+1}/{len(articulated_objects)})")
-    
+        print(f"   Progress: {progress:.1f}% ({i + 1}/{len(articulated_objects)})")
+
     print("\n" + "=" * 60)
     print("ARTICULATED PIPELINE STAGES 0-3 COMPLETE!")
     print("=" * 60)
-    print(f"Successfully processed: {processed_objects}/{len(articulated_objects)} objects")
+    print(
+        f"Successfully processed: {processed_objects}/{len(articulated_objects)} objects"
+    )
     print(f"Failed objects: {len(failed_objects)}")
-    
+
     # Count objects with joint analysis, grasps, and filtered grasps
-    objects_with_joint_analysis = sum(1 for obj in successful_objects 
-                                     if obj.get('stages_completed', {}).get('joint_axis_analysis', False))
-    objects_with_grasps = sum(1 for obj in successful_objects 
-                             if obj.get('stages_completed', {}).get('grasp_generation', False))
-    objects_with_filtered_grasps = sum(1 for obj in successful_objects 
-                                      if obj.get('stages_completed', {}).get('grasp_filtering', False))
+    objects_with_joint_analysis = sum(
+        1
+        for obj in successful_objects
+        if obj.get("stages_completed", {}).get("joint_axis_analysis", False)
+    )
+    objects_with_grasps = sum(
+        1
+        for obj in successful_objects
+        if obj.get("stages_completed", {}).get("grasp_generation", False)
+    )
+    objects_with_filtered_grasps = sum(
+        1
+        for obj in successful_objects
+        if obj.get("stages_completed", {}).get("grasp_filtering", False)
+    )
     print(f"Objects with joint analysis: {objects_with_joint_analysis}")
     print(f"Objects with grasps generated: {objects_with_grasps}")
     print(f"Objects with filtered grasps: {objects_with_filtered_grasps}")
-    
+
     if failed_objects:
         print(f"\nFailed objects: {', '.join(failed_objects)}")
-    
+
     summary = {
         "pipeline_stages": "Stages 0-3 - Handle Detection, Joint Analysis, Grasp Generation & Filtering",
         "timestamp": datetime.now().isoformat(),
@@ -445,20 +534,23 @@ def main():
         "objects_with_grasps": objects_with_grasps,
         "objects_with_filtered_grasps": objects_with_filtered_grasps,
         "failed_objects": failed_objects,
-        "successful_objects": successful_objects
+        "successful_objects": successful_objects,
     }
-    
+
     summary_path = os.path.join(output_base, "pipeline_summary_stages0123.json")
-    with open(summary_path, 'w') as f:
+    with open(summary_path, "w") as f:
         json.dump(summary, f, indent=2)
     print(f"\nPipeline summary saved to: {summary_path}")
-    
+
     print("\nNEXT STEPS:")
-    print("1. Review generated handle meshes, joint analysis, grasps, and filtered grasps in output_articulate/")
+    print(
+        "1. Review generated handle meshes, joint analysis, grasps, and filtered grasps in output_articulate/"
+    )
     print("2. Implement Stage 4: Articulation motion planning")
     print("3. Implement Stage 5: MuJoCo validation with joint constraints")
-    
+
     return 0 if processed_objects > 0 else 1
+
 
 if __name__ == "__main__":
     try:
@@ -470,5 +562,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\nFatal error: {str(e)}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)
