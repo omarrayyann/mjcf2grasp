@@ -7,8 +7,51 @@ import xml.etree.ElementTree as ET
 import argparse
 import json
 import multiprocessing as mp
+
 from scipy.spatial.transform import Rotation as R
 from tqdm import tqdm
+
+
+# Quaternion and rotation helpers (for articulation and visualization)
+def rotation_matrix_from_axis_angle(axis, angle):
+    """Create a rotation matrix from axis and angle."""
+    axis = axis / np.linalg.norm(axis)  # Normalize axis
+    c = np.cos(angle)
+    s = np.sin(angle)
+    t = 1.0 - c
+    x, y, z = axis
+    return np.array(
+        [
+            [t * x * x + c, t * x * y - z * s, t * x * z + y * s],
+            [t * x * y + z * s, t * y * y + c, t * y * z - x * s],
+            [t * x * z - y * s, t * y * z + x * s, t * z * z + c],
+        ]
+    )
+
+
+def rotate_vector(vector, rotation_matrix):
+    """Rotate a vector using a rotation matrix."""
+    return np.dot(rotation_matrix, vector)
+
+
+def quat_multiply(q1, q2):
+    """Multiply two quaternions."""
+    w1, x1, y1, z1 = q1
+    w2, x2, y2, z2 = q2
+    w = w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2
+    x = w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2
+    y = w1 * y2 + y1 * w2 + z1 * x2 - x1 * z2
+    z = w1 * z2 + z1 * w2 + x1 * y2 - y1 * x2
+    return np.array([w, x, y, z])
+
+
+def axis_angle_to_quat(axis, angle):
+    """Convert axis-angle to quaternion."""
+    axis = axis / np.linalg.norm(axis)  # Normalize axis
+    half_angle = angle * 0.5
+    s = np.sin(half_angle)
+    return np.array([np.cos(half_angle), axis[0] * s, axis[1] * s, axis[2] * s])
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--object_name", type=str)
@@ -32,7 +75,7 @@ parser.add_argument(
 parser.add_argument(
     "--articulation_loops",
     type=int,
-    default=3,
+    default=1,
     help="Number of articulation loops (forward and backward) to perform",
 )
 parser.add_argument(
@@ -422,22 +465,113 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
                         "quat", f"{quat[0]} {quat[1]} {quat[2]} {quat[3]}"
                     )
 
+                # Add visualization spheres for trajectory waypoints (if available)
+                # This will be updated for each grasp
+                # Only add if joint_info and waypoints are available
+                # Remove any previous spheres first
+                for geom in root.findall(".//geom"):
+                    if geom.get("name", "").startswith("traj_sphere_"):
+                        parent = (
+                            geom.getparent() if hasattr(geom, "getparent") else None
+                        )
+                        if parent is not None:
+                            parent.remove(geom)
+                        else:
+                            root.remove(geom)
+
+                # Calculate waypoints for visualization (reuse logic from below if possible)
+                # We'll add spheres for each waypoint position
+                # This is before model/data creation so the spheres are in the model
+                joint_axis_path = os.path.join(
+                    os.path.dirname(args.grasps_path),
+                    f"{args.object_name}_joint_axis.json",
+                )
+                joint_info = None
+                if os.path.exists(joint_axis_path):
+                    with open(joint_axis_path, "r") as f:
+                        joint_info = json.load(f)
+                waypoints = []
+                num_waypoints = 200
+                if joint_info and "primary_joint" in joint_info:
+                    primary_joint = joint_info["primary_joint"]
+                    joint_type = primary_joint.get("type")
+                    joint_range_str = primary_joint.get("range", "0 0")
+                    joint_range = [float(x) for x in joint_range_str.split()]
+                    gripper_pos = approach_pos + approach_vector  # initial gripper pos
+                    gripper_quat = quat
+                    if joint_type == "hinge":
+                        rotation_axis = primary_joint.get(
+                            "rotation_axis", {"x": 0, "y": 0, "z": 0}
+                        )
+                        axis_world = np.array(
+                            [
+                                rotation_axis.get("x", 0),
+                                rotation_axis.get("y", 0),
+                                rotation_axis.get("z", 0),
+                            ]
+                        )
+                        joint_position = primary_joint.get(
+                            "position", {"x": 0, "y": 0, "z": 0}
+                        )
+                        pivot_point = np.array(
+                            [
+                                joint_position.get("x", 0),
+                                joint_position.get("y", 0),
+                                joint_position.get("z", 0),
+                            ]
+                        )
+                        max_angle = joint_range[1]
+                        if max_angle == 0:
+                            max_angle = np.pi / 2
+                        rel_pos = gripper_pos - pivot_point
+                        for i in range(num_waypoints + 1):
+                            angle = i * max_angle / num_waypoints
+                            rotation_matrix = rotation_matrix_from_axis_angle(
+                                axis_world, angle
+                            )
+                            new_rel_pos = rotate_vector(rel_pos, rotation_matrix)
+                            new_pos = pivot_point + new_rel_pos
+                            waypoints.append((new_pos, gripper_quat))
+                    elif joint_type == "slide":
+                        axis_str = primary_joint.get("axis", "0 0 0")
+                        slide_axis = np.array([float(x) for x in axis_str.split()])
+                        max_distance = joint_range[1]
+                        if max_distance == 0:
+                            max_distance = 0.2
+                        for i in range(num_waypoints + 1):
+                            distance = i * max_distance / num_waypoints
+                            new_pos = gripper_pos + slide_axis * distance
+                            waypoints.append((new_pos, gripper_quat))
+                # Add spheres for each waypoint
+                worldbody = root.find("worldbody")
+                if worldbody is not None and waypoints:
+                    for idx, (wp_pos, _) in enumerate(waypoints):
+                        sphere = ET.Element(
+                            "geom",
+                            {
+                                "name": f"traj_sphere_{idx}",
+                                "type": "sphere",
+                                "size": "0.01",
+                                "rgba": "0 0 1 0.5",
+                                "pos": f"{wp_pos[0]} {wp_pos[1]} {wp_pos[2]}",
+                                "contype": "0",
+                                "conaffinity": "0",
+                            },
+                        )
+                        worldbody.append(sphere)
+
                 model = mujoco.MjModel.from_xml_string(
                     ET.tostring(root, encoding="unicode")
                 )
                 data = mujoco.MjData(model)
 
                 viewer.close()
-                time.sleep(0.1)
+                time.sleep(0.5)
                 del viewer
                 viewer = mujoco.viewer.launch_passive(
                     model, data, show_left_ui=False, show_right_ui=False
                 )
 
-                geom_id = mujoco.mj_name2id(
-                    model, mujoco.mjtObj.mjOBJ_GEOM, "test_sphere"
-                )
-                model.geom_pos[geom_id] = pos
                 data.ctrl[0] = 1.0
 
                 for step in range(500):
@@ -478,46 +612,8 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
                 print("Gripper closed")
                 time.sleep(2.0)
 
-                # HERE
-                # Helper functions for quaternion operations since we don't want to rely on trimesh.transformations
-                def rotation_matrix_from_axis_angle(axis, angle):
-                    """Create a rotation matrix from axis and angle."""
-                    axis = axis / np.linalg.norm(axis)  # Normalize axis
-                    c = np.cos(angle)
-                    s = np.sin(angle)
-                    t = 1.0 - c
-                    x, y, z = axis
-
-                    return np.array(
-                        [
-                            [t * x * x + c, t * x * y - z * s, t * x * z + y * s],
-                            [t * x * y + z * s, t * y * y + c, t * y * z - x * s],
-                            [t * x * z - y * s, t * y * z + x * s, t * z * z + c],
-                        ]
-                    )
-
-                def rotate_vector(vector, rotation_matrix):
-                    """Rotate a vector using a rotation matrix."""
-                    return np.dot(rotation_matrix, vector)
-
-                def quat_multiply(q1, q2):
-                    """Multiply two quaternions."""
-                    w1, x1, y1, z1 = q1
-                    w2, x2, y2, z2 = q2
-                    w = w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2
-                    x = w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2
-                    y = w1 * y2 + y1 * w2 + z1 * x2 - x1 * z2
-                    z = w1 * z2 + z1 * w2 + x1 * y2 - y1 * x2
-                    return np.array([w, x, y, z])
-
-                def axis_angle_to_quat(axis, angle):
-                    """Convert axis-angle to quaternion."""
-                    axis = axis / np.linalg.norm(axis)  # Normalize axis
-                    half_angle = angle * 0.5
-                    s = np.sin(half_angle)
-                    return np.array(
-                        [np.cos(half_angle), axis[0] * s, axis[1] * s, axis[2] * s]
-                    )
+                # Now using the quaternion and rotation helper functions defined at the top level
+                # for articulation movement
 
                 # Load joint axis information for articulation
                 joint_axis_path = os.path.join(
@@ -1209,37 +1305,6 @@ if __name__ == "__main__":
 
                     quat_str = f"{quat[0]} {quat[1]} {quat[2]} {quat[3]}"
 
-                    # Add the joint axis cylinder (100m long)
-                    joint_cylinder = ET.Element(
-                        "geom",
-                        {
-                            "name": "joint_axis_cylinder",
-                            "type": "cylinder",
-                            "size": "0.005 50",  # radius 0.5cm, half-length 50m (total 100m)
-                            "rgba": "1 1 0 0.5",  # Semi-transparent yellow
-                            "pos": cylinder_pos,
-                            "quat": quat_str,
-                            "contype": "0",
-                            "conaffinity": "0",
-                        },
-                    )
-                    worldbody.append(joint_cylinder)
-
-                    # Add a small sphere at the joint position for better visibility
-                    joint_sphere = ET.Element(
-                        "geom",
-                        {
-                            "name": "joint_position_marker",
-                            "type": "sphere",
-                            "size": "0.02",  # 2cm radius
-                            "rgba": "1 1 0 0.8",  # Yellow
-                            "pos": cylinder_pos,
-                            "contype": "0",
-                            "conaffinity": "0",
-                        },
-                    )
-                    worldbody.append(joint_sphere)
-
                     # Store joint axis info for grasp-to-axis visualization
                     joint_axis_info = {
                         "position": np.array(global_pos),
@@ -1296,240 +1361,6 @@ if __name__ == "__main__":
         print(
             "Run Stage 1 (joint axis analysis) first to generate joint axis visualization"
         )
-
-    # Add grasp-to-axis perpendicular cylinders if we have joint axis info
-    if joint_axis_info is not None:
-        # Load grasp data to get grasp centers
-        try:
-            with open(args.grasps_path, "r") as f:
-                grasp_data = json.load(f)
-            transforms = grasp_data.get("transforms", [])
-
-            print(
-                f"\nAdding grasp-to-axis perpendicular visualization for {len(transforms)} grasps..."
-            )
-
-            for i, transform in enumerate(
-                transforms[:1]
-            ):  # Limit to first 20 grasps to avoid clutter
-                # Extract grasp center position
-                grasp_pos = np.array(transform)[:3, 3]
-
-                axis_pos = joint_axis_info["position"]
-                axis_dir = joint_axis_info["axis_normalized"]
-
-                # Vector from axis position to grasp position
-                to_grasp = grasp_pos - axis_pos
-
-                # Project onto axis direction to find closest point parameter
-                t = np.dot(to_grasp, axis_dir)
-
-                # Closest point on axis
-                closest_on_axis = axis_pos + t * axis_dir
-
-                # Vector from closest point on axis to grasp center (perpendicular)
-                perp_vector = grasp_pos - closest_on_axis
-                perp_distance = np.linalg.norm(perp_vector)
-
-                # Skip if distance is too small (grasp is very close to axis)
-                if perp_distance < 0.001:
-                    continue
-
-                # Calculate midpoint for cylinder position
-                cylinder_center = (grasp_pos + closest_on_axis) / 2
-
-                # Calculate orientation to align cylinder with perpendicular vector
-                perp_normalized = perp_vector / perp_distance
-
-                # Align cylinder (default Z-axis) with perpendicular direction
-                default_axis = np.array([0, 0, 1])
-                if np.allclose(default_axis, perp_normalized):
-                    perp_quat = [1, 0, 0, 0]  # Identity
-                elif np.allclose(default_axis, -perp_normalized):
-                    perp_quat = [0, 1, 0, 0]  # 180 degrees around X
-                else:
-                    from scipy.spatial.transform import Rotation as R_scipy
-
-                    rotation = R_scipy.align_vectors([perp_normalized], [default_axis])[
-                        0
-                    ]
-                    perp_quat = rotation.as_quat(scalar_first=True)  # [w, x, y, z]
-
-                # Format for MuJoCo
-                cylinder_pos_str = (
-                    f"{cylinder_center[0]} {cylinder_center[1]} {cylinder_center[2]}"
-                )
-                quat_str = (
-                    f"{perp_quat[0]} {perp_quat[1]} {perp_quat[2]} {perp_quat[3]}"
-                )
-
-                # Add perpendicular cylinder (green) - make it very long for visibility
-                # Extend the cylinder much further in both directions
-                extended_length = max(perp_distance * 5, 2.0)  # At least 2 meters long
-
-                perp_cylinder = ET.Element(
-                    "geom",
-                    {
-                        "name": f"grasp_to_axis_{i}",
-                        "type": "cylinder",
-                        "size": f"0.003 {extended_length / 2}",  # radius 0.3cm, half-length for extended cylinder
-                        "rgba": "0 1 0 0.4",  # Semi-transparent green
-                        "pos": cylinder_pos_str,
-                        "quat": quat_str,
-                        "contype": "0",
-                        "conaffinity": "0",
-                    },
-                )
-                worldbody.append(perp_cylinder)
-
-                # Add small sphere at grasp center
-                grasp_sphere = ET.Element(
-                    "geom",
-                    {
-                        "name": f"grasp_center_{i}",
-                        "type": "sphere",
-                        "size": "0.005",  # 0.5cm radius
-                        "rgba": "0 1 0 0.8",  # Green
-                        "pos": f"{grasp_pos[0]} {grasp_pos[1]} {grasp_pos[2]}",
-                        "contype": "0",
-                        "conaffinity": "0",
-                    },
-                )
-                worldbody.append(grasp_sphere)
-
-                # Add small sphere at closest point on axis
-                axis_point_sphere = ET.Element(
-                    "geom",
-                    {
-                        "name": f"axis_point_{i}",
-                        "type": "sphere",
-                        "size": "0.003",  # 0.3cm radius
-                        "rgba": "1 1 0 0.6",  # Yellow
-                        "pos": f"{closest_on_axis[0]} {closest_on_axis[1]} {closest_on_axis[2]}",
-                        "contype": "0",
-                        "conaffinity": "0",
-                    },
-                )
-                worldbody.append(axis_point_sphere)
-
-                # Add circular trajectory visualization showing how the grasp moves during joint rotation
-                circle_center = closest_on_axis  # Center of rotation on the joint axis
-                radius = perp_distance  # Distance from joint axis to grasp center
-
-                # Create a circle in 3D space around the joint axis
-                # We need to create a coordinate system where the joint axis is one axis
-                joint_axis = axis_dir  # Already normalized
-
-                # Find two perpendicular vectors to the joint axis to define the plane of rotation
-                # Start with an arbitrary vector and use Gram-Schmidt to get perpendicular vectors
-                if abs(joint_axis[0]) < 0.9:
-                    arbitrary = np.array([1, 0, 0])
-                else:
-                    arbitrary = np.array([0, 1, 0])
-
-                # First perpendicular vector (in the plane of rotation)
-                perp1 = arbitrary - np.dot(arbitrary, joint_axis) * joint_axis
-                perp1 = perp1 / np.linalg.norm(perp1)
-
-                # Second perpendicular vector (in the plane of rotation)
-                perp2 = np.cross(joint_axis, perp1)
-                perp2 = perp2 / np.linalg.norm(perp2)
-
-                # Find the angle of the current grasp position relative to perp1
-                current_vector = (
-                    perp_vector / perp_distance
-                )  # Normalized vector from axis to grasp
-                current_angle = np.arctan2(
-                    np.dot(current_vector, perp2), np.dot(current_vector, perp1)
-                )
-
-                # Get joint range from the primary joint data
-                joint_range_str = primary_joint.get("range", "0 0")
-                try:
-                    range_parts = joint_range_str.split()
-                    if len(range_parts) >= 2:
-                        min_angle = float(range_parts[0])
-                        max_angle = float(range_parts[1])
-                    else:
-                        # Default to full circle if range parsing fails
-                        min_angle = 0
-                        max_angle = 2 * np.pi
-                except (ValueError, AttributeError):
-                    # Default to full circle if range parsing fails
-                    min_angle = 0
-                    max_angle = 2 * np.pi
-
-                # Calculate the angle range for trajectory
-                angle_range = max_angle - min_angle
-
-                # Create trajectory points only within the joint's valid range
-                num_trajectory_points = max(
-                    12, int(24 * angle_range / (2 * np.pi))
-                )  # Scale points with range
-                for j in range(num_trajectory_points):
-                    # Angle for this trajectory point (within joint range)
-                    # Start from current position and span the joint range
-                    progress = (
-                        j / (num_trajectory_points - 1)
-                        if num_trajectory_points > 1
-                        else 0
-                    )
-                    angle = current_angle + min_angle + (progress * angle_range)
-
-                    # Calculate 3D position on the circle
-                    circle_point = (
-                        circle_center
-                        + radius * np.cos(angle) * perp1
-                        + radius * np.sin(angle) * perp2
-                    )
-
-                    # Color spheres differently based on position in range
-                    if j == 0:
-                        # First sphere (start position) - bright red
-                        color = "1 0 0 0.9"
-                    elif j == num_trajectory_points - 1:
-                        # Last sphere (end position) - dark red
-                        color = "0.5 0 0 0.9"
-                    else:
-                        # Middle spheres - gradient from red to orange
-                        progress_color = progress
-                        color = f"{1.0} {progress_color * 0.5} 0 0.7"
-
-                    # Add trajectory sphere
-                    trajectory_sphere = ET.Element(
-                        "geom",
-                        {
-                            "name": f"trajectory_{i}_{j}",
-                            "type": "sphere",
-                            "size": "0.008",  # 0.8cm radius
-                            "rgba": color,
-                            "pos": f"{circle_point[0]} {circle_point[1]} {circle_point[2]}",
-                            "contype": "0",
-                            "conaffinity": "0",
-                        },
-                    )
-                    worldbody.append(trajectory_sphere)
-
-                print(
-                    f"  Grasp {i}: Added trajectory with {num_trajectory_points} points"
-                )
-                print(
-                    f"    Center: [{circle_center[0]:.3f}, {circle_center[1]:.3f}, {circle_center[2]:.3f}]"
-                )
-                print(f"    Radius: {radius:.3f}m")
-                print(
-                    f"    Joint range: {min_angle:.3f} to {max_angle:.3f} rad ({np.degrees(min_angle):.1f}° to {np.degrees(max_angle):.1f}°)"
-                )
-                print(f"    Current grasp angle: {np.degrees(current_angle):.1f}°")
-
-            print(
-                f"Added perpendicular cylinders for {min(len(transforms), 20)} grasps"
-            )
-
-        except Exception as e:
-            print(f"Warning: Could not add grasp-to-axis visualization: {e}")
-    else:
-        print("No joint axis info available for grasp-to-axis visualization")
 
     xml_content = ET.tostring(root, encoding="unicode")
 

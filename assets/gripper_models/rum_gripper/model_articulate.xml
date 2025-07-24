@@ -61,7 +61,7 @@
         mass="10.0"/>
     </body>
 
-    <geom name="test_sphere" type="sphere" size="0.04" pos="0 0 0.1" rgba="1 0 0 1" contype="0" conaffinity="0"/>
+    <!-- <geom name="test_sphere" type="sphere" size="0.04" pos="0 0 0.1" rgba="1 0 0 1" contype="0" conaffinity="0"/> -->
 
     <body name="gripper_base" gravcomp="1">
       <joint name="gripper_joint" type="free"/>
