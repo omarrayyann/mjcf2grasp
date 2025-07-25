@@ -179,7 +179,9 @@ def run_grasp_filtering_stage(object_name, grasps_path, xml_file, output_dir):
         return False, None
 
 
-def run_grasp_generation_stage(object_name, handle_mesh_path, output_dir):
+def run_grasp_generation_stage(
+    object_name, handle_mesh_path, full_mesh_path, output_dir
+):
     """
     Stage 2: Generate grasps for the handle mesh using the grasp generation pipeline
     """
@@ -215,6 +217,8 @@ def run_grasp_generation_stage(object_name, handle_mesh_path, output_dir):
                 "articulated_handle",
                 "--dataset",
                 "thor_articulated",
+                "--collision_object_file",
+                full_mesh_path,
             ],
             check=True,
         )
@@ -393,8 +397,9 @@ def main():
                     print(f"   Handles: {handles}")
 
                     # Run grasp generation
+                    full_mesh_path = object_output_dir.replace("_handles", "_full")
                     grasps_success, grasps_path = run_grasp_generation_stage(
-                        object_name, handle_mesh, object_output_dir
+                        object_name, handle_mesh, full_mesh_path, object_output_dir
                     )
                 else:
                     print(f"   Warning: No handles identified by LLM in handle_info")

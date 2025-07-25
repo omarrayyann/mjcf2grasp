@@ -964,6 +964,8 @@ def make_parser():
     parser.add_argument('--object_file', type=str,
                         default='/home/arsalan/data/models_selected/03797390/1be6b2c84cdab826c043c2d07bb83fc8/model.obj',
                         help='Number of samples.')
+    parser.add_argument('--collision_object_file', type=str, default=None,
+                        help='Optional: extra .obj file to use for collision checking (combined with main object).')
     parser.add_argument('--dataset', type=str, default='UNKNOWN',
                         help='Metadata about the origin of the file.')
     parser.add_argument('--classname', type=str, default='UNKNOWN',
@@ -1092,6 +1094,20 @@ if __name__ == "__main__":
         )
         gripper = create_gripper(args.gripper)
 
+        # Load extra collision object if provided
+        extra_collision_mesh = None
+        if args.collision_object_file:
+            extra_collision_obj = Object(args.collision_object_file)
+            extra_collision_mesh = extra_collision_obj.mesh
+
+        # Helper to combine meshes for collision checking
+        def get_collision_mesh(main_mesh, extra_mesh):
+            if extra_mesh is not None:
+                return trimesh.util.concatenate([main_mesh, extra_mesh])
+            else:
+                return main_mesh
+
+        # Sample grasps as usual
         points, normals, transforms, roll_angles, standoffs, collisions, qualities\
             = sample_multiple_grasps(args.num_samples,
                                      obj.mesh,
@@ -1101,31 +1117,18 @@ if __name__ == "__main__":
                                      standoff_density=args.systematic_standoff_density,
                                      surface_density=args.systematic_surface_density,
                                      type_of_quality=args.quality,
-                                    
                                      min_quality=args.min_quality,
                                      silent=args.silent,
                                      num_workers=args.num_workers)
-        
-        grasp_widths = compute_grasp_widths(transforms, obj.mesh, gripper_name=args.gripper, num_workers=args.num_workers)
-        
-        
-        # quality_key = 'quality_' + args.quality
-        # quality_scores = qualities[quality_key]
-        # sort_indices = np.argsort(quality_scores)[::-1]  
-        
-        
-        # transforms = transforms[sort_indices]
-        # points = points[sort_indices]
-        # normals = normals[sort_indices]
-        # roll_angles = roll_angles[sort_indices]
-        # standoffs = standoffs[sort_indices]
-        # collisions = [collisions[i] for i in sort_indices]
-        # grasp_widths = [grasp_widths[i] for i in sort_indices]
-        # sorted_quality_scores = [quality_scores[i] for i in sort_indices]
-        
-        # verboseprint(f"Sorted grasps by quality. Best quality: {sorted_quality_scores[0]:.4f}, Worst: {sorted_quality_scores[-1]:.4f}")
 
-        
+        # Redo collision checking with combined mesh if extra provided
+        if extra_collision_mesh is not None:
+            combined_mesh = get_collision_mesh(obj.mesh, extra_collision_mesh)
+            collisions, _ = in_collision_with_gripper(
+                combined_mesh, transforms, gripper_name=args.gripper, silent=args.silent, num_workers=args.num_workers)
+
+        grasp_widths = compute_grasp_widths(transforms, obj.mesh, gripper_name=args.gripper, num_workers=args.num_workers)
+
         grasps = {
             'object': obj.filename,
             'object_scale': obj.scale,
