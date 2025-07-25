@@ -122,9 +122,9 @@ def run_grasp_filtering_stage(object_name, grasps_path, xml_file, output_dir):
 
     filtered_grasps_path = grasps_path.replace(".json", "_filtered.json")
 
-    if os.path.exists(filtered_grasps_path):
-        print(f"   Filtered grasps already exist, skipping...")
-        return True, filtered_grasps_path
+    # if os.path.exists(filtered_grasps_path):
+    #     print(f"   Filtered grasps already exist, skipping...")
+    #     return True, filtered_grasps_path
 
     try:
         print(f"   Filtering grasps using MuJoCo simulation...")
@@ -135,23 +135,17 @@ def run_grasp_filtering_stage(object_name, grasps_path, xml_file, output_dir):
                 "--object_name",
                 object_name,
                 "--grasps_path",
-                grasps_path,
+                filtered_grasps_path,  # grasps_path,
                 "--xml_file",
                 xml_file,
                 "--num_workers",
-                "4",  # Reasonable number for articulated objects
+                "10",  # Reasonable number for articulated objects
                 "--approach_distance",
-                "1.0",
+                "0.5",
                 "--approach_steps",
                 "5",
                 "--max_successful",
-                "500",  # Limit for handle grasps
-                "--num_shakes",
-                "2",
-                "--shake_magnitude",
-                "0.05",  # Gentler shaking for handles
-                "--shake_steps",
-                "300",
+                "100",  # Limit for handle grasps
                 "--render",  # Enable rendering for debugging
             ],
             check=True,

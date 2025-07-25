@@ -52,9 +52,6 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--object_name", type=str)
 parser.add_argument("--grasps_path", type=str)
 parser.add_argument("--xml_file", type=str)
-parser.add_argument("--num_shakes", type=int, default=2)
-parser.add_argument("--shake_magnitude", type=float, default=0.1)
-parser.add_argument("--shake_steps", type=int, default=500)
 parser.add_argument(
     "--approach_distance",
     type=float,
@@ -82,7 +79,7 @@ parser.add_argument(
 parser.add_argument(
     "--endpoint_pause",
     type=float,
-    default=0.5,
+    default=0.2,
     help="Pause time in seconds at the endpoints of articulation",
 )
 parser.add_argument("--render", action="store_true", help="Enable interactive viewer")
@@ -247,118 +244,192 @@ def check_grasp(model, data, object_name, store_initial=False):
     return position_change < 0.03 and is_object_grasped(model, data, object_name)
 
 
-def test_single_grasp(grasp_data, object_name):
-    i, transform, quality, config = grasp_data
-
-    xml_path = os.path.join(os.path.dirname(__file__), "../assets/scene.xml")
-    tree = ET.parse(xml_path)
-    root = tree.getroot()
-
-    include = ET.Element("include", {"file": args.xml_file})
-    root.append(include)
-
-    xml_content = ET.tostring(root, encoding="unicode")
-
-    robot_xml_path = os.path.join(
-        os.path.dirname(__file__),
-        "../assets/gripper_models/rum_gripper/model_articulate.xml",
+def test_single_grasp(grasp_data, object_name, xml_content):
+    joint_axis_path = os.path.join(
+        os.path.dirname(args.grasps_path), f"{object_name}_joint_axis.json"
     )
-    with open(robot_xml_path, "r") as f:
-        robot_xml_content = f.read()
-    xml_content = merge_xml_contents(xml_content, robot_xml_content)
+    joint_info = None
+    if os.path.exists(joint_axis_path):
+        with open(joint_axis_path, "r") as f:
+            joint_info = json.load(f)
 
-    model = mujoco.MjModel.from_xml_string(xml_content)
-    data = mujoco.MjData(model)
-
-    global initial_relative_position, initial_grasp_verified
-    initial_relative_position = None
-    initial_grasp_verified = False
-
-    mujoco.mj_resetData(model, data)
-
+    i, transform, quality, config = grasp_data
     pos = transform[:3, 3]
     quat = R.from_matrix(transform[:3, :3]).as_quat(scalar_first=True)
 
-    approach_distance = config.get("approach_distance", 0.1)
+    approach_distance = config["approach_distance"]
+    approach_steps = config["approach_steps"]
     approach_vector = transform[:3, 2] * approach_distance
     approach_pos = pos - approach_vector
 
-    body_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, "gripper_base")
-    model.body_pos[body_id] = approach_pos
-    model.body_quat[body_id] = quat
+    # Parse XML and update positions
+    tree = ET.ElementTree(ET.fromstring(xml_content))
+    root = tree.getroot()
+    gripper_base = root.find(".//body[@name='gripper_base']")
+    if gripper_base is not None:
+        gripper_base.set(
+            "pos", f"{approach_pos[0]} {approach_pos[1]} {approach_pos[2]}"
+        )
+        gripper_base.set("quat", f"{quat[0]} {quat[1]} {quat[2]} {quat[3]}")
+    target_ee_pose = root.find(".//body[@name='target_ee_pose']")
+    if target_ee_pose is not None:
+        target_ee_pose.set(
+            "pos", f"{approach_pos[0]} {approach_pos[1]} {approach_pos[2]}"
+        )
+        target_ee_pose.set("quat", f"{quat[0]} {quat[1]} {quat[2]} {quat[3]}")
 
+    # Initialize simulation
+    model = mujoco.MjModel.from_xml_string(ET.tostring(root, encoding="unicode"))
+    data = mujoco.MjData(model)
+
+    # Open gripper
     data.ctrl[0] = 1.0
 
-    for step in range(500):
+    for _ in range(500):
         mujoco.mj_step(model, data)
 
-    approach_steps = config.get("approach_steps", 1000)
-    velocity = approach_distance / (approach_steps * model.opt.timestep)
+    # Approach object
+    joint_position_before = get_joint_position(
+        model, data, joint_info["primary_joint"]["name"]
+    )
+
     for step in range(approach_steps):
-        data.ctrl[2] = velocity
-        mujoco.mj_step(model, data)
+        new_pos = approach_pos + (step / approach_steps) * approach_vector
+        data.mocap_pos[0] = new_pos
+        data.mocap_quat[0] = quat
+        mujoco.mj_step(model, data, nstep=1000)
 
-        current_pos = data.body("gripper_base").xpos
-        distance_to_target = np.linalg.norm(current_pos - pos)
-        if distance_to_target < 0.001:
-            break
+    joint_position_after = get_joint_position(
+        model, data, joint_info["primary_joint"]["name"]
+    )
 
-    data.ctrl[1] = 0.0
-    data.ctrl[2] = 0.0
-    data.ctrl[3] = 0.0
-
-    for step in range(100):
-        mujoco.mj_step(model, data)
-
-    data.ctrl[0] = -1.0
-
-    for step in range(1000):
-        mujoco.mj_step(model, data)
-
-    for step in range(2000):
-        mujoco.mj_step(model, data)
-
-    if not check_grasp(model, data, object_name, store_initial=True):
+    if joint_position_before is None or joint_position_after is None:
+        return i, None, None
+    if np.abs(joint_position_after - joint_position_before) > 0.01:
         return i, None, None
 
-    directions = ["x", "y", "z"]
-    shake_success = True
+    # Move to final position
+    data.mocap_pos[0] = pos
+    mujoco.mj_step(model, data, nstep=1000)
 
-    for direction_idx, _ in enumerate(directions):
-        ctrl_idx = direction_idx + 1
+    # Close gripper
+    data.ctrl[0] = -1.0
+    mujoco.mj_step(model, data, nstep=1000)
 
-        for _ in range(config["num_shakes"]):
-            total_steps = config["shake_steps"] * 2
+    # Check if object is grasped
+    if not is_grasping(model, data, object_name):
+        return i, None, None
 
-            for step in range(total_steps):
-                angle = 2 * np.pi * step / total_steps
-                position = config["shake_magnitude"] * np.sin(angle)
-                data.ctrl[ctrl_idx] = position
+    # Load joint information
 
-                mujoco.mj_step(model, data)
+    # Setup waypoints for articulation
+    num_waypoints = 200
+    waypoints = []
+    if joint_info and "primary_joint" in joint_info:
+        primary_joint = joint_info["primary_joint"]
+        joint_type = primary_joint.get("type")
+        joint_range_str = primary_joint.get("range", "0 0")
+        joint_range = [float(x) for x in joint_range_str.split()]
 
-                if step == total_steps // 4 or step == 3 * total_steps // 4:
-                    grasp_maintained = check_grasp(model, data, object_name)
-                    if not grasp_maintained:
-                        shake_success = False
-                        break
+        gripper_pos = data.body("gripper_base").xpos.copy()
+        gripper_quat = data.body("gripper_base").xquat.copy()
 
-            if not shake_success:
+        if joint_type == "hinge":
+            rotation_axis = primary_joint.get("rotation_axis", {"x": 0, "y": 0, "z": 0})
+            axis_world = np.array(
+                [
+                    rotation_axis.get("x", 0),
+                    rotation_axis.get("y", 0),
+                    rotation_axis.get("z", 0),
+                ]
+            )
+            joint_position = primary_joint.get("position", {"x": 0, "y": 0, "z": 0})
+            pivot_point = np.array(
+                [
+                    joint_position.get("x", 0),
+                    joint_position.get("y", 0),
+                    joint_position.get("z", 0),
+                ]
+            )
+
+            max_angle = joint_range[1]
+            if max_angle == 0:
+                max_angle = np.pi / 2
+
+            rel_pos = gripper_pos - pivot_point
+            for i in range(num_waypoints + 1):
+                angle = i * max_angle / num_waypoints
+                rotation_matrix = rotation_matrix_from_axis_angle(axis_world, angle)
+                new_rel_pos = rotate_vector(rel_pos, rotation_matrix)
+                new_pos = pivot_point + new_rel_pos
+                rotation_quat = axis_angle_to_quat(axis_world, angle)
+                new_quat = quat_multiply(rotation_quat, gripper_quat)
+                waypoints.append((new_pos, new_quat))
+
+        elif joint_type == "slide":
+            axis_str = primary_joint.get("axis", "0 0 0")
+            slide_axis = np.array([float(x) for x in axis_str.split()])
+            max_distance = joint_range[1]
+            if max_distance == 0:
+                max_distance = 0.2
+            for i in range(num_waypoints + 1):
+                distance = i * max_distance / num_waypoints
+                new_pos = gripper_pos + slide_axis * distance
+                waypoints.append((new_pos, gripper_quat.copy()))
+
+    # Execute articulation
+    joint_positions = []
+    articulation_success = True
+
+    if waypoints:
+        num_loops = args.articulation_loops
+        for loop_idx in range(num_loops):
+            if not articulation_success:
                 break
 
-            data.ctrl[ctrl_idx] = 0
-            for step in range(50):
-                mujoco.mj_step(model, data)
+            # Forward movement
+            for wp_idx, (wp_pos, wp_quat) in enumerate(waypoints):
+                data.mocap_pos[0] = wp_pos
+                data.mocap_quat[0] = wp_quat
 
-        data.ctrl[ctrl_idx] = 0
+                mujoco.mj_step(model, data, nstep=200)
 
-        if not shake_success:
-            break
+                is_currently_grasping = is_grasping(model, data, object_name)
+                joint_position = get_joint_position(model, data, primary_joint["name"])
+                joint_positions.append(joint_position)
 
-    final_grasp_check = is_object_grasped(model, data, object_name)
+                if not is_currently_grasping:
+                    articulation_success = False
+                    break
 
-    if shake_success and final_grasp_check:
-        return i, transform.tolist(), quality
+            if not articulation_success:
+                break
+
+            # Backward movement
+            for wp_idx in range(len(waypoints) - 1, -1, -1):
+                wp_pos, wp_quat = waypoints[wp_idx]
+                data.mocap_pos[0] = wp_pos
+                data.mocap_quat[0] = wp_quat
+
+                mujoco.mj_step(model, data, nstep=200)
+
+                is_currently_grasping = is_grasping(model, data, object_name)
+                joint_position = get_joint_position(model, data, primary_joint["name"])
+                joint_positions.append(joint_position)
+
+                if not is_currently_grasping:
+                    articulation_success = False
+                    break
+
+    # Check if there was sufficient joint movement
+    if joint_positions:
+        sufficient_movement = check_sufficient_joint_movement(joint_positions)
+        if not sufficient_movement:
+            articulation_success = False
+
+    # Return results
+    if articulation_success:
+        return i, transform, quality
     else:
         return i, None, None
 
@@ -382,12 +453,12 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
             pbar = tqdm(
                 enumerate(zip(transforms, qualities)),
                 total=len(transforms),
-                desc=f"Testing grasps (0/0 successful)",
+                desc="Testing grasps (0/0 successful)",
             )
 
             for i, (transform, quality) in pbar:
-                if i < 646:
-                    continue
+                # if i < 646:
+                #     continue
                 pos = transform[:3, 3]
                 quat = R.from_matrix(transform[:3, :3]).as_quat(scalar_first=True)
 
@@ -431,7 +502,7 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
                     with open(joint_axis_path, "r") as f:
                         joint_info = json.load(f)
                 waypoints = []
-                num_waypoints = 50
+                num_waypoints = 200
                 if joint_info and "primary_joint" in joint_info:
                     primary_joint = joint_info["primary_joint"]
                     joint_type = primary_joint.get("type")
@@ -506,7 +577,7 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
                 data = mujoco.MjData(model)
 
                 viewer.close()
-                time.sleep(0.5)
+                time.sleep(0.1)
                 del viewer
                 viewer = mujoco.viewer.launch_passive(
                     model, data, show_left_ui=False, show_right_ui=False
@@ -526,17 +597,33 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
                             )
 
                 approach_steps = args.approach_steps
-                velocity = approach_distance / (approach_steps * model.opt.timestep)
 
                 current_time = time.time()
+                joint_position_before = get_joint_position(
+                    model, data, joint_info["primary_joint"]["name"]
+                )
                 for step in range(approach_steps):
                     while time.time() - current_time < 1.0:
-                        mujoco.mj_step(model, data)
-                        viewer.sync()
+                        pass
+                    mujoco.mj_step(model, data, nstep=1000)
+                    viewer.sync()
                     current_time = time.time()
                     new_pos = approach_pos + (step / approach_steps) * approach_vector
                     data.mocap_pos[0] = new_pos
                     data.mocap_quat[0] = quat
+
+                joint_position_after = get_joint_position(
+                    model, data, joint_info["primary_joint"]["name"]
+                )
+
+                if joint_position_before is None or joint_position_after is None:
+                    continue
+
+                if np.abs(joint_position_after - joint_position_before) > 0.01:
+                    print(
+                        "Unwanted joint movement during approach, skipping this grasp"
+                    )
+                    continue
 
                 data.mocap_pos[0] = pos
                 for _ in range(1000):
@@ -548,13 +635,11 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
                 for _ in range(1000):
                     mujoco.mj_step(model, data)
                     viewer.sync()
-                time.sleep(2.0)
 
                 joint_axis_path = os.path.join(
                     os.path.dirname(args.grasps_path),
                     f"{args.object_name}_joint_axis.json",
                 )
-
                 joint_info = None
 
                 if os.path.exists(joint_axis_path):
@@ -565,6 +650,16 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
                         f"Warning: No joint axis information found at {joint_axis_path}"
                     )
 
+                # Check if object is grasped
+                if not is_grasping(model, data, object_name):
+                    print(
+                        "Grasp is not successful before articulation, skipping this grasp"
+                    )
+                    pbar.set_description(
+                        f"Testing grasps ({len(successful_transforms)}/{i + 1} successful)"
+                    )
+                    continue
+
                 num_waypoints = 200
                 waypoints = []
 
@@ -574,8 +669,8 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
                     joint_range_str = primary_joint.get("range", "0 0")
                     joint_range = [float(x) for x in joint_range_str.split()]
 
-                    object_body = data.body(args.object_name)
-                    object_pos = object_body.xpos.copy()
+                    # We don't need object_body or object_pos, but keeping for consistency with test_single_grasp
+                    # object_body = data.body(args.object_name)
 
                     gripper_pos = data.body("gripper_base").xpos.copy()
                     gripper_quat = data.body("gripper_base").xquat.copy()
@@ -637,17 +732,6 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
                             new_pos = gripper_pos + slide_axis * distance
                             waypoints.append((new_pos, gripper_quat.copy()))
 
-                time.sleep(1.0)
-
-                if not is_grasping(model, data, object_name):
-                    print(
-                        "Grasp is not successful before articulation, skipping this grasp"
-                    )
-                    pbar.set_description(
-                        f"Testing grasps ({len(successful_transforms)}/{i + 1} successful)"
-                    )
-                    continue
-
                 joint_positions = []
                 articulation_success = True
 
@@ -672,7 +756,6 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
                                             successful_qualities,
                                             successful_widths,
                                         )
-                            time.sleep(args.waypoint_pause)
 
                             is_currently_grasping = is_grasping(
                                 model, data, object_name
@@ -692,8 +775,6 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
                         if not articulation_success:
                             break
 
-                        time.sleep(args.endpoint_pause)
-
                         for wp_idx in range(len(waypoints) - 1, -1, -1):
                             wp_pos, wp_quat = waypoints[wp_idx]
 
@@ -710,7 +791,6 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
                                             successful_qualities,
                                             successful_widths,
                                         )
-                            time.sleep(args.waypoint_pause)
 
                             is_currently_grasping = is_grasping(
                                 model, data, object_name
@@ -727,8 +807,6 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
                                 articulation_success = False
                                 break
 
-                        time.sleep(args.endpoint_pause)
-
                     sufficient_movement = check_sufficient_joint_movement(
                         joint_positions
                     )
@@ -743,7 +821,7 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
                         # If articulation was successful, add this grasp to our successes
                         successful_transforms.append(transform)
                         successful_qualities.append(quality)
-                        successful_widths.append(width[i])
+                        successful_widths.append(0.1)
                         pbar.set_description(
                             f"Testing grasps ({len(successful_transforms)}/{i + 1} successful)"
                         )
@@ -754,6 +832,7 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
                         )
                         continue
 
+                # Skip processing if articulation was necessary but failed
                 if (
                     joint_info
                     and "primary_joint" in joint_info
@@ -765,24 +844,10 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
                     )
                     continue
 
-                for step in range(500):
-                    mujoco.mj_step(model, data)
-                    if step % 20 == 0:
-                        viewer.sync()
-                        if not viewer.is_running():
-                            return (
-                                successful_transforms,
-                                successful_qualities,
-                                successful_widths,
-                            )
-
         return successful_transforms, successful_qualities, successful_widths
 
     else:
         config = {
-            "num_shakes": args.num_shakes,
-            "shake_magnitude": args.shake_magnitude,
-            "shake_steps": args.shake_steps,
             "approach_distance": args.approach_distance,
             "approach_steps": args.approach_steps,
         }
@@ -815,7 +880,7 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
                     if transform_result is not None:
                         success_count.value += 1
                         successful_transforms.append(
-                            (i, transform_result, quality_result, width[i])
+                            (i, transform_result, quality_result, 0.1)
                         )
 
                         if (
@@ -832,15 +897,13 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
                 )
                 pbar.update(1)
 
-            pbar = tqdm(
-                total=len(grasp_params), desc=f"Testing grasps (0/0 successful)"
-            )
+            pbar = tqdm(total=len(grasp_params), desc="Testing grasps (0/0 successful)")
 
             with mp.Pool(processes=num_workers) as pool:
                 results = [
                     pool.apply_async(
                         test_single_grasp,
-                        args=(param, object_name),
+                        args=(param, object_name, xml_content),
                         callback=update_progress_bar,
                     )
                     for param in grasp_params
@@ -867,13 +930,9 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
                             results[i] = None
                             completed += 1
 
-                    time.sleep(0.1)
-
                 if not should_stop.value:
                     pool.close()
                     pool.join()
-
-            successful_transforms.sort()
 
             successful_transforms_only = [t for _, t, _, _ in successful_transforms]
             successful_qualities_only = [q for _, _, q, _ in successful_transforms]
@@ -927,6 +986,11 @@ if __name__ == "__main__":
     worldbody = root.find("worldbody")
 
     joint_axis_file = args.grasps_path.replace("_grasps.json", "_joint_axis.json")
+    joint_axis_file = args.grasps_path.replace(
+        "_grasps_filtered.json", "_joint_axis.json"
+    )
+
+    print(f"Using joint axis file: {joint_axis_file}")
     if os.path.exists(joint_axis_file):
         try:
             with open(joint_axis_file, "r") as f:
@@ -1023,6 +1087,25 @@ if __name__ == "__main__":
         run_simulation_with_viewer(model, data, xml_content, object_name, args.render)
     )
 
+    # Convert NumPy arrays to Python lists for JSON serialization
+    transforms_list = []
+    for transform in successful_transforms:
+        if isinstance(transform, np.ndarray):
+            transform = transform.tolist()
+        transforms_list.append(transform)
+
+    qualities_list = []
+    for quality in successful_qualities:
+        if isinstance(quality, np.ndarray):
+            quality = quality.tolist()
+        qualities_list.append(quality)
+
+    widths_list = []
+    for width in successful_widths:
+        if isinstance(width, np.ndarray):
+            width = width.tolist()
+        widths_list.append(width)
+
     output_path = args.grasps_path.replace(".json", "_filtered.json")
     with open(output_path, "w") as f:
         with open(args.grasps_path, "r") as original_f:
@@ -1030,14 +1113,24 @@ if __name__ == "__main__":
 
         json.dump(
             {
-                "transforms": successful_transforms,
-                "quality_antipodal": successful_qualities,
+                "transforms": transforms_list,
+                "quality_antipodal": qualities_list,
                 "object": original_data.get("object", "unknown_object"),
                 "object_scale": original_data.get("object_scale", 1.0),
                 "object_position": original_data.get("object_position", [0, 0, 0]),
                 "object_rotation": original_data.get("object_rotation", [1, 0, 0, 0]),
                 "approach_distance": args.approach_distance,
-                "grasp_widths": successful_widths,
+                "grasp_widths": widths_list,
+                "object_class": original_data.get("object_class", "unknown"),
+                "object_dataset": original_data.get("object_dataset", "unknown"),
+                "gripper": original_data.get("gripper", "unknown_gripper"),
+                "gripper_configuration": original_data.get("gripper_configuration", []),
+                "transforms_quality": original_data.get("transforms_quality", []),
+                "roll_angles": original_data.get("roll_angles", []),
+                "standoffs": original_data.get("standoffs", []),
+                "mesh_points": original_data.get("mesh_points", []),
+                "mesh_normals": original_data.get("mesh_normals", []),
+                "collisions": original_data.get("collisions", []),
             },
             f,
             indent=2,
