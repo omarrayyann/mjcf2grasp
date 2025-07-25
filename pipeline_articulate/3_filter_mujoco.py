@@ -740,6 +740,13 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
 
                     if articulation_success:
                         print("Completed all articulation loops successfully")
+                        # If articulation was successful, add this grasp to our successes
+                        successful_transforms.append(transform)
+                        successful_qualities.append(quality)
+                        successful_widths.append(width[i])
+                        pbar.set_description(
+                            f"Testing grasps ({len(successful_transforms)}/{i + 1} successful)"
+                        )
                     else:
                         print("Articulation failed, skipping this grasp")
                         pbar.set_description(
