@@ -1,6 +1,6 @@
 {
   "pipeline_stages": "Stages 0-3 - Handle Detection, Joint Analysis, Grasp Generation & Filtering",
-  "timestamp": "2025-07-25T22:41:43.747978",
+  "timestamp": "2025-07-28T03:15:54.762207",
   "total_objects": 1,
   "processed_objects": 1,
   "objects_with_joint_analysis": 1,
@@ -15,7 +15,7 @@
       "grasps": "output_articulate/Doorway_8/Doorway_8_grasps.json",
       "filtered_grasps": "output_articulate/Doorway_8/Doorway_8_grasps_filtered.json",
       "joint_axis": "output_articulate/Doorway_8/Doorway_8_joint_axis.json",
-      "xml": "/Users/omarrayyann/Documents/thor-grasp/assets/Thor-Assets/ManipulaTHOR Objects/Doorways/Prefabs/Doorway_8/Doorway_8.xml",
+      "xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/ManipulaTHOR Objects/Doorways/Prefabs/Doorway_8/Doorway_8.xml",
       "output_dir": "output_articulate/Doorway_8",
       "stages_completed": {
         "handle_detection": true,

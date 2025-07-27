@@ -1,5 +1,6 @@
 <mujoco model="iiwa14_scene">
-    <include file="assets/gripper_models/rum_gripper/model.xml"/>
+    <include file="assets/gripper_models/rum_gripper/model_articulate.xml"/>
+    <include file="/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/Kitchen Objects/Microwave/Prefabs/Microwave_3/Microwave_3.xml"/>
     <statistic extent="0.3" center="0 0.075 0"/>
     <option gravity="0 0 0"/>
     <visual>
@@ -50,10 +51,5 @@
         </body>
 
     </worldbody>
-
-    <equality>
-        <weld name="test" solref="0.02 1" solimp="0.90000000000000002 0.94999999999999996 0.001" body1="target_ee_pose"
-            body2="gripper_base" active="true"/>
-    </equality>
 
 </mujoco>

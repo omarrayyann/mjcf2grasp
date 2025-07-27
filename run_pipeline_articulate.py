@@ -130,12 +130,12 @@ def run_grasp_filtering_stage(object_name, grasps_path, xml_file, output_dir):
         print(f"   Filtering grasps using MuJoCo simulation...")
         subprocess.run(
             [
-                "mjpython",
+                "python",
                 "pipeline_articulate/3_filter_mujoco.py",
                 "--object_name",
                 object_name,
                 "--grasps_path",
-                filtered_grasps_path,  # grasps_path,
+                grasps_path,  # grasps_path,
                 "--xml_file",
                 xml_file,
                 "--num_workers",
@@ -146,7 +146,7 @@ def run_grasp_filtering_stage(object_name, grasps_path, xml_file, output_dir):
                 "5",
                 "--max_successful",
                 "100",  # Limit for handle grasps
-                "--render",  # Enable rendering for debugging
+                # "--render",  # Enable rendering for debugging
             ],
             check=True,
         )
@@ -180,7 +180,7 @@ def run_grasp_filtering_stage(object_name, grasps_path, xml_file, output_dir):
 
 
 def run_grasp_generation_stage(
-    object_name, handle_mesh_path, full_mesh_path, output_dir
+    object_name, handle_mesh_path, full_mesh, output_dir
 ):
     """
     Stage 2: Generate grasps for the handle mesh using the grasp generation pipeline
@@ -211,14 +211,14 @@ def run_grasp_generation_stage(
                 "--quality",
                 "antipodal",  # Antipodal quality for better grasps
                 "--min_quality",
-                "0.01",  # Lower threshold for handle grasps
+                "0.005", 
                 "--systematic_sampling",  # Use systematic sampling for coverage
                 "--classname",
                 "articulated_handle",
                 "--dataset",
                 "thor_articulated",
                 "--collision_object_file",
-                full_mesh_path,
+                full_mesh,
             ],
             check=True,
         )
@@ -392,28 +392,29 @@ def main():
 
                 print(f"   Handle info content: {handle_info}")
 
+                full_mesh = handle_mesh.replace("_handles", "_full")
+
                 if handles:
                     print(f"   Handle components found: {len(handles)}")
                     print(f"   Handles: {handles}")
 
                     # Run grasp generation
-                    full_mesh_path = object_output_dir.replace("_handles", "_full")
                     grasps_success, grasps_path = run_grasp_generation_stage(
-                        object_name, handle_mesh, full_mesh_path, object_output_dir
+                        object_name, handle_mesh, full_mesh, object_output_dir
                     )
                 else:
                     print(f"   Warning: No handles identified by LLM in handle_info")
                     print(f"   Attempting grasp generation anyway on handle mesh...")
                     # Try generating grasps anyway if we have a handle mesh
                     grasps_success, grasps_path = run_grasp_generation_stage(
-                        object_name, handle_mesh, object_output_dir
+                        object_name, handle_mesh, full_mesh, object_output_dir
                     )
             else:
                 print(f"   Warning: No handle info found at {handle_info_path}")
                 print(f"   Attempting grasp generation anyway on handle mesh...")
                 # Try generating grasps anyway if we have a handle mesh
                 grasps_success, grasps_path = run_grasp_generation_stage(
-                    object_name, handle_mesh, object_output_dir
+                    object_name, handle_mesh, full_mesh, object_output_dir
                 )
         else:
             print(f"   Error: Handle mesh not found: {handle_mesh}")

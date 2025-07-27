@@ -57,7 +57,7 @@
 
   <worldbody>
     <body name="target_ee_pose" mocap="true">
-      <geom name="target_ee_pose" type="box" rgba="0 1 0 0" size="0.05 0.05 0.05" conaffinity="0" contype="0"
+      <geom name="target_ee_pose" type="box" rgba="0 1 0 1" size="0.05 0.05 0.05" conaffinity="0" contype="0"
         mass="10.0"/>
     </body>
 

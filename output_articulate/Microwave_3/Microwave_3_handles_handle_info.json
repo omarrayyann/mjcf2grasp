@@ -1,0 +1,9 @@
+{
+  "identified_handles": [
+    "Microwave_3_microwave_door_a3_6",
+    "Microwave_3_microwave_door_a3_7"
+  ],
+  "mesh_instances_processed": 2,
+  "source_xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/Kitchen Objects/Microwave/Prefabs/Microwave_3/Microwave_3.xml",
+  "output_mesh": "output_articulate/Microwave_3/Microwave_3_handles.obj"
+}

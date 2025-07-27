@@ -632,7 +632,7 @@ def draw_scene(
             
             # Set render options for high quality
             render_option = vis.get_render_option()
-            render_option.background_color = np.array([0.1, 0.1, 0.1])
+            render_option.background_color = np.array([1.0, 1.0, 1.0])
             render_option.point_size = 4.0  # Increased point size
             render_option.line_width = 4.0  # Increased line width
             
@@ -726,7 +726,7 @@ def draw_scene(
                     vis.add_geometry(geom)
                 
                 render_option = vis.get_render_option()
-                render_option.background_color = np.array([0.1, 0.1, 0.1])
+                render_option.background_color = np.array([1.0, 1.0, 1.0])
                 render_option.point_size = 2.0
                 render_option.line_width = 2.0
                 
@@ -743,7 +743,7 @@ def draw_scene(
             
             # Set view options
             render_option = vis.get_render_option()
-            render_option.background_color = np.array([0.1, 0.1, 0.1])
+            render_option.background_color = np.array([0.996,0.996, 0.9529])  # Light background
             render_option.point_size = 2.0
             render_option.line_width = 2.0
             

@@ -319,7 +319,7 @@ def create_handle_detection_prompt(xml_structure: Dict[str, Any], xml_path: str)
     object_name = Path(xml_path).stem
     
     prompt = f"""
-Analyze this MuJoCo XML structure for an articulated object called "{object_name}" and identify ALL geometry components that serve as handles, knobs, pulls, or graspable parts used to manipulate joints.
+Analyze this MuJoCo XML structure for an articulated object called "{object_name}" and identify ALL geometry components that serve as handles, knobs, pulls, or graspable parts used to manipulate joints. If you're not sure of whetehr a component is a to be considered a handle, assume it is if it is a mesh-based geometry attached to a body with joints.
 
 IMPORTANT: Only consider geometries with type="mesh" that have actual mesh files (.obj). Ignore primitive colliders (box, sphere, cylinder, etc.).
 

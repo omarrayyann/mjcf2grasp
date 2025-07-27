@@ -1,0 +1,149 @@
+{
+  "object_name": "Microwave_3",
+  "source_xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/Kitchen Objects/Microwave/Prefabs/Microwave_3/Microwave_3.xml",
+  "primary_joint": {
+    "name": "Microwave_3_microwave_door_a3_joint_0",
+    "type": "hinge",
+    "axis": "0 -1 0",
+    "range": "0 1.5707963267948966",
+    "pos": "-0 0 0",
+    "limited": "false",
+    "damping": "0.10000000000000001",
+    "frictionloss": "0",
+    "parent_body": "Microwave_3_microwave_door_a3",
+    "body_hierarchy": "Microwave_3/Microwave_3_microwave_door_a3",
+    "position": {
+      "x": -0.2915478144836426,
+      "y": 0.028631418733596814,
+      "z": 0.1228442074584961
+    },
+    "rotation_axis": {
+      "x": 0.0,
+      "y": -1.0,
+      "z": 0.0
+    },
+    "local_position": {
+      "x": -0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "local_axis": {
+      "x": 0.0,
+      "y": -1.0,
+      "z": 0.0
+    },
+    "parent_position": {
+      "x": -0.2915478144836426,
+      "y": 0.028631418733596814,
+      "z": 0.1228442074584961
+    },
+    "parent_rotation": {
+      "w": 1.0,
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    }
+  },
+  "all_joints": [
+    {
+      "name": "Microwave_3_free",
+      "type": "free",
+      "axis": "0 0 1",
+      "range": "0 0",
+      "pos": "0 0 0",
+      "limited": "false",
+      "damping": "0.10000000000000001",
+      "frictionloss": "0",
+      "parent_body": "Microwave_3",
+      "body_hierarchy": "Microwave_3",
+      "position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "rotation_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "local_position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "parent_position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "parent_rotation": {
+        "w": 1.0,
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    },
+    {
+      "name": "Microwave_3_microwave_door_a3_joint_0",
+      "type": "hinge",
+      "axis": "0 -1 0",
+      "range": "0 1.5707963267948966",
+      "pos": "-0 0 0",
+      "limited": "false",
+      "damping": "0.10000000000000001",
+      "frictionloss": "0",
+      "parent_body": "Microwave_3_microwave_door_a3",
+      "body_hierarchy": "Microwave_3/Microwave_3_microwave_door_a3",
+      "position": {
+        "x": -0.2915478144836426,
+        "y": 0.028631418733596814,
+        "z": 0.1228442074584961
+      },
+      "rotation_axis": {
+        "x": 0.0,
+        "y": -1.0,
+        "z": 0.0
+      },
+      "local_position": {
+        "x": -0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": -1.0,
+        "z": 0.0
+      },
+      "parent_position": {
+        "x": -0.2915478144836426,
+        "y": 0.028631418733596814,
+        "z": 0.1228442074584961
+      },
+      "parent_rotation": {
+        "w": 1.0,
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    }
+  ],
+  "analysis": {
+    "primary_joint": {
+      "name": "Microwave_3_microwave_door_a3_joint_0",
+      "type": "hinge",
+      "axis": "0 -1 0",
+      "range": "0 1.5707963267948966",
+      "reasoning": "The primary function of a microwave involves accessing its interior, which is achieved by opening and closing the door. The hinge joint 'Microwave_3_microwave_door_a3_joint_0' allows for this door movement, making it the primary articulation axis for the microwave's main function."
+    },
+    "confidence": "high",
+    "alternative_joints": [
+      "Microwave_3_free"
+    ],
+    "movement_description": "The hinge joint allows the microwave door to swing open and closed, providing access to the interior for placing or removing items."
+  }
+}

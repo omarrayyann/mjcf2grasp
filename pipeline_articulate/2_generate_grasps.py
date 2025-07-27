@@ -1095,17 +1095,7 @@ if __name__ == "__main__":
         gripper = create_gripper(args.gripper)
 
         # Load extra collision object if provided
-        extra_collision_mesh = None
-        if args.collision_object_file:
-            extra_collision_obj = Object(args.collision_object_file)
-            extra_collision_mesh = extra_collision_obj.mesh
-
-        # Helper to combine meshes for collision checking
-        def get_collision_mesh(main_mesh, extra_mesh):
-            if extra_mesh is not None:
-                return trimesh.util.concatenate([main_mesh, extra_mesh])
-            else:
-                return main_mesh
+        
 
         # Sample grasps as usual
         points, normals, transforms, roll_angles, standoffs, collisions, qualities\
@@ -1121,12 +1111,34 @@ if __name__ == "__main__":
                                      silent=args.silent,
                                      num_workers=args.num_workers)
 
+        extra_collision_mesh = None
+        if args.collision_object_file:
+            extra_collision_obj = Object(args.collision_object_file)
+            extra_collision_mesh = extra_collision_obj.mesh
+
+        # Helper to combine meshes for collision checking
+        def get_collision_mesh(main_mesh, extra_mesh):
+            if extra_mesh is not None:
+                return trimesh.util.concatenate([main_mesh, extra_mesh])
+            else:
+                return main_mesh
+            
         # Redo collision checking with combined mesh if extra provided
         if extra_collision_mesh is not None:
             combined_mesh = get_collision_mesh(obj.mesh, extra_collision_mesh)
             collisions, _ = in_collision_with_gripper(
                 combined_mesh, transforms, gripper_name=args.gripper, silent=args.silent, num_workers=args.num_workers)
-
+            # print(f"Collisions: {collisions}")
+            # keep only the ones that are not in collision
+            valid_indices = [i for i, coll in enumerate(collisions) if not coll]
+            points = points[valid_indices]
+            normals = normals[valid_indices]
+            transforms = transforms[valid_indices]
+            roll_angles = roll_angles[valid_indices]
+            standoffs = standoffs[valid_indices]
+            collisions = [collisions[i] for i in valid_indices]
+            qualities = {k: [v[i] for i in valid_indices] for k, v in qualities.items()}
+            
         grasp_widths = compute_grasp_widths(transforms, obj.mesh, gripper_name=args.gripper, num_workers=args.num_workers)
 
         grasps = {
