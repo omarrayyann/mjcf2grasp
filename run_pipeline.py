@@ -203,7 +203,7 @@ for obj in data:
         try:
             subprocess.run(
                 [
-                    "mjpython",
+                    "python",
                     "pipeline/2_filter_mujoco.py",
                     "--object_name",
                     object_name,
