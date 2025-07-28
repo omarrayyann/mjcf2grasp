@@ -60,7 +60,7 @@ def run_grasp_filtering_stage(object_name, grasps_path, xml_file, output_dir):
         subprocess.run(
             [
                 "python",
-                "pipeline_articulate/3_filter_mujoco.py",
+                "pipeline_articulate/2_filter_mujoco.py",
                 "--object_name",
                 object_name,
                 "--grasps_path",
@@ -128,7 +128,7 @@ def run_grasp_generation_stage(
         subprocess.run(
             [
                 "python",
-                "pipeline_articulate/2_generate_grasps.py",
+                "pipeline_articulate/1_generate_grasps.py",
                 "--object_file",
                 handle_mesh_path,
                 "--output",
