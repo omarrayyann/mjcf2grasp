@@ -106,37 +106,37 @@ for obj in data:
             }
         )
 
-    # print(f"\nProcessing object: {object_name} manifold (using combined mesh from XML)")
-    # subprocess.run([
-    #     "./manifold", temp_abs_path, temp_abs_path, "-s"
-    # ], cwd="external_src/Manifold/build", check=True)
+    print(f"\nProcessing object: {object_name} manifold (using combined mesh from XML)")
+    subprocess.run([
+        "./manifold", temp_abs_path, temp_abs_path, "-s"
+    ], cwd="external_src/Manifold/build", check=True)
 
-    # print(f"\nProcessing object: {object_name} simplification")
+    print(f"\nProcessing object: {object_name} simplification")
 
-    # simplify_success = False
-    # try:
-    #     subprocess.run([
-    #         "./simplify", "-i", temp_abs_path, "-o", output_abs_path, "-m", "-r", "0.5"
-    #     ], cwd="external_src/Manifold/build", check=True)
-    #     simplify_success = True
-    # except subprocess.CalledProcessError as e:
-    #     print(f"✗ Simplify failed for {object_name}, retrying manifold and simplify...")
+    simplify_success = False
+    try:
+        subprocess.run([
+            "./simplify", "-i", temp_abs_path, "-o", output_abs_path, "-m", "-r", "0.5"
+        ], cwd="external_src/Manifold/build", check=True)
+        simplify_success = True
+    except subprocess.CalledProcessError as e:
+        print(f"✗ Simplify failed for {object_name}, retrying manifold and simplify...")
 
-    #     try:
-    #         subprocess.run([
-    #             "./manifold", temp_abs_path, temp_abs_path, "-s"
-    #         ], cwd="external_src/Manifold/build", check=True)
+        try:
+            subprocess.run([
+                "./manifold", temp_abs_path, temp_abs_path, "-s"
+            ], cwd="external_src/Manifold/build", check=True)
 
-    #         subprocess.run([
-    #             "./simplify", "-i", temp_abs_path, "-o", output_abs_path, "-m", "-r", "0.5"
-    #         ], cwd="external_src/Manifold/build", check=True)
-    #         simplify_success = True
-    #     except subprocess.CalledProcessError as e2:
-    #         print(f"✗ Simplify still failed for {object_name} after re-running manifold: {str(e2)}")
-    #         failed_objects.append(object_name)
+            subprocess.run([
+                "./simplify", "-i", temp_abs_path, "-o", output_abs_path, "-m", "-r", "0.5"
+            ], cwd="external_src/Manifold/build", check=True)
+            simplify_success = True
+        except subprocess.CalledProcessError as e2:
+            print(f"✗ Simplify still failed for {object_name} after re-running manifold: {str(e2)}")
+            failed_objects.append(object_name)
 
-    # if not simplify_success:
-    #     continue
+    if not simplify_success:
+        continue
 
     if os.path.exists(grasp_file_path):
         print(
@@ -182,18 +182,17 @@ for obj in data:
                 check=True,
             )
 
-    # print(f"Visualizing initial grasps for object: {object_name}")
-    # subprocess.run(
-    #     [
-    #         "python",
-    #         "scripts/visualize_render.py",
-    #         object_name,
-    #         "--render",
-    #         "--grasp-shape-only",
-    #     ],
-    #     check=True,
-    # )
-    # , env=env)
+    print(f"Visualizing initial grasps for object: {object_name}")
+    subprocess.run(
+        [
+            "python",
+            "scripts/visualize_render.py",
+            object_name,
+            "--render",
+            "--grasp-shape-only",
+        ],
+        check=True,
+    )
 
     if os.path.exists(filtered_file_path):
         print(

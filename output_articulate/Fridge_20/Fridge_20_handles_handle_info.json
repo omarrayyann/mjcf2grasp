@@ -1,0 +1,8 @@
+{
+  "identified_handles": [
+    "Fridge_20_fridge_door_handle_e4"
+  ],
+  "mesh_instances_processed": 1,
+  "source_xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/Kitchen Objects/Fridge/Prefabs/Fridge_20/Fridge_20.xml",
+  "output_mesh": "output_articulate/Fridge_20/Fridge_20_handles.obj"
+}
