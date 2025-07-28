@@ -292,7 +292,6 @@ def run_handle_detection_stage(obj, output_dir):
                     "pipeline_articulate/0_generate_mesh.py",
                     xml_file_path,
                     handle_mesh_path,
-                    "--handles-only",
                 ],
                 check=True,
             )

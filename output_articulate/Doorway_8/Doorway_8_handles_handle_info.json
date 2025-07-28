@@ -1,8 +1,0 @@
-{
-  "identified_handles": [
-    "Doorway_8_doorway_handle_8"
-  ],
-  "mesh_instances_processed": 1,
-  "source_xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/ManipulaTHOR Objects/Doorways/Prefabs/Doorway_8/Doorway_8.xml",
-  "output_mesh": "output_articulate/Doorway_8/Doorway_8_handles.obj"
-}
