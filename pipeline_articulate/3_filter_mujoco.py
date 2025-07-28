@@ -457,8 +457,6 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
             )
 
             for i, (transform, quality) in pbar:
-                if i < 50:
-                    continue
                 pos = transform[:3, 3]
                 quat = R.from_matrix(transform[:3, :3]).as_quat(scalar_first=True)
 
@@ -631,7 +629,7 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
                     viewer.sync()
 
                 for v in range(1000):
-                    data.ctrl[0] = (500.0-v) / 500.0
+                    data.ctrl[0] = (500.0 - v) / 500.0
                     mujoco.mj_step(model, data)
                     viewer.sync()
 
