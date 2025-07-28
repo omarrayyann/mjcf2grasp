@@ -41,77 +41,6 @@ def load_articulated_objects():
     return data
 
 
-def run_joint_axis_finding_stage(object_name, xml_file, output_dir):
-    """
-    Stage 1: Find primary articulation joint axis using LLM analysis
-    """
-    print(f"\nStage 1: Joint Axis Analysis for {object_name}")
-    print(f"   XML file: {xml_file}")
-
-    joint_axis_path = os.path.join(output_dir, f"{object_name}_joint_axis.json")
-
-    if os.path.exists(joint_axis_path):
-        print(f"   Joint axis analysis already exists, skipping...")
-        return True, joint_axis_path
-
-    try:
-        print(f"   Analyzing joints with LLM to find primary articulation axis...")
-        subprocess.run(
-            [
-                "python",
-                "pipeline_articulate/1_find_axis_joint.py",
-                xml_file,
-                joint_axis_path,
-                "--object_name",
-                object_name,
-            ],
-            check=True,
-        )
-
-        print(f"   Joint axis analysis saved: {joint_axis_path}")
-
-        # Load and report joint analysis results
-        with open(joint_axis_path, "r") as f:
-            joint_data = json.load(f)
-
-        primary_joint = joint_data.get("primary_joint")
-        analysis = joint_data.get("analysis", {})
-        all_joints = joint_data.get("all_joints", [])
-
-        print(f"   Total joints found: {len(all_joints)}")
-
-        if primary_joint:
-            print(f"   Primary joint: {primary_joint['name']}")
-            print(f"   Joint type: {primary_joint['type']}")
-            print(f"   Joint axis: {primary_joint['axis']}")
-            print(f"   Joint range: {primary_joint.get('range', 'unlimited')}")
-            confidence = analysis.get("confidence", "unknown")
-            print(f"   Analysis confidence: {confidence}")
-
-            reasoning = analysis.get("primary_joint", {}).get(
-                "reasoning", "No reasoning provided"
-            )
-            print(f"   Reasoning: {reasoning}")
-
-            # Check for alternative joints
-            alternatives = analysis.get("alternative_joints", [])
-            if alternatives:
-                print(f"   Alternative joints: {alternatives}")
-        else:
-            print(f"   Warning: No primary joint identified")
-            error = analysis.get("error", "Unknown error")
-            print(f"   Error: {error}")
-
-        return True, joint_axis_path
-
-    except subprocess.CalledProcessError as e:
-        print(f"   Error in joint axis analysis: {str(e)}")
-        return False, None
-    except Exception as e:
-        print(f"   Unexpected error: {str(e)}")
-        return False, None
-
-
 def run_grasp_filtering_stage(object_name, grasps_path, xml_file, output_dir):
     """
     Stage 3: Filter grasps using MuJoCo simulation to test feasibility
@@ -367,52 +296,16 @@ def main():
 
         # Stage 1: Joint Axis Finding (run early to understand articulation)
         joint_axis_success = False
-        joint_axis_path = None
-
-        if success:  # Run joint analysis after handle detection
-            joint_axis_success, joint_axis_path = run_joint_axis_finding_stage(
-                object_name, obj["xml"], object_output_dir
-            )
+        joint_axis_path = os.path.join(
+            object_output_dir, f"{object_name}_joint_axis.json"
+        )
 
         # Stage 2: Grasp Generation (only if handle mesh exists and has handles)
         grasps_success = False
         grasps_path = None
 
         if handle_mesh and os.path.exists(handle_mesh):
-            print(f"   Handle mesh exists: {handle_mesh}")
-
-            # Check if handles were actually found
-            handle_info_path = handle_mesh.replace(".obj", "_handle_info.json")
-            if os.path.exists(handle_info_path):
-                print(f"   Handle info file found: {handle_info_path}")
-                with open(handle_info_path, "r") as f:
-                    handle_info = json.load(f)
-                handles = handle_info.get("identified_handles", [])
-
-                print(f"   Handle info content: {handle_info}")
-
-                full_mesh = handle_mesh.replace("_handles", "_full")
-
-                if handles:
-                    print(f"   Handle components found: {len(handles)}")
-                    print(f"   Handles: {handles}")
-
-                    # Run grasp generation
-                    grasps_success, grasps_path = run_grasp_generation_stage(
-                        object_name, handle_mesh, full_mesh, object_output_dir
-                    )
-                else:
-                    print(f"   Warning: No handles identified by LLM in handle_info")
-                    print(f"   Attempting grasp generation anyway on handle mesh...")
-                    # Try generating grasps anyway if we have a handle mesh
-                    grasps_success, grasps_path = run_grasp_generation_stage(
-                        object_name, handle_mesh, full_mesh, object_output_dir
-                    )
-            else:
-                print(f"   Warning: No handle info found at {handle_info_path}")
-                print(f"   Attempting grasp generation anyway on handle mesh...")
-                # Try generating grasps anyway if we have a handle mesh
-                grasps_success, grasps_path = run_grasp_generation_stage(
+            grasps_success, grasps_path = run_grasp_generation_stage(
                     object_name, handle_mesh, full_mesh, object_output_dir
                 )
         else:

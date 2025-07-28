@@ -986,16 +986,17 @@ if __name__ == "__main__":
 
     worldbody = root.find("worldbody")
 
+
     joint_axis_file = args.grasps_path.replace("_grasps.json", "_joint_axis.json")
-    joint_axis_file = args.grasps_path.replace(
+    joint_axis_file = joint_axis_file.replace(
         "_grasps_filtered.json", "_joint_axis.json"
     )
 
-    print(f"Using joint axis file: {joint_axis_file}")
     if os.path.exists(joint_axis_file):
         try:
             with open(joint_axis_file, "r") as f:
                 joint_data = json.load(f)
+
 
             primary_joint = joint_data.get("primary_joint")
             if primary_joint:

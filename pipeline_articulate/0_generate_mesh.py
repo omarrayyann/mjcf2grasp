@@ -129,6 +129,150 @@ def load_and_transform_mesh(mesh_info, xml_dir):
         return None
 
 
+def extract_joint_info_from_xml(xml_path):
+    """
+    Extract all joint information from the XML file with global transformations.
+    Returns a list of joint dicts.
+    """
+    try:
+        tree = ET.parse(xml_path)
+        root = tree.getroot()
+        joints = []
+        def parse_body_for_joints(body_elem, parent_transform=np.eye(4), body_path=""):
+            pos = body_elem.get("pos", "0 0 0")
+            quat = body_elem.get("quat", "1 0 0 0")
+            pos_values = [float(x) for x in pos.split()]
+            pos_matrix = tra.translation_matrix(pos_values)
+            quat_values = [float(x) for x in quat.split()]
+            quat_matrix = quaternion_to_matrix(quat_values)
+            body_transform = np.dot(parent_transform, np.dot(pos_matrix, quat_matrix))
+            body_name = body_elem.get('name', 'unnamed_body')
+            current_path = f"{body_path}/{body_name}" if body_path else body_name
+            for joint in body_elem.findall('joint'):
+                joint_info = {
+                    'name': joint.get('name', 'unnamed'),
+                    'type': joint.get('type', 'unknown'),
+                    'axis': joint.get('axis', '0 0 1'),
+                    'range': joint.get('range', None),
+                    'pos': joint.get('pos', '0 0 0'),
+                    'limited': joint.get('limited', 'false'),
+                    'damping': joint.get('damping', '0'),
+                    'frictionloss': joint.get('frictionloss', '0'),
+                    'parent_body': body_name,
+                    'body_hierarchy': current_path
+                }
+                joint_pos = joint.get('pos', '0 0 0')
+                joint_pos_values = [float(x) for x in joint_pos.split()]
+                joint_pos_matrix = tra.translation_matrix(joint_pos_values)
+                global_joint_transform = np.dot(body_transform, joint_pos_matrix)
+                global_position = global_joint_transform[:3, 3]
+                joint_info['position'] = {
+                    'x': float(global_position[0]),
+                    'y': float(global_position[1]),
+                    'z': float(global_position[2])
+                }
+                axis_str = joint.get('axis', '0 0 1')
+                local_axis = np.array([float(x) for x in axis_str.split()])
+                if np.linalg.norm(local_axis) > 0:
+                    local_axis = local_axis / np.linalg.norm(local_axis)
+                global_axis = body_transform[:3, :3].dot(local_axis)
+                joint_info['rotation_axis'] = {
+                    'x': float(global_axis[0]),
+                    'y': float(global_axis[1]),
+                    'z': float(global_axis[2])
+                }
+                joint_info['local_position'] = {
+                    'x': joint_pos_values[0] if len(joint_pos_values) > 0 else 0.0,
+                    'y': joint_pos_values[1] if len(joint_pos_values) > 1 else 0.0,
+                    'z': joint_pos_values[2] if len(joint_pos_values) > 2 else 0.0
+                }
+                joint_info['local_axis'] = {
+                    'x': float(local_axis[0]),
+                    'y': float(local_axis[1]),
+                    'z': float(local_axis[2])
+                }
+                joint_info['parent_position'] = {
+                    'x': float(body_transform[0, 3]),
+                    'y': float(body_transform[1, 3]),
+                    'z': float(body_transform[2, 3])
+                }
+                body_quaternion = tra.quaternion_from_matrix(body_transform)
+                joint_info['parent_rotation'] = {
+                    'w': float(body_quaternion[0]),
+                    'x': float(body_quaternion[1]),
+                    'y': float(body_quaternion[2]),
+                    'z': float(body_quaternion[3])
+                }
+                joints.append(joint_info)
+            for child_body in body_elem.findall('body'):
+                parse_body_for_joints(child_body, body_transform, current_path)
+        worldbody = root.find('worldbody')
+        if worldbody is not None:
+            for body in worldbody.findall('body'):
+                parse_body_for_joints(body)
+            for joint in worldbody.findall('joint'):
+                joint_info = {
+                    'name': joint.get('name', 'unnamed'),
+                    'type': joint.get('type', 'unknown'),
+                    'axis': joint.get('axis', '0 0 1'),
+                    'range': joint.get('range', None),
+                    'pos': joint.get('pos', '0 0 0'),
+                    'limited': joint.get('limited', 'false'),
+                    'damping': joint.get('damping', '0'),
+                    'frictionloss': joint.get('frictionloss', '0'),
+                    'parent_body': 'worldbody',
+                    'body_hierarchy': 'worldbody'
+                }
+                joint_pos = joint.get('pos', '0 0 0')
+                joint_pos_values = [float(x) for x in joint_pos.split()]
+                joint_info['position'] = {
+                    'x': joint_pos_values[0] if len(joint_pos_values) > 0 else 0.0,
+                    'y': joint_pos_values[1] if len(joint_pos_values) > 1 else 0.0,
+                    'z': joint_pos_values[2] if len(joint_pos_values) > 2 else 0.0
+                }
+                joint_info['local_position'] = joint_info['position'].copy()
+                axis_str = joint.get('axis', '0 0 1')
+                axis_values = [float(x) for x in axis_str.split()]
+                joint_info['rotation_axis'] = {
+                    'x': axis_values[0] if len(axis_values) > 0 else 0.0,
+                    'y': axis_values[1] if len(axis_values) > 1 else 0.0,
+                    'z': axis_values[2] if len(axis_values) > 2 else 1.0
+                }
+                joint_info['local_axis'] = joint_info['rotation_axis'].copy()
+                joint_info['parent_position'] = {'x': 0.0, 'y': 0.0, 'z': 0.0}
+                joint_info['parent_rotation'] = {'w': 1.0, 'x': 0.0, 'y': 0.0, 'z': 0.0}
+                joints.append(joint_info)
+        return joints
+    except ET.ParseError as e:
+        print(f"Error parsing XML file: {e}")
+        return []
+    except Exception as e:
+        print(f"Error reading XML file: {e}")
+        return []
+
+def select_primary_joint(joints):
+    """
+    Select the primary articulation joint using a simple heuristic:
+    - If only one non-free joint, use that.
+    - If multiple, prefer a joint whose name or type contains 'hinge', 'slide', or 'revolute' (case-insensitive).
+    - Otherwise, pick the first joint.
+    Returns the joint dict or None.
+    """
+    if not joints:
+        return None
+    # Filter out 'free' joints
+    non_free = [j for j in joints if j.get('type', '').lower() != 'free']
+    if not non_free:
+        return None
+    if len(non_free) == 1:
+        return non_free[0]
+    # Prefer by name/type
+    preferred = [j for j in non_free if any(x in j.get('name', '').lower() or x in j.get('type', '').lower() for x in ['hinge', 'slide', 'revolute'])]
+    if preferred:
+        return preferred[0]
+    return non_free[0]
+
+
 def combine_meshes_to_obj(xml_path, output_handles_path, output_full_path, include_visual_only=True):
     print(f"Parsing MuJoCo XML: {xml_path}")
     
@@ -191,6 +335,20 @@ def combine_meshes_to_obj(xml_path, output_handles_path, output_full_path, inclu
         print(f"Exported full mesh to: {output_full_path}")
     else:
         print("No valid full meshes found to combine.")
+
+    # After mesh export, also extract and save joint info
+    joints = extract_joint_info_from_xml(xml_path)
+    primary_joint = select_primary_joint(joints)
+    joint_info_path = str(output_full_path).replace('_full.obj', '_joint_axis.json')
+    result = {
+        "object_name": Path(xml_path).stem,
+        "source_xml": str(xml_path),
+        "primary_joint": primary_joint,
+        "all_joints": joints
+    }
+    with open(joint_info_path, 'w') as f:
+        json.dump(result, f, indent=2)
+    print(f"Joint axis information saved to: {joint_info_path}")
 
 
 def find_handle_geoms_by_joints(xml_path: str) -> List[str]:
