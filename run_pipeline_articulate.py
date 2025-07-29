@@ -64,7 +64,7 @@ def run_grasp_filtering_stage(object_name, grasps_path, xml_file, output_dir):
                 "--object_name",
                 object_name,
                 "--grasps_path",
-                grasps_path,  # grasps_path,
+                filtered_grasps_path,  # grasps_path,
                 "--xml_file",
                 xml_file,
                 "--num_workers",
@@ -75,7 +75,7 @@ def run_grasp_filtering_stage(object_name, grasps_path, xml_file, output_dir):
                 "5",
                 "--max_successful",
                 "100",  # Limit for handle grasps
-                # "--render",  # Enable rendering for debugging
+                "--render",  # Enable rendering for debugging
             ],
             check=True,
         )

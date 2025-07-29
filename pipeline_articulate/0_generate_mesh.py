@@ -354,13 +354,11 @@ def combine_meshes_to_obj(xml_path, output_handles_path, output_full_path, inclu
 def find_handle_geoms_by_joints(xml_path: str) -> List[str]:
     """
     Find handle geometries by identifying non-free joints and extracting
-    mesh geometries from their sibling body elements within the same parent body.
+    mesh geometries from their sibling body elements AND geoms in the same parent body as the joint.
     """
     try:
         tree = ET.parse(xml_path)
         root = tree.getroot()
-        
-        # Find all non-free joints
         non_free_joints = []
         for joint in root.findall(".//joint"):
             joint_type = joint.get("type", "hinge")  # default is hinge
@@ -368,56 +366,40 @@ def find_handle_geoms_by_joints(xml_path: str) -> List[str]:
                 joint_name = joint.get("name", "unnamed")
                 non_free_joints.append(joint)
                 print(f"Found non-free joint: {joint_name} (type: {joint_type})")
-        
         if not non_free_joints:
             print("No non-free joints found in XML")
             return []
-        
         handle_geoms = []
-        
-        # For each non-free joint, find sibling body elements in the same parent
         for joint in non_free_joints:
             joint_name = joint.get("name", "unnamed")
-            
-            # Find the parent body/element that contains this joint
             parent_element = None
             for body in root.findall(".//body"):
                 if joint in body:
                     parent_element = body
                     break
-            
-            # If not found in body, check worldbody
             if parent_element is None:
                 worldbody = root.find("worldbody")
                 if worldbody is not None and joint in worldbody:
                     parent_element = worldbody
-            
             if parent_element is None:
                 print(f"Warning: Could not find parent element for joint {joint_name}")
                 continue
-            
             parent_name = parent_element.get("name", "worldbody" if parent_element.tag == "worldbody" else "unnamed")
             print(f"Joint {joint_name} is in element: {parent_name}")
-            
-            # Find all sibling body elements (body tags that are siblings to the joint)
-            sibling_bodies = []
+            # 1. Add all mesh geoms in the same parent body as the joint
+            for geom in parent_element.findall("geom"):
+                if geom.get("type") == "mesh":
+                    geom_name = geom.get("name")
+                    mesh_name = geom.get("mesh")
+                    if geom_name and mesh_name:
+                        handle_geoms.append(geom_name)
+            # 2. Add all mesh geoms from sibling bodies (and their descendants)
             for child in parent_element:
                 if child.tag == "body":
-                    sibling_bodies.append(child)
-            
-            print(f"Found {len(sibling_bodies)} sibling bodies to joint {joint_name}")
-            
-            # Collect all mesh geometries from sibling bodies
-            for sibling_body in sibling_bodies:
-                sibling_name = sibling_body.get("name", "unnamed")
-                
-                # Get all mesh geometries from this sibling body and its descendants
-                mesh_geoms = collect_mesh_geoms_from_body(sibling_body)
-                
-                if mesh_geoms:
-                    print(f"  Found {len(mesh_geoms)} mesh geometries in sibling body {sibling_name}: {mesh_geoms}")
-                    handle_geoms.extend(mesh_geoms)
-        
+                    sibling_body = child
+                    mesh_geoms = collect_mesh_geoms_from_body(sibling_body)
+                    if mesh_geoms:
+                        handle_geoms.extend(mesh_geoms)
         # Remove duplicates while preserving order
         unique_handle_geoms = []
         seen = set()
@@ -425,10 +407,8 @@ def find_handle_geoms_by_joints(xml_path: str) -> List[str]:
             if geom not in seen:
                 unique_handle_geoms.append(geom)
                 seen.add(geom)
-        
         print(f"Total unique handle geometries found: {len(unique_handle_geoms)}")
         return unique_handle_geoms
-        
     except Exception as e:
         print(f"Error during joint-based handle analysis: {e}")
         return []

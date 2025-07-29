@@ -1,0 +1,135 @@
+{
+  "object_name": "Microwave_8",
+  "source_xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/Kitchen Objects/Microwave/Prefabs/Microwave_8/Microwave_8.xml",
+  "primary_joint": {
+    "name": "Microwave_8_microwave_door_a8_joint_0",
+    "type": "hinge",
+    "axis": "0 -1 0",
+    "range": "0 1.5707963267948966",
+    "pos": "-0 0 0",
+    "limited": "false",
+    "damping": "0.10000000000000001",
+    "frictionloss": "0",
+    "parent_body": "Microwave_8_microwave_door_a8",
+    "body_hierarchy": "Microwave_8/Microwave_8_microwave_door_a8",
+    "position": {
+      "x": -0.29149793369293214,
+      "y": 0.029091418733596802,
+      "z": 0.11627420745849609
+    },
+    "rotation_axis": {
+      "x": 0.0,
+      "y": -1.0,
+      "z": 0.0
+    },
+    "local_position": {
+      "x": -0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "local_axis": {
+      "x": 0.0,
+      "y": -1.0,
+      "z": 0.0
+    },
+    "parent_position": {
+      "x": -0.29149793369293214,
+      "y": 0.029091418733596802,
+      "z": 0.11627420745849609
+    },
+    "parent_rotation": {
+      "w": 1.0,
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    }
+  },
+  "all_joints": [
+    {
+      "name": "Microwave_8_free",
+      "type": "free",
+      "axis": "0 0 1",
+      "range": "0 0",
+      "pos": "0 0 0",
+      "limited": "false",
+      "damping": "0.10000000000000001",
+      "frictionloss": "0",
+      "parent_body": "Microwave_8",
+      "body_hierarchy": "Microwave_8",
+      "position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "rotation_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "local_position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "parent_position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "parent_rotation": {
+        "w": 1.0,
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    },
+    {
+      "name": "Microwave_8_microwave_door_a8_joint_0",
+      "type": "hinge",
+      "axis": "0 -1 0",
+      "range": "0 1.5707963267948966",
+      "pos": "-0 0 0",
+      "limited": "false",
+      "damping": "0.10000000000000001",
+      "frictionloss": "0",
+      "parent_body": "Microwave_8_microwave_door_a8",
+      "body_hierarchy": "Microwave_8/Microwave_8_microwave_door_a8",
+      "position": {
+        "x": -0.29149793369293214,
+        "y": 0.029091418733596802,
+        "z": 0.11627420745849609
+      },
+      "rotation_axis": {
+        "x": 0.0,
+        "y": -1.0,
+        "z": 0.0
+      },
+      "local_position": {
+        "x": -0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": -1.0,
+        "z": 0.0
+      },
+      "parent_position": {
+        "x": -0.29149793369293214,
+        "y": 0.029091418733596802,
+        "z": 0.11627420745849609
+      },
+      "parent_rotation": {
+        "w": 1.0,
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    }
+  ]
+}

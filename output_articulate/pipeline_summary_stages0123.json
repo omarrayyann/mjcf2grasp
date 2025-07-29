@@ -1,6 +1,6 @@
 {
   "pipeline_stages": "Stages 0-3 - Handle Detection, Joint Analysis, Grasp Generation & Filtering",
-  "timestamp": "2025-07-28T05:29:44.172438",
+  "timestamp": "2025-07-29T21:26:01.349931",
   "total_objects": 1,
   "processed_objects": 1,
   "objects_with_joint_analysis": 0,
@@ -9,14 +9,14 @@
   "failed_objects": [],
   "successful_objects": [
     {
-      "name": "Doorway_8",
-      "handle_mesh": "output_articulate/Doorway_8/Doorway_8_handles.obj",
-      "full_mesh": "output_articulate/Doorway_8/Doorway_8_full.obj",
-      "grasps": "output_articulate/Doorway_8/Doorway_8_grasps.json",
-      "filtered_grasps": "output_articulate/Doorway_8/Doorway_8_grasps_filtered.json",
+      "name": "Microwave_6",
+      "handle_mesh": "output_articulate/Microwave_6/Microwave_6_handles.obj",
+      "full_mesh": "output_articulate/Microwave_6/Microwave_6_full.obj",
+      "grasps": "output_articulate/Microwave_6/Microwave_6_grasps.json",
+      "filtered_grasps": "output_articulate/Microwave_6/Microwave_6_grasps_filtered.json",
       "joint_axis": null,
-      "xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/ManipulaTHOR Objects/Doorways/Prefabs/Doorway_8/Doorway_8.xml",
-      "output_dir": "output_articulate/Doorway_8",
+      "xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/Kitchen Objects/Microwave/Prefabs/Microwave_6/Microwave_6.xml",
+      "output_dir": "output_articulate/Microwave_6",
       "stages_completed": {
         "handle_detection": true,
         "joint_axis_analysis": false,
