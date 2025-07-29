@@ -1,0 +1,264 @@
+{
+  "object_name": "Doorway_Double_9",
+  "source_xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/ManipulaTHOR Objects/Doorways/Prefabs/Doorway_Double_9/Doorway_Double_9.xml",
+  "primary_joint": {
+    "name": "Doorway_Double_9_doorway_door_9_joint_0",
+    "type": "hinge",
+    "axis": "0 -1 0",
+    "range": "0 1.5707963267948966",
+    "pos": "-0 0 0",
+    "limited": "false",
+    "damping": "0.10000000000000001",
+    "frictionloss": "0",
+    "parent_body": "Doorway_Double_9_doorway_door_9",
+    "body_hierarchy": "Doorway_Double_9/Doorway_Double_9_doorway_double_9/Doorway_Double_9_doorway_door_9",
+    "position": {
+      "x": 0.9075999855995183,
+      "y": -0.02226996757507327,
+      "z": 0.0
+    },
+    "rotation_axis": {
+      "x": -1.224646799147354e-16,
+      "y": -1.0,
+      "z": -1.224646799147354e-16
+    },
+    "local_position": {
+      "x": -0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "local_axis": {
+      "x": 0.0,
+      "y": -1.0,
+      "z": 0.0
+    },
+    "parent_position": {
+      "x": 0.9075999855995183,
+      "y": -0.02226996757507327,
+      "z": 0.0
+    },
+    "parent_rotation": {
+      "w": 0.9999999999999999,
+      "x": 0.0,
+      "y": 0.0,
+      "z": -6.123233995736766e-17
+    }
+  },
+  "all_joints": [
+    {
+      "name": "Doorway_Double_9_free",
+      "type": "free",
+      "axis": "0 0 1",
+      "range": "0 0",
+      "pos": "0 0 0",
+      "limited": "false",
+      "damping": "0.10000000000000001",
+      "frictionloss": "0",
+      "parent_body": "Doorway_Double_9",
+      "body_hierarchy": "Doorway_Double_9",
+      "position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "rotation_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "local_position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "parent_position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "parent_rotation": {
+        "w": 1.0,
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    },
+    {
+      "name": "Doorway_Double_9_doorway_door_9_joint_0",
+      "type": "hinge",
+      "axis": "0 -1 0",
+      "range": "0 1.5707963267948966",
+      "pos": "-0 0 0",
+      "limited": "false",
+      "damping": "0.10000000000000001",
+      "frictionloss": "0",
+      "parent_body": "Doorway_Double_9_doorway_door_9",
+      "body_hierarchy": "Doorway_Double_9/Doorway_Double_9_doorway_double_9/Doorway_Double_9_doorway_door_9",
+      "position": {
+        "x": 0.9075999855995183,
+        "y": -0.02226996757507327,
+        "z": 0.0
+      },
+      "rotation_axis": {
+        "x": -1.224646799147354e-16,
+        "y": -1.0,
+        "z": -1.224646799147354e-16
+      },
+      "local_position": {
+        "x": -0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": -1.0,
+        "z": 0.0
+      },
+      "parent_position": {
+        "x": 0.9075999855995183,
+        "y": -0.02226996757507327,
+        "z": 0.0
+      },
+      "parent_rotation": {
+        "w": 0.9999999999999999,
+        "x": 0.0,
+        "y": 0.0,
+        "z": -6.123233995736766e-17
+      }
+    },
+    {
+      "name": "Doorway_Double_9_doorway_handle_9_joint_0",
+      "type": "hinge",
+      "axis": "0 0 1",
+      "range": "0 1.5707963267948966",
+      "pos": "0 0 0",
+      "limited": "false",
+      "damping": "0.10000000000000001",
+      "frictionloss": "0",
+      "parent_body": "Doorway_Double_9_doorway_handle_9",
+      "body_hierarchy": "Doorway_Double_9/Doorway_Double_9_doorway_double_9/Doorway_Double_9_doorway_door_9/Doorway_Double_9_doorway_handle_9",
+      "position": {
+        "x": 0.051915585994720126,
+        "y": -0.027913096923828047,
+        "z": -6.91084029412716e-19
+      },
+      "rotation_axis": {
+        "x": -1.4997597826618587e-32,
+        "y": -1.2246467991473535e-16,
+        "z": 1.0000000000000009
+      },
+      "local_position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "parent_position": {
+        "x": 0.051915585994720126,
+        "y": -0.027913096923828047,
+        "z": -6.91084029412716e-19
+      },
+      "parent_rotation": {
+        "w": 0.9999999999999999,
+        "x": 0.0,
+        "y": 0.0,
+        "z": -6.123233995736766e-17
+      }
+    },
+    {
+      "name": "Doorway_Double_9_doorway_door_9_1_joint_0",
+      "type": "hinge",
+      "axis": "0 1 0",
+      "range": "0 1.5707963267948966",
+      "pos": "-0 0 0",
+      "limited": "false",
+      "damping": "0.10000000000000001",
+      "frictionloss": "0",
+      "parent_body": "Doorway_Double_9_doorway_door_9_1",
+      "body_hierarchy": "Doorway_Double_9/Doorway_Double_9_doorway_double_9/Doorway_Double_9_doorway_door_9_1",
+      "position": {
+        "x": -0.9075999855995183,
+        "y": -0.02226996757507327,
+        "z": 0.0
+      },
+      "rotation_axis": {
+        "x": -1.224646799147354e-16,
+        "y": 1.0,
+        "z": -1.4997597826618587e-32
+      },
+      "local_position": {
+        "x": -0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "parent_position": {
+        "x": -0.9075999855995183,
+        "y": -0.02226996757507327,
+        "z": 0.0
+      },
+      "parent_rotation": {
+        "w": 6.123233995736767e-17,
+        "x": -6.123233995736767e-17,
+        "y": 1.0,
+        "z": -0.0
+      }
+    },
+    {
+      "name": "Doorway_Double_9_doorway_handle_9_1_joint_0",
+      "type": "hinge",
+      "axis": "0 0 1",
+      "range": "0 1.5707963267948966",
+      "pos": "0 0 0",
+      "limited": "false",
+      "damping": "0.10000000000000001",
+      "frictionloss": "0",
+      "parent_body": "Doorway_Double_9_doorway_handle_9_1",
+      "body_hierarchy": "Doorway_Double_9/Doorway_Double_9_doorway_double_9/Doorway_Double_9_doorway_door_9_1/Doorway_Double_9_doorway_handle_9_1",
+      "position": {
+        "x": -0.05191558599472057,
+        "y": -0.027913096923828047,
+        "z": 1.0479111610563405e-16
+      },
+      "rotation_axis": {
+        "x": 1.224646799147354e-16,
+        "y": 1.3684555315672042e-48,
+        "z": -1.0000000000000004
+      },
+      "local_position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "parent_position": {
+        "x": -0.05191558599472057,
+        "y": -0.027913096923828047,
+        "z": 1.0479111610563405e-16
+      },
+      "parent_rotation": {
+        "w": 6.123233995736767e-17,
+        "x": -6.123233995736767e-17,
+        "y": 1.0,
+        "z": -0.0
+      }
+    }
+  ]
+}

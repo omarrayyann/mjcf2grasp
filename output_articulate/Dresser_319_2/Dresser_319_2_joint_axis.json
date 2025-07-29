@@ -1,0 +1,479 @@
+{
+  "object_name": "Dresser_319_2",
+  "source_xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/Common Objects/Dresser/Prefabs/Dresser_319_2/Dresser_319_2.xml",
+  "primary_joint": {
+    "name": "Dresser_319_2_joint",
+    "type": "slide",
+    "axis": "0 0 1",
+    "range": "0 0.38100000000000001",
+    "pos": "-0 0 0",
+    "limited": "false",
+    "damping": "0.10000000000000001",
+    "frictionloss": "0",
+    "parent_body": "Dresser_319_2_DrawerMesh_10",
+    "body_hierarchy": "Dresser_319_2/Dresser_319_2_FP319:DRESSER2/Dresser_319_2_DrawerMesh_10",
+    "position": {
+      "x": 0.37821536646842957,
+      "y": -0.31934327662944795,
+      "z": 0.03762684325814247
+    },
+    "rotation_axis": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 1.0
+    },
+    "local_position": {
+      "x": -0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "local_axis": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 1.0
+    },
+    "parent_position": {
+      "x": 0.37821536646842957,
+      "y": -0.31934327662944795,
+      "z": 0.03762684325814247
+    },
+    "parent_rotation": {
+      "w": 1.0,
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    }
+  },
+  "all_joints": [
+    {
+      "name": "Dresser_319_2_joint",
+      "type": "slide",
+      "axis": "0 0 1",
+      "range": "0 0.38100000000000001",
+      "pos": "-0 0 0",
+      "limited": "false",
+      "damping": "0.10000000000000001",
+      "frictionloss": "0",
+      "parent_body": "Dresser_319_2_DrawerMesh_10",
+      "body_hierarchy": "Dresser_319_2/Dresser_319_2_FP319:DRESSER2/Dresser_319_2_DrawerMesh_10",
+      "position": {
+        "x": 0.37821536646842957,
+        "y": -0.31934327662944795,
+        "z": 0.03762684325814247
+      },
+      "rotation_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "local_position": {
+        "x": -0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "parent_position": {
+        "x": 0.37821536646842957,
+        "y": -0.31934327662944795,
+        "z": 0.03762684325814247
+      },
+      "parent_rotation": {
+        "w": 1.0,
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    },
+    {
+      "name": "Dresser_319_2_DrawerMesh_08__1",
+      "type": "slide",
+      "axis": "0 0 1",
+      "range": "0 0.38100000000000001",
+      "pos": "-0 0 0",
+      "limited": "false",
+      "damping": "0.10000000000000001",
+      "frictionloss": "0",
+      "parent_body": "Dresser_319_2_DrawerMesh_08",
+      "body_hierarchy": "Dresser_319_2/Dresser_319_2_FP319:DRESSER2/Dresser_319_2_DrawerMesh_08",
+      "position": {
+        "x": 0.37821536646842957,
+        "y": -0.1617910790538788,
+        "z": 0.03750984679102898
+      },
+      "rotation_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "local_position": {
+        "x": -0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "parent_position": {
+        "x": 0.37821536646842957,
+        "y": -0.1617910790538788,
+        "z": 0.03750984679102898
+      },
+      "parent_rotation": {
+        "w": 1.0,
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    },
+    {
+      "name": "Dresser_319_2_DrawerMesh_06__1",
+      "type": "slide",
+      "axis": "0 0 1",
+      "range": "0 0.38100000000000001",
+      "pos": "-0 0 0",
+      "limited": "false",
+      "damping": "0.10000000000000001",
+      "frictionloss": "0",
+      "parent_body": "Dresser_319_2_DrawerMesh_06",
+      "body_hierarchy": "Dresser_319_2/Dresser_319_2_FP319:DRESSER2/Dresser_319_2_DrawerMesh_06",
+      "position": {
+        "x": 0.37821536646842957,
+        "y": 0.0015215051078796282,
+        "z": 0.03743584389925003
+      },
+      "rotation_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "local_position": {
+        "x": -0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "parent_position": {
+        "x": 0.37821536646842957,
+        "y": 0.0015215051078796282,
+        "z": 0.03743584389925003
+      },
+      "parent_rotation": {
+        "w": 1.0,
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    },
+    {
+      "name": "Dresser_319_2_DrawerMesh_04__1",
+      "type": "slide",
+      "axis": "0 0 1",
+      "range": "0 0.38100000000000001",
+      "pos": "-0 0 0",
+      "limited": "false",
+      "damping": "0.10000000000000001",
+      "frictionloss": "0",
+      "parent_body": "Dresser_319_2_DrawerMesh_04",
+      "body_hierarchy": "Dresser_319_2/Dresser_319_2_FP319:DRESSER2/Dresser_319_2_DrawerMesh_04",
+      "position": {
+        "x": 0.37821524725914,
+        "y": 0.1648339998626709,
+        "z": 0.03734184737443924
+      },
+      "rotation_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "local_position": {
+        "x": -0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "parent_position": {
+        "x": 0.37821524725914,
+        "y": 0.1648339998626709,
+        "z": 0.03734184737443924
+      },
+      "parent_rotation": {
+        "w": 1.0,
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    },
+    {
+      "name": "Dresser_319_2_DrawerMesh_02__1",
+      "type": "slide",
+      "axis": "0 0 1",
+      "range": "0 0.38100000000000001",
+      "pos": "-0 0 0",
+      "limited": "false",
+      "damping": "0.10000000000000001",
+      "frictionloss": "0",
+      "parent_body": "Dresser_319_2_DrawerMesh_02",
+      "body_hierarchy": "Dresser_319_2/Dresser_319_2_FP319:DRESSER2/Dresser_319_2_DrawerMesh_02",
+      "position": {
+        "x": 0.37821536646842957,
+        "y": 0.32238642095565795,
+        "z": 0.036954845591783525
+      },
+      "rotation_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "local_position": {
+        "x": -0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "parent_position": {
+        "x": 0.37821536646842957,
+        "y": 0.32238642095565795,
+        "z": 0.036954845591783525
+      },
+      "parent_rotation": {
+        "w": 1.0,
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    },
+    {
+      "name": "Dresser_319_2_DrawerMesh_09__1",
+      "type": "slide",
+      "axis": "0 0 1",
+      "range": "0 0.38100000000000001",
+      "pos": "-0 0 0",
+      "limited": "false",
+      "damping": "0.10000000000000001",
+      "frictionloss": "0",
+      "parent_body": "Dresser_319_2_DrawerMesh_09",
+      "body_hierarchy": "Dresser_319_2/Dresser_319_2_FP319:DRESSER2/Dresser_319_2_DrawerMesh_09",
+      "position": {
+        "x": -0.3649953366661072,
+        "y": -0.31934327662944795,
+        "z": 0.03762184391856194
+      },
+      "rotation_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "local_position": {
+        "x": -0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "parent_position": {
+        "x": -0.3649953366661072,
+        "y": -0.31934327662944795,
+        "z": 0.03762184391856194
+      },
+      "parent_rotation": {
+        "w": 1.0,
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    },
+    {
+      "name": "Dresser_319_2_DrawerMesh_07__1",
+      "type": "slide",
+      "axis": "0 0 1",
+      "range": "0 0.38100000000000001",
+      "pos": "-0 0 0",
+      "limited": "false",
+      "damping": "0.10000000000000001",
+      "frictionloss": "0",
+      "parent_body": "Dresser_319_2_DrawerMesh_07",
+      "body_hierarchy": "Dresser_319_2/Dresser_319_2_FP319:DRESSER2/Dresser_319_2_DrawerMesh_07",
+      "position": {
+        "x": -0.3649953366661072,
+        "y": -0.1617910790538788,
+        "z": 0.03750584582924843
+      },
+      "rotation_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "local_position": {
+        "x": -0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "parent_position": {
+        "x": -0.3649953366661072,
+        "y": -0.1617910790538788,
+        "z": 0.03750584582924843
+      },
+      "parent_rotation": {
+        "w": 1.0,
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    },
+    {
+      "name": "Dresser_319_2_DrawerMesh_05__1",
+      "type": "slide",
+      "axis": "0 0 1",
+      "range": "0 0.38100000000000001",
+      "pos": "-0 0 0",
+      "limited": "false",
+      "damping": "0.10000000000000001",
+      "frictionloss": "0",
+      "parent_body": "Dresser_319_2_DrawerMesh_05",
+      "body_hierarchy": "Dresser_319_2/Dresser_319_2_FP319:DRESSER2/Dresser_319_2_DrawerMesh_05",
+      "position": {
+        "x": -0.3649953366661072,
+        "y": 0.0015215051078796282,
+        "z": 0.037431842937469484
+      },
+      "rotation_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "local_position": {
+        "x": -0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "parent_position": {
+        "x": -0.3649953366661072,
+        "y": 0.0015215051078796282,
+        "z": 0.037431842937469484
+      },
+      "parent_rotation": {
+        "w": 1.0,
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    },
+    {
+      "name": "Dresser_319_2_DrawerMesh_03__1",
+      "type": "slide",
+      "axis": "0 0 1",
+      "range": "0 0.38100000000000001",
+      "pos": "-0 0 0",
+      "limited": "false",
+      "damping": "0.10000000000000001",
+      "frictionloss": "0",
+      "parent_body": "Dresser_319_2_DrawerMesh_03",
+      "body_hierarchy": "Dresser_319_2/Dresser_319_2_FP319:DRESSER2/Dresser_319_2_DrawerMesh_03",
+      "position": {
+        "x": -0.3649953366661072,
+        "y": 0.16483411907196044,
+        "z": 0.037336848034858705
+      },
+      "rotation_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "local_position": {
+        "x": -0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "parent_position": {
+        "x": -0.3649953366661072,
+        "y": 0.16483411907196044,
+        "z": 0.037336848034858705
+      },
+      "parent_rotation": {
+        "w": 1.0,
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    },
+    {
+      "name": "Dresser_319_2_DrawerMesh_01__1",
+      "type": "slide",
+      "axis": "0 0 1",
+      "range": "0 0.38100000000000001",
+      "pos": "-0 0 0",
+      "limited": "false",
+      "damping": "0.10000000000000001",
+      "frictionloss": "0",
+      "parent_body": "Dresser_319_2_DrawerMesh_01",
+      "body_hierarchy": "Dresser_319_2/Dresser_319_2_FP319:DRESSER2/Dresser_319_2_DrawerMesh_01",
+      "position": {
+        "x": -0.3649953366661072,
+        "y": 0.32238618253707885,
+        "z": 0.03695084463000298
+      },
+      "rotation_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "local_position": {
+        "x": -0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "parent_position": {
+        "x": -0.3649953366661072,
+        "y": 0.32238618253707885,
+        "z": 0.03695084463000298
+      },
+      "parent_rotation": {
+        "w": 1.0,
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    }
+  ]
+}
