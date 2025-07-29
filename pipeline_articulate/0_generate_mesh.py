@@ -281,6 +281,7 @@ def combine_meshes_to_obj(xml_path, output_handles_path, output_full_path, inclu
     tree = ET.parse(xml_path)
     root = tree.getroot()
     worldbody = root.find('worldbody')
+    handle_meshes_info = []  # To store joint/mesh mapping for JSON
     if worldbody is not None:
         def collect_mesh_geoms_with_depth(body_elem, current_depth=0):
             geoms_with_depth = []
@@ -327,6 +328,12 @@ def combine_meshes_to_obj(xml_path, output_handles_path, output_full_path, inclu
                     handles_path = Path(str(output_handles_path).replace('_handles.obj', f'_handles_{safe_joint_name}.obj'))
                     combined_mesh.export(handles_path)
                     print(f"Exported handle mesh for joint {joint_name} to: {handles_path}")
+                    # Save mapping for JSON
+                    handle_meshes_info.append({
+                        'joint': joint_name,
+                        'handle_mesh': str(handles_path.name),
+                        'handle_geoms': max_depth_geoms
+                    })
                 else:
                     print(f"No valid handle meshes found to combine for joint {joint_name}.")
             for child_body in body_elem.findall('body'):
@@ -384,6 +391,11 @@ def combine_meshes_to_obj(xml_path, output_handles_path, output_full_path, inclu
     with open(joint_info_path, 'w') as f:
         json.dump(result, f, indent=2)
     print(f"Joint axis information saved to: {joint_info_path}")
+    # Save per-joint handle mesh mapping JSON
+    handle_meshes_json_path = str(output_full_path).replace('_full.obj', '_joint_meshes.json')
+    with open(handle_meshes_json_path, 'w') as f:
+        json.dump(handle_meshes_info, f, indent=2)
+    print(f"Per-joint handle mesh mapping saved to: {handle_meshes_json_path}")
 
 
 def find_handle_geoms_by_joints(xml_path: str) -> List[str]:

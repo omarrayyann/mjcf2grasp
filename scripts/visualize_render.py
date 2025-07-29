@@ -13,7 +13,7 @@ import os
 import argparse
 import json
 parser = argparse.ArgumentParser(description='Visualize grasps from a JSON file.')
-parser.add_argument('object_name', type=str)
+parser.add_argument('object_name', type=str, nargs='?', default=None, help='Object name (required unless --json_file is given)')
 parser.add_argument('--filtered', action='store_true')
 parser.add_argument('--compare', action='store_true', 
                    help='Show both filtered (green) and unfiltered (red) grasps')
@@ -31,6 +31,7 @@ parser.add_argument('--position', type=float, nargs=3, default=[0, 0, 0],
                    help='Set position of the object in the scene (default: [0, 0, 0])')
 parser.add_argument('--rotation', type=float, nargs=4, default=[0, 0, 0, 1],
                    help='Set rotation of the object in the scene as quaternion (default: [0, 0, 0, 1])')
+parser.add_argument('--json_file', type=str, default=None, help='Path to a specific grasps JSON file to visualize (overrides object_name logic)')
 
 GRIPPER_PC = np.load(
     'assets/gripper_models/panda_pc.npy', allow_pickle=True).item()['points']
@@ -758,6 +759,38 @@ def get_axis():
 
 
 args = parser.parse_args()
+
+# If --json_file is provided, use it directly
+if args.json_file is not None:
+    json_file = os.path.abspath(args.json_file)
+    if not os.path.exists(json_file):
+        print(f"Error: Specified --json_file does not exist: {json_file}")
+        exit(1)
+    with open(json_file, 'r') as f:
+        data = json.load(f)
+    mesh = trimesh.load(data['object'])
+    mesh.apply_scale(data['object_scale'])
+    pose = tra.quaternion_matrix(data['object_rotation'])
+    pose[:3, 3] = data['object_position']
+    pose[3,3] = 1.0
+    mesh.apply_transform(pose)
+    transforms = np.array(data['transforms'])
+    quality = np.array(data.get('quality_antipodal', data.get('quality_number_of_contacts', [1.0]*len(transforms))))
+    top_k = 2000
+    top_indices = np.argsort(quality)[-top_k:][::-1]
+    transforms = [transforms[i] for i in top_indices]
+    quality = [quality[i] for i in top_indices]
+    draw_scene(
+        pc=None,
+        grasps=transforms,
+        grasp_scores=quality,
+        mesh=mesh,
+        show_gripper_mesh=not args.grasp_shape_only,
+        plasma_coloring=True,
+        save_png=args.save_png,
+        render=args.render
+    )
+    exit(0)
 
 # Define file paths - check both new structure and old structure
 output_dir = "output_articulate" if args.articulated else "output"

@@ -1,0 +1,26 @@
+[
+  {
+    "joint": "Desk_308_2_1_joint",
+    "grasps_file": "Desk_308_2_1_grasps_Desk_308_2_1_joint.json",
+    "handle_mesh": "Desk_308_2_1_handles_Desk_308_2_1_joint.obj",
+    "handle_geoms": [
+      "Desk_308_2_1_handle_1_305mm_01"
+    ]
+  },
+  {
+    "joint": "Desk_308_2_1_DrawerMesh_03__1",
+    "grasps_file": "Desk_308_2_1_grasps_Desk_308_2_1_DrawerMesh_03__1.json",
+    "handle_mesh": "Desk_308_2_1_handles_Desk_308_2_1_DrawerMesh_03__1.obj",
+    "handle_geoms": [
+      "Desk_308_2_1_handle_1_305mm_03"
+    ]
+  },
+  {
+    "joint": "Desk_308_2_1_DrawerMesh_02__1",
+    "grasps_file": "Desk_308_2_1_grasps_Desk_308_2_1_DrawerMesh_02__1.json",
+    "handle_mesh": "Desk_308_2_1_handles_Desk_308_2_1_DrawerMesh_02__1.obj",
+    "handle_geoms": [
+      "Desk_308_2_1_handle_1_305mm_02"
+    ]
+  }
+]

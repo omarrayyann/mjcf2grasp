@@ -957,8 +957,98 @@ def sample_multiple_grasps(number_of_candidates, mesh, gripper_name, systematic_
     return points, normals, transforms, roll_angles, standoffs, collisions, quality
 
 
+def generate_per_joint_grasps(joint_meshes_json, base_prefix, args):
+    with open(joint_meshes_json, 'r') as f:
+        joint_meshes = json.load(f)
+    summary = []
+
+    # Load extra collision mesh if provided
+    extra_collision_mesh = None
+    if args.collision_object_file:
+        extra_collision_obj = Object(args.collision_object_file)
+        extra_collision_mesh = extra_collision_obj.mesh
+
+    def get_collision_mesh(main_mesh, extra_mesh):
+        if extra_mesh is not None:
+            return trimesh.util.concatenate([main_mesh, extra_mesh])
+        else:
+            return main_mesh
+
+    for entry in joint_meshes:
+        joint_name = entry['joint']
+        mesh_file = entry['handle_mesh']
+        handle_geoms = entry.get('handle_geoms', [])
+        mesh_path = os.path.join(os.path.dirname(joint_meshes_json), mesh_file)
+        grasps_out = os.path.join(os.path.dirname(joint_meshes_json), f"{base_prefix}_grasps_{joint_name}.json")
+        # Run grasp generation for this mesh
+        obj = Object(mesh_path)
+        if args.resize:
+            obj.resize(args.resize)
+        else:
+            obj.rescale(args.scale)
+        obj.set_transform(position=args.position, rotation=args.rotation)
+        gripper = create_gripper(args.gripper)
+        points, normals, transforms, roll_angles, standoffs, collisions, qualities = sample_multiple_grasps(
+            args.num_samples,
+            obj.mesh,
+            gripper_name=args.gripper,
+            systematic_sampling=args.systematic_sampling,
+            roll_density=args.systematic_roll_density,
+            standoff_density=args.systematic_standoff_density,
+            surface_density=args.systematic_surface_density,
+            type_of_quality=args.quality,
+            min_quality=args.min_quality,
+            silent=args.silent,
+            num_workers=args.num_workers)
+
+        # Redo collision checking with combined mesh if extra provided
+        if extra_collision_mesh is not None:
+            combined_mesh = get_collision_mesh(obj.mesh, extra_collision_mesh)
+            collisions, _ = in_collision_with_gripper(
+                combined_mesh, transforms, gripper_name=args.gripper, silent=args.silent, num_workers=args.num_workers)
+            # keep only the ones that are not in collision
+            valid_indices = [i for i, coll in enumerate(collisions) if not coll]
+            points = points[valid_indices]
+            normals = normals[valid_indices]
+            transforms = transforms[valid_indices]
+            roll_angles = roll_angles[valid_indices]
+            standoffs = standoffs[valid_indices]
+            collisions = [collisions[i] for i in valid_indices]
+            qualities = {k: [v[i] for i in valid_indices] for k, v in qualities.items()}
+
+        grasp_widths = compute_grasp_widths(transforms, obj.mesh, gripper_name=args.gripper, num_workers=args.num_workers)
+        grasps = {
+            'object': obj.filename,
+            'object_scale': obj.scale,
+            'object_position': obj.position,
+            'object_rotation': obj.rotation,
+            'object_class': args.classname,
+            'object_dataset': args.dataset,
+            'gripper': args.gripper,
+            'gripper_configuration': [gripper.q],
+            'transforms': [t.tolist() for t in transforms],
+            'roll_angles': roll_angles.tolist(),
+            'standoffs': standoffs.tolist(),
+            'mesh_points': [p.tolist() for p in points],
+            'mesh_normals': [n.tolist() for n in normals],
+            'collisions': collisions,
+            'grasp_widths': grasp_widths,
+        }
+        with open(grasps_out, 'w') as f:
+            json.dump(grasps, f)
+        summary.append({
+            'joint': joint_name,
+            'grasps_file': os.path.basename(grasps_out),
+            'handle_mesh': mesh_file,
+            'handle_geoms': handle_geoms
+        })
+    # Overwrite the joint_meshes.json with the new summary
+    with open(joint_meshes_json, 'w') as f:
+        json.dump(summary, f, indent=2)
+    print(f"Wrote per-joint grasps and summary to {joint_meshes_json}")
+
+
 def make_parser():
-    
     parser = argparse.ArgumentParser(description='Sample grasps for an object.',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--object_file', type=str,
@@ -1018,6 +1108,8 @@ def make_parser():
                         
     parser.add_argument('--num_workers', type=int, default=None,
                         help='Number of parallel workers to use for collision checking. Default uses all available CPU cores.')
+    parser.add_argument('--per_joint_grasps_from_meshes', type=str, default=None,
+                        help='Path to joint_meshes.json to generate per-joint grasps.')
 
     return parser
 
@@ -1072,6 +1164,10 @@ if __name__ == "__main__":
         with open(args.add_quality_metric[1], 'w') as f:
             json.dump(grasps, f)
 
+    elif args.per_joint_grasps_from_meshes:
+        base_prefix = os.path.splitext(os.path.basename(args.per_joint_grasps_from_meshes))[0].replace('_joint_meshes','')
+        generate_per_joint_grasps(args.per_joint_grasps_from_meshes, base_prefix, args)
+        exit(0)
     else:
         if os.path.dirname(args.output) != '':
             try:
