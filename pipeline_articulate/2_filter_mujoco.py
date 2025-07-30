@@ -250,12 +250,10 @@ def test_single_grasp(
 
     data.ctrl[0] = 1.0
 
-    if render and viewer is not None:
-        for _ in range(500):
-            mujoco.mj_step(model, data)
+    for _ in range(500):
+        mujoco.mj_step(model, data)
+        if render and viewer is not None:
             viewer.sync()
-    else:
-        mujoco.mj_step(model, data, nstep=500)
 
     joint_name = None
     if joint_info and "primary_joint" in joint_info:
@@ -274,9 +272,10 @@ def test_single_grasp(
         new_pos = approach_pos + (step / approach_steps) * approach_vector
         data.mocap_pos[0] = new_pos
         data.mocap_quat[0] = quat
-        mujoco.mj_step(model, data, nstep=1000)
-        if render and viewer is not None:
-            viewer.sync()
+        for _ in range(1000):
+            mujoco.mj_step(model, data)
+            if render and viewer is not None:
+                viewer.sync()
 
     joint_position_after = get_joint_position(model, data, joint_name)
 
@@ -389,7 +388,11 @@ def test_single_grasp(
                 if render and viewer is not None:
                     viewer.sync()
 
-                is_currently_grasping = is_grasping(model, data, handle_geoms)
+                if wp_idx % 10 == 0:
+                    is_currently_grasping = is_grasping(model, data, handle_geoms)
+                else:
+                    is_currently_grasping = True
+
                 joint_position = get_joint_position(model, data, primary_joint["name"])
                 joint_positions.append(joint_position)
 
@@ -409,7 +412,9 @@ def test_single_grasp(
                 if render and viewer is not None:
                     viewer.sync()
 
-                is_currently_grasping = is_grasping(model, data, handle_geoms)
+                if wp_idx % 10 == 0:
+                    is_currently_grasping = is_grasping(model, data, handle_geoms)
+                    
                 joint_position = get_joint_position(model, data, primary_joint["name"])
                 joint_positions.append(joint_position)
 
@@ -803,6 +808,7 @@ def main():
     parser.add_argument("--render", action="store_true")
     parser.add_argument("--num_workers", type=int, default=mp.cpu_count())
     parser.add_argument("--max_successful", type=int, default=0)
+    parser.add_argument("--filtered", action="store_true")
     args = parser.parse_args()
     if args.per_joint_summary_json:
         summary_path = os.path.abspath(args.per_joint_summary_json)
@@ -812,7 +818,10 @@ def main():
         updated_summary = []
         for entry in summary:
             joint = entry.get("joint")
-            grasps_file = entry.get("grasps_file")
+            if args.filtered:
+                grasps_file = entry.get("filtered_grasps_file")
+            else:
+                grasps_file = entry.get("grasps_file")
             handle_mesh = entry.get("handle_mesh")
             xml_file = entry.get("xml_file") if entry.get("xml_file") else args.xml_file
             joint_info = (

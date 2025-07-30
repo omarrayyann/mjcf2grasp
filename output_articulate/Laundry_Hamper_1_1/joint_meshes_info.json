@@ -1,0 +1,53 @@
+[
+  {
+    "joint": "Laundry_Hamper_1_1_laundry_hamper_lid_1_joint_0",
+    "handle_mesh": "Laundry_Hamper_1_1_laundry_hamper_lid_1_joint_0.obj",
+    "handle_geoms": [
+      "Laundry_Hamper_1_1_laundry_hamper_lid_1"
+    ],
+    "joint_info": {
+      "name": "Laundry_Hamper_1_1_laundry_hamper_lid_1_joint_0",
+      "type": "hinge",
+      "axis": "-1 0 0",
+      "range": "0 1.5707963267948966",
+      "pos": "-0 0 0",
+      "limited": "false",
+      "damping": "0.10000000000000001",
+      "frictionloss": "0",
+      "parent_body": "Laundry_Hamper_1_1_laundry_hamper_lid_1",
+      "body_hierarchy": "Laundry_Hamper_1_1/Laundry_Hamper_1_1_laundry_hamper_lid_1",
+      "position": {
+        "x": -0.0036739257411658767,
+        "y": 0.2057398246765137,
+        "z": -0.17691878974437714
+      },
+      "rotation_axis": {
+        "x": -1.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_position": {
+        "x": -0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": -1.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "parent_position": {
+        "x": -0.0036739257411658767,
+        "y": 0.2057398246765137,
+        "z": -0.17691878974437714
+      },
+      "parent_rotation": {
+        "w": 1.0,
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    },
+    "grasps_file": "Laundry_Hamper_1_1_laundry_hamper_lid_1_joint_0_grasps.json"
+  }
+]

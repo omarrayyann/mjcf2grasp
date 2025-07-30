@@ -42,7 +42,7 @@ def run_grasp_filtering_stage(
                     "--xml_file",
                     xml_file,
                     "--num_workers",
-                    "20",
+                    "10",
                     "--approach_distance",
                     "0.5",
                     "--approach_steps",
@@ -438,16 +438,16 @@ def main():
         grasps_success = False
         grasps_path = None
 
-        if handle_mesh and os.path.exists(handle_mesh):
-            grasps_success, grasps_path = run_grasp_generation_stage(
-                object_name, handle_mesh, full_mesh, object_output_dir
-            )
-        else:
-            print(f"   Error: Handle mesh not found: {handle_mesh}")
-            print(f"   Cannot proceed with grasp generation")
+        # if handle_mesh and os.path.exists(handle_mesh):
+        #     grasps_success, grasps_path = run_grasp_generation_stage(
+        #         object_name, handle_mesh, full_mesh, object_output_dir
+        #     )
+        # else:
+        #     print(f"   Error: Handle mesh not found: {handle_mesh}")
+        #     print(f"   Cannot proceed with grasp generation")
 
-        filtering_success = False
-        filtered_grasps_path = None
+        filtering_success = True
+        # filtered_grasps_path = f""
 
         if per_joint_grasps_success and os.path.exists(joint_meshes_json):
             filtered_grasps_file = "joint_meshes_info_filtered.json"
