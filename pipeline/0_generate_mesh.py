@@ -8,9 +8,7 @@ from pathlib import Path
 
 
 def quaternion_to_matrix(quat):
-
     if len(quat) == 4:
-
         w, x, y, z = quat
     else:
         raise ValueError("Quaternion must have 4 elements")
@@ -19,7 +17,6 @@ def quaternion_to_matrix(quat):
 
 
 def parse_mujoco_xml(xml_path):
-
     tree = ET.parse(xml_path)
     root = tree.getroot()
 
@@ -44,7 +41,6 @@ def parse_mujoco_xml(xml_path):
     mesh_instances = []
 
     def parse_body(body_elem, parent_transform=np.eye(4)):
-
         pos = body_elem.get("pos", "0 0 0")
         quat = body_elem.get("quat", "1 0 0 0")
 
@@ -60,7 +56,6 @@ def parse_mujoco_xml(xml_path):
             if geom.get("type") == "mesh":
                 mesh_name = geom.get("mesh")
                 if mesh_name in meshes:
-
                     geom_pos = geom.get("pos", "0 0 0")
                     geom_quat = geom.get("quat", "1 0 0 0")
 
@@ -98,7 +93,6 @@ def parse_mujoco_xml(xml_path):
 
 
 def load_and_transform_mesh(mesh_info, xml_dir):
-
     file_path = xml_dir / mesh_info["file"]
 
     if not file_path.exists():
@@ -106,11 +100,9 @@ def load_and_transform_mesh(mesh_info, xml_dir):
         return None
 
     try:
-
         mesh = trimesh.load(file_path)
 
         if isinstance(mesh, trimesh.Scene):
-
             mesh = trimesh.util.concatenate([g for g in mesh.geometry.values()])
 
         mesh.apply_transform(mesh_info["scale_matrix"])
@@ -125,7 +117,6 @@ def load_and_transform_mesh(mesh_info, xml_dir):
 
 
 def combine_meshes_to_obj(xml_path, output_path, include_visual_only=True):
-
     print(f"Parsing MuJoCo XML: {xml_path}")
     mesh_instances, xml_dir = parse_mujoco_xml(xml_path)
 
@@ -137,7 +128,9 @@ def combine_meshes_to_obj(xml_path, output_path, include_visual_only=True):
 
     transformed_meshes = []
     for i, mesh_info in enumerate(mesh_instances):
-        print(f"Processing mesh {i+1}/{len(mesh_instances)}: {mesh_info['geom_name']}")
+        print(
+            f"Processing mesh {i + 1}/{len(mesh_instances)}: {mesh_info['geom_name']}"
+        )
 
         if include_visual_only and "Collider" in mesh_info["geom_name"]:
             print(f"  Skipping collision geometry: {mesh_info['geom_name']}")

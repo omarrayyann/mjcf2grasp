@@ -206,7 +206,6 @@ def test_single_grasp(grasp_data, object_name):
 
 
 def run_simulation_with_viewer(model, data, object_name, use_viewer):
-
     with open(args.grasps_path, "r") as f:
         grasp_data = json.load(f)
     transforms = np.array(grasp_data["transforms"])
@@ -524,7 +523,6 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
 
 
 def merge_xml_contents(base_xml_content, additional_xml_content):
-   
     base_root = ET.fromstring(base_xml_content)
     additional_root = ET.fromstring(additional_xml_content)
 

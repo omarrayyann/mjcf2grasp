@@ -1,5 +1,3 @@
-
-
 import json
 import os
 import subprocess
@@ -25,8 +23,9 @@ def load_articulated_objects():
     return data
 
 
-def run_grasp_filtering_stage(object_name, grasps_path, xml_file, output_dir, per_joint_grasps_json=None):
-   
+def run_grasp_filtering_stage(
+    object_name, grasps_path, xml_file, output_dir, per_joint_grasps_json=None
+):
     print(f"\nStage 3: Grasp Filtering for {object_name}")
     if per_joint_grasps_json:
         print(f"   Per-joint grasps JSON: {per_joint_grasps_json}")
@@ -60,15 +59,26 @@ def run_grasp_filtering_stage(object_name, grasps_path, xml_file, output_dir, pe
                 with open(summary_path, "r") as f:
                     summary = json.load(f)
                 for entry in summary:
-                    filtered_count = entry.get('num_successful_filtered_grasps', 0)
-                    grasps_file = entry.get('grasps_file', '')
+                    filtered_count = entry.get("num_successful_filtered_grasps", 0)
+                    grasps_file = entry.get("grasps_file", "")
                     original_count = 0
-                    if grasps_file and os.path.exists(os.path.join(os.path.dirname(summary_path), grasps_file)):
-                        with open(os.path.join(os.path.dirname(summary_path), grasps_file), 'r') as gf:
+                    if grasps_file and os.path.exists(
+                        os.path.join(os.path.dirname(summary_path), grasps_file)
+                    ):
+                        with open(
+                            os.path.join(os.path.dirname(summary_path), grasps_file),
+                            "r",
+                        ) as gf:
                             gdata = json.load(gf)
-                        original_count = len(gdata.get('transforms', []))
-                    success_rate = (filtered_count / original_count * 100) if original_count > 0 else 0
-                    print(f"      Joint: {entry['joint']} | Success: {filtered_count}/{original_count} ({success_rate:.1f}%)")
+                        original_count = len(gdata.get("transforms", []))
+                    success_rate = (
+                        (filtered_count / original_count * 100)
+                        if original_count > 0
+                        else 0
+                    )
+                    print(
+                        f"      Joint: {entry['joint']} | Success: {filtered_count}/{original_count} ({success_rate:.1f}%)"
+                    )
             return True, summary_path
         except subprocess.CalledProcessError as e:
             print(f"   Error in per-joint grasp filtering: {str(e)}")
@@ -126,10 +136,7 @@ def run_grasp_filtering_stage(object_name, grasps_path, xml_file, output_dir, pe
             return False, None
 
 
-def run_grasp_generation_stage(
-    object_name, handle_mesh_path, full_mesh, output_dir
-):
-   
+def run_grasp_generation_stage(object_name, handle_mesh_path, full_mesh, output_dir):
     print(f"\nStage 2: Grasp Generation for {object_name}")
     print(f"   Handle mesh: {handle_mesh_path}")
 
@@ -156,7 +163,7 @@ def run_grasp_generation_stage(
                 "--quality",
                 "antipodal",
                 "--min_quality",
-                "0.005", 
+                "0.005",
                 "--systematic_sampling",
                 "--classname",
                 "articulated_handle",
@@ -213,8 +220,9 @@ def run_grasp_generation_stage(
         return False, None
 
 
-def run_per_joint_grasp_generation(object_name, joint_meshes_json, output_dir, full_mesh):
-
+def run_per_joint_grasp_generation(
+    object_name, joint_meshes_json, output_dir, full_mesh
+):
     print(f"\nStage 2: Per-Joint Grasp Generation for {object_name}")
     print(f"   Joint meshes JSON: {joint_meshes_json}")
     if isinstance(joint_meshes_json, str):
@@ -223,7 +231,13 @@ def run_per_joint_grasp_generation(object_name, joint_meshes_json, output_dir, f
     else:
         joint_meshes_data = joint_meshes_json
 
-    if all(joint.get("grasps_file") and os.path.exists(os.path.join(os.path.dirname(joint_meshes_json), joint["grasps_file"])) for joint in joint_meshes_data):
+    if all(
+        joint.get("grasps_file")
+        and os.path.exists(
+            os.path.join(os.path.dirname(joint_meshes_json), joint["grasps_file"])
+        )
+        for joint in joint_meshes_data
+    ):
         print(f"   All grasp files exist, skipping per-joint grasp generation.")
         return True, joint_meshes_json
 
@@ -322,7 +336,6 @@ def main():
     failed_objects = []
     successful_objects = []
 
-
     for i, obj in enumerate(articulated_objects):
         object_name = obj["name"]
 
@@ -344,18 +357,26 @@ def main():
         joint_meshes_json = os.path.join(object_output_dir, f"joint_meshes_info.json")
         per_joint_grasps_success = False
         if os.path.exists(joint_meshes_json):
-            per_joint_grasps_success, joint_meshes_json_out = run_per_joint_grasp_generation(
-                object_name, joint_meshes_json, object_output_dir, full_mesh
+            per_joint_grasps_success, joint_meshes_json_out = (
+                run_per_joint_grasp_generation(
+                    object_name, joint_meshes_json, object_output_dir, full_mesh
+                )
             )
             if per_joint_grasps_success:
                 print(f"   Visualizing each per-joint grasp file for {object_name}...")
                 try:
-                    with open(joint_meshes_json, 'r') as f:
+                    with open(joint_meshes_json, "r") as f:
                         joint_grasps_summary = json.load(f)
                     for entry in joint_grasps_summary:
-                        grasps_file = os.path.join(os.path.dirname(joint_meshes_json), entry['grasps_file'])
-                        handle_mesh = os.path.join(os.path.dirname(joint_meshes_json), entry['handle_mesh'])
-                        print(f"      Visualizing joint: {entry['joint']} ({grasps_file})")
+                        grasps_file = os.path.join(
+                            os.path.dirname(joint_meshes_json), entry["grasps_file"]
+                        )
+                        handle_mesh = os.path.join(
+                            os.path.dirname(joint_meshes_json), entry["handle_mesh"]
+                        )
+                        print(
+                            f"      Visualizing joint: {entry['joint']} ({grasps_file})"
+                        )
                         viz_grasps = False
                         if viz_grasps:
                             try:
@@ -363,18 +384,25 @@ def main():
                                     [
                                         "python",
                                         "scripts/visualize_render.py",
-                                        entry['joint'],
-                                        "--json_file", grasps_file,
+                                        entry["joint"],
+                                        "--json_file",
+                                        grasps_file,
                                         "--render",
                                         "--grasp-shape-only",
                                     ],
                                     check=True,
                                 )
                             except subprocess.CalledProcessError as e:
-                                print(f"      Warning: Per-joint grasp visualization failed for {entry['joint']}: {str(e)}")
+                                print(
+                                    f"      Warning: Per-joint grasp visualization failed for {entry['joint']}: {str(e)}"
+                                )
                 except Exception as e:
-                    print(f"   Warning: Could not visualize per-joint grasps individually: {str(e)}")
-                print(f"   Visualizing all per-joint grasps on full mesh for {object_name}...")
+                    print(
+                        f"   Warning: Could not visualize per-joint grasps individually: {str(e)}"
+                    )
+                print(
+                    f"   Visualizing all per-joint grasps on full mesh for {object_name}..."
+                )
                 viz_grasps = False
                 if viz_grasps:
                     try:
@@ -382,19 +410,26 @@ def main():
                             [
                                 "python",
                                 "scripts/visualize_all_grasps_on_full_mesh.py",
-                                "--grasps_json", joint_meshes_json,
-                                "--xml", obj["xml"],
-                                "--full_mesh", full_mesh,
+                                "--grasps_json",
+                                joint_meshes_json,
+                                "--xml",
+                                obj["xml"],
+                                "--full_mesh",
+                                full_mesh,
                             ],
                             check=True,
                         )
-                        print(f"   Per-joint grasp visualization completed for {object_name}")
+                        print(
+                            f"   Per-joint grasp visualization completed for {object_name}"
+                        )
                     except subprocess.CalledProcessError as e:
-                        print(f"   Warning: Per-joint grasp visualization failed for {object_name}: {str(e)}")
+                        print(
+                            f"   Warning: Per-joint grasp visualization failed for {object_name}: {str(e)}"
+                        )
         else:
             print(f"   Error: joint_meshes.json not found: {joint_meshes_json}")
             print(f"   Cannot proceed with per-joint grasp generation")
-        
+
         joint_axis_success = False
         joint_axis_path = os.path.join(
             object_output_dir, f"{object_name}_joint_axis.json"
@@ -405,8 +440,8 @@ def main():
 
         if handle_mesh and os.path.exists(handle_mesh):
             grasps_success, grasps_path = run_grasp_generation_stage(
-                    object_name, handle_mesh, full_mesh, object_output_dir
-                )
+                object_name, handle_mesh, full_mesh, object_output_dir
+            )
         else:
             print(f"   Error: Handle mesh not found: {handle_mesh}")
             print(f"   Cannot proceed with grasp generation")
@@ -416,66 +451,104 @@ def main():
 
         if per_joint_grasps_success and os.path.exists(joint_meshes_json):
             filtered_grasps_file = "joint_meshes_info_filtered.json"
-            if not os.path.exists(os.path.join(object_output_dir, filtered_grasps_file)):
+            if not os.path.exists(
+                os.path.join(object_output_dir, filtered_grasps_file)
+            ):
                 filtering_success, filtered_grasps_path = run_grasp_filtering_stage(
-                    object_name, None, obj["xml"], object_output_dir, per_joint_grasps_json=joint_meshes_json
+                    object_name,
+                    None,
+                    obj["xml"],
+                    object_output_dir,
+                    per_joint_grasps_json=joint_meshes_json,
                 )
             else:
                 filtering_success = True
-                filtered_grasps_path = os.path.join(object_output_dir, filtered_grasps_file)
-            if filtering_success and filtered_grasps_path and os.path.exists(filtered_grasps_path):
-                print(f"   Visualizing each filtered per-joint grasp file for {object_name}...")
+                filtered_grasps_path = os.path.join(
+                    object_output_dir, filtered_grasps_file
+                )
+            if (
+                filtering_success
+                and filtered_grasps_path
+                and os.path.exists(filtered_grasps_path)
+            ):
+                print(
+                    f"   Visualizing each filtered per-joint grasp file for {object_name}..."
+                )
                 viz_grasps = False
                 if viz_grasps:
                     try:
-                        with open(filtered_grasps_path, 'r') as f:
+                        with open(filtered_grasps_path, "r") as f:
                             filtered_joint_grasps_summary = json.load(f)
                         for entry in filtered_joint_grasps_summary:
-                            filtered_grasps_file = os.path.join(os.path.dirname(filtered_grasps_path), entry.get('filtered_grasps_file', ''))
-                        
-                            if not filtered_grasps_file or not filtered_grasps_file.endswith('.json') or not os.path.isfile(filtered_grasps_file):
+                            filtered_grasps_file = os.path.join(
+                                os.path.dirname(filtered_grasps_path),
+                                entry.get("filtered_grasps_file", ""),
+                            )
+
+                            if (
+                                not filtered_grasps_file
+                                or not filtered_grasps_file.endswith(".json")
+                                or not os.path.isfile(filtered_grasps_file)
+                            ):
                                 continue
-                            print(f"      Visualizing joint (filtered): {entry['joint']} ({filtered_grasps_file})")
+                            print(
+                                f"      Visualizing joint (filtered): {entry['joint']} ({filtered_grasps_file})"
+                            )
                             try:
                                 subprocess.run(
                                     [
                                         "python",
                                         "scripts/visualize_render.py",
-                                        entry['joint'],
-                                        "--json_file", filtered_grasps_file,
+                                        entry["joint"],
+                                        "--json_file",
+                                        filtered_grasps_file,
                                         "--render",
                                         "--grasp-shape-only",
                                     ],
                                     check=True,
                                 )
                             except subprocess.CalledProcessError as e:
-                                print(f"      Warning: Filtered per-joint grasp visualization failed for {entry['joint']}: {str(e)}")
+                                print(
+                                    f"      Warning: Filtered per-joint grasp visualization failed for {entry['joint']}: {str(e)}"
+                                )
                     except Exception as e:
-                        print(f"   Warning: Could not visualize filtered per-joint grasps individually: {str(e)}")
-                print(f"   Visualizing all filtered per-joint grasps on full mesh for {object_name}...")
+                        print(
+                            f"   Warning: Could not visualize filtered per-joint grasps individually: {str(e)}"
+                        )
+                print(
+                    f"   Visualizing all filtered per-joint grasps on full mesh for {object_name}..."
+                )
                 try:
-                    filtered_grasps_path = os.path.join(object_output_dir, "joint_meshes_info_filtered.json")
+                    filtered_grasps_path = os.path.join(
+                        object_output_dir, "joint_meshes_info_filtered.json"
+                    )
                     subprocess.run(
                         [
                             "python",
                             "scripts/visualize_all_grasps_on_full_mesh.py",
-                            "--grasps_json", filtered_grasps_path,
-                            "--xml", obj["xml"],
-                            "--full_mesh", full_mesh,
-                            "--filtered_grasps"
+                            "--grasps_json",
+                            filtered_grasps_path,
+                            "--xml",
+                            obj["xml"],
+                            "--full_mesh",
+                            full_mesh,
+                            "--filtered_grasps",
                         ],
                         check=True,
                     )
-                    print(f"   Filtered per-joint grasp visualization completed for {object_name}")
+                    print(
+                        f"   Filtered per-joint grasp visualization completed for {object_name}"
+                    )
                 except subprocess.CalledProcessError as e:
-                    print(f"   Warning: Filtered per-joint grasp visualization failed for {object_name}: {str(e)}")
+                    print(
+                        f"   Warning: Filtered per-joint grasp visualization failed for {object_name}: {str(e)}"
+                    )
         elif grasps_success and grasps_path and os.path.exists(grasps_path):
             filtering_success, filtered_grasps_path = run_grasp_filtering_stage(
                 object_name, grasps_path, obj["xml"], object_output_dir
             )
         else:
             print(f"   No valid grasps found for filtering for {object_name}")
-
 
         if success:
             processed_objects += 1
