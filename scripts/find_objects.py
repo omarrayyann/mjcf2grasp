@@ -3,7 +3,7 @@ import json
 import argparse
 
 ALL_PICKUP_TYPES_THOR = [
-    "desk",
+    "laundry",
 ]
 
 

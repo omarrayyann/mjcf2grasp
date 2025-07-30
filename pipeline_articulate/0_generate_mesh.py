@@ -324,8 +324,9 @@ def combine_meshes_to_obj(xml_path, output_handles_path, output_full_path, inclu
                         transformed_meshes.append(transformed_mesh)
                 if transformed_meshes:
                     combined_mesh = trimesh.util.concatenate(transformed_meshes)
+                    # Save as <joint_name>.obj (no handles_ prefix)
                     safe_joint_name = joint_name.replace('/', '_').replace(' ', '_')
-                    handles_path = Path(str(output_handles_path).replace('_handles.obj', f'_handles_{safe_joint_name}.obj'))
+                    handles_path = output_handles_path.parent / f"{safe_joint_name}.obj"
                     combined_mesh.export(handles_path)
                     print(f"Exported handle mesh for joint {joint_name} to: {handles_path}")
                     # Save mapping for JSON
@@ -341,6 +342,7 @@ def combine_meshes_to_obj(xml_path, output_handles_path, output_full_path, inclu
         for body in worldbody.findall('body'):
             process_body(body, worldbody)
     # --- FULL MESH ---
+    # Collect all mesh instances for the full mesh
     tree = ET.parse(xml_path)
     root = tree.getroot()
     mesh_file_map = {}
@@ -371,32 +373,32 @@ def combine_meshes_to_obj(xml_path, output_handles_path, output_full_path, inclu
         transformed_mesh = load_and_transform_mesh(mesh_info, xml_dir)
         if transformed_mesh is not None:
             transformed_meshes.append(transformed_mesh)
+    # Save full mesh as 'main.obj' (no object name prefix)
     if transformed_meshes:
         combined_mesh = trimesh.util.concatenate(transformed_meshes)
-        combined_mesh.export(output_full_path)
-        print(f"Exported full mesh to: {output_full_path}")
+        main_mesh_path = output_full_path.parent / 'main.obj'
+        combined_mesh.export(main_mesh_path)
+        print(f"Exported full mesh to: {main_mesh_path}")
     else:
         print("No valid full meshes found to combine.")
 
     # After mesh export, also extract and save joint info
     joints = extract_joint_info_from_xml(xml_path)
     primary_joint = select_primary_joint(joints)
-    joint_info_path = str(output_full_path).replace('_full.obj', '_joint_axis.json')
-    result = {
-        "object_name": Path(xml_path).stem,
-        "source_xml": str(xml_path),
-        "primary_joint": primary_joint,
-        "all_joints": joints
-    }
-    with open(joint_info_path, 'w') as f:
-        json.dump(result, f, indent=2)
-    print(f"Joint axis information saved to: {joint_info_path}")
-    # Save per-joint handle mesh mapping JSON
-    handle_meshes_json_path = str(output_full_path).replace('_full.obj', '_joint_meshes.json')
+    # (REMOVED: joint_axis file saving)
+    # Save per-joint handle mesh mapping JSON (now includes joint info)
+    handle_meshes_json_path = str(output_full_path.parent / 'joint_meshes_info.json')
+    # Attach joint info to each handle_meshes_info entry
+    for entry in handle_meshes_info:
+        # Find the joint dict for this joint name
+        joint_name = entry['joint']
+        joint_info = next((j for j in joints if j.get('name') == joint_name), None)
+        entry['joint_info'] = joint_info
     with open(handle_meshes_json_path, 'w') as f:
         json.dump(handle_meshes_info, f, indent=2)
     print(f"Per-joint handle mesh mapping saved to: {handle_meshes_json_path}")
 
+    # --- REMOVED: per-joint joint_axis.json saving ---
 
 def find_handle_geoms_by_joints(xml_path: str) -> List[str]:
     """

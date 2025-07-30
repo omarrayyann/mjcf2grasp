@@ -979,7 +979,8 @@ def generate_per_joint_grasps(joint_meshes_json, base_prefix, args):
         mesh_file = entry['handle_mesh']
         handle_geoms = entry.get('handle_geoms', [])
         mesh_path = os.path.join(os.path.dirname(joint_meshes_json), mesh_file)
-        grasps_out = os.path.join(os.path.dirname(joint_meshes_json), f"{base_prefix}_grasps_{joint_name}.json")
+        # Save grasps as <joint_name>_grasps.json (no object name prefix)
+        grasps_out = os.path.join(os.path.dirname(joint_meshes_json), f"{joint_name}_grasps.json")
         # Run grasp generation for this mesh
         obj = Object(mesh_path)
         if args.resize:
@@ -1036,13 +1037,15 @@ def generate_per_joint_grasps(joint_meshes_json, base_prefix, args):
         }
         with open(grasps_out, 'w') as f:
             json.dump(grasps, f)
-        summary.append({
-            'joint': joint_name,
+        # --- Merge new fields into original entry, preserving all other fields ---
+        new_entry = dict(entry)  # copy all original fields
+        new_entry.update({
             'grasps_file': os.path.basename(grasps_out),
             'handle_mesh': mesh_file,
             'handle_geoms': handle_geoms
         })
-    # Overwrite the joint_meshes.json with the new summary
+        summary.append(new_entry)
+    # Overwrite the joint_meshes.json with the new summary (now preserving all fields)
     with open(joint_meshes_json, 'w') as f:
         json.dump(summary, f, indent=2)
     print(f"Wrote per-joint grasps and summary to {joint_meshes_json}")
