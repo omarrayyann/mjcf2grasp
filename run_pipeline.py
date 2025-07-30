@@ -310,19 +310,6 @@ for obj in data:
         os.rename(old_grasp_file, grasp_file_path)
         print(f"Moved {old_grasp_file} to {grasp_file_path}")
 
-    # if os.path.exists(grasp_file_path):
-    #     try:
-    #         with open(grasp_file_path, "r") as f:
-    #             grasp_data = json.load(f)
-    #             grasp_count = len(grasp_data.get("transforms", []))
-    #             try:
-    #                 os.remove(grasp_file_path)
-    #                 print(f"🗑️  Deleted unfiltered grasp file: {grasp_file_path}")
-    #             except Exception as e:
-    #                 print(f"⚠️  Could not delete unfiltered grasp file: {str(e)}")
-    #     except:
-    #         pass
-
     if os.path.exists(old_filtered_file) and not os.path.exists(filtered_file_path):
         os.rename(old_filtered_file, filtered_file_path)
         print(f"Moved {old_filtered_file} to {filtered_file_path}")

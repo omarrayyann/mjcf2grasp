@@ -962,7 +962,6 @@ def generate_per_joint_grasps(joint_meshes_json, base_prefix, args):
         joint_meshes = json.load(f)
     summary = []
 
-    # Load extra collision mesh if provided
     extra_collision_mesh = None
     if args.collision_object_file:
         extra_collision_obj = Object(args.collision_object_file)
@@ -979,9 +978,7 @@ def generate_per_joint_grasps(joint_meshes_json, base_prefix, args):
         mesh_file = entry['handle_mesh']
         handle_geoms = entry.get('handle_geoms', [])
         mesh_path = os.path.join(os.path.dirname(joint_meshes_json), mesh_file)
-        # Save grasps as <joint_name>_grasps.json (no object name prefix)
         grasps_out = os.path.join(os.path.dirname(joint_meshes_json), f"{joint_name}_grasps.json")
-        # Run grasp generation for this mesh
         obj = Object(mesh_path)
         if args.resize:
             obj.resize(args.resize)
@@ -1002,12 +999,10 @@ def generate_per_joint_grasps(joint_meshes_json, base_prefix, args):
             silent=args.silent,
             num_workers=args.num_workers)
 
-        # Redo collision checking with combined mesh if extra provided
         if extra_collision_mesh is not None:
             combined_mesh = get_collision_mesh(obj.mesh, extra_collision_mesh)
             collisions, _ = in_collision_with_gripper(
                 combined_mesh, transforms, gripper_name=args.gripper, silent=args.silent, num_workers=args.num_workers)
-            # keep only the ones that are not in collision
             valid_indices = [i for i, coll in enumerate(collisions) if not coll]
             points = points[valid_indices]
             normals = normals[valid_indices]
@@ -1037,15 +1032,13 @@ def generate_per_joint_grasps(joint_meshes_json, base_prefix, args):
         }
         with open(grasps_out, 'w') as f:
             json.dump(grasps, f)
-        # --- Merge new fields into original entry, preserving all other fields ---
-        new_entry = dict(entry)  # copy all original fields
+        new_entry = dict(entry)
         new_entry.update({
             'grasps_file': os.path.basename(grasps_out),
             'handle_mesh': mesh_file,
             'handle_geoms': handle_geoms
         })
         summary.append(new_entry)
-    # Overwrite the joint_meshes.json with the new summary (now preserving all fields)
     with open(joint_meshes_json, 'w') as f:
         json.dump(summary, f, indent=2)
     print(f"Wrote per-joint grasps and summary to {joint_meshes_json}")
@@ -1192,11 +1185,6 @@ if __name__ == "__main__":
             rotation=args.rotation,
         )
         gripper = create_gripper(args.gripper)
-
-        # Load extra collision object if provided
-        
-
-        # Sample grasps as usual
         points, normals, transforms, roll_angles, standoffs, collisions, qualities\
             = sample_multiple_grasps(args.num_samples,
                                      obj.mesh,
@@ -1215,20 +1203,16 @@ if __name__ == "__main__":
             extra_collision_obj = Object(args.collision_object_file)
             extra_collision_mesh = extra_collision_obj.mesh
 
-        # Helper to combine meshes for collision checking
         def get_collision_mesh(main_mesh, extra_mesh):
             if extra_mesh is not None:
                 return trimesh.util.concatenate([main_mesh, extra_mesh])
             else:
                 return main_mesh
             
-        # Redo collision checking with combined mesh if extra provided
         if extra_collision_mesh is not None:
             combined_mesh = get_collision_mesh(obj.mesh, extra_collision_mesh)
             collisions, _ = in_collision_with_gripper(
                 combined_mesh, transforms, gripper_name=args.gripper, silent=args.silent, num_workers=args.num_workers)
-            # print(f"Collisions: {collisions}")
-            # keep only the ones that are not in collision
             valid_indices = [i for i, coll in enumerate(collisions) if not coll]
             points = points[valid_indices]
             normals = normals[valid_indices]
@@ -1256,7 +1240,6 @@ if __name__ == "__main__":
             'mesh_normals': [n.tolist() for n in normals],
             'collisions': collisions,
             'grasp_widths': grasp_widths,
-            # quality_key: sorted_quality_scores,
         }
 
         with open(args.output, 'w') as f:

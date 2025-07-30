@@ -99,7 +99,6 @@ def check_grasp(model, data, object_name, store_initial=False):
 
 
 def test_single_grasp(grasp_data, object_name):
-    """Test a single grasp in a separate process"""
     i, transform, quality, config = grasp_data
 
     xml_path = os.path.join(os.path.dirname(__file__), "../assets/scene.xml")
@@ -207,7 +206,6 @@ def test_single_grasp(grasp_data, object_name):
 
 
 def run_simulation_with_viewer(model, data, object_name, use_viewer):
-    """Run the simulation with or without interactive viewer"""
 
     with open(args.grasps_path, "r") as f:
         grasp_data = json.load(f)
@@ -526,44 +524,25 @@ def run_simulation_with_viewer(model, data, object_name, use_viewer):
 
 
 def merge_xml_contents(base_xml_content, additional_xml_content):
-    """
-    Merges two XML contents by copying elements from the additional XML into the base XML
-    under the appropriate mujoco tags.
-
-    Args:
-        base_xml_content (str): The base XML content as a string
-        additional_xml_content (str): The additional XML content to merge into the base
-
-    Returns:
-        str: The merged XML content as a string
-    """
-    # Parse both XML contents
+   
     base_root = ET.fromstring(base_xml_content)
     additional_root = ET.fromstring(additional_xml_content)
 
-    # Make sure both are mujoco elements
     if base_root.tag != "mujoco" or additional_root.tag != "mujoco":
         raise ValueError("Both XML contents must have 'mujoco' as the root element")
 
-    # Dictionary to keep track of sections we've already processed
     processed_sections = {}
 
-    # Process each child of additional_root
     for additional_child in additional_root:
         tag_name = additional_child.tag
 
-        # Find the corresponding section in the base XML
         base_section = base_root.find(tag_name)
 
-        # If section exists in base, merge the contents
         if base_section is not None:
-            # Skip if we've already processed this section
             if tag_name in processed_sections:
                 continue
 
-            # Copy all elements from additional to base
             for element in additional_child:
-                # Check if element with same name/attributes already exists to avoid duplicates
                 is_duplicate = False
                 for existing in base_section:
                     if element.tag == existing.tag and all(
@@ -571,7 +550,6 @@ def merge_xml_contents(base_xml_content, additional_xml_content):
                         for attr, val in element.attrib.items()
                         if attr != "name"
                     ):
-                        # For elements with name attribute, check if names match
                         if "name" in element.attrib and "name" in existing.attrib:
                             if element.attrib["name"] == existing.attrib["name"]:
                                 is_duplicate = True
@@ -580,17 +558,14 @@ def merge_xml_contents(base_xml_content, additional_xml_content):
                             is_duplicate = True
                             break
 
-                # Add if not a duplicate
                 if not is_duplicate:
                     base_section.append(element)
 
             processed_sections[tag_name] = True
         else:
-            # If section doesn't exist in base, add it
             base_root.append(additional_child)
             processed_sections[tag_name] = True
 
-    # Convert the merged XML back to string
     return ET.tostring(base_root, encoding="unicode")
 
 
