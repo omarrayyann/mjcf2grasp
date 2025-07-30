@@ -67,11 +67,11 @@ def check_sufficient_joint_movement(
     return True
 
 
-def is_grasping(model, data, handle_name):
-    return 1
+def is_grasping(model, data, handle_geoms):
     left_patterns = ["left_finger", "finger_l", "gripper_finger_left"]
     right_patterns = ["right_finger", "finger_r", "gripper_finger_right"]
-    print(f'handle {handle_name}')
+
+
     for i in range(data.ncon):
         contact = data.contact[i]
 
@@ -79,26 +79,15 @@ def is_grasping(model, data, handle_name):
         geom1 = mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_GEOM, contact.geom1)
         geom2 = mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_GEOM, contact.geom2)
 
-        print(f"Contact between {geom1} and {geom2}")
-
         if not geom1 or not geom2:
             continue
 
-        if handle_name.lower() in geom1.lower() or handle_name.lower() in geom2.lower():
-            other = geom2 if handle_name.lower() in geom1.lower() else geom1
+        if any([handle_geom.lower() in geom1.lower() for handle_geom in handle_geoms]) or any([handle_geom.lower() in geom2.lower() for handle_geom in handle_geoms]):
+            other = geom2 if np.any([handle_geom.lower() in geom1.lower() for handle_geom in handle_geoms]) else geom1
             if any(p in other.lower() for p in left_patterns) or any(
                 p in other.lower() for p in right_patterns
             ):
                 return True
-
-        if (
-            any(p in geom1.lower() for p in left_patterns)
-            and any(p in geom2.lower() for p in right_patterns)
-        ) or (
-            any(p in geom2.lower() for p in left_patterns)
-            and any(p in geom1.lower() for p in right_patterns)
-        ):
-            return False
 
     return False
 
@@ -195,9 +184,12 @@ def check_grasp(model, data, object_name, store_initial=False):
     return position_change < 0.03 and is_object_grasped(model, data, object_name)
 
 
-def test_single_grasp(grasp_data, object_name, xml_content, args, primary_joint=None, render=False):
+def test_single_grasp(grasp_data, object_name, xml_content, args, handle_geoms, primary_joint=None, render=False):
     # Only use provided primary_joint (from summary JSON). If missing, skip.
     joint_info = primary_joint
+    if len(handle_geoms) == 0:
+        print(f"[ERROR] No handle geometry info provided for joint '{object_name}'. Skipping this grasp.")
+        return grasp_data[0], None, None
     if not joint_info:
         print(f"[ERROR] No joint axis info provided for joint '{object_name}'. Skipping this grasp.")
         return grasp_data[0], None, None
@@ -301,7 +293,7 @@ def test_single_grasp(grasp_data, object_name, xml_content, args, primary_joint=
         viewer.sync()
 
     # Check if object is grasped
-    if not is_grasping(model, data, object_name):
+    if not is_grasping(model, data, handle_geoms):
         if render and viewer is not None:
             viewer.close()
             del viewer
@@ -384,7 +376,7 @@ def test_single_grasp(grasp_data, object_name, xml_content, args, primary_joint=
                 if render and viewer is not None:
                     viewer.sync()
 
-                is_currently_grasping = is_grasping(model, data, object_name)
+                is_currently_grasping = is_grasping(model, data, handle_geoms)
                 joint_position = get_joint_position(model, data, primary_joint["name"])
                 joint_positions.append(joint_position)
 
@@ -405,7 +397,7 @@ def test_single_grasp(grasp_data, object_name, xml_content, args, primary_joint=
                 if render and viewer is not None:
                     viewer.sync()
 
-                is_currently_grasping = is_grasping(model, data, object_name)
+                is_currently_grasping = is_grasping(model, data, handle_geoms)
                 joint_position = get_joint_position(model, data, primary_joint["name"])
                 joint_positions.append(joint_position)
 
@@ -430,7 +422,7 @@ def test_single_grasp(grasp_data, object_name, xml_content, args, primary_joint=
         return i, None, None
 
 
-def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer, args, primary_joint=None):
+def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer, args, primary_joint=None, handle_geoms=None):
     with open(args.grasps_path, "r") as f:
         grasp_data = json.load(f)
     transforms = np.array(grasp_data["transforms"])
@@ -493,8 +485,10 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
                 print(f"[ERROR] No valid joint axis info for joint '{object_name}' or missing 'name'. Skipping this grasp.")
                 continue
 
+            print(f"joint_info: {joint_info}")
+
             i, transform_result, quality_result = test_single_grasp(
-                (i, transform, quality, args), object_name, xml_content, args, primary_joint=joint_info_override, render=True,
+                (i, transform, quality, args), object_name, xml_content, args, primary_joint=joint_info_override, render=True, handle_geoms=handle_geoms
             )
 
             if transform_result is not None:
@@ -607,108 +601,6 @@ def run_simulation_with_viewer(model, data, xml_content, object_name, use_viewer
             successful_widths_only,
         )
 
-
-def filter_grasps_for_file(grasps_path, object_name, xml_file, args):
-    """
-    Run the filtering logic for a single grasp file (as in the current script).
-    Returns the path to the filtered grasps file.
-    """
-    # --- Setup XML, model, etc. (copy from main) ---
-    xml_path = os.path.join(os.path.dirname(__file__), "../assets/scene.xml")
-    tree = ET.parse(xml_path)
-    root = tree.getroot()
-
-    try:
-        with open(xml_file, "r") as f:
-            obj_xml_content = f.read()
-        obj_tree = ET.fromstring(obj_xml_content)
-        free_joints = obj_tree.findall(".//joint[@type='free']")
-        if free_joints:
-            print(f"Found {len(free_joints)} free joints to remove")
-            for joint in free_joints:
-                for parent in obj_tree.findall(".//*"):
-                    for child in parent.findall("joint"):
-                        if (
-                            child.get("name") == joint.get("name")
-                            and child.get("type") == "free"
-                        ):
-                            parent.remove(child)
-                            print(f"Removed free joint: {joint.get('name')}")
-        with open(xml_file, "w") as f:
-            f.write(ET.tostring(obj_tree, encoding="unicode"))
-        include = ET.Element("include", {"file": xml_file})
-    except Exception as e:
-        print(f"Error modifying XML to remove free joints: {e}")
-        include = ET.Element("include", {"file": xml_file})
-    root.append(include)
-    worldbody = root.find("worldbody")
-    # --- End XML setup ---
-
-    xml_content = ET.tostring(root, encoding="unicode")
-    robot_xml_path = os.path.join(
-        os.path.dirname(__file__),
-        "../assets/gripper_models/rum_gripper/model_articulate.xml",
-    )
-    with open(robot_xml_path, "r") as f:
-        robot_xml_content = f.read()
-    xml_content = merge_xml_contents(xml_content, robot_xml_content)
-
-    model = mujoco.MjModel.from_xml_string(xml_content)
-    data = mujoco.MjData(model)
-
-    successful_transforms, successful_qualities, successful_widths = (
-        run_simulation_with_viewer(model, data, xml_content, object_name, args.render, args)
-    )
-
-    # Convert NumPy arrays to Python lists for JSON serialization
-    transforms_list = []
-    for transform in successful_transforms:
-        if isinstance(transform, np.ndarray):
-            transform = transform.tolist()
-        transforms_list.append(transform)
-    qualities_list = []
-    for quality in successful_qualities:
-        if isinstance(quality, np.ndarray):
-            quality = quality.tolist()
-        qualities_list.append(quality)
-    widths_list = []
-    for width in successful_widths:
-        if isinstance(width, np.ndarray):
-            width = width.tolist()
-        widths_list.append(width)
-
-    output_path = grasps_path.replace(".json", "_filtered.json")
-    with open(output_path, "w") as f:
-        with open(grasps_path, "r") as original_f:
-            original_data = json.load(original_f)
-        json.dump(
-            {
-                "transforms": transforms_list,
-                "quality_antipodal": qualities_list,
-                "object": original_data.get("object", "unknown_object"),
-                "object_scale": original_data.get("object_scale", 1.0),
-                "object_position": original_data.get("object_position", [0, 0, 0]),
-                "object_rotation": original_data.get("object_rotation", [1, 0, 0, 0]),
-                "approach_distance": args.approach_distance,
-                "grasp_widths": widths_list,
-                "object_class": original_data.get("object_class", "unknown"),
-                "object_dataset": original_data.get("object_dataset", "unknown"),
-                "gripper": original_data.get("gripper", "unknown_gripper"),
-                "gripper_configuration": original_data.get("gripper_configuration", []),
-                "transforms_quality": original_data.get("transforms_quality", []),
-                "roll_angles": original_data.get("roll_angles", []),
-                "standoffs": original_data.get("standoffs", []),
-                "mesh_points": original_data.get("mesh_points", []),
-                "mesh_normals": original_data.get("mesh_normals", []),
-                "collisions": original_data.get("collisions", []),
-            },
-            f,
-            indent=2,
-        )
-    print(f"Saved {len(successful_transforms)} successful grasps to {output_path}")
-    return len(successful_transforms), output_path
-
-
 def filter_per_joint_summary(summary_json_path, args):
     """
     For each joint in the summary JSON, filter its grasps and save per-joint filtered outputs.
@@ -750,7 +642,7 @@ def filter_per_joint_summary(summary_json_path, args):
     print(f"Updated per-joint summary saved to: {summary_out}")
 
 
-def main_single_file_filtering(grasps_path, object_name, xml_file, args, joint_axis_info=None):
+def main_single_file_filtering(grasps_path, object_name, xml_file, args, joint_axis_info=None, handle_geoms=None):
     # --- Setup XML, model, etc. (copy from main) ---
     xml_path = os.path.join(os.path.dirname(__file__), "../assets/scene.xml")
     tree = ET.parse(xml_path)
@@ -803,7 +695,7 @@ def main_single_file_filtering(grasps_path, object_name, xml_file, args, joint_a
     data = mujoco.MjData(model)
 
     successful_transforms, successful_qualities, successful_widths = (
-        run_simulation_with_viewer(model, data, xml_content, object_name, args.render, args, primary_joint=primary_joint)
+        run_simulation_with_viewer(model, data, xml_content, object_name, args.render, args, primary_joint=primary_joint, handle_geoms=handle_geoms)
     )
 
     # Convert NumPy arrays to Python lists for JSON serialization
@@ -884,6 +776,7 @@ def main():
             xml_file = entry.get('xml_file') if entry.get('xml_file') else args.xml_file
             # Get joint axis info directly from the summary entry
             joint_info = entry.get('primary_joint') or entry.get('joint_axis') or entry.get('joint_info')
+            handle_geoms = entry.get('handle_geoms', [])
             if not (joint and grasps_file and os.path.exists(grasps_file)):
                 print(f"Skipping joint {joint}: missing grasps file {grasps_file}")
                 continue
@@ -895,7 +788,7 @@ def main():
             filter_args.xml_file = xml_file
             # Pass joint_info to the filtering function
             try:
-                main_single_file_filtering(grasps_file, filter_args.object_name, filter_args.xml_file, filter_args, joint_axis_info=joint_info)
+                main_single_file_filtering(grasps_file, filter_args.object_name, filter_args.xml_file, filter_args, joint_axis_info=joint_info, handle_geoms=handle_geoms)
                 entry['filtered_grasps_file'] = grasps_file.replace('.json', '_filtered.json')
                 print(f"  Saved filtered grasps: {entry['filtered_grasps_file']}")
             except Exception as e:
@@ -909,102 +802,7 @@ def main():
             json.dump(updated_summary, f, indent=2)
         print(f"Updated per-joint summary saved to: {summary_out}")
         return
-    else:
-        # Single-file mode (legacy)
-        # --- Setup XML, model, etc. (copy from main) ---
-        xml_path = os.path.join(os.path.dirname(__file__), "../assets/scene.xml")
-        tree = ET.parse(xml_path)
-        root = tree.getroot()
-
-        try:
-            with open(args.xml_file, "r") as f:
-                obj_xml_content = f.read()
-            obj_tree = ET.fromstring(obj_xml_content)
-            free_joints = obj_tree.findall(".//joint[@type='free']")
-            if free_joints:
-                print(f"Found {len(free_joints)} free joints to remove")
-                for joint in free_joints:
-                    for parent in obj_tree.findall(".//*"):
-                        for child in parent.findall("joint"):
-                            if (
-                                child.get("name") == joint.get("name")
-                                and child.get("type") == "free"
-                            ):
-                                parent.remove(child)
-                                print(f"Removed free joint: {joint.get('name')}")
-            with open(args.xml_file, "w") as f:
-                f.write(ET.tostring(obj_tree, encoding="unicode"))
-            include = ET.Element("include", {"file": args.xml_file})
-        except Exception as e:
-            print(f"Error modifying XML to remove free joints: {e}")
-            include = ET.Element("include", {"file": args.xml_file})
-        root.append(include)
-        worldbody = root.find("worldbody")
-        # --- End XML setup ---
-
-        xml_content = ET.tostring(root, encoding="unicode")
-        robot_xml_path = os.path.join(
-            os.path.dirname(__file__),
-            "../assets/gripper_models/rum_gripper/model_articulate.xml",
-        )
-        with open(robot_xml_path, "r") as f:
-            robot_xml_content = f.read()
-        xml_content = merge_xml_contents(xml_content, robot_xml_content)
-
-        model = mujoco.MjModel.from_xml_string(xml_content)
-        data = mujoco.MjData(model)
-
-        successful_transforms, successful_qualities, successful_widths = (
-            run_simulation_with_viewer(model, data, xml_content, args.object_name, args.render, args)
-        )
-
-        # Convert NumPy arrays to Python lists for JSON serialization
-        transforms_list = []
-        for transform in successful_transforms:
-            if isinstance(transform, np.ndarray):
-                transform = transform.tolist()
-            transforms_list.append(transform)
-        qualities_list = []
-        for quality in successful_qualities:
-            if isinstance(quality, np.ndarray):
-                quality = quality.tolist()
-            qualities_list.append(quality)
-        widths_list = []
-        for width in successful_widths:
-            if isinstance(width, np.ndarray):
-                width = width.tolist()
-            widths_list.append(width)
-
-        output_path = args.grasps_path.replace(".json", "_filtered.json")
-        with open(output_path, "w") as f:
-            with open(args.grasps_path, "r") as original_f:
-                original_data = json.load(original_f)
-            json.dump(
-                {
-                    "transforms": transforms_list,
-                    "quality_antipodal": qualities_list,
-                    "object": original_data.get("object", "unknown_object"),
-                    "object_scale": original_data.get("object_scale", 1.0),
-                    "object_position": original_data.get("object_position", [0, 0, 0]),
-                    "object_rotation": original_data.get("object_rotation", [1, 0, 0, 0]),
-                    "approach_distance": args.approach_distance,
-                    "grasp_widths": widths_list,
-                    "object_class": original_data.get("object_class", "unknown"),
-                    "object_dataset": original_data.get("object_dataset", "unknown"),
-                    "gripper": original_data.get("gripper", "unknown_gripper"),
-                    "gripper_configuration": original_data.get("gripper_configuration", []),
-                    "transforms_quality": original_data.get("transforms_quality", []),
-                    "roll_angles": original_data.get("roll_angles", []),
-                    "standoffs": original_data.get("standoffs", []),
-                    "mesh_points": original_data.get("mesh_points", []),
-                    "mesh_normals": original_data.get("mesh_normals", []),
-                    "collisions": original_data.get("collisions", []),
-                },
-                f,
-                indent=2,
-            )
-        print(f"Saved {len(successful_transforms)} successful grasps to {output_path}")
-
+    
 
 if __name__ == "__main__":
     main()

@@ -47,7 +47,8 @@
         "y": 0.0,
         "z": 0.0
       }
-    }
+    },
+    "grasps_file": "Desk_308_2_1_joint_grasps.json"
   },
   {
     "joint": "Desk_308_2_1_DrawerMesh_03__1",
@@ -97,7 +98,8 @@
         "y": 0.0,
         "z": 0.0
       }
-    }
+    },
+    "grasps_file": "Desk_308_2_1_DrawerMesh_03__1_grasps.json"
   },
   {
     "joint": "Desk_308_2_1_DrawerMesh_02__1",
@@ -147,6 +149,7 @@
         "y": 0.0,
         "z": 0.0
       }
-    }
+    },
+    "grasps_file": "Desk_308_2_1_DrawerMesh_02__1_grasps.json"
   }
 ]

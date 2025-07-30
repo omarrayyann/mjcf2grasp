@@ -69,7 +69,7 @@ def run_grasp_filtering_stage(object_name, grasps_path, xml_file, output_dir, pe
                     "5",
                     "--max_successful",
                     "100",
-                    # "--render",
+                    "--render",
                 ],
                 check=True,
             )
@@ -205,23 +205,23 @@ def run_grasp_generation_stage(
 
             # Visualize the generated grasps
             print(f"   Visualizing generated grasps for {object_name}...")
-            try:
-                subprocess.run(
-                    [
-                        "python",
-                        "scripts/visualize_render.py",
-                        object_name,
-                        "--render",
-                        "--grasp-shape-only",
-                        "--articulated",
-                    ],
-                    check=True,
-                )
-                print(f"   Grasp visualization completed for {object_name}")
-            except subprocess.CalledProcessError as e:
-                print(
-                    f"   Warning: Grasp visualization failed for {object_name}: {str(e)}"
-                )
+            # try:
+            #     subprocess.run(
+            #         [
+            #             "python",
+            #             "scripts/visualize_render.py",
+            #             object_name,
+            #             "--render",
+            #             "--grasp-shape-only",
+            #             "--articulated",
+            #         ],
+            #         check=True,
+            #     )
+            #     print(f"   Grasp visualization completed for {object_name}")
+            # except subprocess.CalledProcessError as e:
+            #     print(
+            #         f"   Warning: Grasp visualization failed for {object_name}: {str(e)}"
+            #     )
                 # Continue processing even if visualization fails
         else:
             print(f"   Warning: No valid grasps generated for {object_name}")
@@ -490,6 +490,7 @@ def main():
                 # Visualize all filtered per-joint grasps on the full mesh
                 print(f"   Visualizing all filtered per-joint grasps on full mesh for {object_name}...")
                 try:
+                    filtered_grasps_path = os.path.join(object_output_dir, "joint_meshes_info_filtered.json")
                     subprocess.run(
                         [
                             "python",

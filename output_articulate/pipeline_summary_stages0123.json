@@ -1,6 +1,6 @@
 {
   "pipeline_stages": "Stages 0-3 - Handle Detection, Joint Analysis, Grasp Generation & Filtering",
-  "timestamp": "2025-07-31T01:36:31.440941",
+  "timestamp": "2025-07-31T01:56:10.984891",
   "total_objects": 1,
   "processed_objects": 1,
   "objects_with_joint_analysis": 0,
