@@ -84,6 +84,7 @@ def main():
     parser.add_argument('--full_mesh', type=str, required=True, help='Path to full .obj mesh.')
     parser.add_argument('--handle_meshes', action='store_true', help='Show handle meshes at each grasp (for debugging)')
     parser.add_argument('--max_grasps_per_joint', type=int, default=200, help='Maximum number of grasps to show per joint')
+    parser.add_argument('--filtered_grasps', action='store_true', help='Show filtered grasps')
     args = parser.parse_args()
 
     # Load full mesh
@@ -96,7 +97,10 @@ def main():
     geometries = [plot_mesh(full_mesh, color=[0.7,0.7,1.0])]
     for entry in joint_grasps:
         joint = entry['joint']
-        grasps_file = os.path.join(os.path.dirname(args.grasps_json), entry['grasps_file'])
+        if args.filtered_grasps:
+            grasps_file = os.path.join(os.path.dirname(args.grasps_json), entry['filtered_grasps_file'])
+        else:
+            grasps_file = os.path.join(os.path.dirname(args.grasps_json), entry['grasps_file'])
         handle_mesh_file = os.path.join(os.path.dirname(args.grasps_json), entry['handle_mesh'])
         with open(grasps_file, 'r') as gf:
             grasps = json.load(gf)

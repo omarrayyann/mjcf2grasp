@@ -240,10 +240,12 @@ def test_single_grasp(grasp_data, object_name, xml_content, args, primary_joint=
     # Open gripper
     data.ctrl[0] = 1.0
 
-    for _ in range(500):
-        mujoco.mj_step(model, data)
-        if render and viewer is not None:
+    if render and viewer is not None:
+        for _ in range(500):
+            mujoco.mj_step(model, data)
             viewer.sync()
+    else:
+        mujoco.mj_step(model, data, nstep=500)
 
     # Approach object
     joint_name = None
