@@ -403,7 +403,7 @@ def main():
                 print(
                     f"   Visualizing all per-joint grasps on full mesh for {object_name}..."
                 )
-                viz_grasps = False
+                viz_grasps = 1
                 if viz_grasps:
                     try:
                         subprocess.run(

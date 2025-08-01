@@ -467,6 +467,7 @@ def run_simulation_with_viewer(
         )
 
         for i, (transform, quality) in pbar:
+            
             pos = transform[:3, 3]
             quat = R.from_matrix(transform[:3, :3]).as_quat(scalar_first=True)
 
