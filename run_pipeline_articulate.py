@@ -27,6 +27,36 @@ def run_grasp_filtering_stage(
     object_name, grasps_path, xml_file, output_dir, per_joint_grasps_json=None
 ):
     print(f"\nStage 3: Grasp Filtering for {object_name}")
+    
+    # First, convert XML to use mesh colliders
+    xml_mesh_file = xml_file.replace(".xml", "_mesh.xml")
+    if not os.path.exists(xml_mesh_file):
+        print(f"   Converting XML to use mesh colliders...")
+        try:
+            subprocess.run(
+                [
+                    "python",
+                    "pipeline_articulate/2_mesh_colliders.py",
+                    "--input",
+                    xml_file,
+                    "--output",
+                    xml_mesh_file,
+                ],
+                check=True,
+            )
+            print(f"   Mesh collider XML created: {xml_mesh_file}")
+        except subprocess.CalledProcessError as e:
+            print(f"   Warning: Failed to convert to mesh colliders, using original XML: {str(e)}")
+            xml_mesh_file = xml_file
+        except Exception as e:
+            print(f"   Warning: Unexpected error in mesh collider conversion, using original XML: {str(e)}")
+            xml_mesh_file = xml_file
+    else:
+        print(f"   Mesh collider XML already exists: {xml_mesh_file}")
+    
+    # Use the mesh collider XML for filtering
+    xml_file_for_filtering = xml_mesh_file
+    
     if per_joint_grasps_json:
         print(f"   Per-joint grasps JSON: {per_joint_grasps_json}")
         try:
@@ -34,19 +64,19 @@ def run_grasp_filtering_stage(
             subprocess.run(
                 [
                     "python",
-                    "pipeline_articulate/2_filter_mujoco.py",
+                    "pipeline_articulate/3_filter_mujoco.py",
                     "--object_name",
                     object_name,
                     "--per_joint_summary_json",
                     per_joint_grasps_json,
                     "--xml_file",
-                    xml_file,
+                    xml_file_for_filtering,
                     "--num_workers",
                     "10",
                     "--approach_distance",
-                    "0.5",
+                    "0.2",
                     "--approach_steps",
-                    "5",
+                    "2",
                     "--max_successful",
                     "100",
                     # "--render",
@@ -88,20 +118,20 @@ def run_grasp_filtering_stage(
             return False, None
     else:
         print(f"   Grasps file: {grasps_path}")
-        print(f"   XML file: {xml_file}")
+        print(f"   XML file: {xml_file_for_filtering}")
         filtered_grasps_path = grasps_path.replace(".json", "_filtered.json")
         try:
             print(f"   Filtering grasps using MuJoCo simulation...")
             subprocess.run(
                 [
                     "python",
-                    "pipeline_articulate/2_filter_mujoco.py",
+                    "pipeline_articulate/3_filter_mujoco.py",
                     "--object_name",
                     object_name,
                     "--grasps_path",
                     grasps_path,
                     "--xml_file",
-                    xml_file,
+                    xml_file_for_filtering,
                     "--num_workers",
                     "10",
                     "--approach_distance",

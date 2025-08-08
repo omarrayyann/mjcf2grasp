@@ -1,0 +1,28 @@
+{
+  "pipeline_stages": "Stages 0-3 - Handle Detection, Joint Analysis, Grasp Generation & Filtering",
+  "timestamp": "2025-08-08T04:27:19.153346",
+  "total_objects": 1,
+  "processed_objects": 1,
+  "objects_with_joint_analysis": 0,
+  "objects_with_grasps": 0,
+  "objects_with_filtered_grasps": 1,
+  "failed_objects": [],
+  "successful_objects": [
+    {
+      "name": "Microwave_16",
+      "handle_mesh": "output_articulate/Microwave_16/Microwave_16_microwave_door_b6_joint_0.obj",
+      "full_mesh": "output_articulate/Microwave_16/main.obj",
+      "grasps": null,
+      "filtered_grasps": "output_articulate/Microwave_16/joint_meshes_info_filtered.json",
+      "joint_axis": null,
+      "xml": "/home/lambda1/Documents/thor-grasp/assets/Thor-Assets/Kitchen Objects/Microwave/Prefabs/Microwave_16/Microwave_16.xml",
+      "output_dir": "output_articulate/Microwave_16",
+      "stages_completed": {
+        "handle_detection": true,
+        "joint_axis_analysis": false,
+        "grasp_generation": false,
+        "grasp_filtering": true
+      }
+    }
+  ]
+}
