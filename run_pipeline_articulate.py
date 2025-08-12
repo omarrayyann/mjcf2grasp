@@ -26,7 +26,7 @@ def load_articulated_objects():
 def run_grasp_filtering_stage(
     object_name, grasps_path, xml_file, output_dir, per_joint_grasps_json=None
 ):
-    print(f"\nStage 3: Grasp Filtering for {object_name}")
+    
     
     # First, convert XML to use mesh colliders
     xml_mesh_file = xml_file.replace(".xml", "_mesh.xml")
@@ -74,9 +74,9 @@ def run_grasp_filtering_stage(
                     "--num_workers",
                     "10",
                     "--approach_distance",
-                    "0.2",
+                    "0.5",
                     "--approach_steps",
-                    "2",
+                    "5",
                     "--max_successful",
                     "100",
                     # "--render",
@@ -140,7 +140,7 @@ def run_grasp_filtering_stage(
                     "5",
                     "--max_successful",
                     "100",
-                    "--render",
+                    # "--render",
                 ],
                 check=True,
             )
@@ -433,7 +433,7 @@ def main():
                 print(
                     f"   Visualizing all per-joint grasps on full mesh for {object_name}..."
                 )
-                viz_grasps = 0
+                viz_grasps = 0  
                 if viz_grasps:
                     try:
                         subprocess.run(
@@ -478,7 +478,7 @@ def main():
 
         filtering_success = True
         # filtered_grasps_path = f""
-
+        print(f"\nStage 3: Grasp Filtering for {object_name}")
         if per_joint_grasps_success and os.path.exists(joint_meshes_json):
             filtered_grasps_file = "joint_meshes_info_filtered.json"
             if not os.path.exists(
@@ -545,34 +545,34 @@ def main():
                         print(
                             f"   Warning: Could not visualize filtered per-joint grasps individually: {str(e)}"
                         )
-                print(
-                    f"   Visualizing all filtered per-joint grasps on full mesh for {object_name}..."
-                )
-                try:
-                    filtered_grasps_path = os.path.join(
-                        object_output_dir, "joint_meshes_info_filtered.json"
-                    )
-                    subprocess.run(
-                        [
-                            "python",
-                            "scripts/visualize_all_grasps_on_full_mesh.py",
-                            "--grasps_json",
-                            filtered_grasps_path,
-                            "--xml",
-                            obj["xml"],
-                            "--full_mesh",
-                            full_mesh,
-                            "--filtered_grasps",
-                        ],
-                        check=True,
-                    )
-                    print(
-                        f"   Filtered per-joint grasp visualization completed for {object_name}"
-                    )
-                except subprocess.CalledProcessError as e:
-                    print(
-                        f"   Warning: Filtered per-joint grasp visualization failed for {object_name}: {str(e)}"
-                    )
+                # print(
+                #     f"   Visualizing all filtered per-joint grasps on full mesh for {object_name}..."
+                # )
+                # try:
+                #     filtered_grasps_path = os.path.join(
+                #         object_output_dir, "joint_meshes_info_filtered.json"
+                #     )
+                #     subprocess.run(
+                #         [
+                #             "python",
+                #             "scripts/visualize_all_grasps_on_full_mesh.py",
+                #             "--grasps_json",
+                #             filtered_grasps_path,
+                #             "--xml",
+                #             obj["xml"],
+                #             "--full_mesh",
+                #             full_mesh,
+                #             "--filtered_grasps",
+                #         ],
+                #         check=True,
+                #     )
+                #     print(
+                #         f"   Filtered per-joint grasp visualization completed for {object_name}"
+                #     )
+                # except subprocess.CalledProcessError as e:
+                #     print(
+                #         f"   Warning: Filtered per-joint grasp visualization failed for {object_name}: {str(e)}"
+                #     )
         elif grasps_success and grasps_path and os.path.exists(grasps_path):
             filtering_success, filtered_grasps_path = run_grasp_filtering_stage(
                 object_name, grasps_path, obj["xml"], object_output_dir

@@ -1,0 +1,210 @@
+[
+  {
+    "joint": "Doorway_Double_6_doorway_door_6_joint_0",
+    "handle_mesh": "Doorway_Double_6_doorway_door_6_joint_0.obj",
+    "handle_geoms": [
+      "Doorway_Double_6_doorway_handle_6"
+    ],
+    "joint_info": {
+      "name": "Doorway_Double_6_doorway_door_6_joint_0",
+      "type": "hinge",
+      "axis": "0 -1 0",
+      "range": "0 1.5707963267948966",
+      "pos": "-0 0 0",
+      "limited": "false",
+      "damping": "0.10000000000000001",
+      "frictionloss": "0",
+      "parent_body": "Doorway_Double_6_doorway_door_6",
+      "body_hierarchy": "Doorway_Double_6/Doorway_Double_6_doorway_double_6/Doorway_Double_6_doorway_door_6",
+      "position": {
+        "x": 0.9145998954772954,
+        "y": -0.03761020599365228,
+        "z": 0.0
+      },
+      "rotation_axis": {
+        "x": -1.224646799147354e-16,
+        "y": -1.0,
+        "z": -1.224646799147354e-16
+      },
+      "local_position": {
+        "x": -0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": -1.0,
+        "z": 0.0
+      },
+      "parent_position": {
+        "x": 0.9145998954772954,
+        "y": -0.03761020599365228,
+        "z": 0.0
+      },
+      "parent_rotation": {
+        "w": 0.9999999999999999,
+        "x": 0.0,
+        "y": 0.0,
+        "z": -6.123233995736766e-17
+      }
+    },
+    "grasps_file": "Doorway_Double_6_doorway_door_6_joint_0_grasps.json",
+    "filtered_grasps_file": "Doorway_Double_6_doorway_door_6_joint_0_grasps_filtered.json"
+  },
+  {
+    "joint": "Doorway_Double_6_doorway_handle_6_joint_0",
+    "handle_mesh": "Doorway_Double_6_doorway_handle_6_joint_0.obj",
+    "handle_geoms": [
+      "Doorway_Double_6_doorway_handle_6"
+    ],
+    "joint_info": {
+      "name": "Doorway_Double_6_doorway_handle_6_joint_0",
+      "type": "hinge",
+      "axis": "0 0 -1",
+      "range": "0 1.5707963267948966",
+      "pos": "0 0 0",
+      "limited": "false",
+      "damping": "0.10000000000000001",
+      "frictionloss": "0",
+      "parent_body": "Doorway_Double_6_doorway_handle_6",
+      "body_hierarchy": "Doorway_Double_6/Doorway_Double_6_doorway_double_6/Doorway_Double_6_doorway_door_6/Doorway_Double_6_doorway_handle_6",
+      "position": {
+        "x": 0.08135747909545865,
+        "y": -0.1029352277374266,
+        "z": -8.000007878274463e-18
+      },
+      "rotation_axis": {
+        "x": 1.4997597826618587e-32,
+        "y": 1.2246467991473535e-16,
+        "z": -1.0000000000000009
+      },
+      "local_position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -1.0
+      },
+      "parent_position": {
+        "x": 0.08135747909545865,
+        "y": -0.1029352277374266,
+        "z": -8.000007878274463e-18
+      },
+      "parent_rotation": {
+        "w": 0.9999999999999999,
+        "x": 0.0,
+        "y": 0.0,
+        "z": -6.123233995736766e-17
+      }
+    },
+    "grasps_file": "Doorway_Double_6_doorway_handle_6_joint_0_grasps.json",
+    "filtered_grasps_file": "Doorway_Double_6_doorway_handle_6_joint_0_grasps_filtered.json"
+  },
+  {
+    "joint": "Doorway_Double_6_doorway_door_6_1_joint_0",
+    "handle_mesh": "Doorway_Double_6_doorway_door_6_1_joint_0.obj",
+    "handle_geoms": [
+      "Doorway_Double_6_doorway_handle_6_1"
+    ],
+    "joint_info": {
+      "name": "Doorway_Double_6_doorway_door_6_1_joint_0",
+      "type": "hinge",
+      "axis": "0 1 0",
+      "range": "0 1.5707963267948966",
+      "pos": "-0 0 0",
+      "limited": "false",
+      "damping": "0.10000000000000001",
+      "frictionloss": "0",
+      "parent_body": "Doorway_Double_6_doorway_door_6_1",
+      "body_hierarchy": "Doorway_Double_6/Doorway_Double_6_doorway_double_6/Doorway_Double_6_doorway_door_6_1",
+      "position": {
+        "x": -0.9145998954772954,
+        "y": -0.03761020599365228,
+        "z": 0.0
+      },
+      "rotation_axis": {
+        "x": -1.224646799147354e-16,
+        "y": 1.0,
+        "z": -1.4997597826618587e-32
+      },
+      "local_position": {
+        "x": -0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "parent_position": {
+        "x": -0.9145998954772954,
+        "y": -0.03761020599365228,
+        "z": 0.0
+      },
+      "parent_rotation": {
+        "w": 6.123233995736767e-17,
+        "x": -6.123233995736767e-17,
+        "y": 1.0,
+        "z": -0.0
+      }
+    },
+    "grasps_file": "Doorway_Double_6_doorway_door_6_1_joint_0_grasps.json",
+    "filtered_grasps_file": "Doorway_Double_6_doorway_door_6_1_joint_0_grasps_filtered.json"
+  },
+  {
+    "joint": "Doorway_Double_6_doorway_handle_6_1_joint_0",
+    "handle_mesh": "Doorway_Double_6_doorway_handle_6_1_joint_0.obj",
+    "handle_geoms": [
+      "Doorway_Double_6_doorway_handle_6_1"
+    ],
+    "joint_info": {
+      "name": "Doorway_Double_6_doorway_handle_6_1_joint_0",
+      "type": "hinge",
+      "axis": "0 0 -1",
+      "range": "0 1.5707963267948966",
+      "pos": "0 0 0",
+      "limited": "false",
+      "damping": "0.10000000000000001",
+      "frictionloss": "0",
+      "parent_body": "Doorway_Double_6_doorway_handle_6_1",
+      "body_hierarchy": "Doorway_Double_6/Doorway_Double_6_doorway_double_6/Doorway_Double_6_doorway_door_6_1/Doorway_Double_6_doorway_handle_6_1",
+      "position": {
+        "x": -0.0813574790954591,
+        "y": -0.1029352277374266,
+        "z": 1.0204276581358221e-16
+      },
+      "rotation_axis": {
+        "x": -1.224646799147354e-16,
+        "y": -1.3684555315672042e-48,
+        "z": 1.0000000000000004
+      },
+      "local_position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -1.0
+      },
+      "parent_position": {
+        "x": -0.0813574790954591,
+        "y": -0.1029352277374266,
+        "z": 1.0204276581358221e-16
+      },
+      "parent_rotation": {
+        "w": 6.123233995736767e-17,
+        "x": -6.123233995736767e-17,
+        "y": 1.0,
+        "z": -0.0
+      }
+    },
+    "grasps_file": "Doorway_Double_6_doorway_handle_6_1_joint_0_grasps.json",
+    "filtered_grasps_file": "Doorway_Double_6_doorway_handle_6_1_joint_0_grasps_filtered.json"
+  }
+]

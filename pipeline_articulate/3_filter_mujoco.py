@@ -12,7 +12,7 @@ import mujoco
 import mujoco.viewer
 
 from scipy.spatial.transform import Rotation as R
-
+import re
 
 def rotation_matrix_from_axis_angle(axis, angle):
     axis = axis / np.linalg.norm(axis)
@@ -70,6 +70,8 @@ def check_sufficient_joint_movement(
 def is_grasping(model, data, handle_geoms):
     left_patterns = ["left_finger", "finger_l", "gripper_finger_left"]
     right_patterns = ["right_finger", "finger_r", "gripper_finger_right"]
+
+    handle_geoms = [re.sub(r"^[^a-zA-Z]+|[^a-zA-Z]+$", "", geom) for geom in handle_geoms]
 
     for i in range(data.ncon):
         contact = data.contact[i]
@@ -527,6 +529,11 @@ def run_simulation_with_viewer(
             pbar.set_description(
                 f"Testing grasps ({len(successful_transforms)}/{i + 1} successful)"
             )
+            
+            # Check if we've reached max_successful grasps and should stop early
+            if args.max_successful > 0 and len(successful_transforms) >= args.max_successful:
+                print(f"\nReached maximum successful grasps ({args.max_successful}). Stopping early.")
+                break
 
         return successful_transforms, successful_qualities, successful_widths
 

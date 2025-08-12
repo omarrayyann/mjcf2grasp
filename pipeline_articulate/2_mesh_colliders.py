@@ -74,6 +74,14 @@ def convert_xml_to_use_mesh_colliders(
     if worldbody is None or asset_section is None:
         return xml_string  # Return unchanged if structure is unexpected
     
+    # Keep track of used geom names to ensure uniqueness
+    used_geom_names = set()
+    # Collect all existing geom names in the XML
+    for geom in root.findall(".//geom"):
+        name = geom.get("name")
+        if name:
+            used_geom_names.add(name)
+    
     # Get all bodies in the worldbody
     main_bodies = worldbody.findall("body")
     
@@ -219,10 +227,18 @@ def convert_xml_to_use_mesh_colliders(
                             mesh_element.tail = "\n    "
                             asset_section.append(mesh_element)
                         
-                        # Add collision geom to body
+                        # Add collision geom to body with unique name
+                        base_geom_name = f"{body_name}_{mesh_name}__MeshCollider_{i}"
+                        geom_name = base_geom_name
+                        counter = 1
+                        while geom_name in used_geom_names:
+                            geom_name = f"{base_geom_name}_{counter}"
+                            counter += 1
+                        used_geom_names.add(geom_name)
+                        
                         geom_element = etree.Element(
                             "geom",
-                            name=f"{body_name}_{mesh_name}__MeshCollider_{i}",
+                            name=geom_name,
                             type="mesh",
                             mesh=asset_mesh_name,
                             **{"class": dynamic_class}
