@@ -2,8 +2,11 @@ import json
 import os
 import subprocess
 import sys
+import wandb
 from datetime import datetime
 from pathlib import Path
+
+USE_WANDB = True
 
 
 def load_articulated_objects():
@@ -359,6 +362,35 @@ def main():
         print("No articulatable objects found to process!")
         return 1
 
+    # Initialize wandb if enabled
+    if USE_WANDB:
+        wandb.init(
+            project="thor-articulated-grasp-pipeline",
+            name=f"articulated-processing-{datetime.now().strftime('%Y%m%d_%H%M%S')}",
+            config={
+                "total_objects": len(articulated_objects),
+                "approach_distance": 0.5,
+                "approach_steps": 5,
+                "max_successful_grasps": 100,
+                "num_workers": 10,
+                "pipeline_stages": "0-3",
+            },
+        )
+
+        wandb.define_metric("step")
+        wandb.define_metric("completion_percentage", step_metric="step")
+        wandb.define_metric("processed_objects", step_metric="step")
+        wandb.define_metric("remaining_objects", step_metric="step")
+        wandb.define_metric("grasp_count", step_metric="step")
+        wandb.define_metric("filtered_count", step_metric="step")
+        wandb.define_metric("filter_success_rate", step_metric="step")
+
+        print(f"Starting processing of {len(articulated_objects)} articulated objects")
+        print(f"Monitor progress at: {wandb.run.url}")
+        wandb.log({"total_objects": len(articulated_objects), "step": 0})
+    else:
+        print(f"Starting processing of {len(articulated_objects)} articulated objects (wandb disabled)")
+
     output_base = "output_articulate"
     os.makedirs(output_base, exist_ok=True)
 
@@ -374,6 +406,17 @@ def main():
 
         object_output_dir = os.path.join(output_base, object_name)
         os.makedirs(object_output_dir, exist_ok=True)
+
+        # Log current object progress to wandb
+        if USE_WANDB:
+            wandb.log(
+                {
+                    "current_object": object_name,
+                    "progress": (i + 1) / len(articulated_objects),
+                    "processed_count": i + 1,
+                    "step": i + 1,
+                }
+            )
 
         success, handle_mesh, full_mesh = run_handle_detection_stage(
             obj, object_output_dir
@@ -575,10 +618,31 @@ def main():
                     print(
                         f"   Filtered per-joint grasp visualization completed for {object_name}"
                     )
+                    
+                    # Log visualization to wandb if enabled
+                    if USE_WANDB and os.path.exists(visualization_png):
+                        wandb.log(
+                            {
+                                f"{object_name}_filtered_grasps_visualization": wandb.Image(
+                                    visualization_png, 
+                                    caption=f"Filtered articulated grasps for {object_name}"
+                                ),
+                                "visualization_success": True,
+                            }
+                        )
                 except subprocess.CalledProcessError as e:
                     print(
                         f"   Warning: Filtered per-joint grasp visualization failed for {object_name}: {str(e)}"
                     )
+                    # Log visualization failure to wandb if enabled
+                    if USE_WANDB:
+                        wandb.log(
+                            {
+                                "failed_visualization": object_name,
+                                "error": str(e),
+                                "visualization_success": False,
+                            }
+                        )
         elif grasps_success and grasps_path and os.path.exists(grasps_path):
             filtering_success, filtered_grasps_path = run_grasp_filtering_stage(
                 object_name, grasps_path, obj["xml"], object_output_dir
@@ -618,12 +682,72 @@ def main():
             else:
                 status = "Partially processed (no joint analysis)"
             print(f"   {status}: {object_name}")
+            
+            # Log object completion to wandb
+            if USE_WANDB:
+                # Calculate grasp metrics
+                grasp_count = 0
+                filtered_count = 0
+                
+                if filtering_success and filtered_grasps_path and os.path.exists(filtered_grasps_path):
+                    try:
+                        with open(filtered_grasps_path, "r") as f:
+                            filtered_data = json.load(f)
+                        for entry in filtered_data:
+                            if "filtered_grasps_file" in entry:
+                                filtered_file = os.path.join(
+                                    object_output_dir, entry["filtered_grasps_file"]
+                                )
+                                if os.path.exists(filtered_file):
+                                    with open(filtered_file, "r") as ff:
+                                        filtered_grasp_data = json.load(ff)
+                                    filtered_count += len(filtered_grasp_data.get("transforms", []))
+                            
+                            if "grasps_file" in entry:
+                                grasp_file = os.path.join(
+                                    object_output_dir, entry["grasps_file"]
+                                )
+                                if os.path.exists(grasp_file):
+                                    with open(grasp_file, "r") as gf:
+                                        grasp_data = json.load(gf)
+                                    grasp_count += len(grasp_data.get("transforms", []))
+                    except:
+                        pass
+                
+                filter_success_rate = (filtered_count / grasp_count * 100) if grasp_count > 0 else 0
+                completion_percentage = (processed_objects / len(articulated_objects)) * 100
+                
+                wandb.log(
+                    {
+                        "completion_percentage": completion_percentage,
+                        "processed_objects": processed_objects,
+                        "remaining_objects": len(articulated_objects) - processed_objects,
+                        "overall_progress": processed_objects / len(articulated_objects),
+                        "object_completed": object_name,
+                        "grasp_count": grasp_count,
+                        "filtered_count": filtered_count,
+                        "filter_success_rate": filter_success_rate,
+                        "stage_handle_detection": True,
+                        "stage_joint_axis_analysis": joint_axis_success,
+                        "stage_grasp_generation": grasps_success,
+                        "stage_grasp_filtering": filtering_success,
+                        "step": processed_objects,
+                    }
+                )
         else:
             failed_objects.append(object_name)
             print(f"   Failed to process {object_name}")
 
         progress = (i + 1) / len(articulated_objects) * 100
         print(f"   Progress: {progress:.1f}% ({i + 1}/{len(articulated_objects)})")
+        
+        # Progress bar similar to run_pipeline.py
+        progress_bar_width = 50
+        filled_width = int(progress_bar_width * ((i + 1) / len(articulated_objects)))
+        progress_bar = "█" * filled_width + "░" * (progress_bar_width - filled_width)
+        
+        print(f"Progress: [{progress_bar}] {progress:.1f}% ({i + 1}/{len(articulated_objects)})")
+        print("=" * 80)
 
     print("\n" + "=" * 60)
     print("ARTICULATED PIPELINE STAGES 0-3 COMPLETE!")
@@ -671,6 +795,49 @@ def main():
     with open(summary_path, "w") as f:
         json.dump(summary, f, indent=2)
     print(f"\nPipeline summary saved to: {summary_path}")
+
+    # Log final results to wandb
+    if USE_WANDB:
+        wandb.log(
+            {
+                "pipeline_complete": True,
+                "total_processed": processed_objects,
+                "total_failed": len(failed_objects),
+                "objects_with_joint_analysis": objects_with_joint_analysis,
+                "objects_with_grasps": objects_with_grasps,
+                "objects_with_filtered_grasps": objects_with_filtered_grasps,
+                "success_rate": (processed_objects - len(failed_objects)) / processed_objects * 100 if processed_objects > 0 else 0,
+            }
+        )
+
+        # Create summary table for wandb
+        summary_data = []
+        for obj in successful_objects:
+            stages = obj.get("stages_completed", {})
+            summary_data.append([
+                obj["name"],
+                "✓" if stages.get("handle_detection", False) else "✗",
+                "✓" if stages.get("joint_axis_analysis", False) else "✗",
+                "✓" if stages.get("grasp_generation", False) else "✗",
+                "✓" if stages.get("grasp_filtering", False) else "✗",
+            ])
+
+        table = wandb.Table(
+            columns=[
+                "Object",
+                "Handle Detection",
+                "Joint Analysis", 
+                "Grasp Generation",
+                "Grasp Filtering",
+            ],
+            data=summary_data,
+        )
+        wandb.log({"processing_summary": table})
+
+        wandb.finish()
+        print("Results logged to Weights & Biases!")
+    else:
+        print("Pipeline completed (wandb was disabled)")
 
     print("\nNEXT STEPS:")
     print(
