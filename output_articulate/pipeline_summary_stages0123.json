@@ -1,6 +1,6 @@
 {
   "pipeline_stages": "Stages 0-3 - Handle Detection, Joint Analysis, Grasp Generation & Filtering",
-  "timestamp": "2025-08-12T19:20:42.774894",
+  "timestamp": "2025-08-12T19:33:20.719162",
   "total_objects": 1,
   "processed_objects": 1,
   "objects_with_joint_analysis": 0,
@@ -9,14 +9,14 @@
   "failed_objects": [],
   "successful_objects": [
     {
-      "name": "Doorway_5",
-      "handle_mesh": "output_articulate/Doorway_5/Doorway_5_doorway_handle_5_joint_0.obj",
-      "full_mesh": "output_articulate/Doorway_5/main.obj",
+      "name": "Shelving_Unit_303_1",
+      "handle_mesh": null,
+      "full_mesh": "output_articulate/Shelving_Unit_303_1/main.obj",
       "grasps": null,
-      "filtered_grasps": "output_articulate/Doorway_5/joint_meshes_info_filtered.json",
+      "filtered_grasps": "output_articulate/Shelving_Unit_303_1/joint_meshes_info_filtered.json",
       "joint_axis": null,
-      "xml": "/home/lambda1/Documents/thor-grasp/assets/ThorAssets/ManipulaTHOR Objects/Doorways/Prefabs/Doorway_5/Doorway_5.xml",
-      "output_dir": "output_articulate/Doorway_5",
+      "xml": "/home/lambda1/Documents/thor-grasp/assets/ThorAssets/Common Objects/ShelvingUnit/Prefabs/Shelving_Unit_303_1/Shelving_Unit_303_1.xml",
+      "output_dir": "output_articulate/Shelving_Unit_303_1",
       "stages_completed": {
         "handle_detection": true,
         "joint_axis_analysis": false,

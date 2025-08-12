@@ -1,0 +1,53 @@
+[
+  {
+    "joint": "Safe_18_1_safe_door_18_joint_0",
+    "handle_mesh": "Safe_18_1_safe_door_18_joint_0.obj",
+    "handle_geoms": [
+      "Safe_18_1_safe_door_18_0",
+      "Safe_18_1_safe_door_18_1"
+    ],
+    "joint_info": {
+      "name": "Safe_18_1_safe_door_18_joint_0",
+      "type": "unknown",
+      "axis": "0 -1 0",
+      "range": "0 1.5708",
+      "pos": "0 0 0",
+      "limited": "false",
+      "damping": "0.1",
+      "frictionloss": "0.5",
+      "parent_body": "Safe_18_1_safe_door_18",
+      "body_hierarchy": "Safe_18_1/Safe_18_1_safe_door_18",
+      "position": {
+        "x": -0.239418,
+        "y": -0.002621,
+        "z": 0.224967
+      },
+      "rotation_axis": {
+        "x": 0.0,
+        "y": -1.0,
+        "z": 0.0
+      },
+      "local_position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": -1.0,
+        "z": 0.0
+      },
+      "parent_position": {
+        "x": -0.239418,
+        "y": -0.002621,
+        "z": 0.224967
+      },
+      "parent_rotation": {
+        "w": 1.0,
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    }
+  }
+]

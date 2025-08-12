@@ -1,0 +1,202 @@
+[
+  {
+    "joint": "Dresser_205_1_joint",
+    "handle_mesh": "Dresser_205_1_joint.obj",
+    "handle_geoms": [
+      "Dresser_205_1_handle_1_305mm_0"
+    ],
+    "joint_info": {
+      "name": "Dresser_205_1_joint",
+      "type": "slide",
+      "axis": "0 0 1",
+      "range": "0 0.206",
+      "pos": "0 0 0",
+      "limited": "false",
+      "damping": "0.1",
+      "frictionloss": "2",
+      "parent_body": "Dresser_205_1_DrawerMesh_0",
+      "body_hierarchy": "Dresser_205_1/Dresser_205_1_DresserMesh/Dresser_205_1_DrawerMesh_0",
+      "position": {
+        "x": -0.275986,
+        "y": 0.12845300000000004,
+        "z": 0.051671499999999995
+      },
+      "rotation_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "local_position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "parent_position": {
+        "x": -0.275986,
+        "y": 0.12845300000000004,
+        "z": 0.051671499999999995
+      },
+      "parent_rotation": {
+        "w": 1.0,
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    }
+  },
+  {
+    "joint": "Dresser_205_1_DrawerMesh_1__1",
+    "handle_mesh": "Dresser_205_1_DrawerMesh_1__1.obj",
+    "handle_geoms": [
+      "Dresser_205_1_handle_1_305mm_1"
+    ],
+    "joint_info": {
+      "name": "Dresser_205_1_DrawerMesh_1__1",
+      "type": "slide",
+      "axis": "0 0 1",
+      "range": "0 0.206",
+      "pos": "0 0 0",
+      "limited": "false",
+      "damping": "0.1",
+      "frictionloss": "2",
+      "parent_body": "Dresser_205_1_DrawerMesh_1",
+      "body_hierarchy": "Dresser_205_1/Dresser_205_1_DresserMesh/Dresser_205_1_DrawerMesh_1",
+      "position": {
+        "x": -0.275986,
+        "y": -0.18132399999999999,
+        "z": 0.051671499999999995
+      },
+      "rotation_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "local_position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "parent_position": {
+        "x": -0.275986,
+        "y": -0.18132399999999999,
+        "z": 0.051671499999999995
+      },
+      "parent_rotation": {
+        "w": 1.0,
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    }
+  },
+  {
+    "joint": "Dresser_205_1_DrawerMesh_2__1",
+    "handle_mesh": "Dresser_205_1_DrawerMesh_2__1.obj",
+    "handle_geoms": [
+      "Dresser_205_1_handle_1_305mm_2"
+    ],
+    "joint_info": {
+      "name": "Dresser_205_1_DrawerMesh_2__1",
+      "type": "slide",
+      "axis": "0 0 1",
+      "range": "0 0.206",
+      "pos": "0 0 0",
+      "limited": "false",
+      "damping": "0.1",
+      "frictionloss": "2",
+      "parent_body": "Dresser_205_1_DrawerMesh_2",
+      "body_hierarchy": "Dresser_205_1/Dresser_205_1_DresserMesh/Dresser_205_1_DrawerMesh_2",
+      "position": {
+        "x": 0.275799,
+        "y": -0.18132399999999999,
+        "z": 0.051671499999999995
+      },
+      "rotation_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "local_position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "parent_position": {
+        "x": 0.275799,
+        "y": -0.18132399999999999,
+        "z": 0.051671499999999995
+      },
+      "parent_rotation": {
+        "w": 1.0,
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    }
+  },
+  {
+    "joint": "Dresser_205_1_DrawerMesh_3__1",
+    "handle_mesh": "Dresser_205_1_DrawerMesh_3__1.obj",
+    "handle_geoms": [
+      "Dresser_205_1_handle_1_305mm_3"
+    ],
+    "joint_info": {
+      "name": "Dresser_205_1_DrawerMesh_3__1",
+      "type": "slide",
+      "axis": "0 0 1",
+      "range": "0 0.206",
+      "pos": "0 0 0",
+      "limited": "false",
+      "damping": "0.1",
+      "frictionloss": "2",
+      "parent_body": "Dresser_205_1_DrawerMesh_3",
+      "body_hierarchy": "Dresser_205_1/Dresser_205_1_DresserMesh/Dresser_205_1_DrawerMesh_3",
+      "position": {
+        "x": 0.275799,
+        "y": 0.12845300000000004,
+        "z": 0.051671499999999995
+      },
+      "rotation_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "local_position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "parent_position": {
+        "x": 0.275799,
+        "y": 0.12845300000000004,
+        "z": 0.051671499999999995
+      },
+      "parent_rotation": {
+        "w": 1.0,
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    }
+  }
+]

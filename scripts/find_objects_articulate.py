@@ -97,7 +97,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("directory", help="Base directory to search")
     parser.add_argument(
-        "--output", default="matched_objs.json", help="Output JSON file name"
+        "--output", default="articulated_matched_objs.json", help="Output JSON file name"
     )
 
     args = parser.parse_args()

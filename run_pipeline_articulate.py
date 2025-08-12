@@ -6,7 +6,7 @@ import wandb
 from datetime import datetime
 from pathlib import Path
 
-USE_WANDB = True
+USE_WANDB = False
 
 
 def load_articulated_objects():
