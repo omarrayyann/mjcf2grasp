@@ -6,6 +6,15 @@ import open3d as o3d
 import xml.etree.ElementTree as ET
 import os
 import trimesh.transformations as tra
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+from multiprocessing import Pool, cpu_count
+from PIL import Image
+import io
+import time
 
 def parse_joint_world_poses(xml_path):
     tree = ET.parse(xml_path)
@@ -28,6 +37,25 @@ def parse_joint_world_poses(xml_path):
                     world_poses[joint_name] = (joint_pos, joint_quat)
                 body_stack.append((child, abs_pos, abs_quat))
     return world_poses
+
+def plot_mesh_matplotlib(ax, mesh, color=None, alpha=0.3):
+    if color is None:
+        color = [0.7, 0.7, 1.0]
+    
+    vertices = mesh.vertices
+    faces = mesh.faces
+    
+    triangles = []
+    for face in faces:
+        triangle = vertices[face]
+        triangles.append(triangle)
+    
+    collection = Poly3DCollection(
+        triangles, alpha=alpha, facecolor=color, edgecolor='none', linewidth=0.0
+    )
+    ax.add_collection3d(collection)
+    
+    return collection
 
 def plot_mesh(mesh, color=None):
     o3d_mesh = o3d.geometry.TriangleMesh()
@@ -64,6 +92,20 @@ def get_grasp_pc():
     modified_grasp_pc.append(grasp_pc[5])
     return np.asarray(modified_grasp_pc)
 
+def plot_grasp_lines_matplotlib(ax, grasp_tf, color=(0,1,0)):
+    grasp_pc = get_grasp_pc()
+    pts = np.matmul(grasp_pc, grasp_tf[:3, :3].T)
+    pts += np.expand_dims(grasp_tf[:3, 3], 0)
+    
+    for j in range(len(pts) - 1):
+        ax.plot(
+            [pts[j, 0], pts[j + 1, 0]],
+            [pts[j, 1], pts[j + 1, 1]],
+            [pts[j, 2], pts[j + 1, 2]],
+            color=color,
+            linewidth=2,
+        )
+
 def plot_grasp_lines(grasp_tf, color=(0,1,0)):
     grasp_pc = get_grasp_pc()
     pts = np.matmul(grasp_pc, grasp_tf[:3, :3].T)
@@ -77,6 +119,139 @@ def plot_grasp_lines(grasp_tf, color=(0,1,0)):
     line_set.colors = o3d.utility.Vector3dVector([color]*len(lines))
     return line_set
 
+def _plot_single_view(ax, full_mesh, joint_grasps, args, azim=45, elev=30):
+    # Set up the 3D plot styling (similar to visualize.py)
+    ax.xaxis.pane.fill = False
+    ax.yaxis.pane.fill = False
+    ax.zaxis.pane.fill = False
+    ax.xaxis.pane.set_edgecolor('black')
+    ax.yaxis.pane.set_edgecolor('black')
+    ax.zaxis.pane.set_edgecolor('black')
+    ax.xaxis.pane.set_alpha(0.0)
+    ax.yaxis.pane.set_alpha(0.0)
+    ax.zaxis.pane.set_alpha(0.0)
+    ax.grid(False)
+    ax.set_facecolor('black')
+    
+    # Plot the full mesh
+    plot_mesh_matplotlib(ax, full_mesh, color=[0.7, 0.7, 1.0], alpha=0.3)
+    
+    # Colors for different joints
+    colors = [(1, 0, 0), (0, 1, 0), (0, 0, 1), (1, 1, 0), (1, 0, 1), (0, 1, 1)]
+    
+    for joint_idx, entry in enumerate(joint_grasps):
+        joint = entry['joint']
+        if args.filtered_grasps:
+            grasps_file = os.path.join(os.path.dirname(args.grasps_json), entry['filtered_grasps_file'])
+        else:
+            grasps_file = os.path.join(os.path.dirname(args.grasps_json), entry['grasps_file'])
+        handle_mesh_file = os.path.join(os.path.dirname(args.grasps_json), entry['handle_mesh'])
+        
+        if not os.path.exists(grasps_file):
+            continue
+            
+        with open(grasps_file, 'r') as gf:
+            grasps = json.load(gf)
+        transforms = np.array(grasps['transforms'])
+        
+        # Limit number of grasps per joint
+        if len(transforms) > args.max_grasps_per_joint:
+            idx = np.random.choice(len(transforms), args.max_grasps_per_joint, replace=False)
+            transforms = transforms[idx]
+        
+        # Use different color for each joint
+        joint_color = colors[joint_idx % len(colors)]
+        
+        # Plot grasps for this joint
+        for t in transforms:
+            t = np.array(t)
+            plot_grasp_lines_matplotlib(ax, t, color=joint_color)
+            
+            if args.handle_meshes:
+                try:
+                    handle_mesh = trimesh.load(handle_mesh_file)
+                    handle_mesh_tf = handle_mesh.copy()
+                    handle_mesh_tf.apply_transform(t)
+                    plot_mesh_matplotlib(ax, handle_mesh_tf, color=joint_color, alpha=0.5)
+                except:
+                    pass
+    
+    # Set proper bounds based on the mesh
+    bounds = full_mesh.bounds
+    center = full_mesh.center_mass
+    max_extent = np.max(full_mesh.extents)
+    
+    zoom_factor = 2.5
+    ax.set_xlim(center[0] - max_extent / zoom_factor, center[0] + max_extent / zoom_factor)
+    ax.set_ylim(center[1] - max_extent / zoom_factor, center[1] + max_extent / zoom_factor)
+    ax.set_zlim(center[2] - max_extent / zoom_factor, center[2] + max_extent / zoom_factor)
+    
+    ax.view_init(elev=elev, azim=azim)
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Z')
+
+def _render_single_view_to_image(args_tuple):
+    (view_idx, azim, elev, full_mesh, joint_grasps, args) = args_tuple
+    
+    fig = plt.figure(figsize=(10, 10), facecolor='black')
+    ax = fig.add_subplot(111, projection='3d')
+    
+    _plot_single_view(ax, full_mesh, joint_grasps, args, azim, elev)
+    
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png', dpi=100, bbox_inches='tight', facecolor='black', pad_inches=0)
+    plt.close(fig)
+    
+    buf.seek(0)
+    return view_idx, buf.getvalue()
+
+def _create_parallel_collage(full_mesh, joint_grasps, args, save_png):
+    camera_setups = [
+        (0, 60), (60, 60), (120, 60),
+        (0, 0), (60, 0), (120, 0),
+        (0, -60), (60, -60), (120, -60)
+    ]
+    
+    args_list = []
+    for view_idx, (azim, elev) in enumerate(camera_setups):
+        args_list.append((view_idx, azim, elev, full_mesh, joint_grasps, args))
+    
+    print(f"Rendering 9 views in parallel using {min(len(args_list), cpu_count())} processes...")
+    start_time = time.time()
+    
+    with Pool(processes=min(len(args_list), cpu_count())) as pool:
+        results = pool.map(_render_single_view_to_image, args_list)
+    
+    parallel_time = time.time() - start_time
+    print(f"Parallel rendering completed in {parallel_time:.2f} seconds")
+    
+    # Sort results by view index
+    results.sort(key=lambda x: x[0])
+    
+    # Create collage
+    images = []
+    for view_idx, image_data in results:
+        img = Image.open(io.BytesIO(image_data))
+        images.append(img)
+    
+    img_width, img_height = images[0].size
+    collage_width = img_width * 3
+    collage_height = img_height * 3
+    
+    collage = Image.new('RGB', (collage_width, collage_height), color='black')
+    
+    for i, img in enumerate(images):
+        row = i // 3
+        col = i % 3
+        x = col * img_width
+        y = row * img_height
+        collage.paste(img, (x, y))
+    
+    collage.save(save_png)
+    total_time = time.time() - start_time
+    print(f"High-quality 3x3 collage saved to {save_png} (total time: {total_time:.2f}s)")
+
 def main():
     parser = argparse.ArgumentParser(description='Visualize all per-joint grasps on the full mesh.')
     parser.add_argument('--grasps_json', type=str, required=True, help='Path to per-joint grasps summary JSON.')
@@ -85,6 +260,9 @@ def main():
     parser.add_argument('--handle_meshes', action='store_true', help='Show handle meshes at each grasp (for debugging)')
     parser.add_argument('--max_grasps_per_joint', type=int, default=200, help='Maximum number of grasps to show per joint')
     parser.add_argument('--filtered_grasps', action='store_true', help='Show filtered grasps')
+    parser.add_argument('--save-png', type=str, default=None, help='Save visualization as PNG file to specified path')
+    parser.add_argument('--render', action='store_true', default=True, help='Show interactive visualization window (default: True)')
+    parser.add_argument('--no-render', dest='render', action='store_false', help='Do not show interactive visualization window')
     args = parser.parse_args()
 
     # Load full mesh
@@ -94,32 +272,59 @@ def main():
     # Load per-joint grasps summary
     with open(args.grasps_json, 'r') as f:
         joint_grasps = json.load(f)
-    geometries = [plot_mesh(full_mesh, color=[0.7,0.7,1.0])]
-    for entry in joint_grasps:
-        joint = entry['joint']
-        if args.filtered_grasps:
-            grasps_file = os.path.join(os.path.dirname(args.grasps_json), entry['filtered_grasps_file'])
-        else:
-            grasps_file = os.path.join(os.path.dirname(args.grasps_json), entry['grasps_file'])
-        handle_mesh_file = os.path.join(os.path.dirname(args.grasps_json), entry['handle_mesh'])
-        with open(grasps_file, 'r') as gf:
-            grasps = json.load(gf)
-        transforms = np.array(grasps['transforms'])
-        # Limit number of grasps per joint
-        if len(transforms) > args.max_grasps_per_joint:
-            idx = np.random.choice(len(transforms), args.max_grasps_per_joint, replace=False)
-            transforms = transforms[idx]
-        # For each grasp, transform the grasp shape to world (grasp_only mode)
-        for t in transforms:
-            t = np.array(t)
-            tf_world = t
-            geometries.append(plot_grasp_lines(tf_world, color=(0,1,0)))
-            if args.handle_meshes:
-                handle_mesh = trimesh.load(handle_mesh_file)
-                handle_mesh_tf = handle_mesh.copy()
-                handle_mesh_tf.apply_transform(tf_world)
-                geometries.append(plot_mesh(handle_mesh_tf, color=[1,0,0]))
-    o3d.visualization.draw_geometries(geometries)
+    
+    if args.save_png:
+        # Create PNG collage
+        _create_parallel_collage(full_mesh, joint_grasps, args, args.save_png)
+    
+    if args.render:
+        # Create interactive Open3D visualization
+        geometries = [plot_mesh(full_mesh, color=[0.7,0.7,1.0])]
+        
+        # Colors for different joints
+        colors = [(1, 0, 0), (0, 1, 0), (0, 0, 1), (1, 1, 0), (1, 0, 1), (0, 1, 1)]
+        
+        for joint_idx, entry in enumerate(joint_grasps):
+            joint = entry['joint']
+            if args.filtered_grasps:
+                grasps_file = os.path.join(os.path.dirname(args.grasps_json), entry['filtered_grasps_file'])
+            else:
+                grasps_file = os.path.join(os.path.dirname(args.grasps_json), entry['grasps_file'])
+            handle_mesh_file = os.path.join(os.path.dirname(args.grasps_json), entry['handle_mesh'])
+            
+            if not os.path.exists(grasps_file):
+                continue
+                
+            with open(grasps_file, 'r') as gf:
+                grasps = json.load(gf)
+            transforms = np.array(grasps['transforms'])
+            
+            # Limit number of grasps per joint
+            if len(transforms) > args.max_grasps_per_joint:
+                idx = np.random.choice(len(transforms), args.max_grasps_per_joint, replace=False)
+                transforms = transforms[idx]
+            
+            # Use different color for each joint
+            joint_color = colors[joint_idx % len(colors)]
+            
+            # For each grasp, transform the grasp shape to world (grasp_only mode)
+            for t in transforms:
+                t = np.array(t)
+                tf_world = t
+                geometries.append(plot_grasp_lines(tf_world, color=joint_color))
+                if args.handle_meshes:
+                    try:
+                        handle_mesh = trimesh.load(handle_mesh_file)
+                        handle_mesh_tf = handle_mesh.copy()
+                        handle_mesh_tf.apply_transform(tf_world)
+                        geometries.append(plot_mesh(handle_mesh_tf, color=joint_color))
+                    except:
+                        pass
+        
+        o3d.visualization.draw_geometries(geometries)
+    
+    if not args.render and not args.save_png:
+        print("No visualization requested (--no-render and no --save-png)")
 
 if __name__ == '__main__':
     main()
