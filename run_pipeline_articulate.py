@@ -552,6 +552,9 @@ def main():
                     filtered_grasps_path = os.path.join(
                         object_output_dir, "joint_meshes_info_filtered.json"
                     )
+                    visualization_png = os.path.join(
+                        object_output_dir, f"{object_name}_filtered_grasps_visualization.png"
+                    )
                     subprocess.run(
                         [
                             "python",
@@ -564,7 +567,7 @@ def main():
                             full_mesh,
                             "--filtered_grasps",
                             "--save-png",
-                            "wow.png",
+                            visualization_png,
                             "--no-render"
                         ],
                         check=True,

@@ -1,0 +1,106 @@
+[
+  {
+    "joint": "Doorway_5_doorway_door_5_joint_0",
+    "handle_mesh": "Doorway_5_doorway_door_5_joint_0.obj",
+    "handle_geoms": [
+      "Doorway_5_doorway_handle_5"
+    ],
+    "joint_info": {
+      "name": "Doorway_5_doorway_door_5_joint_0",
+      "type": "unknown",
+      "axis": "0 1 0",
+      "range": "0 1.5708",
+      "pos": "0 0 0",
+      "limited": "false",
+      "damping": "0.1",
+      "frictionloss": "0.5",
+      "parent_body": "Doorway_5_doorway_door_5",
+      "body_hierarchy": "Doorway_5/Doorway_5_doorway_5/Doorway_5_doorway_door_5",
+      "position": {
+        "x": -0.4573000000000002,
+        "y": -0.03222999999999998,
+        "z": 7.302599999999985e-05
+      },
+      "rotation_axis": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "local_position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "parent_position": {
+        "x": -0.4573000000000002,
+        "y": -0.03222999999999998,
+        "z": 7.302599999999985e-05
+      },
+      "parent_rotation": {
+        "w": 0.0,
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      }
+    },
+    "grasps_file": "Doorway_5_doorway_door_5_joint_0_grasps.json",
+    "filtered_grasps_file": "Doorway_5_doorway_door_5_joint_0_grasps_filtered.json"
+  },
+  {
+    "joint": "Doorway_5_doorway_handle_5_joint_0",
+    "handle_mesh": "Doorway_5_doorway_handle_5_joint_0.obj",
+    "handle_geoms": [
+      "Doorway_5_doorway_handle_5"
+    ],
+    "joint_info": {
+      "name": "Doorway_5_doorway_handle_5_joint_0",
+      "type": "unknown",
+      "axis": "0 0 1",
+      "range": "-1.5708 0",
+      "pos": "0 0 0",
+      "limited": "false",
+      "damping": "0.1",
+      "frictionloss": "0",
+      "parent_body": "Doorway_5_doorway_handle_5",
+      "body_hierarchy": "Doorway_5/Doorway_5_doorway_5/Doorway_5_doorway_door_5/Doorway_5_doorway_handle_5",
+      "position": {
+        "x": 0.41437000000000007,
+        "y": -0.140029,
+        "z": -0.00016349500000000026
+      },
+      "rotation_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -1.0000000000000004
+      },
+      "local_position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "parent_position": {
+        "x": 0.41437000000000007,
+        "y": -0.140029,
+        "z": -0.00016349500000000026
+      },
+      "parent_rotation": {
+        "w": 0.0,
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      }
+    },
+    "grasps_file": "Doorway_5_doorway_handle_5_joint_0_grasps.json",
+    "filtered_grasps_file": "Doorway_5_doorway_handle_5_joint_0_grasps_filtered.json"
+  }
+]
