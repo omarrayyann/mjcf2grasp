@@ -103,25 +103,34 @@ def convert_xml_to_use_mesh_colliders(
             
             for geom_xml in child.findall("./geom"):
                 geom_class = geom_xml.attrib.get("class", "")
+                geom_type = geom_xml.attrib.get("type", "")
+                mesh_name = geom_xml.attrib.get("mesh", None)
                 
-                # Collect visual meshes
-                if geom_class in ["__VISUAL_MJT__", "visual"]:
-                    mesh_name = geom_xml.attrib.get("mesh", None)
-                    if mesh_name is not None:
-                        mesh_to_add.append(mesh_name)
+                # Collect visual meshes - be more inclusive in detection
+                is_visual = (
+                    geom_class in ["__VISUAL_MJT__", "visual"] or
+                    (mesh_name is not None and geom_type == "mesh" and geom_class not in ["__DYNAMIC_MJT__", "collision"]) or
+                    (mesh_name is not None and geom_class == "")  # geoms without class that have mesh
+                )
+                
+                if is_visual and mesh_name is not None:
+                    mesh_to_add.append(mesh_name)
                 
                 # Collect primitive collision geoms
-                elif geom_class in ["__DYNAMIC_MJT__", "collision"]:
+                elif geom_class in ["__DYNAMIC_MJT__", "collision"] and geom_type != "mesh":
                     primitive_geoms.append(geom_xml)
             
-            # Only proceed if we have both visual meshes and primitive colliders
-            if not mesh_to_add or not primitive_geoms:
+            # Process visual meshes if we have any (don't require primitive colliders)
+            if not mesh_to_add:
                 continue
+            
+            print(f"Processing body '{child.get('name', 'unnamed')}' with {len(mesh_to_add)} visual meshes and {len(primitive_geoms)} primitive colliders")
             
             n_mesh_colliders = 0
             
             # Process each visual mesh to find corresponding collision meshes
             for mesh_name in mesh_to_add:
+                print(f"  Looking for collision meshes for visual mesh: {mesh_name}")
                 # Find the mesh asset
                 mesh_xml = asset_section.find(f"mesh[@name='{mesh_name}']")
                 if mesh_xml is None:

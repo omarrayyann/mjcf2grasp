@@ -14,7 +14,6 @@ import mujoco.viewer
 from scipy.spatial.transform import Rotation as R
 import re
 
-
 def rotation_matrix_from_axis_angle(axis, angle):
     axis = axis / np.linalg.norm(axis)
     c = np.cos(angle)
@@ -72,9 +71,7 @@ def is_grasping(model, data, handle_geoms):
     left_patterns = ["left_finger", "finger_l", "gripper_finger_left"]
     right_patterns = ["right_finger", "finger_r", "gripper_finger_right"]
 
-    handle_geoms = [
-        re.sub(r"^[^a-zA-Z]+|[^a-zA-Z]+$", "", geom) for geom in handle_geoms
-    ]
+    handle_geoms = [re.sub(r"^[^a-zA-Z]+|[^a-zA-Z]+$", "", geom) for geom in handle_geoms]
 
     for i in range(data.ncon):
         contact = data.contact[i]
@@ -419,7 +416,7 @@ def test_single_grasp(
 
                 if wp_idx % 10 == 0:
                     is_currently_grasping = is_grasping(model, data, handle_geoms)
-
+                    
                 joint_position = get_joint_position(model, data, primary_joint["name"])
                 joint_positions.append(joint_position)
 
@@ -472,6 +469,7 @@ def run_simulation_with_viewer(
         )
 
         for i, (transform, quality) in pbar:
+            
             pos = transform[:3, 3]
             quat = R.from_matrix(transform[:3, :3]).as_quat(scalar_first=True)
 
@@ -531,15 +529,10 @@ def run_simulation_with_viewer(
             pbar.set_description(
                 f"Testing grasps ({len(successful_transforms)}/{i + 1} successful)"
             )
-
+            
             # Check if we've reached max_successful grasps and should stop early
-            if (
-                args.max_successful > 0
-                and len(successful_transforms) >= args.max_successful
-            ):
-                print(
-                    f"\nReached maximum successful grasps ({args.max_successful}). Stopping early."
-                )
+            if args.max_successful > 0 and len(successful_transforms) >= args.max_successful:
+                print(f"\nReached maximum successful grasps ({args.max_successful}). Stopping early.")
                 break
 
         return successful_transforms, successful_qualities, successful_widths
@@ -555,19 +548,7 @@ def run_simulation_with_viewer(
             for i, (transform, quality) in enumerate(zip(transforms, qualities))
         ]
 
-        # Optimize: if max_successful is set and reasonable, limit initial submission
-        # This prevents submitting thousands of tasks when we only need a few hundred
-        if args.max_successful > 0 and args.max_successful < len(grasp_params) // 2:
-            # Submit 3x max_successful to account for failures, but cap it
-            initial_batch_size = min(args.max_successful * 3, len(grasp_params))
-            grasp_params_batch = grasp_params[:initial_batch_size]
-            tqdm.write(
-                f"Optimizing: Processing first {initial_batch_size} grasps instead of all {len(grasp_params)} (target: {args.max_successful} successful)"
-            )
-        else:
-            grasp_params_batch = grasp_params
-
-        num_workers = min(args.num_workers, len(grasp_params_batch))
+        num_workers = min(args.num_workers, len(grasp_params))
 
         successful_transforms = []
         successful_qualities = []
@@ -601,17 +582,13 @@ def run_simulation_with_viewer(
                             tqdm.write(
                                 f"Found {success_count.value} successful grasps (reached max_successful limit)"
                             )
-                            # Return early to avoid more processing
-                            return
 
                 pbar.set_description(
                     f"Testing grasps ({success_count.value}/{processed_count.value} successful)"
                 )
                 pbar.update(1)
 
-            pbar = tqdm(
-                total=len(grasp_params_batch), desc="Testing grasps (0/0 successful)"
-            )
+            pbar = tqdm(total=len(grasp_params), desc="Testing grasps (0/0 successful)")
 
             with mp.Pool(processes=num_workers) as pool:
                 results = [
@@ -627,7 +604,7 @@ def run_simulation_with_viewer(
                         ),
                         callback=update_progress_bar,
                     )
-                    for param in grasp_params_batch
+                    for param in grasp_params
                 ]
 
                 completed = 0
@@ -637,11 +614,7 @@ def run_simulation_with_viewer(
                         tqdm.write(
                             "Terminating remaining workers after reaching max successful grasps"
                         )
-                        # Force break immediately instead of waiting for all tasks
                         break
-
-                    # Add a small delay to prevent high CPU usage during polling
-                    time.sleep(0.01)
 
                     for i, r in enumerate(results):
                         if r is not None and r.ready() and not r.successful():
@@ -658,9 +631,6 @@ def run_simulation_with_viewer(
                 if not should_stop.value:
                     pool.close()
                     pool.join()
-                else:
-                    # When stopped early, close the pool without waiting
-                    pool.close()
 
             successful_transforms_only = [t for _, t, _, _ in successful_transforms]
             successful_qualities_only = [q for _, _, q, _ in successful_transforms]

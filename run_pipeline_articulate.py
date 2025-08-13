@@ -10,7 +10,7 @@ USE_WANDB = False
 
 
 def load_articulated_objects():
-    matched_file = "matched_objs.json"
+    matched_file = "articulated_matched_objs.json"
 
     if not os.path.exists(matched_file):
         print(f"Error: {matched_file} not found!")
@@ -74,14 +74,14 @@ def run_grasp_filtering_stage(
                     per_joint_grasps_json,
                     "--xml_file",
                     xml_file_for_filtering,
-                    "--num_workers",
-                    "10",
+                    # "--num_workers",
+                    # "10",
                     "--approach_distance",
                     "0.5",
                     "--approach_steps",
                     "5",
                     "--max_successful",
-                    "100",
+                    "10",
                     # "--render",
                 ],
                 check=True,
@@ -135,14 +135,14 @@ def run_grasp_filtering_stage(
                     grasps_path,
                     "--xml_file",
                     xml_file_for_filtering,
-                    "--num_workers",
-                    "10",
+                    # "--num_workers",
+                    # "10",
                     "--approach_distance",
                     "0.5",
                     "--approach_steps",
                     "5",
                     "--max_successful",
-                    "100",
+                    "10",
                     # "--render",
                 ],
                 check=True,
@@ -221,7 +221,7 @@ def run_grasp_generation_stage(object_name, handle_mesh_path, full_mesh, output_
             print(f"   Object scale: {grasps_data.get('object_scale', 1.0)}")
 
             print(f"   Visualizing generated grasps for {object_name}...")
-            viz_grasps = False
+            viz_grasps = 1
             if viz_grasps:
                 try:
                     subprocess.run(

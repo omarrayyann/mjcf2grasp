@@ -1,0 +1,264 @@
+[
+  {
+    "joint": "Fridge_13_joint",
+    "handle_mesh": "Fridge_13_joint.obj",
+    "handle_geoms": [
+      "Fridge_13_fridge_drawer1_c3_0",
+      "Fridge_13_fridge_drawer1_c3_1",
+      "Fridge_13_fridge_drawer1_c3_2",
+      "Fridge_13_fridge_drawer1_c3_3",
+      "Fridge_13_fridge_drawer1_c3_4",
+      "Fridge_13_fridge_drawer1_c3_5",
+      "Fridge_13_fridge_drawer1_c3_6"
+    ],
+    "joint_info": {
+      "name": "Fridge_13_joint",
+      "type": "slide",
+      "axis": "0 0 1",
+      "range": "0 0.259",
+      "pos": "0 0 0",
+      "limited": "false",
+      "damping": "0.1",
+      "frictionloss": "0.1",
+      "parent_body": "Fridge_13_fridge_drawer1_c3",
+      "body_hierarchy": "Fridge_13/Fridge_13_fridge_c3/Fridge_13_fridge_drawer1_c3",
+      "position": {
+        "x": -0.23534946069483265,
+        "y": 0.04364200000000007,
+        "z": 0.16835468605285045
+      },
+      "rotation_axis": {
+        "x": 2.920619999993772e-06,
+        "y": 0.0,
+        "z": 0.999999999995735
+      },
+      "local_position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "parent_position": {
+        "x": -0.23534946069483265,
+        "y": 0.04364200000000007,
+        "z": 0.16835468605285045
+      },
+      "parent_rotation": {
+        "w": 0.9999999999989337,
+        "x": -0.0,
+        "y": 1.4603099999984432e-06,
+        "z": -0.0
+      }
+    }
+  },
+  {
+    "joint": "Fridge_13_fridge_drawer2_c3__1",
+    "handle_mesh": "Fridge_13_fridge_drawer2_c3__1.obj",
+    "handle_geoms": [
+      "Fridge_13_fridge_drawer2_c3_0",
+      "Fridge_13_fridge_drawer2_c3_1",
+      "Fridge_13_fridge_drawer2_c3_2",
+      "Fridge_13_fridge_drawer2_c3_3",
+      "Fridge_13_fridge_drawer2_c3_4",
+      "Fridge_13_fridge_drawer2_c3_5",
+      "Fridge_13_fridge_drawer2_c3_6"
+    ],
+    "joint_info": {
+      "name": "Fridge_13_fridge_drawer2_c3__1",
+      "type": "slide",
+      "axis": "0 0 1",
+      "range": "0 0.273",
+      "pos": "0 0 0",
+      "limited": "false",
+      "damping": "0.1",
+      "frictionloss": "0.1",
+      "parent_body": "Fridge_13_fridge_drawer2_c3",
+      "body_hierarchy": "Fridge_13/Fridge_13_fridge_c3/Fridge_13_fridge_drawer2_c3",
+      "position": {
+        "x": 0.23445053930316362,
+        "y": 0.04364200000000007,
+        "z": 0.16835331394557446
+      },
+      "rotation_axis": {
+        "x": 2.920619999993772e-06,
+        "y": 0.0,
+        "z": 0.999999999995735
+      },
+      "local_position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "parent_position": {
+        "x": 0.23445053930316362,
+        "y": 0.04364200000000007,
+        "z": 0.16835331394557446
+      },
+      "parent_rotation": {
+        "w": 0.9999999999989337,
+        "x": -0.0,
+        "y": 1.4603099999984432e-06,
+        "z": -0.0
+      }
+    }
+  },
+  {
+    "joint": "Fridge_13_fridge_freezerdoor_c3__1",
+    "handle_mesh": "Fridge_13_fridge_freezerdoor_c3__1.obj",
+    "handle_geoms": [
+      "Fridge_13_fridge_freezerdoor_handle_c3"
+    ],
+    "joint_info": {
+      "name": "Fridge_13_fridge_freezerdoor_c3__1",
+      "type": "slide",
+      "axis": "0 0 1",
+      "range": "0 0.496",
+      "pos": "0 0 0",
+      "limited": "false",
+      "damping": "0.1",
+      "frictionloss": "0.1",
+      "parent_body": "Fridge_13_fridge_freezerdoor_c3",
+      "body_hierarchy": "Fridge_13/Fridge_13_fridge_c3/Fridge_13_fridge_freezerdoor_c3",
+      "position": {
+        "x": -0.0013489262691006036,
+        "y": -0.342959,
+        "z": 0.35133800262699005
+      },
+      "rotation_axis": {
+        "x": 2.920619999993772e-06,
+        "y": 0.0,
+        "z": 0.999999999995735
+      },
+      "local_position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "parent_position": {
+        "x": -0.0013489262691006036,
+        "y": -0.342959,
+        "z": 0.35133800262699005
+      },
+      "parent_rotation": {
+        "w": 0.9999999999989337,
+        "x": -0.0,
+        "y": 1.4603099999984432e-06,
+        "z": -0.0
+      }
+    }
+  },
+  {
+    "joint": "Fridge_13_fridge_maindoor1_c3__1",
+    "handle_mesh": "Fridge_13_fridge_maindoor1_c3__1.obj",
+    "handle_geoms": [
+      "Fridge_13_fridge_maindoor1_handle_c3"
+    ],
+    "joint_info": {
+      "name": "Fridge_13_fridge_maindoor1_c3__1",
+      "type": "unknown",
+      "axis": "0 -1 0",
+      "range": "0 1.5708",
+      "pos": "0 0 0",
+      "limited": "false",
+      "damping": "0.1",
+      "frictionloss": "0.1",
+      "parent_body": "Fridge_13_fridge_maindoor1_c3",
+      "body_hierarchy": "Fridge_13/Fridge_13_fridge_c3/Fridge_13_fridge_maindoor1_c3",
+      "position": {
+        "x": -0.5592953565003324,
+        "y": 0.39185000000000003,
+        "z": 0.20403063217586478
+      },
+      "rotation_axis": {
+        "x": 0.0,
+        "y": -1.0,
+        "z": 0.0
+      },
+      "local_position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": -1.0,
+        "z": 0.0
+      },
+      "parent_position": {
+        "x": -0.5592953565003324,
+        "y": 0.39185000000000003,
+        "z": 0.20403063217586478
+      },
+      "parent_rotation": {
+        "w": 0.9999999999989337,
+        "x": -0.0,
+        "y": 1.4603099999984432e-06,
+        "z": -0.0
+      }
+    }
+  },
+  {
+    "joint": "Fridge_13_fridge_maindoor2_c3__1",
+    "handle_mesh": "Fridge_13_fridge_maindoor2_c3__1.obj",
+    "handle_geoms": [
+      "Fridge_13_fridge_maindoor2_handle_c3"
+    ],
+    "joint_info": {
+      "name": "Fridge_13_fridge_maindoor2_c3__1",
+      "type": "unknown",
+      "axis": "0 -1 0",
+      "range": "-1.5708 0",
+      "pos": "0 0 0",
+      "limited": "false",
+      "damping": "0.1",
+      "frictionloss": "0.1",
+      "parent_body": "Fridge_13_fridge_maindoor2_c3",
+      "body_hierarchy": "Fridge_13/Fridge_13_fridge_c3/Fridge_13_fridge_maindoor2_c3",
+      "position": {
+        "x": 0.5536906434949206,
+        "y": 0.39185000000000003,
+        "z": 0.20402738156669348
+      },
+      "rotation_axis": {
+        "x": 0.0,
+        "y": -1.0,
+        "z": 0.0
+      },
+      "local_position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "local_axis": {
+        "x": 0.0,
+        "y": -1.0,
+        "z": 0.0
+      },
+      "parent_position": {
+        "x": 0.5536906434949206,
+        "y": 0.39185000000000003,
+        "z": 0.20402738156669348
+      },
+      "parent_rotation": {
+        "w": 0.9999999999989337,
+        "x": -0.0,
+        "y": 1.4603099999984432e-06,
+        "z": -0.0
+      }
+    }
+  }
+]

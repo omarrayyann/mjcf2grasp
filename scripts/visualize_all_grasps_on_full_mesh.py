@@ -176,15 +176,19 @@ def _plot_single_view(ax, full_mesh, joint_grasps, args, azim=45, elev=30):
                 except:
                     pass
     
-    # Set proper bounds based on the mesh
+    # Set proper bounds based on the mesh to ensure whole object is visible
     bounds = full_mesh.bounds
     center = full_mesh.center_mass
-    max_extent = np.max(full_mesh.extents)
+    extents = full_mesh.extents
     
-    zoom_factor = 2.5
-    ax.set_xlim(center[0] - max_extent / zoom_factor, center[0] + max_extent / zoom_factor)
-    ax.set_ylim(center[1] - max_extent / zoom_factor, center[1] + max_extent / zoom_factor)
-    ax.set_zlim(center[2] - max_extent / zoom_factor, center[2] + max_extent / zoom_factor)
+    # Use a better balanced zoom factor
+    zoom_factor = 3.0  # Better balance between visibility and closeness
+    margin = np.max(extents) / zoom_factor
+    
+    # Set bounds based on actual mesh bounds with margin
+    ax.set_xlim(bounds[0, 0] - margin, bounds[1, 0] + margin)
+    ax.set_ylim(bounds[0, 1] - margin, bounds[1, 1] + margin)
+    ax.set_zlim(bounds[0, 2] - margin, bounds[1, 2] + margin)
     
     ax.view_init(elev=elev, azim=azim)
     ax.set_xlabel('X')
@@ -208,16 +212,20 @@ def _render_single_view_to_image(args_tuple):
 
 def _create_parallel_collage(full_mesh, joint_grasps, args, save_png):
     camera_setups = [
-        (0, 60), (60, 60), (120, 60),
-        (0, 0), (60, 0), (120, 0),
-        (0, -60), (60, -60), (120, -60)
+        # Top row - elevated views with better back coverage
+        (0, 60), (90, 60), (180, 60), (270, 60),
+        # Second row - eye level views  
+        (0, 0), (90, 0), (180, 0), (270, 0),
+        # Third row - intermediate angles for better coverage
+        (45, -15), (135, -15), (225, -15), (315, -15),
+        # Bottom row - low angle views
+        (0, -45), (90, -45), (180, -45), (270, -45)
     ]
-    
     args_list = []
     for view_idx, (azim, elev) in enumerate(camera_setups):
         args_list.append((view_idx, azim, elev, full_mesh, joint_grasps, args))
     
-    print(f"Rendering 9 views in parallel using {min(len(args_list), cpu_count())} processes...")
+    print(f"Rendering 16 views in parallel using {min(len(args_list), cpu_count())} processes...")
     start_time = time.time()
     
     with Pool(processes=min(len(args_list), cpu_count())) as pool:
@@ -236,21 +244,21 @@ def _create_parallel_collage(full_mesh, joint_grasps, args, save_png):
         images.append(img)
     
     img_width, img_height = images[0].size
-    collage_width = img_width * 3
-    collage_height = img_height * 3
+    collage_width = img_width * 4  # 4x4 grid
+    collage_height = img_height * 4
     
     collage = Image.new('RGB', (collage_width, collage_height), color='black')
     
     for i, img in enumerate(images):
-        row = i // 3
-        col = i % 3
+        row = i // 4  # 4 columns per row
+        col = i % 4
         x = col * img_width
         y = row * img_height
         collage.paste(img, (x, y))
     
     collage.save(save_png)
     total_time = time.time() - start_time
-    print(f"High-quality 3x3 collage saved to {save_png} (total time: {total_time:.2f}s)")
+    print(f"High-quality 4x4 collage saved to {save_png} (total time: {total_time:.2f}s)")
 
 def main():
     parser = argparse.ArgumentParser(description='Visualize all per-joint grasps on the full mesh.')
