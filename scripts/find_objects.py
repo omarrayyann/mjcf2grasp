@@ -4,7 +4,7 @@ import argparse
 import xml.etree.ElementTree as ET
 
 ALL_PICKUP_TYPES_THOR = [
-    "Tennis_Racquet",
+    "pillow",
 ]
 
 

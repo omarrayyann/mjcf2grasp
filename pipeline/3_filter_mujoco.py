@@ -16,7 +16,7 @@ parser.add_argument("--grasps_path", type=str)
 parser.add_argument("--xml_file", type=str)
 parser.add_argument("--num_shakes", type=int, default=2)
 parser.add_argument("--shake_magnitude", type=float, default=0.1)
-parser.add_argument("--shake_steps", type=int, default=500)
+parser.add_argument("--shake_steps", type=int, default=1000)
 parser.add_argument(
     "--approach_distance",
     type=float,
