@@ -210,18 +210,85 @@ for obj in data:
                 check=True,
             )
 
-    print(f"Visualizing initial grasps for object: {object_name}")
-    subprocess.run(
-        [
-            "python",
-            "scripts/visualize_render.py",
-            object_name,
-            "--render",
-            "--grasp-shape-only",
-        ],
-        check=True,
-    )
+    # print(f"Visualizing initial grasps for object: {object_name}")
+    # subprocess.run(
+    #     [
+    #         "python",
+    #         "scripts/visualize_render.py",
+    #         object_name,
+    #         "--render",
+    #         "--grasp-shape-only",
+    #     ],
+    #     check=True,
+    # )
 
+
+    ignore_types = [
+        "pen",
+        "pencil",
+        # too thin
+        "plate",
+        "key",
+        "cd",
+        "book",
+        "phone",
+        "card",
+        "bedsheet",
+        "lamp",  # not likely to pickup...
+        #"pillow",
+        "spoon",
+        "fork",
+        #"plant",  # not likely to pickup...
+        # boxy objects that are better prim description
+        "laptop",
+        "box",
+        "statue", # some have very curvy bottom that it cannot stand
+        # furntiure with receptacles with objects on top or inside
+        "bed",
+        "shelving",
+        "table",
+        "dresser",
+        "desk",
+    ] 
+
+    # Skip this object if its name contains any of the ignore types
+    should_skip = False
+    for ignore_type in ignore_types:
+        if ignore_type in object_name.lower():
+            should_skip = True
+            print(f"Skipping {object_name} because it contains ignored type: {ignore_type}")
+            break
+    
+    if not should_skip:
+    
+        xml_mesh_file = xml_file_path.replace(".xml", "_mesh.xml")
+        if not os.path.exists(xml_mesh_file):
+            print(f"   Converting XML to use mesh colliders...")
+            try:
+                subprocess.run(
+                    [
+                        "python",
+                        "pipeline_articulate/2_mesh_colliders.py",
+                        "--input",
+                        xml_file_path,
+                        "--output",
+                        xml_mesh_file,
+                    ],
+                    check=True,
+                )
+                print(f"   Mesh collider XML created: {xml_mesh_file}")
+            except subprocess.CalledProcessError as e:
+                print(f"   Warning: Failed to convert to mesh colliders, using original XML: {str(e)}")
+                xml_mesh_file = xml_file_path
+            except Exception as e:
+                print(f"   Warning: Unexpected error in mesh collider conversion, using original XML: {str(e)}")
+                xml_mesh_file = xml_file_path
+        else:
+            print(f"   Mesh collider XML already exists: {xml_mesh_file}")
+    else:
+        xml_mesh_file = xml_file_path
+
+        
     if os.path.exists(filtered_file_path):
         print(
             f"✓ Filtered grasps file already exists for {object_name}, skipping filtering"
@@ -232,22 +299,22 @@ for obj in data:
             subprocess.run(
                 [
                     "python",
-                    "pipeline/2_filter_mujoco.py",
+                    "pipeline/3_filter_mujoco.py",
                     "--object_name",
                     object_name,
                     "--grasps_path",
                     grasp_file_path,
                     "--xml_file",
-                    xml_file_path,
+                    xml_mesh_file,
                     "--num_workers",
                     str(os.cpu_count()),
                     "--approach_distance",
                     "0.3",
                     "--approach_steps",
                     "1000",
-                    "--render",
+                    # "--render",
                     "--max_successful",
-                    "2000",
+                    "5000",
                 ],
                 check=True,
             )
@@ -258,7 +325,7 @@ for obj in data:
             subprocess.run(
                 [
                     "python",
-                    "pipeline/2_filter_mujoco.py",
+                    "pipeline/3_filter_mujoco.py",
                     "--object_name",
                     object_name,
                     "--grasps_path",
@@ -273,7 +340,7 @@ for obj in data:
                     "1000",
                     # "--render",
                     "--max_successful",
-                    "2000",
+                    "5000",
                 ],
                 check=True,
             )

@@ -4,19 +4,7 @@ import argparse
 import xml.etree.ElementTree as ET
 
 ALL_PICKUP_TYPES_THOR = [
-    "microwave",
-    "bathroom_faucet",
-    "dresser",
-    "safe",
-    "shelving",
-    "side_table",
-    "fridge",
-    "microwave",
-    "toaster",
-    "coffee_table",
-    "desk",
-    "doorway",
-    "laundry"
+    "Tennis_Racquet",
 ]
 
 
@@ -64,17 +52,17 @@ def find_objs_with_matching_subfolder(base_dir):
 
                             # read xml and ensure it has a <joint tag that is not of type free
 
-                            tree = ET.parse(abs_xml_path)
-                            xml_root = tree.getroot()
-                            has_valid_joint = False
-                            for joint in xml_root.findall(".//joint"):
-                                if joint.get("type") != "free":
-                                    has_valid_joint = True
-                                    break
+                            # tree = ET.parse(abs_xml_path)
+                            # xml_root = tree.getroot()
+                            # has_valid_joint = False
+                            # for joint in xml_root.findall(".//joint"):
+                            #     if joint.get("type") != "free":
+                            #         has_valid_joint = True
+                            #         break
 
-                            if not has_valid_joint:
-                                print(f"   Skipping {obj_name} as it has no valid joints.")
-                                continue
+                            # if not has_valid_joint:
+                            #     print(f"   Skipping {obj_name} as it has no valid joints.")
+                            #     continue
 
                             result.append({"name": obj_name, "xml": abs_xml_path})
                             break
