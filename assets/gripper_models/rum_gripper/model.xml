@@ -33,17 +33,16 @@
     </default>
 
     <default class="finger_hinge">
-      <joint type="hinge" stiffness="1" damping="1." armature="0.001" range="-1.57 0" frictionloss="0.2" springref="-0.1"/>
+      <joint type="hinge" stiffness="1" damping="1" armature="0.001" range="-1.57 0" frictionloss="0.2" springref="-0.1"/>
       <position kp="100" dampratio="1" ctrlrange="-1.57 0"/>
     </default>
 
     <default class="finger_actuator">
-      <position  ctrlrange="-0.8 0" kp="50" dampratio="2.1"/>
+      <position ctrlrange="-0.8 0" kp="50" dampratio="3"/>
     </default>
 
-
     <default class="friction">
-      <geom condim="6" friction="1. 0.005 0.1" priority="1" solref="0.01 1" solimp="0.99 0.99 0.01" conaffinity="1"
+      <geom condim="6" friction="1.8 0.005 0.0001" priority="1" solref="0.01 1" solimp="0.99 0.99 0.01" conaffinity="1"
         contype="1"/>
     </default>
 
@@ -52,7 +51,7 @@
     </default>
 
     <default class="collision">
-      <geom type="mesh" group="3" friction="2 0.005 0.0001" density="100"/>
+      <geom type="mesh" group="3" friction="0.8 0.005 0.0001" density="100"/>
     </default>
   </default>
 
@@ -130,26 +129,3 @@
   </equality>
 
 </mujoco>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
