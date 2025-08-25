@@ -14,7 +14,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--object_name", type=str)
 parser.add_argument("--grasps_path", type=str)
 parser.add_argument("--xml_file", type=str)
-parser.add_argument("--robot", type=str, default="rum")
+parser.add_argument("--gripper", type=str, default="rum")
 parser.add_argument("--num_shakes", type=int, default=2)
 parser.add_argument("--shake_magnitude", type=float, default=0.1)
 parser.add_argument("--shake_steps", type=int, default=1000)
@@ -112,11 +112,11 @@ def test_single_grasp(grasp_data, object_name):
     xml_content = ET.tostring(root, encoding="unicode")
 
     # Merge with gripper XML to get mocap functionality
-    if args.robot == "rum":
+    if args.gripper == "rum":
         gripper_xml_path = os.path.join(
             os.path.dirname(__file__), "../assets/gripper_models/rum_gripper/model.xml"
         )
-    elif args.robot == "panda":
+    elif args.gripper == "panda":
         gripper_xml_path = os.path.join(
             os.path.dirname(__file__),
             "../assets/gripper_models/panda_gripper/model.xml",
@@ -205,9 +205,9 @@ def test_single_grasp(grasp_data, object_name):
     for step in range(100):
         mujoco.mj_step(model, data)
 
-    if args.robot == "rum":
+    if args.gripper == "rum":
         data.ctrl[1] = 1.0
-    elif args.robot == "panda":
+    elif args.gripper == "panda":
         data.ctrl[1] = 255.0
 
     for step in range(500):
@@ -216,9 +216,9 @@ def test_single_grasp(grasp_data, object_name):
     for step in range(100):
         mujoco.mj_step(model, data)
 
-    if args.robot == "rum":
+    if args.gripper == "rum":
         data.ctrl[0] = -0.8
-    elif args.robot == "panda":
+    elif args.gripper == "panda":
         data.ctrl[0] = 0.0
 
     for step in range(1000):
@@ -408,9 +408,9 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                         if not viewer.is_running():
                             return ([], [], [])
 
-                if args.robot == "panda":
+                if args.gripper == "panda":
                     data.ctrl[0] = 255.0
-                elif args.robot == "rum":
+                elif args.gripper == "rum":
                     data.ctrl[0] = 1.0
 
                 for step in range(500):
@@ -435,9 +435,9 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                                 successful_widths,
                             )
 
-                if args.robot == "rum":
+                if args.gripper == "rum":
                     data.ctrl[0] = -0.8
-                elif args.robot == "panda":
+                elif args.gripper == "panda":
                     data.ctrl[0] = 0.0
 
                 for step in range(1000):
@@ -744,11 +744,11 @@ if __name__ == "__main__":
     root.append(include)
     xml_content = ET.tostring(root, encoding="unicode")
 
-    if args.robot == "rum":
+    if args.gripper == "rum":
         gripper_xml_path = os.path.join(
             os.path.dirname(__file__), "../assets/gripper_models/rum_gripper/model.xml"
         )
-    elif args.robot == "panda":
+    elif args.gripper == "panda":
         gripper_xml_path = os.path.join(
             os.path.dirname(__file__),
             "../assets/gripper_models/panda_gripper/model.xml",

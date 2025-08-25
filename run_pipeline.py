@@ -5,6 +5,7 @@ import wandb
 from datetime import datetime
 
 USE_WANDB = False
+gripper_name = "panda"
 
 with open("matched_objs.json", "r") as f:
     data = json.load(f)
@@ -186,6 +187,8 @@ for obj in data:
                     "--systematic_sampling",
                     "--num_workers",
                     str(os.cpu_count()),
+                    "--gripper",
+                    gripper_name,
                 ],
                 check=True,
             )
@@ -206,6 +209,8 @@ for obj in data:
                     "--systematic_sampling",
                     "--num_workers",
                     str(num_workers),
+                    "--gripper",
+                    gripper_name,
                 ],
                 check=True,
             )
@@ -222,7 +227,6 @@ for obj in data:
     #     check=True,
     # )
 
-
     ignore_types = [
         "pen",
         "pencil",
@@ -235,32 +239,33 @@ for obj in data:
         "card",
         "bedsheet",
         "lamp",  # not likely to pickup...
-        #"pillow",
+        # "pillow",
         "spoon",
         "fork",
-        #"plant",  # not likely to pickup...
+        # "plant",  # not likely to pickup...
         # boxy objects that are better prim description
         "laptop",
         "box",
-        "statue", # some have very curvy bottom that it cannot stand
+        "statue",  # some have very curvy bottom that it cannot stand
         # furntiure with receptacles with objects on top or inside
         "bed",
         "shelving",
         "table",
         "dresser",
         "desk",
-    ] 
+    ]
 
     # Skip this object if its name contains any of the ignore types
     should_skip = False
     for ignore_type in ignore_types:
         if ignore_type in object_name.lower():
             should_skip = True
-            print(f"Skipping {object_name} because it contains ignored type: {ignore_type}")
+            print(
+                f"Skipping {object_name} because it contains ignored type: {ignore_type}"
+            )
             break
-    
+
     if not should_skip:
-    
         xml_mesh_file = xml_file_path.replace(".xml", "_mesh.xml")
         if not os.path.exists(xml_mesh_file):
             print(f"   Converting XML to use mesh colliders...")
@@ -278,17 +283,20 @@ for obj in data:
                 )
                 print(f"   Mesh collider XML created: {xml_mesh_file}")
             except subprocess.CalledProcessError as e:
-                print(f"   Warning: Failed to convert to mesh colliders, using original XML: {str(e)}")
+                print(
+                    f"   Warning: Failed to convert to mesh colliders, using original XML: {str(e)}"
+                )
                 xml_mesh_file = xml_file_path
             except Exception as e:
-                print(f"   Warning: Unexpected error in mesh collider conversion, using original XML: {str(e)}")
+                print(
+                    f"   Warning: Unexpected error in mesh collider conversion, using original XML: {str(e)}"
+                )
                 xml_mesh_file = xml_file_path
         else:
             print(f"   Mesh collider XML already exists: {xml_mesh_file}")
     else:
         xml_mesh_file = xml_file_path
 
-        
     if os.path.exists(filtered_file_path):
         print(
             f"✓ Filtered grasps file already exists for {object_name}, skipping filtering"
@@ -315,6 +323,8 @@ for obj in data:
                     # "--render",
                     "--max_successful",
                     "5000",
+                    "--gripper",
+                    gripper_name,
                 ],
                 check=True,
             )
@@ -341,6 +351,8 @@ for obj in data:
                     # "--render",
                     "--max_successful",
                     "5000",
+                    "--gripper",
+                    gripper_name,
                 ],
                 check=True,
             )
