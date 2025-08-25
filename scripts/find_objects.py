@@ -4,7 +4,7 @@ import argparse
 import xml.etree.ElementTree as ET
 
 ALL_PICKUP_TYPES_THOR = [
-    "pillow",
+    "tennis",
 ]
 
 
@@ -15,7 +15,6 @@ def find_objs_with_matching_subfolder(base_dir):
 
     for root, dirs, files in os.walk(base_dir):
         for file in files:
-
             if file.endswith(".obj"):
                 obj_name = os.path.splitext(file)[0]
                 obj_path = os.path.join(root, file)
@@ -26,7 +25,6 @@ def find_objs_with_matching_subfolder(base_dir):
                     subfolder_path = os.path.join(root, obj_name)
                     found_object = False
                     for pickup_type in all_pickup_types:
-
                         # object_subnames = obj_name.lower().split("_")
 
                         if pickup_type.lower() in obj_name.lower():
@@ -66,9 +64,10 @@ def find_objs_with_matching_subfolder(base_dir):
 
                             result.append({"name": obj_name, "xml": abs_xml_path})
                             break
-    
+
     # shuffle
     import random
+
     random.shuffle(result)
 
     return result

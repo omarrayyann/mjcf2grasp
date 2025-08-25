@@ -14,6 +14,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--object_name", type=str)
 parser.add_argument("--grasps_path", type=str)
 parser.add_argument("--xml_file", type=str)
+parser.add_argument("--robot", type=str, default="rum")
 parser.add_argument("--num_shakes", type=int, default=2)
 parser.add_argument("--shake_magnitude", type=float, default=0.1)
 parser.add_argument("--shake_steps", type=int, default=1000)
@@ -79,7 +80,6 @@ def is_object_grasped(model, data, object_name):
 def check_grasp(model, data, object_name, store_initial=False):
     global initial_relative_position, initial_grasp_verified
 
-
     object_pos = data.body(object_name).xpos
     gripper_pos = data.body("base").xpos
     relative_position = object_pos - gripper_pos
@@ -96,7 +96,7 @@ def check_grasp(model, data, object_name, store_initial=False):
         return False
 
     position_change = np.linalg.norm(relative_position - initial_relative_position)
-    return  is_object_grasped(model, data, object_name)
+    return is_object_grasped(model, data, object_name)
 
 
 def test_single_grasp(grasp_data, object_name):
@@ -110,11 +110,17 @@ def test_single_grasp(grasp_data, object_name):
     root.append(include)
 
     xml_content = ET.tostring(root, encoding="unicode")
-    
+
     # Merge with gripper XML to get mocap functionality
-    gripper_xml_path = os.path.join(
-        os.path.dirname(__file__), "../assets/gripper_models/rum_gripper/model.xml"
-    )
+    if args.robot == "rum":
+        gripper_xml_path = os.path.join(
+            os.path.dirname(__file__), "../assets/gripper_models/rum_gripper/model.xml"
+        )
+    elif args.robot == "panda":
+        gripper_xml_path = os.path.join(
+            os.path.dirname(__file__),
+            "../assets/gripper_models/panda_gripper/model.xml",
+        )
     with open(gripper_xml_path, "r") as f:
         additional_xml_content = f.read()
     xml_content = merge_xml_contents(xml_content, additional_xml_content)
@@ -122,7 +128,7 @@ def test_single_grasp(grasp_data, object_name):
     # Create combined XML for the scene with the gripper and object - EXACTLY like viewer version
     tree = ET.ElementTree(ET.fromstring(xml_content))
     root = tree.getroot()
-    
+
     pos = transform[:3, 3]
     quat = R.from_matrix(transform[:3, :3]).as_quat(scalar_first=True)
 
@@ -158,7 +164,7 @@ def test_single_grasp(grasp_data, object_name):
 
     # Convert the modified tree back to XML string
     xml_content = ET.tostring(root, encoding="unicode")
-    
+
     # Create model and data from the XML
     model = mujoco.MjModel.from_xml_string(xml_content)
     data = mujoco.MjData(model)
@@ -177,30 +183,32 @@ def test_single_grasp(grasp_data, object_name):
     # Now approach by moving mocap towards target position
     approach_steps = config.get("approach_steps", 1000)
     for step in range(approach_steps):
-
         alpha = step / approach_steps
         current_target_pos = approach_pos + alpha * (pos - approach_pos)
-        
+
         if mocap_id >= 0:
             data.mocap_pos[0] = current_target_pos
-        
+
         mujoco.mj_step(model, data)
-        
+
         # Check if we've reached the target
         current_gripper_pos = data.body("base").xpos
         distance_to_target = np.linalg.norm(current_gripper_pos - pos)
         if distance_to_target < 0.001:
             break
-    
+
     # Final positioning and preparation for grasping
     if mocap_id >= 0:
         data.mocap_pos[0] = pos
-    
+
     # Let system stabilize
     for step in range(100):
         mujoco.mj_step(model, data)
-    
-    data.ctrl[0] = 1.0
+
+    if args.robot == "rum":
+        data.ctrl[1] = 1.0
+    elif args.robot == "panda":
+        data.ctrl[1] = 255.0
 
     for step in range(500):
         mujoco.mj_step(model, data)
@@ -208,7 +216,10 @@ def test_single_grasp(grasp_data, object_name):
     for step in range(100):
         mujoco.mj_step(model, data)
 
-    data.ctrl[0] = -0.8
+    if args.robot == "rum":
+        data.ctrl[0] = -0.8
+    elif args.robot == "panda":
+        data.ctrl[0] = 0.0
 
     for step in range(1000):
         mujoco.mj_step(model, data)
@@ -237,11 +248,11 @@ def test_single_grasp(grasp_data, object_name):
             for step in range(total_steps):
                 angle = 2 * np.pi * step / total_steps
                 shake_offset = config["shake_magnitude"] * np.sin(angle)
-                
+
                 # Create shake position by adding offset in the specified direction
                 shake_pos = baseline_pos.copy()
                 shake_pos[direction_idx] += shake_offset
-                
+
                 # Apply shake via mocap
                 if mocap_id >= 0:
                     data.mocap_pos[0] = shake_pos
@@ -274,14 +285,14 @@ def test_single_grasp(grasp_data, object_name):
         return i, None, None
 
 
-def run_simulation_with_viewer(xml_content,  object_name, use_viewer):
-
+def run_simulation_with_viewer(xml_content, object_name, use_viewer):
     if use_viewer:
-
         with open(args.grasps_path, "r") as f:
             grasp_data = json.load(f)
         transforms = np.array(grasp_data["transforms"])
-        qualities = np.array(grasp_data.get("quality_antipodal", [1.0] * len(transforms)))
+        qualities = np.array(
+            grasp_data.get("quality_antipodal", [1.0] * len(transforms))
+        )
         widths = np.array(grasp_data.get("grasp_widths", [0.05] * len(transforms)))
 
         successful_transforms = []
@@ -289,18 +300,16 @@ def run_simulation_with_viewer(xml_content,  object_name, use_viewer):
         successful_widths = []
 
         pbar = tqdm(
-                    enumerate(zip(transforms, qualities)),
-                    total=len(transforms),
-                    desc=f"Testing grasps (0/0 successful)",
-                )
+            enumerate(zip(transforms, qualities)),
+            total=len(transforms),
+            desc=f"Testing grasps (0/0 successful)",
+        )
 
         for i, (transform, quality) in pbar:
-            
-
             # Create combined XML for the scene with the gripper and object
             tree = ET.ElementTree(ET.fromstring(xml_content))
             root = tree.getroot()
-            
+
             pos = transform[:3, 3]
             quat = R.from_matrix(transform[:3, :3]).as_quat(scalar_first=True)
 
@@ -314,8 +323,13 @@ def run_simulation_with_viewer(xml_content,  object_name, use_viewer):
                     org_rot = R.from_matrix(transform[:3, :3])
                     rot_new = org_rot * R.from_euler("x", 90, degrees=True)
                     new_quat = rot_new.as_quat(scalar_first=True)
-                    body.set("pos", f"{approach_pos[0]} {approach_pos[1]} {approach_pos[2]}")
-                    body.set("quat", f"{new_quat[0]} {new_quat[1]} {new_quat[2]} {new_quat[3]}")
+                    body.set(
+                        "pos", f"{approach_pos[0]} {approach_pos[1]} {approach_pos[2]}"
+                    )
+                    body.set(
+                        "quat",
+                        f"{new_quat[0]} {new_quat[1]} {new_quat[2]} {new_quat[3]}",
+                    )
                     break
 
             for body in root.findall(".//body"):
@@ -323,8 +337,13 @@ def run_simulation_with_viewer(xml_content,  object_name, use_viewer):
                     org_rot = R.from_matrix(transform[:3, :3])
                     rot_new = org_rot * R.from_euler("x", 90, degrees=True)
                     new_quat = rot_new.as_quat(scalar_first=True)
-                    body.set("pos", f"{approach_pos[0]} {approach_pos[1]} {approach_pos[2]}")
-                    body.set("quat", f"{new_quat[0]} {new_quat[1]} {new_quat[2]} {new_quat[3]}")
+                    body.set(
+                        "pos", f"{approach_pos[0]} {approach_pos[1]} {approach_pos[2]}"
+                    )
+                    body.set(
+                        "quat",
+                        f"{new_quat[0]} {new_quat[1]} {new_quat[2]} {new_quat[3]}",
+                    )
                     break
 
             for body in root.findall(".//geom"):
@@ -336,214 +355,218 @@ def run_simulation_with_viewer(xml_content,  object_name, use_viewer):
 
             # Convert the modified tree back to XML string
             xml_content = ET.tostring(root, encoding="unicode")
-            
+
             # Create model and data from the XML
             model = mujoco.MjModel.from_xml_string(xml_content)
             data = mujoco.MjData(model)
 
-
-
-                
-
             with mujoco.viewer.launch_passive(
                 model, data, show_left_ui=True, show_right_ui=True
             ) as viewer:
-                    
-                    mujoco.mj_step(model, data)
-                    viewer.sync()
+                mujoco.mj_step(model, data)
+                viewer.sync()
 
-                    pos = transform[:3, 3]
-                    quat = R.from_matrix(transform[:3, :3]).as_quat(scalar_first=True)
+                pos = transform[:3, 3]
+                quat = R.from_matrix(transform[:3, :3]).as_quat(scalar_first=True)
 
-                    mocap_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, "target_ee_pose")
+                mocap_id = mujoco.mj_name2id(
+                    model, mujoco.mjtObj.mjOBJ_BODY, "target_ee_pose"
+                )
 
-                    # Now approach by moving mocap towards target position
-                    approach_steps = args.approach_steps
-                    for step in range(approach_steps):
+                # Now approach by moving mocap towards target position
+                approach_steps = args.approach_steps
+                for step in range(approach_steps):
+                    alpha = step / approach_steps
+                    current_target_pos = approach_pos + alpha * (pos - approach_pos)
 
-                        alpha = step / approach_steps
-                        current_target_pos = approach_pos + alpha * (pos - approach_pos)
-                        
-                        if mocap_id >= 0:
-                            data.mocap_pos[0] = current_target_pos
-                        
-                        mujoco.mj_step(model, data)
-                        
-                        if step % 50 == 0:
-                            viewer.sync()
-                            if not viewer.is_running():
-                                return ([], [], [])
-                        
-                        # Check if we've reached the target
-                        current_gripper_pos = data.body("base").xpos
-                        distance_to_target = np.linalg.norm(current_gripper_pos - pos)
-                        if distance_to_target < 0.001:
-                            break
-                    
-                    # Final positioning and preparation for grasping
                     if mocap_id >= 0:
-                        data.mocap_pos[0] = pos
-                    
-                    # Let system stabilize
-                    for step in range(100):
-                        mujoco.mj_step(model, data)
-                        if step % 20 == 0:
-                            viewer.sync()
-                            if not viewer.is_running():
-                                return ([], [], [])
-                    
+                        data.mocap_pos[0] = current_target_pos
+
+                    mujoco.mj_step(model, data)
+
+                    if step % 50 == 0:
+                        viewer.sync()
+                        if not viewer.is_running():
+                            return ([], [], [])
+
+                    # Check if we've reached the target
+                    current_gripper_pos = data.body("base").xpos
+                    distance_to_target = np.linalg.norm(current_gripper_pos - pos)
+                    if distance_to_target < 0.001:
+                        viewer.close()
+                        break
+
+                # Final positioning and preparation for grasping
+                if mocap_id >= 0:
+                    data.mocap_pos[0] = pos
+
+                # Let system stabilize
+                for step in range(100):
+                    mujoco.mj_step(model, data)
+                    if step % 20 == 0:
+                        viewer.sync()
+                        if not viewer.is_running():
+                            return ([], [], [])
+
+                if args.robot == "panda":
+                    data.ctrl[0] = 255.0
+                elif args.robot == "rum":
                     data.ctrl[0] = 1.0
 
-                    for step in range(500):
-                        mujoco.mj_step(model, data)
-                        if step % 50 == 0:
-                            viewer.sync()
-                            if not viewer.is_running():
-                                return (
-                                    successful_transforms,
-                                    successful_qualities,
-                                    successful_widths,
-                                )
-
-                   
-
-                    for step in range(100):
-                        mujoco.mj_step(model, data)
-                        if step % 20 == 0:
-                            viewer.sync()
-                            if not viewer.is_running():
-                                return (
-                                    successful_transforms,
-                                    successful_qualities,
-                                    successful_widths,
-                                )
-
-                    data.ctrl[0] = -0.8
-
-                    for step in range(1000):
-                        mujoco.mj_step(model, data)
-                        if step % 50 == 0:
-                            viewer.sync()
-                            if not viewer.is_running():
-                                return (
-                                    successful_transforms,
-                                    successful_qualities,
-                                    successful_widths,
-                                )
-
-                    for step in range(2000):
-                        mujoco.mj_step(model, data)
-                        if step % 20 == 0:
-                            viewer.sync()
-                            if not viewer.is_running():
-                                return (
-                                    successful_transforms,
-                                    successful_qualities,
-                                    successful_widths,
-                                )
-
-                    if not check_grasp(model, data, object_name, store_initial=True):
-                        pbar.set_description(
-                            f"Testing grasps ({len(successful_transforms)}/{i + 1} successful)"
-                        )
-                        continue
-
-                    directions = ["x", "y", "z"]
-                    shake_success = True
-
-                    # Get the current mocap position as baseline for shaking
-                    if mocap_id >= 0:
-                        baseline_pos = data.mocap_pos[0].copy()
-                        baseline_quat = data.mocap_quat[0].copy()
-                    else:
-                        baseline_pos = pos.copy()
-                        baseline_quat = quat.copy()
-
-                    for direction_idx, direction in enumerate(directions):
-                        for shake in range(args.num_shakes):
-                            total_steps = args.shake_steps * 2
-
-                            for step in range(total_steps):
-                                angle = 2 * np.pi * step / total_steps
-                                shake_offset = args.shake_magnitude * np.sin(angle)
-                                
-                                # Create shake position by adding offset in the specified direction
-                                shake_pos = baseline_pos.copy()
-                                shake_pos[direction_idx] += shake_offset
-                                
-                                # Apply shake via mocap
-                                if mocap_id >= 0:
-                                    data.mocap_pos[0] = shake_pos
-
-                                mujoco.mj_step(model, data)
-                                if step % 5 == 0:
-                                    viewer.sync()
-                                    if not viewer.is_running():
-                                        return (
-                                            successful_transforms,
-                                            successful_qualities,
-                                            successful_widths,
-                                        )
-
-                                if step == total_steps // 4 or step == 3 * total_steps // 4:
-                                    grasp_maintained = check_grasp(model, data, object_name)
-                                    if not grasp_maintained:
-                                        shake_success = False
-                                        break
-
-                            if not shake_success:
-                                break
-
-                            # Return to baseline position
-                            if mocap_id >= 0:
-                                data.mocap_pos[0] = baseline_pos
-                            for step in range(50):
-                                mujoco.mj_step(model, data)
-                                if step % 20 == 0:
-                                    viewer.sync()
-                                    if not viewer.is_running():
-                                        return (
-                                            successful_transforms,
-                                            successful_qualities,
-                                            successful_widths,
-                                        )
-
-                        if not shake_success:
-                            break
-
-                    final_grasp_check = is_object_grasped(model, data, object_name)
-
-                    if shake_success and final_grasp_check:
-                        successful_transforms.append(transform.tolist())
-                        successful_qualities.append(quality)
-                        successful_widths.append(widths[i])
-
-                        if (
-                            args.max_successful > 0
-                            and len(successful_transforms) >= args.max_successful
-                        ):
-                            tqdm.write(
-                                f"Found {len(successful_transforms)} successful grasps (reached max_successful limit)"
-                            )
-                            return (
-                                successful_transforms,
-                                successful_qualities,
-                                successful_widths,
-                            )
-
-                    pbar.set_description(
-                        f"Testing grasps ({len(successful_transforms)}/{i + 1} successful)"
-                    )
-
-                    for _ in range(100):
-                        mujoco.mj_step(model, data)
+                for step in range(500):
+                    mujoco.mj_step(model, data)
+                    if step % 50 == 0:
                         viewer.sync()
                         if not viewer.is_running():
                             return (
                                 successful_transforms,
                                 successful_qualities,
                                 successful_widths,
-                                )
+                            )
+
+                for step in range(100):
+                    mujoco.mj_step(model, data)
+                    if step % 20 == 0:
+                        viewer.sync()
+                        if not viewer.is_running():
+                            return (
+                                successful_transforms,
+                                successful_qualities,
+                                successful_widths,
+                            )
+
+                if args.robot == "rum":
+                    data.ctrl[0] = -0.8
+                elif args.robot == "panda":
+                    data.ctrl[0] = 0.0
+
+                for step in range(1000):
+                    mujoco.mj_step(model, data)
+                    if step % 50 == 0:
+                        viewer.sync()
+                        if not viewer.is_running():
+                            return (
+                                successful_transforms,
+                                successful_qualities,
+                                successful_widths,
+                            )
+
+                for step in range(2000):
+                    mujoco.mj_step(model, data)
+                    if step % 20 == 0:
+                        viewer.sync()
+                        if not viewer.is_running():
+                            return (
+                                successful_transforms,
+                                successful_qualities,
+                                successful_widths,
+                            )
+
+                if not check_grasp(model, data, object_name, store_initial=True):
+                    pbar.set_description(
+                        f"Testing grasps ({len(successful_transforms)}/{i + 1} successful)"
+                    )
+                    continue
+
+                directions = ["x", "y", "z"]
+                shake_success = True
+
+                # Get the current mocap position as baseline for shaking
+                if mocap_id >= 0:
+                    baseline_pos = data.mocap_pos[0].copy()
+                    baseline_quat = data.mocap_quat[0].copy()
+                else:
+                    baseline_pos = pos.copy()
+                    baseline_quat = quat.copy()
+
+                for direction_idx, direction in enumerate(directions):
+                    for shake in range(args.num_shakes):
+                        total_steps = args.shake_steps * 2
+
+                        for step in range(total_steps):
+                            angle = 2 * np.pi * step / total_steps
+                            shake_offset = args.shake_magnitude * np.sin(angle)
+
+                            # Create shake position by adding offset in the specified direction
+                            shake_pos = baseline_pos.copy()
+                            shake_pos[direction_idx] += shake_offset
+
+                            # Apply shake via mocap
+                            if mocap_id >= 0:
+                                data.mocap_pos[0] = shake_pos
+
+                            mujoco.mj_step(model, data)
+                            if step % 5 == 0:
+                                viewer.sync()
+                                if not viewer.is_running():
+                                    return (
+                                        successful_transforms,
+                                        successful_qualities,
+                                        successful_widths,
+                                    )
+
+                            if step == total_steps // 4 or step == 3 * total_steps // 4:
+                                grasp_maintained = check_grasp(model, data, object_name)
+                                if not grasp_maintained:
+                                    shake_success = False
+                                    viewer.close()
+                                    break
+
+                        if not shake_success:
+                            viewer.close()
+                            break
+
+                        # Return to baseline position
+                        if mocap_id >= 0:
+                            data.mocap_pos[0] = baseline_pos
+                        for step in range(50):
+                            mujoco.mj_step(model, data)
+                            if step % 20 == 0:
+                                viewer.sync()
+                                if not viewer.is_running():
+                                    return (
+                                        successful_transforms,
+                                        successful_qualities,
+                                        successful_widths,
+                                    )
+
+                    if not shake_success:
+                        viewer.close()
+                        break
+
+                final_grasp_check = is_object_grasped(model, data, object_name)
+
+                if shake_success and final_grasp_check:
+                    successful_transforms.append(transform.tolist())
+                    successful_qualities.append(quality)
+                    successful_widths.append(widths[i])
+
+                    if (
+                        args.max_successful > 0
+                        and len(successful_transforms) >= args.max_successful
+                    ):
+                        tqdm.write(
+                            f"Found {len(successful_transforms)} successful grasps (reached max_successful limit)"
+                        )
+                        return (
+                            successful_transforms,
+                            successful_qualities,
+                            successful_widths,
+                        )
+
+                pbar.set_description(
+                    f"Testing grasps ({len(successful_transforms)}/{i + 1} successful)"
+                )
+
+                for _ in range(100):
+                    mujoco.mj_step(model, data)
+                    viewer.sync()
+                    if not viewer.is_running():
+                        return (
+                            successful_transforms,
+                            successful_qualities,
+                            successful_widths,
+                        )
 
         return successful_transforms, successful_qualities, successful_widths
 
@@ -551,10 +574,11 @@ def run_simulation_with_viewer(xml_content,  object_name, use_viewer):
         with open(args.grasps_path, "r") as f:
             grasp_data = json.load(f)
         transforms = np.array(grasp_data["transforms"])
-        qualities = np.array(grasp_data.get("quality_antipodal", [1.0] * len(transforms)))
+        qualities = np.array(
+            grasp_data.get("quality_antipodal", [1.0] * len(transforms))
+        )
         widths = np.array(grasp_data.get("grasp_widths", [0.05] * len(transforms)))
-        
-        
+
         config = {
             "num_shakes": args.num_shakes,
             "shake_magnitude": args.shake_magnitude,
@@ -629,6 +653,7 @@ def run_simulation_with_viewer(xml_content,  object_name, use_viewer):
                         tqdm.write(
                             "Terminating remaining workers after reaching max successful grasps"
                         )
+                        viewer.close()
                         break
 
                     for i, r in enumerate(results):
@@ -719,9 +744,15 @@ if __name__ == "__main__":
     root.append(include)
     xml_content = ET.tostring(root, encoding="unicode")
 
-    gripper_xml_path = os.path.join(
-        os.path.dirname(__file__), "../assets/gripper_models/rum_gripper/model.xml"
-    )
+    if args.robot == "rum":
+        gripper_xml_path = os.path.join(
+            os.path.dirname(__file__), "../assets/gripper_models/rum_gripper/model.xml"
+        )
+    elif args.robot == "panda":
+        gripper_xml_path = os.path.join(
+            os.path.dirname(__file__),
+            "../assets/gripper_models/panda_gripper/model.xml",
+        )
     with open(gripper_xml_path, "r") as f:
         additional_xml_content = f.read()
     xml_content = merge_xml_contents(xml_content, additional_xml_content)
