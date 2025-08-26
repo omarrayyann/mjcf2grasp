@@ -206,9 +206,9 @@ def test_single_grasp(grasp_data, object_name):
         mujoco.mj_step(model, data)
 
     if args.gripper == "rum":
-        data.ctrl[1] = 1.0
+        data.ctrl[0] = 1.0
     elif args.gripper == "panda":
-        data.ctrl[1] = 255.0
+        data.ctrl[0] = 255.0
 
     for step in range(500):
         mujoco.mj_step(model, data)
