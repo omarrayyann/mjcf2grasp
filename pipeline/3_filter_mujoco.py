@@ -413,7 +413,7 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                 elif args.gripper == "rum":
                     data.ctrl[0] = 1.0
 
-                for step in range(500):
+                for step in range(5000):
                     mujoco.mj_step(model, data)
                     if step % 50 == 0:
                         viewer.sync()
@@ -439,17 +439,6 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                     data.ctrl[0] = -0.8
                 elif args.gripper == "panda":
                     data.ctrl[0] = 0.0
-
-                for step in range(1000):
-                    mujoco.mj_step(model, data)
-                    if step % 50 == 0:
-                        viewer.sync()
-                        if not viewer.is_running():
-                            return (
-                                successful_transforms,
-                                successful_qualities,
-                                successful_widths,
-                            )
 
                 for step in range(2000):
                     mujoco.mj_step(model, data)

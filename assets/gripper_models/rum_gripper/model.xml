@@ -6,7 +6,8 @@
     <mesh name="finger" file="assets/gripper_models/rum_gripper/meshes/finger.stl" scale="0.001 0.001 0.001"/>
     <mesh name="foam_insert" file="assets/gripper_models/rum_gripper/meshes/foam_insert.stl" scale="0.0011 0.0011 0.001"/>
     <mesh name="iphone" file="assets/gripper_models/rum_gripper/meshes/iphone.stl" scale="0.001 0.001 0.001"/>
-    <mesh name="foam_collision" file="assets/gripper_models/rum_gripper/meshes/foam_insert.stl" scale="0.0011 0.00125 0.001"/>
+    <mesh name="foam_collision" file="assets/gripper_models/rum_gripper/meshes/foam_insert.stl"
+      scale="0.0011 0.00125 0.001"/>
     <material name="white" rgba="1 1 1 1"/>
     <material name="gray" rgba="0.15 0.15 0.15 1"/>
     <material name="light_gray" rgba="0.6 0.6 0.6 1"/>
@@ -67,49 +68,48 @@
     <camera name="top_camera" mode="fixed" fovy="57" pos="0.671 0.837 1.193"
       quat="0.28845009 0.19007932 0.44453189 0.82647311"/>
 
-  <body name="rum_body">
-   <joint type="free" name="rum_free_joint"/>
-    <body name="base" pos="0 -0.35 0.85" quat="1 0 0 0" gravcomp="1">
+    <body name="rum_body">
+      <joint type="free" name="rum_free_joint"/>
+      <body name="base" pos="0 -0.35 0.85" quat="1 0 0 0" gravcomp="1">
 
-     
 
-      <geom name="gripper_body_visual" mesh="gripper_body" class="visual" material="white"/>
-      <geom name="gripper_body_collision" mesh="gripper_body" class="collision"/>
+        <geom name="gripper_body_visual" mesh="gripper_body" class="visual" material="white"/>
+        <geom name="gripper_body_collision" mesh="gripper_body" class="collision"/>
 
-      <body name="iphone_body" pos="0 0 0" gravcomp="1">
-        <geom name="iphone_visual" mesh="iphone" class="visual" material="gray"/>
-        <geom name="iphone_collision" mesh="iphone" class="collision"/>
+        <body name="iphone_body" pos="0 0 0" gravcomp="1">
+          <geom name="iphone_visual" mesh="iphone" class="visual" material="gray"/>
+          <geom name="iphone_collision" mesh="iphone" class="collision"/>
 
-        <body name="camera_body" pos="0.0 -0.036 0.1" euler="1.309 0 0.0" gravcomp="1">
-          <geom type="box" size="0.01 0.01 0.01" rgba="0.1 0.5 0.1 0" contype="0" conaffinity="0"/>
-          <camera name="egocentric" mode="fixed" fovy="53.1"/>
-        </body>
-      </body>
-
-      <site name="grasping_center" pos="0 0.14 0" rgba="0 0 0 0"/>
-
-      <body name="fingers" pos="0 0 0.0" gravcomp="1">
-        <body name="left_finger" pos="0 0 -0.0042" gravcomp="1">
-          <joint name="finger_left_joint" axis="0 0 1" class="finger_hinge" pos="-0.0242 0.04224 0.0"/>
-          <geom name="left_finger_visual" mesh="finger" class="visual" material="light_blue"/>
-          <geom name="left_finger_foam_visual" mesh="foam_insert" class="visual" material="black"
-            pos="-0.00468 0.101585 0.00197" euler="0 0 3.75"/>
-          <geom name="left_finger_collision" type="box" size="0.002 0.042 0.0131" rgba="1 0 0 0"
-            pos="-0.056 0.095 0.0179" euler="0 0 0.61" contype="1" conaffinity="1" class="friction"/>
+          <body name="camera_body" pos="0.0 -0.036 0.1" euler="1.309 0 0.0" gravcomp="1">
+            <geom type="box" size="0.01 0.01 0.01" rgba="0.1 0.5 0.1 0" contype="0" conaffinity="0"/>
+            <camera name="egocentric" mode="fixed" fovy="53.1"/>
+          </body>
         </body>
 
-        <body name="right_finger" pos="0 0 0.0317" euler="0 3.1415 0" gravcomp="1">
-          <joint name="finger_right_joint" axis="0 0 1" class="finger_hinge" pos="-0.0242 0.04224 0.0"/>
-          <geom name="right_finger_visual" mesh="finger" class="visual" material="light_blue"/>
-          <geom name="right_finger_foam" mesh="foam_insert" class="visual" material="black"
-            pos="-0.00468 0.101585 0.00197" euler="0 0 3.75"/>
-          <geom name="right_finger_collision" type="box" size="0.002 0.042 0.0131" rgba="1 0 0 0"
-            pos="-0.056 0.095 0.0179" euler="0 0 0.61" contype="1" conaffinity="1" class="friction"/>
+        <site name="grasping_center" pos="0 0.14 0" rgba="0 0 0 0"/>
+
+        <body name="fingers" pos="0 0 0.0" gravcomp="1">
+          <body name="left_finger" pos="0 0 -0.0042" gravcomp="1">
+            <joint name="finger_left_joint" axis="0 0 1" class="finger_hinge" pos="-0.0242 0.04224 0.0"/>
+            <geom name="left_finger_visual" mesh="finger" class="visual" material="light_blue"/>
+            <geom name="left_finger_foam_visual" mesh="foam_insert" class="visual" material="black"
+              pos="-0.00468 0.101585 0.00197" euler="0 0 3.75"/>
+            <geom name="left_finger_collision" type="box" size="0.002 0.042 0.0131" rgba="1 0 0 0"
+              pos="-0.056 0.095 0.0179" euler="0 0 0.61" contype="1" conaffinity="1" class="friction"/>
+          </body>
+
+          <body name="right_finger" pos="0 0 0.0317" euler="0 3.1415 0" gravcomp="1">
+            <joint name="finger_right_joint" axis="0 0 1" class="finger_hinge" pos="-0.0242 0.04224 0.0"/>
+            <geom name="right_finger_visual" mesh="finger" class="visual" material="light_blue"/>
+            <geom name="right_finger_foam" mesh="foam_insert" class="visual" material="black"
+              pos="-0.00468 0.101585 0.00197" euler="0 0 3.75"/>
+            <geom name="right_finger_collision" type="box" size="0.002 0.042 0.0131" rgba="1 0 0 0"
+              pos="-0.056 0.095 0.0179" euler="0 0 0.61" contype="1" conaffinity="1" class="friction"/>
+          </body>
         </body>
       </body>
     </body>
-    </body>
-    
+
   </worldbody>
 
   <tendon>
@@ -124,8 +124,7 @@
   </actuator>
 
   <equality>
-    <weld body1="target_ee_pose" body2="base" solref="0.02 1"
-      solimp="0.90000000000000002 0.94999999999999996 0.001"/>
+    <weld body1="target_ee_pose" body2="base" solref="0.02 1" solimp="0.90000000000000002 0.94999999999999996 0.001"/>
   </equality>
 
 </mujoco>

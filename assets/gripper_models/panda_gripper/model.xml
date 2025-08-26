@@ -16,6 +16,7 @@
                 <geom type="mesh" contype="0" conaffinity="0" group="2"/>
             </default>
             <default class="collision">
+
                 <geom type="mesh" group="3"/>
                 <default class="fingertip_pad_collision_1">
                     <geom type="box" size="0.0085 0.004 0.0085" pos="0 0.0055 0.0445"/>
@@ -41,11 +42,10 @@
         <material class="panda" name="off_white" rgba="0.901961 0.921569 0.929412 1"/>
         <material class="panda" name="black" rgba="0.25 0.25 0.25 1"/>
 
-        <!-- Collision meshes -->
         <mesh name="hand_c" file="assets/gripper_models/panda_gripper/meshes/hand.stl"/>
 
-        <!-- Visual meshes -->
         <mesh file="assets/gripper_models/panda_gripper/meshes/hand_0.obj"/>
+        <mesh file="assets/gripper_models/panda_gripper/panda_with_frame.obj"/>
         <mesh file="assets/gripper_models/panda_gripper/meshes/hand_1.obj"/>
         <mesh file="assets/gripper_models/panda_gripper/meshes/hand_2.obj"/>
         <mesh file="assets/gripper_models/panda_gripper/meshes/hand_3.obj"/>
@@ -56,9 +56,14 @@
 
     <worldbody>
         <body name="base" childclass="panda" quat="0 0 0 1">
-            <joint type="free" name="rum_free_joint"/>
+            <joint type="free" name="rum_free_joint" damping="4"/>
 
-            <body name="fixed_rotation" euler="-1.57 0 0">
+            <geom name="test_sphere_2" type="sphere" rgba="1 0 0 0" size="0.03"/>
+            <!-- <geom name="pand_with_frame" type="mesh" mesh="panda_with_frame" conaffinity="0" contype="0"
+                euler="-1.57 0 0" pos="0 0.035 0"/> -->
+
+            <body name="fixed_rotation" euler="-1.57 0 1.57">
+
                 <inertial mass="0.73" pos="-0.01 0 0.03" diaginertia="0.001 0.0025 0.0017"/>
                 <geom mesh="hand_0" material="off_white" class="visual"/>
                 <geom mesh="hand_1" material="black" class="visual"/>
@@ -69,33 +74,32 @@
                 <body name="left_finger" pos="0 0 0.0584">
                     <inertial mass="0.015" pos="0 0 0" diaginertia="2.375e-6 2.375e-6 7.5e-7"/>
                     <joint name="finger_joint1" class="finger"/>
-                    <geom mesh="finger_0" material="off_white" class="visual"/>
-                    <geom mesh="finger_1" material="black" class="visual"/>
-                    <geom mesh="finger_0" class="collision"/>
-                    <geom class="fingertip_pad_collision_1"/>
-                    <geom class="fingertip_pad_collision_2"/>
-                    <geom class="fingertip_pad_collision_3"/>
-                    <geom class="fingertip_pad_collision_4"/>
-                    <geom class="fingertip_pad_collision_5"/>
+                    <geom name="left_finger_finger_0" mesh="finger_0" material="off_white" class="visual"/>
+                    <geom name="left_finger_finger_1" mesh="finger_1" material="black" class="visual"/>
+                    <geom name="left_finger_finger_0_0" mesh="finger_0" class="collision"/>
+                    <geom name="left_finger_fingertip_pad_collision_1" class="fingertip_pad_collision_1"/>
+                    <geom name="left_finger_fingertip_pad_collision_2" class="fingertip_pad_collision_2"/>
+                    <geom name="left_finger_fingertip_pad_collision_3" class="fingertip_pad_collision_3"/>
+                    <geom name="left_finger_fingertip_pad_collision_4" class="fingertip_pad_collision_4"/>
+                    <geom name="left_finger_fingertip_pad_collision_5" class="fingertip_pad_collision_5"/>
                 </body>
                 <body name="right_finger" pos="0 0 0.0584" quat="0 0 0 1">
                     <inertial mass="0.015" pos="0 0 0" diaginertia="2.375e-6 2.375e-6 7.5e-7"/>
                     <joint name="finger_joint2" class="finger"/>
-                    <geom mesh="finger_0" material="off_white" class="visual"/>
-                    <geom mesh="finger_1" material="black" class="visual"/>
-                    <geom mesh="finger_0" class="collision"/>
-                    <geom class="fingertip_pad_collision_1"/>
-                    <geom class="fingertip_pad_collision_2"/>
-                    <geom class="fingertip_pad_collision_3"/>
-                    <geom class="fingertip_pad_collision_4"/>
-                    <geom class="fingertip_pad_collision_5"/>
+                    <geom name="right_finger_finger_0" mesh="finger_0" material="off_white" class="visual"/>
+                    <geom name="right_finger_finger_1" mesh="finger_1" material="black" class="visual"/>
+                    <geom name="right_finger_finger_0_0" mesh="finger_0" class="collision"/>
+                    <geom name="right_finger_fingertip_pad_collision_1" class="fingertip_pad_collision_1"/>
+                    <geom name="right_finger_fingertip_pad_collision_2" class="fingertip_pad_collision_2"/>
+                    <geom name="right_finger_fingertip_pad_collision_3" class="fingertip_pad_collision_3"/>
+                    <geom name="right_finger_fingertip_pad_collision_4" class="fingertip_pad_collision_4"/>
+                    <geom name="right_finger_fingertip_pad_collision_5" class="fingertip_pad_collision_5"/>
                 </body>
             </body>
         </body>
 
-        <body name="target_ee_pose" mocap="true" pos="4.91421922e-20 -3.86000000e-01  9.50000000e-01"
-            quat="7.93352409e-01  6.08762643e-01 -4.10350822e-19 -1.17533825e-18">
-            <geom name="target_ee_pose" type="box" rgba="0 1 0 1.0" size="0.02 0.02 0.02" conaffinity="0" contype="0"
+        <body name="target_ee_pose" mocap="true" pos="0 0 0">
+            <geom name="target_ee_pose" type="box" rgba="0 1 0 0.0" size="0.03 0.01 0.01" conaffinity="0" contype="0"
                 mass="10.0"/>
         </body>
     </worldbody>
@@ -114,7 +118,7 @@
 
     <equality>
         <joint joint1="finger_joint1" joint2="finger_joint2" solimp="0.95 0.99 0.001" solref="0.005 1"/>
-        <weld body1="target_ee_pose" body2="base" solref="0.02 1" solimp="0.90000000000000002 0.94999999999999996 0.001"/>
+        <weld body1="target_ee_pose" body2="base" solref="0.5 1" solimp="0.6 0.8 0.001" relpose="0 -0.0 0 -0.035 0 0 0"/>
 
     </equality>
 
