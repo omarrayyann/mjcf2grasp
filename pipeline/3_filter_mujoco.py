@@ -306,6 +306,15 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
         )
 
         for i, (transform, quality) in pbar:
+            transform[0:3, 3] = [0.05835581, 0.03979523, 0.14314214]
+            transform[0:3, 0:3] = R.from_quat(
+                [0.95983621, 0.23655397, -0.13927727, -0.0579526]
+            ).as_matrix()
+
+            # (array([0.05835581, 0.03979523, 0.14314214]), array([-0.0579526 ,  0.95983621,  0.23655397, -0.13927727]))
+
+            print(transform)
+
             # Create combined XML for the scene with the gripper and object
             tree = ET.ElementTree(ET.fromstring(xml_content))
             root = tree.getroot()
@@ -365,6 +374,7 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
             ) as viewer:
                 mujoco.mj_step(model, data)
                 viewer.sync()
+                time.sleep(4)
 
                 pos = transform[:3, 3]
                 quat = R.from_matrix(transform[:3, :3]).as_quat(scalar_first=True)
@@ -386,15 +396,10 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
 
                     if step % 50 == 0:
                         viewer.sync()
-                        if not viewer.is_running():
-                            return ([], [], [])
 
                     # Check if we've reached the target
                     current_gripper_pos = data.body("base").xpos
                     distance_to_target = np.linalg.norm(current_gripper_pos - pos)
-                    if distance_to_target < 0.001:
-                        viewer.close()
-                        break
 
                 # Final positioning and preparation for grasping
                 if mocap_id >= 0:
@@ -435,6 +440,9 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                                 successful_widths,
                             )
 
+                # while 1:
+                #     mujoco.mj_step(model, data)
+                #     viewer.sync()
                 if args.gripper == "rum":
                     data.ctrl[0] = -0.8
                 elif args.gripper == "panda":

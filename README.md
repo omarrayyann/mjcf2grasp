@@ -10,8 +10,6 @@ A pipeline that generates grasp samples for Thor objects, with evaluation and fi
 
 
 
-
-
 ## Installation
 
 ```bash
@@ -24,28 +22,48 @@ pip install -r requirements.txt
 ## Steps
 
 1. **Find Objects**: Run `scripts/find_objects.py` to scan for valid objects and generate `matched_objs.json`
+   
+   **For static objects:**
    ```bash
    python scripts/find_objects.py <directory> --output matched_objs.json
    ```
+   
+   **For articulated objects (furniture with movable joints):**
+   ```bash
+   python scripts/find_objects.py <directory> --output articulated_matched_objs.json --check-joints
+   ```
+   
+   The `--check-joints` flag ensures that XML files contain articulated joints (non-free joints) that can be controlled/moved.
    
    Example output format:
    ```json
    [
        {
-           "name": "Keychain_3",
-           "xml": "/path/to/assets/KeyChain/Prefabs/Keychain_3/Keychain_3.xml"
+           "name": "Tennis_Racquet_1",
+           "xml": "/path/to/assets/Tennis_Racquet/Prefabs/Tennis_Racquet_1/Tennis_Racquet_1.xml"
        },
        {
-           "name": "Laptop_12", 
-           "xml": "/path/to/assets/Laptop_Full/Prefabs/Laptop_12/Laptop_12.xml"
+           "name": "Microwave_12", 
+           "xml": "/path/to/assets/Microwave/Prefabs/Microwave_12/Microwave_12.xml"
        }
    ]
    ```
 
-2. **Run Pipeline**: Run `run_pipeline.py` to process each object through the pipeline stages
+2. **Run Pipeline**: Run the appropriate pipeline based on object type:
+   
+   **For static objects:**
    ```bash
    python run_pipeline.py
    ```
+   
+   **For articulated objects (for fuctional grasps):**
+   ```bash
+   python run_pipeline_articulate.py
+   ```
+
+**Pipeline stages:**
 - `pipeline/0_generate_mesh.py` - Combines meshes from MuJoCo XML into a single OBJ file
 - `pipeline/1_generate_grasps.py` - Samples grasp poses for the object mesh  
-- `pipeline/2_filter_mujoco.py` - Filters grasps using MuJoCo
+- `pipeline/2_mesh_colliders.py` - Converts primitive colliders to mesh colliders
+- `pipeline/3_filter_mujoco.py` - Filters grasps using MuJoCo simulation (for static objects)
+- `pipeline_articulate/` - Contains specialized stages for articulated objects (0-3)

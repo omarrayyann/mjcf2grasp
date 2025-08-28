@@ -57,11 +57,11 @@
   </default>
 
   <worldbody>
-    <geom name="test_sphere" type="sphere" size="0.04" pos="0 0 10.1" rgba="1 0 0 1" contype="0" conaffinity="0"/>
+    <geom name="test_sphere" type="sphere" size="0.04" pos="0 0 10.1" rgba="1 0 0 0" contype="0" conaffinity="0"/>
 
     <body name="target_ee_pose" mocap="true" pos="4.91421922e-20 -3.86000000e-01  9.50000000e-01"
       quat="7.93352409e-01  6.08762643e-01 -4.10350822e-19 -1.17533825e-18">
-      <geom name="target_ee_pose" type="box" rgba="0 1 0 1.0" size="0.02 0.02 0.02" conaffinity="0" contype="0"
+      <geom name="target_ee_pose" type="box" rgba="0 1 0 0.0" size="0.02 0.02 0.02" conaffinity="0" contype="0"
         mass="10.0"/>
     </body>
 
@@ -124,7 +124,7 @@
   </actuator>
 
   <equality>
-    <weld body1="target_ee_pose" body2="base" solref="0.02 1" solimp="0.90000000000000002 0.94999999999999996 0.001"/>
+    <weld body1="target_ee_pose" body2="base" solref="0.001 1" solimp="0.98999999999999999 0.98999999999999999 0.001"/>
   </equality>
 
 </mujoco>

@@ -6,11 +6,11 @@
         <global azimuth="-120" elevation="-20" offwidth="1280" offheight="720"/>
         <quality shadowsize="0"/>
     </visual>
-    <compiler angle="radian" meshdir="" texturedir=""/>
-    <option integrator="implicitfast" impratio="10" cone="elliptic" noslip_iterations="2" gravity="0 0 0">
-        <flag multiccd="enable"/>
+    <compiler autolimits="true" boundmass="0" balanceinertia="true" angle="radian"/>
+    <option timestep="0.002" impratio="10" integrator="implicitfast" cone="elliptic" jacobian="sparse" solver="Newton"
+        noslip_iterations="4" gravity="0 0 0">
+        <flag contact="enable" warmstart="enable" energy="enable" multiccd="enable"/>
     </option>
-
 
     <asset>
         <texture type="skybox" builtin="gradient" rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512" height="3072"/>
@@ -47,5 +47,5 @@
 
     </worldbody>
 
-    
+
 </mujoco>

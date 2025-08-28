@@ -4,11 +4,24 @@ import argparse
 import xml.etree.ElementTree as ET
 
 ALL_PICKUP_TYPES_THOR = [
+    "microwave",
+    "bathroom_faucet",
+    "dresser",
+    "safe",
+    "shelving",
+    "side_table",
+    "fridge",
+    "microwave",
+    "toaster",
+    "coffee_table",
+    "desk",
+    "doorway",
+    "laundry",
     "tennis",
 ]
 
 
-def find_objs_with_matching_subfolder(base_dir):
+def find_objs_with_matching_subfolder(base_dir, check_joints=False):
     result = []
     all_pickup_types = set(ALL_PICKUP_TYPES_THOR)
     all_pickup_types = [item.lower() for item in all_pickup_types]
@@ -17,7 +30,6 @@ def find_objs_with_matching_subfolder(base_dir):
         for file in files:
             if file.endswith(".obj"):
                 obj_name = os.path.splitext(file)[0]
-                obj_path = os.path.join(root, file)
                 json_filename = obj_name + ".json"
                 json_path = os.path.join(root, json_filename)
 
@@ -25,15 +37,10 @@ def find_objs_with_matching_subfolder(base_dir):
                     subfolder_path = os.path.join(root, obj_name)
                     found_object = False
                     for pickup_type in all_pickup_types:
-                        # object_subnames = obj_name.lower().split("_")
-
                         if pickup_type.lower() in obj_name.lower():
                             found_object = True
                             break
 
-                        # if any(subname in pickup_type for subname in object_subnames):
-                        #     found_object = True
-                        #     break
                     if not found_object:
                         print(
                             f"Skipping {obj_name} as it is not a recognized pickup type."
@@ -42,25 +49,24 @@ def find_objs_with_matching_subfolder(base_dir):
 
                     for subfile in os.listdir(subfolder_path):
                         if subfile.endswith(".xml") and "old" not in subfile.lower():
-                            abs_obj_path = os.path.abspath(obj_path)
                             abs_xml_path = os.path.abspath(
                                 os.path.join(subfolder_path, subfile)
                             )
-                            abs_json_path = os.path.abspath(json_path)
 
-                            # read xml and ensure it has a <joint tag that is not of type free
+                            if check_joints:
+                                tree = ET.parse(abs_xml_path)
+                                xml_root = tree.getroot()
+                                has_valid_joint = False
+                                for joint in xml_root.findall(".//joint"):
+                                    if joint.get("type") != "free":
+                                        has_valid_joint = True
+                                        break
 
-                            # tree = ET.parse(abs_xml_path)
-                            # xml_root = tree.getroot()
-                            # has_valid_joint = False
-                            # for joint in xml_root.findall(".//joint"):
-                            #     if joint.get("type") != "free":
-                            #         has_valid_joint = True
-                            #         break
-
-                            # if not has_valid_joint:
-                            #     print(f"   Skipping {obj_name} as it has no valid joints.")
-                            #     continue
+                                if not has_valid_joint:
+                                    print(
+                                        f"   Skipping {obj_name} as it has no valid joints."
+                                    )
+                                    continue
 
                             result.append({"name": obj_name, "xml": abs_xml_path})
                             break
@@ -84,12 +90,19 @@ if __name__ == "__main__":
     )
     parser.add_argument("directory", help="Base directory to search")
     parser.add_argument(
-        "--output", default="matched_objs.json", help="Output JSON file name"
+        "--output",
+        default="matched_objs.json",
+        help="Output JSON file name",
+    )
+    parser.add_argument(
+        "--check-joints",
+        action="store_true",
+        help="Only include objects with articulated joints (non-free joints)",
     )
 
     args = parser.parse_args()
 
-    matched_objs = find_objs_with_matching_subfolder(args.directory)
+    matched_objs = find_objs_with_matching_subfolder(args.directory, args.check_joints)
     save_to_json(matched_objs, args.output)
 
     print(
