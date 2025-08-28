@@ -1,6 +1,5 @@
 # Thor Grasp
-A pipeline that generates grasp samples for Thor objects, with evaluation and filtering in MuJoCo
-
+A pipeline that generates grasp samples for Thor objects (static and articulated), with evaluation and filtering in MuJoCo
 <p>
   <img src="https://github.com/user-attachments/assets/528f1dda-dc60-4434-b04b-c0b67b336bc4" alt="tennis" width="18%" height="auto" />
   <img src="https://github.com/user-attachments/assets/df1ec21f-c457-4ad6-a611-2f16d0ac4f61" alt="cup" width="18%" height="auto" />
@@ -35,7 +34,7 @@ pip install -r requirements.txt
    python scripts/find_objects.py <directory> --output articulated_matched_objs.json --check-joints
    ```
    
-   The `--check-joints` flag ensures that XML files contain articulated joints (non-free joints) that can be controlled/moved.
+   The `--check-joints` flag adds a filtering requirement for XML files to include articulated joints (non-free joints) 
    
    Example output format:
    ```json
@@ -67,5 +66,6 @@ pip install -r requirements.txt
 - `pipeline/0_generate_mesh.py` - Combines meshes from MuJoCo XML into a single OBJ file
 - `pipeline/1_generate_grasps.py` - Samples grasp poses for the object mesh  
 - `pipeline/2_mesh_colliders.py` - Converts primitive colliders to mesh colliders
-- `pipeline/3_filter_mujoco.py` - Filters grasps using MuJoCo simulation (for static objects)
-- `pipeline_articulate/` - Contains specialized stages for articulated objects (0-3)
+- `pipeline/3_filter_mujoco.py` - Filters grasps using MuJoCo simulation
+
+(`pipeline_articulate` is similar to  `pipeline` but has additional filtering requirement in the filter_mujoco process. It ensures the grasp allows a later movement to generate motion in one of the non-free joints of the asset.)
