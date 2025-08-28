@@ -2,11 +2,13 @@
 A pipeline that generates grasp samples for Thor objects, with evaluation and filtering in MuJoCo
 
 <p>
-  <img src="https://github.com/user-attachments/assets/528f1dda-dc60-4434-b04b-c0b67b336bc4" alt="tennis" width="20%" height="auto" />
-  <img src="https://github.com/user-attachments/assets/df1ec21f-c457-4ad6-a611-2f16d0ac4f61" alt="cup" width="20%" height="auto" />
-  <img src="https://github.com/user-attachments/assets/03f89c0c-da8c-4a72-93bb-f9f24ba9874a" alt="pan_shake" width="20%" height="auto" />
-  <img src="https://github.com/user-attachments/assets/0b7d68ed-6f1f-4855-a0e4-b17e3e1c2fb0" alt="pan" width="20%" height="auto" />
+  <img src="https://github.com/user-attachments/assets/528f1dda-dc60-4434-b04b-c0b67b336bc4" alt="tennis" width="15%" height="auto" />
+  <img src="https://github.com/user-attachments/assets/df1ec21f-c457-4ad6-a611-2f16d0ac4f61" alt="cup" width="15%" height="auto" />
+  <img src="https://github.com/user-attachments/assets/03f89c0c-da8c-4a72-93bb-f9f24ba9874a" alt="pan_shake" width="15%" height="auto" />
+  <img src="https://github.com/user-attachments/assets/0b7d68ed-6f1f-4855-a0e4-b17e3e1c2fb0" alt="pan" width="15%" height="auto" />
+  <img src="https://github.com/user-attachments/assets/936c10b1-f8f6-4701-b608-62c3529fdb85" alt="pan" width="15%" height="auto" />
 </p>
+
 
 
 
