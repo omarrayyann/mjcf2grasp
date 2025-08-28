@@ -1,6 +1,5 @@
 # Thor Grasp
-A pipeline that generates grasp samples for Thor objects, with evaluation and filtering in MuJoCo
-
+A pipeline that generates grasp samples for Thor objects (static and articulated), with evaluation and filtering in MuJoCo
 <p>
   <img src="https://github.com/user-attachments/assets/528f1dda-dc60-4434-b04b-c0b67b336bc4" alt="tennis" width="18%" height="auto" />
   <img src="https://github.com/user-attachments/assets/df1ec21f-c457-4ad6-a611-2f16d0ac4f61" alt="cup" width="18%" height="auto" />
