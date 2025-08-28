@@ -306,14 +306,7 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
         )
 
         for i, (transform, quality) in pbar:
-            transform[0:3, 3] = [0.05835581, 0.03979523, 0.14314214]
-            transform[0:3, 0:3] = R.from_quat(
-                [0.95983621, 0.23655397, -0.13927727, -0.0579526]
-            ).as_matrix()
-
             # (array([0.05835581, 0.03979523, 0.14314214]), array([-0.0579526 ,  0.95983621,  0.23655397, -0.13927727]))
-
-            print(transform)
 
             # Create combined XML for the scene with the gripper and object
             tree = ET.ElementTree(ET.fromstring(xml_content))
