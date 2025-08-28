@@ -33,7 +33,11 @@ def find_objs_with_matching_subfolder(base_dir, check_joints=False):
                         continue
 
                     for subfile in os.listdir(subfolder_path):
-                        if subfile.endswith(".xml") and "old" not in subfile.lower():
+                        if (
+                            subfile.endswith(".xml")
+                            and "old" not in subfile.lower()
+                            and "mesh" not in subfile.lower()
+                        ):
                             abs_xml_path = os.path.abspath(
                                 os.path.join(subfolder_path, subfile)
                             )
