@@ -785,7 +785,6 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                         tqdm.write(
                             "Terminating remaining workers after reaching max successful grasps"
                         )
-                        viewer.close()
                         break
 
                     for i, r in enumerate(results):
