@@ -67,5 +67,4 @@ pip install -r requirements.txt
 - `pipeline/0_generate_mesh.py` - Combines meshes from MuJoCo XML into a single OBJ file
 - `pipeline/1_generate_grasps.py` - Samples grasp poses for the object mesh  
 - `pipeline/2_mesh_colliders.py` - Converts primitive colliders to mesh colliders
-- `pipeline/3_filter_mujoco.py` - Filters grasps using MuJoCo simulation (for static objects)
-- `pipeline_articulate/` - Contains specialized stages for articulated objects (0-3)
+- `pipeline/3_filter_mujoco.py` - Filters grasps using MuJoCo simulation 
