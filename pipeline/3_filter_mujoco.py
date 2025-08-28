@@ -430,7 +430,6 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
             ) as viewer:
                 mujoco.mj_step(model, data)
                 viewer.sync()
-                time.sleep(4)
 
                 pos = transform[:3, 3]
                 quat = R.from_matrix(transform[:3, :3]).as_quat(scalar_first=True)
@@ -800,8 +799,6 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                         elif r is not None and r.ready():
                             results[i] = None
                             completed += 1
-
-                    time.sleep(0.1)
 
                 if not should_stop.value:
                     pool.close()
