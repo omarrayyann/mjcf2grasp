@@ -35,7 +35,7 @@ pip install -r requirements.txt
    python scripts/find_objects.py <directory> --output articulated_matched_objs.json --check-joints
    ```
    
-   The `--check-joints` flag ensures that XML files contain articulated joints (non-free joints) that can be controlled/moved.
+   The `--check-joints` flag adds a filtering requirement for XML files to include articulated joints (non-free joints) 
    
    Example output format:
    ```json
