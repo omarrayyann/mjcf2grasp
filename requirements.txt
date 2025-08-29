@@ -7,3 +7,7 @@ tqdm
 wandb
 tensorflow
 pillow
+python-fcl
+rtree
+plotly
+importlib-metadata
