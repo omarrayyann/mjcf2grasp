@@ -10,7 +10,8 @@ USE_WANDB = False
 
 
 def load_articulated_objects():
-    matched_file = "articulated_matched_objs.json"
+    #matched_file = "articulated_matched_objs.json"
+    matched_file = "ithor_matched_objs.json"
 
     if not os.path.exists(matched_file):
         print(f"Error: {matched_file} not found!")
@@ -30,7 +31,7 @@ def run_grasp_filtering_stage(
     object_name, grasps_path, xml_file, output_dir, per_joint_grasps_json=None
 ):
     
-    
+    """
     # First, convert XML to use mesh colliders
     xml_mesh_file = xml_file.replace(".xml", "_mesh.xml")
     if not os.path.exists(xml_mesh_file):
@@ -59,6 +60,8 @@ def run_grasp_filtering_stage(
     
     # Use the mesh collider XML for filtering
     xml_file_for_filtering = xml_mesh_file
+    """
+    xml_file_for_filtering = xml_file
     
     if per_joint_grasps_json:
         print(f"   Per-joint grasps JSON: {per_joint_grasps_json}")
@@ -82,7 +85,7 @@ def run_grasp_filtering_stage(
                     "5",
                     "--max_successful",
                     "10",
-                    # "--render",
+                    "--render",
                 ],
                 check=True,
             )
@@ -143,7 +146,7 @@ def run_grasp_filtering_stage(
                     "5",
                     "--max_successful",
                     "10",
-                    # "--render",
+                    "--render",
                 ],
                 check=True,
             )
@@ -190,7 +193,7 @@ def run_grasp_generation_stage(object_name, handle_mesh_path, full_mesh, output_
                 "--output",
                 grasps_output_path,
                 "--gripper",
-                "panda",
+                "rum", #"panda",
                 "--num_samples",
                 "50000",
                 "--quality",
@@ -282,11 +285,11 @@ def run_per_joint_grasp_generation(
                 "--per_joint_grasps_from_meshes",
                 joint_meshes_json,
                 "--gripper",
-                "panda",
+                "rum", #"panda",
                 "--num_samples",
                 "50000",
-                "--quality",
-                "antipodal",
+                #"--quality",
+                #"antipodal",
                 "--min_quality",
                 "0.005",
                 "--systematic_sampling",

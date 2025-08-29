@@ -3,8 +3,10 @@ import json
 import argparse
 import xml.etree.ElementTree as ET
 
-ALL_PICKUP_TYPES_THOR = ["mug"]
-
+ALL_PICKUP_TYPES_THOR = ["Drawer"]
+ALL_PICKUP_TYPES_THOR = ["ShowerDoor"]
+ALL_PICKUP_TYPES_THOR = ["Cabinet", "Drawer", "ShowerDoor"]
+ALL_PICKUP_TYPES_THOR = ["Cabinet_8ebed1f8"] #, "cabinet", "Drawer", "drawer", "ShowerDoor", "showerdoor"] #["mug"]
 
 def find_objs_with_matching_subfolder(base_dir, check_joints=False):
     result = []
