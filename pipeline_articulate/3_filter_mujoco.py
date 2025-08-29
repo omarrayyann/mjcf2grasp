@@ -153,6 +153,23 @@ def merge_xml_contents(base_xml_content, additional_xml_content):
     return ET.tostring(base_root, encoding="unicode")
 
 
+def fix_mesh_paths(xml_content):
+    """Fix mesh file paths in the XML content to be relative to the final XML location."""
+    root = ET.fromstring(xml_content)
+    
+    # Find all mesh elements and update their file paths
+    for mesh in root.findall(".//mesh"):
+        if "file" in mesh.attrib:
+            old_path = mesh.attrib["file"]
+            # If the path starts with ../../assets/, change it to just assets/
+            if old_path.startswith("../../assets/"):
+                new_path = old_path.replace("../../assets/", "assets/")
+                mesh.attrib["file"] = new_path
+                print(f"Fixed mesh path: {old_path} -> {new_path}")
+    
+    return ET.tostring(root, encoding="unicode")
+
+
 def is_object_grasped(model, data, object_name):
     left_finger_contact = False
     right_finger_contact = False
@@ -722,6 +739,7 @@ def main_single_file_filtering(
     xml_path = os.path.join(os.path.dirname(__file__), "../assets/scene.xml")
     tree = ET.parse(xml_path)
     root = tree.getroot()
+
     try:
         with open(xml_file, "r") as f:
             obj_xml_content = f.read()
@@ -739,10 +757,14 @@ def main_single_file_filtering(
                             print(f"Removed free joint: {joint.get('name')}")
         with open(xml_file, "w") as f:
             f.write(ET.tostring(obj_tree, encoding="unicode"))
-        include = ET.Element("include", {"file": xml_file})
+        # Use absolute path for the include statement to avoid path resolution issues
+        xml_file_abs = os.path.abspath(xml_file)
+        include = ET.Element("include", {"file": xml_file_abs})
     except Exception as e:
         print(f"Error modifying XML to remove free joints: {e}")
-        include = ET.Element("include", {"file": xml_file})
+        # Use absolute path for the include statement to avoid path resolution issues
+        xml_file_abs = os.path.abspath(xml_file)
+        include = ET.Element("include", {"file": xml_file_abs})
     root.append(include)
     worldbody = root.find("worldbody")
     if joint_axis_info is not None:
@@ -761,7 +783,11 @@ def main_single_file_filtering(
     with open(robot_xml_path, "r") as f:
         robot_xml_content = f.read()
     xml_content = merge_xml_contents(xml_content, robot_xml_content)
-
+    
+    # Fix mesh file paths in the merged XML content
+    #xml_content = fix_mesh_paths(xml_content)
+    
+    #print(xml_content)
     model = mujoco.MjModel.from_xml_string(xml_content)
     data = mujoco.MjData(model)
 
@@ -850,6 +876,7 @@ def main():
     args = parser.parse_args()
     if args.per_joint_summary_json:
         summary_path = os.path.abspath(args.per_joint_summary_json)
+        original_cwd = os.getcwd()  # Store original working directory
         os.chdir(os.path.dirname(summary_path))
         with open(summary_path, "r") as f:
             summary = json.load(f)
@@ -862,6 +889,9 @@ def main():
                 grasps_file = entry.get("grasps_file")
             handle_mesh = entry.get("handle_mesh")
             xml_file = entry.get("xml_file") if entry.get("xml_file") else args.xml_file
+            # Convert relative paths to absolute paths relative to the original working directory
+            if xml_file and not os.path.isabs(xml_file):
+                xml_file = os.path.join(original_cwd, xml_file)
             joint_info = (
                 entry.get("primary_joint")
                 or entry.get("joint_axis")
