@@ -29,8 +29,6 @@ def load_articulated_objects():
 def run_grasp_filtering_stage(
     object_name, grasps_path, xml_file, output_dir, per_joint_grasps_json=None
 ):
-    
-    
     # First, convert XML to use mesh colliders
     xml_mesh_file = xml_file.replace(".xml", "_mesh.xml")
     if not os.path.exists(xml_mesh_file):
@@ -49,17 +47,21 @@ def run_grasp_filtering_stage(
             )
             print(f"   Mesh collider XML created: {xml_mesh_file}")
         except subprocess.CalledProcessError as e:
-            print(f"   Warning: Failed to convert to mesh colliders, using original XML: {str(e)}")
+            print(
+                f"   Warning: Failed to convert to mesh colliders, using original XML: {str(e)}"
+            )
             xml_mesh_file = xml_file
         except Exception as e:
-            print(f"   Warning: Unexpected error in mesh collider conversion, using original XML: {str(e)}")
+            print(
+                f"   Warning: Unexpected error in mesh collider conversion, using original XML: {str(e)}"
+            )
             xml_mesh_file = xml_file
     else:
         print(f"   Mesh collider XML already exists: {xml_mesh_file}")
-    
+
     # Use the mesh collider XML for filtering
     xml_file_for_filtering = xml_mesh_file
-    
+
     if per_joint_grasps_json:
         print(f"   Per-joint grasps JSON: {per_joint_grasps_json}")
         try:
@@ -389,7 +391,9 @@ def main():
         print(f"Monitor progress at: {wandb.run.url}")
         wandb.log({"total_objects": len(articulated_objects), "step": 0})
     else:
-        print(f"Starting processing of {len(articulated_objects)} articulated objects (wandb disabled)")
+        print(
+            f"Starting processing of {len(articulated_objects)} articulated objects (wandb disabled)"
+        )
 
     output_base = "output_articulate"
     os.makedirs(output_base, exist_ok=True)
@@ -476,7 +480,7 @@ def main():
                 print(
                     f"   Visualizing all per-joint grasps on full mesh for {object_name}..."
                 )
-                viz_grasps = 0  
+                viz_grasps = 0
                 if viz_grasps:
                     try:
                         subprocess.run(
@@ -596,7 +600,8 @@ def main():
                         object_output_dir, "joint_meshes_info_filtered.json"
                     )
                     visualization_png = os.path.join(
-                        object_output_dir, f"{object_name}_filtered_grasps_visualization.png"
+                        object_output_dir,
+                        f"{object_name}_filtered_grasps_visualization.png",
                     )
                     subprocess.run(
                         [
@@ -611,21 +616,21 @@ def main():
                             "--filtered_grasps",
                             "--save-png",
                             visualization_png,
-                            "--no-render"
+                            "--no-render",
                         ],
                         check=True,
                     )
                     print(
                         f"   Filtered per-joint grasp visualization completed for {object_name}"
                     )
-                    
+
                     # Log visualization to wandb if enabled
                     if USE_WANDB and os.path.exists(visualization_png):
                         wandb.log(
                             {
                                 f"{object_name}_filtered_grasps_visualization": wandb.Image(
-                                    visualization_png, 
-                                    caption=f"Filtered articulated grasps for {object_name}"
+                                    visualization_png,
+                                    caption=f"Filtered articulated grasps for {object_name}",
                                 ),
                                 "visualization_success": True,
                             }
@@ -682,14 +687,18 @@ def main():
             else:
                 status = "Partially processed (no joint analysis)"
             print(f"   {status}: {object_name}")
-            
+
             # Log object completion to wandb
             if USE_WANDB:
                 # Calculate grasp metrics
                 grasp_count = 0
                 filtered_count = 0
-                
-                if filtering_success and filtered_grasps_path and os.path.exists(filtered_grasps_path):
+
+                if (
+                    filtering_success
+                    and filtered_grasps_path
+                    and os.path.exists(filtered_grasps_path)
+                ):
                     try:
                         with open(filtered_grasps_path, "r") as f:
                             filtered_data = json.load(f)
@@ -701,8 +710,10 @@ def main():
                                 if os.path.exists(filtered_file):
                                     with open(filtered_file, "r") as ff:
                                         filtered_grasp_data = json.load(ff)
-                                    filtered_count += len(filtered_grasp_data.get("transforms", []))
-                            
+                                    filtered_count += len(
+                                        filtered_grasp_data.get("transforms", [])
+                                    )
+
                             if "grasps_file" in entry:
                                 grasp_file = os.path.join(
                                     object_output_dir, entry["grasps_file"]
@@ -713,16 +724,22 @@ def main():
                                     grasp_count += len(grasp_data.get("transforms", []))
                     except:
                         pass
-                
-                filter_success_rate = (filtered_count / grasp_count * 100) if grasp_count > 0 else 0
-                completion_percentage = (processed_objects / len(articulated_objects)) * 100
-                
+
+                filter_success_rate = (
+                    (filtered_count / grasp_count * 100) if grasp_count > 0 else 0
+                )
+                completion_percentage = (
+                    processed_objects / len(articulated_objects)
+                ) * 100
+
                 wandb.log(
                     {
                         "completion_percentage": completion_percentage,
                         "processed_objects": processed_objects,
-                        "remaining_objects": len(articulated_objects) - processed_objects,
-                        "overall_progress": processed_objects / len(articulated_objects),
+                        "remaining_objects": len(articulated_objects)
+                        - processed_objects,
+                        "overall_progress": processed_objects
+                        / len(articulated_objects),
                         "object_completed": object_name,
                         "grasp_count": grasp_count,
                         "filtered_count": filtered_count,
@@ -740,13 +757,15 @@ def main():
 
         progress = (i + 1) / len(articulated_objects) * 100
         print(f"   Progress: {progress:.1f}% ({i + 1}/{len(articulated_objects)})")
-        
+
         # Progress bar similar to run_pipeline.py
         progress_bar_width = 50
         filled_width = int(progress_bar_width * ((i + 1) / len(articulated_objects)))
         progress_bar = "█" * filled_width + "░" * (progress_bar_width - filled_width)
-        
-        print(f"Progress: [{progress_bar}] {progress:.1f}% ({i + 1}/{len(articulated_objects)})")
+
+        print(
+            f"Progress: [{progress_bar}] {progress:.1f}% ({i + 1}/{len(articulated_objects)})"
+        )
         print("=" * 80)
 
     print("\n" + "=" * 60)
@@ -806,7 +825,11 @@ def main():
                 "objects_with_joint_analysis": objects_with_joint_analysis,
                 "objects_with_grasps": objects_with_grasps,
                 "objects_with_filtered_grasps": objects_with_filtered_grasps,
-                "success_rate": (processed_objects - len(failed_objects)) / processed_objects * 100 if processed_objects > 0 else 0,
+                "success_rate": (processed_objects - len(failed_objects))
+                / processed_objects
+                * 100
+                if processed_objects > 0
+                else 0,
             }
         )
 
@@ -814,19 +837,21 @@ def main():
         summary_data = []
         for obj in successful_objects:
             stages = obj.get("stages_completed", {})
-            summary_data.append([
-                obj["name"],
-                "✓" if stages.get("handle_detection", False) else "✗",
-                "✓" if stages.get("joint_axis_analysis", False) else "✗",
-                "✓" if stages.get("grasp_generation", False) else "✗",
-                "✓" if stages.get("grasp_filtering", False) else "✗",
-            ])
+            summary_data.append(
+                [
+                    obj["name"],
+                    "✓" if stages.get("handle_detection", False) else "✗",
+                    "✓" if stages.get("joint_axis_analysis", False) else "✗",
+                    "✓" if stages.get("grasp_generation", False) else "✗",
+                    "✓" if stages.get("grasp_filtering", False) else "✗",
+                ]
+            )
 
         table = wandb.Table(
             columns=[
                 "Object",
                 "Handle Detection",
-                "Joint Analysis", 
+                "Joint Analysis",
                 "Grasp Generation",
                 "Grasp Filtering",
             ],

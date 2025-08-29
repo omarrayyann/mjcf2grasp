@@ -277,7 +277,7 @@ def test_single_grasp(
         new_pos = approach_pos + (step / approach_steps) * approach_vector
         data.mocap_pos[0] = new_pos
         data.mocap_quat[0] = quat
-        for _ in range(1000):
+        for i in range(1000):
             mujoco.mj_step(model, data)
             if render and viewer is not None:
                 viewer.sync()

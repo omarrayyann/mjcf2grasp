@@ -1,0 +1,31 @@
+{
+  "transforms": [],
+  "quality_antipodal": [],
+  "object": "output_articulate/Fridge_18/Fridge_18_fridge_drawer4_c4__1.obj",
+  "object_scale": 1.0,
+  "object_position": [
+    0,
+    0,
+    0
+  ],
+  "object_rotation": [
+    1,
+    0,
+    0,
+    0
+  ],
+  "approach_distance": 0.5,
+  "grasp_widths": [],
+  "object_class": "articulated_handle",
+  "object_dataset": "thor_articulated",
+  "gripper": "panda",
+  "gripper_configuration": [
+    0.04
+  ],
+  "transforms_quality": [],
+  "roll_angles": [],
+  "standoffs": [],
+  "mesh_points": [],
+  "mesh_normals": [],
+  "collisions": []
+}

@@ -31,6 +31,7 @@ parser.add_argument(
     help="Number of simulation steps for the approach phase",
 )
 parser.add_argument("--render", action="store_true", help="Enable interactive viewer")
+parser.add_argument("--rotate", action="store_true", help="Enable rotation shaking")
 parser.add_argument(
     "--num_workers",
     type=int,
@@ -277,61 +278,61 @@ def test_single_grasp(grasp_data, object_name):
         if not shake_success:
             break
 
-    # Test rotational shaking in roll, pitch, yaw after translational shaking
-    if shake_success and mocap_id >= 0:
-        # Convert baseline quaternion to rotation matrix for manipulation
-        baseline_rotation = R.from_quat(
-            baseline_quat[[1, 2, 3, 0]]
-        )  # MuJoCo uses w,x,y,z, scipy uses x,y,z,w
+    if args.rotate and shake_success:
+        if shake_success and mocap_id >= 0:
+            # Convert baseline quaternion to rotation matrix for manipulation
+            baseline_rotation = R.from_quat(
+                baseline_quat[[1, 2, 3, 0]]
+            )  # MuJoCo uses w,x,y,z, scipy uses x,y,z,w
 
-        # Test rotations around x (roll), y (pitch), z (yaw) axes
-        for axis_idx in range(3):  # x, y, z axes
-            for shake in range(config["num_shakes"]):
-                total_steps = config["shake_steps"] * 2
+            # Test rotations around x (roll), y (pitch), z (yaw) axes
+            for axis_idx in range(3):  # x, y, z axes
+                for shake in range(config["num_shakes"]):
+                    total_steps = config["shake_steps"] * 2
 
-                for step in range(total_steps):
-                    angle = 2 * np.pi * step / total_steps
-                    shake_angle = angle  # Full 360 degree rotation
+                    for step in range(total_steps):
+                        angle = 2 * np.pi * step / total_steps
+                        shake_angle = angle  # Full 360 degree rotation
 
-                    # Create rotation around the axis
-                    rotation_vec = np.zeros(3)
-                    rotation_vec[axis_idx] = shake_angle
-                    shake_rotation = R.from_rotvec(rotation_vec)
+                        # Create rotation around the axis
+                        rotation_vec = np.zeros(3)
+                        rotation_vec[axis_idx] = shake_angle
+                        shake_rotation = R.from_rotvec(rotation_vec)
 
-                    # Apply rotation to baseline orientation
-                    new_rotation = baseline_rotation * shake_rotation
-                    new_quat_scipy = new_rotation.as_quat()  # x,y,z,w format
-                    new_quat_mujoco = np.array(
-                        [
-                            new_quat_scipy[3],
-                            new_quat_scipy[0],
-                            new_quat_scipy[1],
-                            new_quat_scipy[2],
-                        ]
-                    )  # w,x,y,z format
+                        # Apply rotation to baseline orientation
+                        new_rotation = baseline_rotation * shake_rotation
+                        new_quat_scipy = new_rotation.as_quat()  # x,y,z,w format
+                        new_quat_mujoco = np.array(
+                            [
+                                new_quat_scipy[3],
+                                new_quat_scipy[0],
+                                new_quat_scipy[1],
+                                new_quat_scipy[2],
+                            ]
+                        )  # w,x,y,z format
 
-                    # Apply rotational displacement
-                    data.mocap_quat[0] = new_quat_mujoco
+                        # Apply rotational displacement
+                        data.mocap_quat[0] = new_quat_mujoco
 
-                    mujoco.mj_step(model, data)
+                        mujoco.mj_step(model, data)
 
-                    # Check grasp integrity at quarter and three-quarter points
-                    if step == total_steps // 4 or step == 3 * total_steps // 4:
-                        grasp_maintained = check_grasp(model, data, object_name)
-                        if not grasp_maintained:
-                            shake_success = False
-                            break
+                        # Check grasp integrity at quarter and three-quarter points
+                        if step == total_steps // 4 or step == 3 * total_steps // 4:
+                            grasp_maintained = check_grasp(model, data, object_name)
+                            if not grasp_maintained:
+                                shake_success = False
+                                break
+
+                    if not shake_success:
+                        break
+
+                    # Return to baseline orientation
+                    data.mocap_quat[0] = baseline_quat
+                    for step in range(50):
+                        mujoco.mj_step(model, data)
 
                 if not shake_success:
                     break
-
-                # Return to baseline orientation
-                data.mocap_quat[0] = baseline_quat
-                for step in range(50):
-                    mujoco.mj_step(model, data)
-
-            if not shake_success:
-                break
 
     final_grasp_check = is_object_grasped(model, data, object_name)
 
@@ -586,87 +587,88 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                         viewer.close()
                         break
 
-                # Test rotational shaking in roll, pitch, yaw after translational shaking
-                if shake_success and mocap_id >= 0:
-                    # Convert baseline quaternion to rotation matrix for manipulation
-                    baseline_rotation = R.from_quat(
-                        baseline_quat[[1, 2, 3, 0]]
-                    )  # MuJoCo uses w,x,y,z, scipy uses x,y,z,w
+                if args.rotate and shake_success:
+                    # Test rotational shaking in roll, pitch, yaw after translational shaking
+                    if shake_success and mocap_id >= 0:
+                        # Convert baseline quaternion to rotation matrix for manipulation
+                        baseline_rotation = R.from_quat(
+                            baseline_quat[[1, 2, 3, 0]]
+                        )  # MuJoCo uses w,x,y,z, scipy uses x,y,z,w
 
-                    # Test rotations around x (roll), y (pitch), z (yaw) axes
-                    for axis_idx in range(3):  # x, y, z axes
-                        for shake in range(args.num_shakes):
-                            total_steps = args.shake_steps * 2
+                        # Test rotations around x (roll), y (pitch), z (yaw) axes
+                        for axis_idx in range(3):  # x, y, z axes
+                            for shake in range(args.num_shakes):
+                                total_steps = args.shake_steps * 2
 
-                            for step in range(total_steps):
-                                angle = 2 * np.pi * step / total_steps
-                                shake_angle = angle  # Full 360 degree rotation
+                                for step in range(total_steps):
+                                    angle = 2 * np.pi * step / total_steps
+                                    shake_angle = angle  # Full 360 degree rotation
 
-                                # Create rotation around the axis
-                                rotation_vec = np.zeros(3)
-                                rotation_vec[axis_idx] = shake_angle
-                                shake_rotation = R.from_rotvec(rotation_vec)
+                                    # Create rotation around the axis
+                                    rotation_vec = np.zeros(3)
+                                    rotation_vec[axis_idx] = shake_angle
+                                    shake_rotation = R.from_rotvec(rotation_vec)
 
-                                # Apply rotation to baseline orientation
-                                new_rotation = baseline_rotation * shake_rotation
-                                new_quat_scipy = (
-                                    new_rotation.as_quat()
-                                )  # x,y,z,w format
-                                new_quat_mujoco = np.array(
-                                    [
-                                        new_quat_scipy[3],
-                                        new_quat_scipy[0],
-                                        new_quat_scipy[1],
-                                        new_quat_scipy[2],
-                                    ]
-                                )  # w,x,y,z format
+                                    # Apply rotation to baseline orientation
+                                    new_rotation = baseline_rotation * shake_rotation
+                                    new_quat_scipy = (
+                                        new_rotation.as_quat()
+                                    )  # x,y,z,w format
+                                    new_quat_mujoco = np.array(
+                                        [
+                                            new_quat_scipy[3],
+                                            new_quat_scipy[0],
+                                            new_quat_scipy[1],
+                                            new_quat_scipy[2],
+                                        ]
+                                    )  # w,x,y,z format
 
-                                # Apply rotational displacement
-                                data.mocap_quat[0] = new_quat_mujoco
+                                    # Apply rotational displacement
+                                    data.mocap_quat[0] = new_quat_mujoco
 
-                                mujoco.mj_step(model, data)
-                                if step % 5 == 0:
-                                    viewer.sync()
-                                    if not viewer.is_running():
-                                        return (
-                                            successful_transforms,
-                                            successful_qualities,
-                                            successful_widths,
+                                    mujoco.mj_step(model, data)
+                                    if step % 5 == 0:
+                                        viewer.sync()
+                                        if not viewer.is_running():
+                                            return (
+                                                successful_transforms,
+                                                successful_qualities,
+                                                successful_widths,
+                                            )
+
+                                    # Check grasp integrity at quarter and three-quarter points
+                                    if (
+                                        step == total_steps // 4
+                                        or step == 3 * total_steps // 4
+                                    ):
+                                        grasp_maintained = check_grasp(
+                                            model, data, object_name
                                         )
+                                        if not grasp_maintained:
+                                            shake_success = False
+                                            viewer.close()
+                                            break
 
-                                # Check grasp integrity at quarter and three-quarter points
-                                if (
-                                    step == total_steps // 4
-                                    or step == 3 * total_steps // 4
-                                ):
-                                    grasp_maintained = check_grasp(
-                                        model, data, object_name
-                                    )
-                                    if not grasp_maintained:
-                                        shake_success = False
-                                        viewer.close()
-                                        break
+                                if not shake_success:
+                                    viewer.close()
+                                    break
+
+                                # Return to baseline orientation
+                                data.mocap_quat[0] = baseline_quat
+                                for step in range(50):
+                                    mujoco.mj_step(model, data)
+                                    if step % 20 == 0:
+                                        viewer.sync()
+                                        if not viewer.is_running():
+                                            return (
+                                                successful_transforms,
+                                                successful_qualities,
+                                                successful_widths,
+                                            )
 
                             if not shake_success:
                                 viewer.close()
                                 break
-
-                            # Return to baseline orientation
-                            data.mocap_quat[0] = baseline_quat
-                            for step in range(50):
-                                mujoco.mj_step(model, data)
-                                if step % 20 == 0:
-                                    viewer.sync()
-                                    if not viewer.is_running():
-                                        return (
-                                            successful_transforms,
-                                            successful_qualities,
-                                            successful_widths,
-                                        )
-
-                        if not shake_success:
-                            viewer.close()
-                            break
 
                 final_grasp_check = is_object_grasped(model, data, object_name)
 
