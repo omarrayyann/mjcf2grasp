@@ -14,6 +14,68 @@ import mujoco.viewer
 from scipy.spatial.transform import Rotation as R
 import re
 
+import mujoco
+from mujoco import MjModel
+from typing import Dict, Tuple, List
+
+from mujoco_thor.env.arena.cabinet import Cabinet
+from mujoco_thor.env.arena.drawer import Drawer
+from mujoco_thor.env.arena.bathroom import ShowerDoor
+from mujoco_thor.env.arena.kitchen import Oven, Dishwasher, Stoveknob
+from mujoco_thor.env.arena.joint_object import JointObject
+
+
+iTHOR_CATEGORIES = ["Cabinet", "Drawer", "ShowerDoor", "Oven", "Dishwasher", "StoveKnob"]
+
+
+def load_env_with_objects(model) -> Tuple[MjModel, Dict[str, List[JointObject]]]:
+    data = mujoco.MjData(model)
+    body_name2id = {model.body(i).name: i for i in range(0, model.nbody)}
+
+    # get root bodies
+    root_bodies_dict = {
+        "Cabinet": [],
+        "Drawer": [],
+        "ShowerDoor": [],
+        "Oven": [],
+        "Dishwasher": [],
+        "StoveKnob": [],
+    }
+
+    root_bodies = set()
+    for i in range(0, model.nbody):
+        rootid = model.body(i).rootid
+        root_body_name = model.body(rootid).name
+        root_bodies.add(root_body_name)
+
+    for root_body_name in root_bodies:
+        category = next(
+            (i for i in iTHOR_CATEGORIES if root_body_name.lower().startswith(i.lower())), None
+        )
+        if category == "Cabinet":
+            cabinet = Cabinet(root_body_name, model, data, body_name2id)
+            root_bodies_dict[category].append(cabinet)
+        elif category == "Drawer":
+            drawer = Drawer(root_body_name, model, data, body_name2id)
+            root_bodies_dict[category].append(drawer)
+        elif category == "ShowerDoor":
+            shower_door = ShowerDoor(root_body_name, model, data, body_name2id)
+            root_bodies_dict[category].append(shower_door)
+        elif category == "Oven":
+            oven = Oven(root_body_name, model, data, body_name2id)
+            root_bodies_dict[category].append(oven)
+        elif category == "Dishwasher":
+            dishwasher = Dishwasher(root_body_name, model, data, body_name2id)
+            root_bodies_dict[category].append(dishwasher)
+        elif category == "StoveKnob":
+            stove_knob = Stoveknob(root_body_name, model, data, body_name2id)
+            root_bodies_dict[category].append(stove_knob)
+
+    return model
+
+
+
+
 
 def rotation_matrix_from_axis_angle(axis, angle):
     axis = axis / np.linalg.norm(axis)
@@ -59,11 +121,11 @@ def get_joint_position(model, data, joint_name):
 
 
 def check_sufficient_joint_movement(
-    joint_positions,
+    joint_positions, max_range
 ):
     max_joint_position = max(joint_positions)
     min_joint_position = min(joint_positions)
-    if max_joint_position - min_joint_position < 0.01:
+    if (max_joint_position - min_joint_position)/max_range < 0.7: #0.01:
         return False
     return True
 
@@ -263,6 +325,7 @@ def test_single_grasp(
         target_ee_pose.set("quat", f"{quat[0]} {quat[1]} {quat[2]} {quat[3]}")
 
     model = mujoco.MjModel.from_xml_string(ET.tostring(root, encoding="unicode"))
+    model = load_env_with_objects(model)
     data = mujoco.MjData(model)
     viewer = None
     if render:
@@ -370,7 +433,7 @@ def test_single_grasp(
 
             max_angle = joint_range[1]
             if max_angle == 0:
-                max_angle = np.pi / 2
+                max_angle = joint_range[0] #np.pi / 2
 
             rel_pos = gripper_pos - pivot_point
             for i in range(num_waypoints + 1):
@@ -382,16 +445,19 @@ def test_single_grasp(
                 new_quat = quat_multiply(rotation_quat, gripper_quat)
                 waypoints.append((new_pos, new_quat))
 
+            max_range = np.abs(max_angle)
         elif joint_type == "slide":
             axis_str = primary_joint_data.get("axis", "0 0 0")
             slide_axis = np.array([float(x) for x in axis_str.split()])
             max_distance = joint_range[1]
             if max_distance == 0:
-                max_distance = 0.2
+                max_distance = joint_range[0] #0.2
             for i in range(num_waypoints + 1):
                 distance = i * max_distance / num_waypoints
                 new_pos = gripper_pos + slide_axis * distance
                 waypoints.append((new_pos, gripper_quat.copy()))
+
+            max_range = np.abs(max_distance) 
 
     joint_positions = []
     articulation_success = True
@@ -445,7 +511,7 @@ def test_single_grasp(
                     break
 
     if joint_positions:
-        sufficient_movement = check_sufficient_joint_movement(joint_positions)
+        sufficient_movement = check_sufficient_joint_movement(joint_positions, max_range)
         if not sufficient_movement:
             articulation_success = False
 
@@ -572,19 +638,21 @@ def run_simulation_with_viewer(
             for i, (transform, quality) in enumerate(zip(transforms, qualities))
         ]
 
-        # Optimize: if max_successful is set and reasonable, limit initial submission
-        # This prevents submitting thousands of tasks when we only need a few hundred
-        if args.max_successful > 0 and args.max_successful < len(grasp_params) // 2:
-            # Submit 3x max_successful to account for failures, but cap it
-            initial_batch_size = min(args.max_successful * 3, len(grasp_params))
-            grasp_params_batch = grasp_params[:initial_batch_size]
+        # Optimized processing: Use adaptive batching and early stopping
+        if args.max_successful > 0:
+            # Calculate optimal batch size based on expected success rate
+            # Assume ~10-20% success rate for grasps, so we need ~5-10x max_successful to find them
+            estimated_batch_size = max(args.max_successful * 5, args.num_workers * 2)
+            batch_size = min(estimated_batch_size, len(grasp_params))
             tqdm.write(
-                f"Optimizing: Processing first {initial_batch_size} grasps instead of all {len(grasp_params)} (target: {args.max_successful} successful)"
+                f"Optimized: Processing {len(grasp_params)} grasps in batches of {batch_size} until {args.max_successful} successful"
             )
         else:
-            grasp_params_batch = grasp_params
+            # For unlimited processing, use worker-optimal batch size
+            batch_size = min(args.num_workers * 3, len(grasp_params))
+            tqdm.write(f"Processing all {len(grasp_params)} grasps in batches of {batch_size}")
 
-        num_workers = min(args.num_workers, len(grasp_params_batch))
+        num_workers = min(args.num_workers, len(grasp_params))
 
         successful_transforms = []
         successful_qualities = []
@@ -622,62 +690,95 @@ def run_simulation_with_viewer(
                             return
 
                 pbar.set_description(
-                    f"Testing grasps ({success_count.value}/{processed_count.value} successful)"
+                    f"Testing grasps ({success_count.value}/{processed_count.value} successful) - Batch {batch_num}"
                 )
                 pbar.update(1)
 
             pbar = tqdm(
-                total=len(grasp_params_batch), desc="Testing grasps (0/0 successful)"
+                total=len(grasp_params), desc="Testing grasps (0/0 successful)"
             )
 
             with mp.Pool(processes=num_workers) as pool:
-                results = [
-                    pool.apply_async(
-                        test_single_grasp,
-                        args=(
-                            param,
-                            object_name,
-                            xml_content,
-                            args,
-                            handle_geoms,
-                            primary_joint,
-                        ),
-                        callback=update_progress_bar,
-                    )
-                    for param in grasp_params_batch
-                ]
-
-                completed = 0
-                while completed < len(results):
-                    if should_stop.value:
-                        pool.terminate()
-                        tqdm.write(
-                            "Terminating remaining workers after reaching max successful grasps"
+                # Optimized: Process grasps with intelligent batching and early stopping
+                current_batch_start = 0
+                active_results = []
+                batch_num = 0
+                
+                while current_batch_start < len(grasp_params) and not should_stop.value:
+                    batch_num += 1
+                    # Submit new batch
+                    batch_end = min(current_batch_start + batch_size, len(grasp_params))
+                    current_batch = grasp_params[current_batch_start:batch_end]
+                    
+                    total_batches = (len(grasp_params) + batch_size - 1) // batch_size
+                    tqdm.write(f"Batch {batch_num}/{total_batches}: Testing grasps {current_batch_start+1}-{batch_end}")
+                    
+                    # Submit batch to pool
+                    batch_results = [
+                        pool.apply_async(
+                            test_single_grasp,
+                            args=(
+                                param,
+                                object_name,
+                                xml_content,
+                                args,
+                                handle_geoms,
+                                primary_joint,
+                            ),
+                            callback=update_progress_bar,
                         )
-                        # Force break immediately instead of waiting for all tasks
+                        for param in current_batch
+                    ]
+                    
+                    # Wait for batch completion or early stopping
+                    completed_in_batch = 0
+                    while completed_in_batch < len(batch_results) and not should_stop.value:
+                        time.sleep(0.005)  # Reduced delay for better responsiveness
+                        
+                        for i, r in enumerate(batch_results):
+                            if r is not None and r.ready():
+                                try:
+                                    if r.successful():
+                                        r.get()  # This will trigger the callback
+                                    else:
+                                        r.get()  # Handle failed tasks
+                                except Exception as e:
+                                    tqdm.write(f"Worker error: {str(e)}")
+                                batch_results[i] = None
+                                completed_in_batch += 1
+                        
+                        # Early stopping check - more frequent for better responsiveness
+                        if args.max_successful > 0 and success_count.value >= args.max_successful:
+                            should_stop.value = True
+                            tqdm.write(f"✓ Reached target of {args.max_successful} successful grasps!")
+                            break
+                    
+                    current_batch_start = batch_end
+                    
+                    # If we've reached max_successful, stop immediately
+                    if should_stop.value:
                         break
-
-                    # Add a small delay to prevent high CPU usage during polling
-                    time.sleep(0.01)
-
-                    for i, r in enumerate(results):
-                        if r is not None and r.ready() and not r.successful():
-                            try:
-                                r.get()
-                            except Exception as e:
-                                tqdm.write(f"Worker error: {str(e)}")
-                            results[i] = None
-                            completed += 1
-                        elif r is not None and r.ready():
-                            results[i] = None
-                            completed += 1
-
+                    
+                    # Adaptive optimization: If success rate is high, we can process larger batches
+                    if args.max_successful > 0 and processed_count.value > 0:
+                        current_success_rate = success_count.value / processed_count.value
+                        if current_success_rate > 0.3:  # If >30% success rate
+                            # Increase batch size for faster processing
+                            new_batch_size = min(batch_size * 2, len(grasp_params) - current_batch_start)
+                            if new_batch_size > batch_size:
+                                batch_size = new_batch_size
+                                tqdm.write(f"Optimization: Increased batch size to {batch_size} (success rate: {current_success_rate:.1%})")
+                
+                # Clean up pool
                 if not should_stop.value:
                     pool.close()
                     pool.join()
+                    tqdm.write(f"✓ Completed all {len(grasp_params)} grasps")
                 else:
-                    # When stopped early, close the pool without waiting
-                    pool.close()
+                    # When stopped early, terminate remaining workers
+                    pool.terminate()
+                    pool.join()
+                    tqdm.write(f"✓ Stopped early: {success_count.value}/{processed_count.value} successful grasps found")
 
             successful_transforms_only = [t for _, t, _, _ in successful_transforms]
             successful_qualities_only = [q for _, _, q, _ in successful_transforms]
@@ -789,6 +890,7 @@ def main_single_file_filtering(
     
     #print(xml_content)
     model = mujoco.MjModel.from_xml_string(xml_content)
+    model = load_env_with_objects(model)
     data = mujoco.MjData(model)
 
     successful_transforms, successful_qualities, successful_widths = (
