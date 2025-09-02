@@ -193,10 +193,10 @@ def test_single_grasp(grasp_data, object_name):
         mujoco.mj_step(model, data)
 
         # Check if we've reached the target
-        current_gripper_pos = data.body("base").xpos
-        distance_to_target = np.linalg.norm(current_gripper_pos - pos)
-        if distance_to_target < 0.001:
-            break
+        # current_gripper_pos = data.body("base").xpos
+        # distance_to_target = np.linalg.norm(current_gripper_pos - pos)
+        # if distance_to_target < 0.001:
+        #     break
 
     # Final positioning and preparation for grasping
     if mocap_id >= 0:
@@ -211,7 +211,7 @@ def test_single_grasp(grasp_data, object_name):
     elif args.gripper == "panda":
         data.ctrl[0] = 255.0
 
-    for step in range(500):
+    for step in range(5000):
         mujoco.mj_step(model, data)
 
     for step in range(100):
@@ -222,7 +222,7 @@ def test_single_grasp(grasp_data, object_name):
     elif args.gripper == "panda":
         data.ctrl[0] = 0.0
 
-    for step in range(1000):
+    for step in range(2000):
         mujoco.mj_step(model, data)
 
     for step in range(2000):
@@ -694,15 +694,15 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                     f"Testing grasps ({len(successful_transforms)}/{i + 1} successful)"
                 )
 
-                for _ in range(100):
-                    mujoco.mj_step(model, data)
-                    viewer.sync()
-                    if not viewer.is_running():
-                        return (
-                            successful_transforms,
-                            successful_qualities,
-                            successful_widths,
-                        )
+                # for _ in range(100):
+                #     mujoco.mj_step(model, data)
+                #     viewer.sync()
+                #     if not viewer.is_running():
+                #         return (
+                #             successful_transforms,
+                #             successful_qualities,
+                #             successful_widths,
+                #         )
 
         return successful_transforms, successful_qualities, successful_widths
 

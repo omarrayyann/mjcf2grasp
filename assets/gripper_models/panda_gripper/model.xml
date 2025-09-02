@@ -58,7 +58,7 @@
         <body name="base" childclass="panda" quat="0 0 0 1">
             <joint type="free" name="rum_free_joint" damping="4"/>
 
-            <geom name="test_sphere_2" type="sphere" rgba="1 0 0 0" size="0.03"/>
+            <!-- <geom name="test_sphere_2" type="sphere" rgba="1 0 0 0" size="0.03"/> -->
             <!-- <geom name="pand_with_frame" type="mesh" mesh="panda_with_frame" conaffinity="0" contype="0"
                 euler="-1.57 0 0" pos="0 0.035 0"/> -->
 
