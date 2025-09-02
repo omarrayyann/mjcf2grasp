@@ -3,10 +3,36 @@ import json
 import argparse
 import xml.etree.ElementTree as ET
 
-ALL_PICKUP_TYPES_THOR = ["Drawer"]
-ALL_PICKUP_TYPES_THOR = ["ShowerDoor"]
-ALL_PICKUP_TYPES_THOR = ["Cabinet", "Drawer", "ShowerDoor"]
-ALL_PICKUP_TYPES_THOR = ["Cabinet_8ebed1f8"] #, "cabinet", "Drawer", "drawer", "ShowerDoor", "showerdoor"] #["mug"]
+#ALL_PICKUP_TYPES_THOR = ["Drawer"]
+#ALL_PICKUP_TYPES_THOR = ["ShowerDoor"]
+#ALL_PICKUP_TYPES_THOR = ["Cabinet", "Drawer", "Dishwasher"]
+#ALL_PICKUP_TYPES_THOR = ["Oven"] #, "
+#ALL_PICKUP_TYPES_THOR =["Cabinet", "Drawer", "Oven", "Dishwasher", "ShowerDoor"] #["mug"]
+#ALL_PICKUP_TYPES_THOR = ["Cabinet"]
+ALL_PICKUP_TYPES_THOR = [
+    "BathroomSinkFaucet",
+    "Light_Switch",
+    "LightSwitch",
+    "Toilet",
+    "Book",
+    "Dresser",
+    "Safe",
+    "Shelving_Unit",
+    "ShelvingUnit",
+    "Side_Table",
+    "SideTable",
+    "Fridge",
+    "Microwave",
+    "Toaster",
+    "Coffee_Table",
+    "CoffeeTable",
+    "Desk",
+    "Laptop",
+    "Doorways",
+    "Laundry_Hamper",
+    "LaundryHamper",
+    "Box",
+]
 
 def find_objs_with_matching_subfolder(base_dir, check_joints=False):
     result = []

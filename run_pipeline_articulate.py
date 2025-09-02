@@ -11,7 +11,11 @@ USE_WANDB = False
 
 def load_articulated_objects():
     #matched_file = "articulated_matched_objs.json"
-    matched_file = "ithor_matched_objs.json"
+    #matched_file = "ithor_matched_objs.json"
+    #matched_file = "oven_matched_objs.json"
+    #matched_file = "showerdoor_matched_objs.json"
+    #matched_file = "ithor1_matched_objs.json"
+    matched_file = "thor_matched_objs.json"
 
     if not os.path.exists(matched_file):
         print(f"Error: {matched_file} not found!")
@@ -31,7 +35,7 @@ def run_grasp_filtering_stage(
     object_name, grasps_path, xml_file, output_dir, per_joint_grasps_json=None
 ):
     
-    """
+    # not necessary for iTHOR. but necessary for THOR
     # First, convert XML to use mesh colliders
     xml_mesh_file = xml_file.replace(".xml", "_mesh.xml")
     if not os.path.exists(xml_mesh_file):
@@ -60,8 +64,8 @@ def run_grasp_filtering_stage(
     
     # Use the mesh collider XML for filtering
     xml_file_for_filtering = xml_mesh_file
-    """
-    xml_file_for_filtering = xml_file
+    
+    #xml_file_for_filtering = xml_file
     
     if per_joint_grasps_json:
         print(f"   Per-joint grasps JSON: {per_joint_grasps_json}")
@@ -84,8 +88,8 @@ def run_grasp_filtering_stage(
                     "--approach_steps",
                     "5",
                     "--max_successful",
-                    "10",
-                    "--render",
+                    "100", #"10",
+                    #"--render",
                 ],
                 check=True,
             )
@@ -145,8 +149,8 @@ def run_grasp_filtering_stage(
                     "--approach_steps",
                     "5",
                     "--max_successful",
-                    "10",
-                    "--render",
+                    "100", #"10",
+                    #"--render",
                 ],
                 check=True,
             )
@@ -193,12 +197,15 @@ def run_grasp_generation_stage(object_name, handle_mesh_path, full_mesh, output_
                 "--output",
                 grasps_output_path,
                 "--gripper",
-                "rum", #"panda",
+                #"rum", #
+                "panda",
                 "--num_samples",
-                "50000",
+                "100000", #"50000",
                 "--quality",
+                #"number_of_contacts", #
                 "antipodal",
                 "--min_quality",
+                #"0.0000001",#
                 "0.005",
                 "--systematic_sampling",
                 "--classname",
@@ -224,7 +231,7 @@ def run_grasp_generation_stage(object_name, handle_mesh_path, full_mesh, output_
             print(f"   Object scale: {grasps_data.get('object_scale', 1.0)}")
 
             print(f"   Visualizing generated grasps for {object_name}...")
-            viz_grasps = 1
+            viz_grasps = 0
             if viz_grasps:
                 try:
                     subprocess.run(
@@ -235,6 +242,8 @@ def run_grasp_generation_stage(object_name, handle_mesh_path, full_mesh, output_
                             "--render",
                             "--grasp-shape-only",
                             "--articulated",
+                            "--save-png",
+                            os.path.join(output_dir, f"{object_name}_grasps.png"),
                         ],
                         check=True,
                     )
@@ -285,13 +294,16 @@ def run_per_joint_grasp_generation(
                 "--per_joint_grasps_from_meshes",
                 joint_meshes_json,
                 "--gripper",
-                "rum", #"panda",
+                #"rum", #
+                "panda",
                 "--num_samples",
-                "50000",
-                #"--quality",
-                #"antipodal",
+                "100000", #"50000",
+                "--quality",
+                #"number_of_contacts", 
+                "antipodal",
                 "--min_quality",
-                "0.005",
+                "0.0000001",#
+                #"0.005",
                 "--systematic_sampling",
                 "--classname",
                 "articulated_handle",
@@ -302,6 +314,8 @@ def run_per_joint_grasp_generation(
             ],
             check=True,
         )
+
+        
         print(f"   Per-joint grasps generated and summary updated: {joint_meshes_json}")
         return True, joint_meshes_json
     except subprocess.CalledProcessError as e:
@@ -374,7 +388,7 @@ def main():
                 "total_objects": len(articulated_objects),
                 "approach_distance": 0.5,
                 "approach_steps": 5,
-                "max_successful_grasps": 100,
+                "max_successful_grasps": 100, #100,
                 "num_workers": 10,
                 "pipeline_stages": "0-3",
             },
@@ -453,7 +467,7 @@ def main():
                         print(
                             f"      Visualizing joint: {entry['joint']} ({grasps_file})"
                         )
-                        viz_grasps = False
+                        viz_grasps = False #False # True
                         if viz_grasps:
                             try:
                                 subprocess.run(
@@ -465,6 +479,8 @@ def main():
                                         grasps_file,
                                         "--render",
                                         "--grasp-shape-only",
+                                        #"--save-png",   
+                                        #os.path.join(object_output_dir, f"{object_name}_grasps.png"),
                                     ],
                                     check=True,
                                 )
