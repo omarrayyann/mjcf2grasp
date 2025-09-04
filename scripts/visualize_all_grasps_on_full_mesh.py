@@ -141,7 +141,10 @@ def _plot_single_view(ax, full_mesh, joint_grasps, args, azim=45, elev=30):
     
     for joint_idx, entry in enumerate(joint_grasps):
         joint = entry['joint']
-        if args.filtered_grasps:
+        if not args.grasps_json:
+            continue
+        
+        if args.filtered_grasps and entry['filtered_grasps_file']:
             grasps_file = os.path.join(os.path.dirname(args.grasps_json), entry['filtered_grasps_file'])
         else:
             grasps_file = os.path.join(os.path.dirname(args.grasps_json), entry['grasps_file'])
