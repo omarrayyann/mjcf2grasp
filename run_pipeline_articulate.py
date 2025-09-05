@@ -10,12 +10,13 @@ USE_WANDB = False
 
 
 def load_articulated_objects():
-    #matched_file = "articulated_matched_objs.json"
-    #matched_file = "ithor_matched_objs.json"
-    #matched_file = "oven_matched_objs.json"
-    #matched_file = "showerdoor_matched_objs.json"
-    #matched_file = "ithor1_matched_objs.json"
-    matched_file = "thor_matched_objs.json"
+    # matched_file = "articulated_matched_objs.json"
+    # matched_file = "ithor_matched_objs.json"
+    # matched_file = "oven_matched_objs.json"
+    # matched_file = "showerdoor_matched_objs.json"
+    # matched_file = "ithor1_matched_objs.json"
+    #matched_file = "thor_matched_objs.json"
+    matched_file = "microwave_matched_objs.json"
 
     if not os.path.exists(matched_file):
         print(f"Error: {matched_file} not found!")
@@ -34,7 +35,7 @@ def load_articulated_objects():
 def run_grasp_filtering_stage(
     object_name, grasps_path, xml_file, output_dir, per_joint_grasps_json=None
 ):
-    
+
     # not necessary for iTHOR. but necessary for THOR
     # First, convert XML to use mesh colliders
     xml_mesh_file = xml_file.replace(".xml", "_mesh.xml")
@@ -54,19 +55,23 @@ def run_grasp_filtering_stage(
             )
             print(f"   Mesh collider XML created: {xml_mesh_file}")
         except subprocess.CalledProcessError as e:
-            print(f"   Warning: Failed to convert to mesh colliders, using original XML: {str(e)}")
+            print(
+                f"   Warning: Failed to convert to mesh colliders, using original XML: {str(e)}"
+            )
             xml_mesh_file = xml_file
         except Exception as e:
-            print(f"   Warning: Unexpected error in mesh collider conversion, using original XML: {str(e)}")
+            print(
+                f"   Warning: Unexpected error in mesh collider conversion, using original XML: {str(e)}"
+            )
             xml_mesh_file = xml_file
     else:
         print(f"   Mesh collider XML already exists: {xml_mesh_file}")
-    
+
     # Use the mesh collider XML for filtering
     xml_file_for_filtering = xml_mesh_file
-    
-    #xml_file_for_filtering = xml_file
-    
+
+    # xml_file_for_filtering = xml_file
+
     if per_joint_grasps_json:
         print(f"   Per-joint grasps JSON: {per_joint_grasps_json}")
         try:
@@ -88,7 +93,7 @@ def run_grasp_filtering_stage(
                     "--approach_steps",
                     "5",
                     "--max_successful",
-                    "100", #"10",
+                    "100",  # "10",
                     #"--render",
                 ],
                 check=True,
@@ -149,8 +154,8 @@ def run_grasp_filtering_stage(
                     "--approach_steps",
                     "5",
                     "--max_successful",
-                    "100", #"10",
-                    #"--render",
+                    "100",  # "10",
+                    # "--render",
                 ],
                 check=True,
             )
@@ -197,15 +202,15 @@ def run_grasp_generation_stage(object_name, handle_mesh_path, full_mesh, output_
                 "--output",
                 grasps_output_path,
                 "--gripper",
-                #"rum", #
+                # "rum", #
                 "panda",
                 "--num_samples",
-                "100000", #"50000",
+                "50000",  # "50000",
                 "--quality",
-                #"number_of_contacts", #
+                # "number_of_contacts", #
                 "antipodal",
                 "--min_quality",
-                #"0.0000001",#
+                # "0.0000001",#
                 "0.005",
                 "--systematic_sampling",
                 "--classname",
@@ -294,16 +299,16 @@ def run_per_joint_grasp_generation(
                 "--per_joint_grasps_from_meshes",
                 joint_meshes_json,
                 "--gripper",
-                #"rum", #
+                # "rum", #
                 "panda",
                 "--num_samples",
-                "100000", #"50000",
+                "100000",  # "50000",
                 "--quality",
-                #"number_of_contacts", 
+                # "number_of_contacts",
                 "antipodal",
                 "--min_quality",
-                "0.0000001",#
-                #"0.005",
+                "0.0000001",  #
+                # "0.005",
                 "--systematic_sampling",
                 "--classname",
                 "articulated_handle",
@@ -311,11 +316,12 @@ def run_per_joint_grasp_generation(
                 "thor_articulated",
                 "--collision_object_file",
                 full_mesh,
+                "--num_workers",
+                "10"
             ],
             check=True,
         )
 
-        
         print(f"   Per-joint grasps generated and summary updated: {joint_meshes_json}")
         return True, joint_meshes_json
     except subprocess.CalledProcessError as e:
@@ -388,7 +394,7 @@ def main():
                 "total_objects": len(articulated_objects),
                 "approach_distance": 0.5,
                 "approach_steps": 5,
-                "max_successful_grasps": 100, #100,
+                "max_successful_grasps": 100,  # 100,
                 "num_workers": 10,
                 "pipeline_stages": "0-3",
             },
@@ -406,9 +412,11 @@ def main():
         print(f"Monitor progress at: {wandb.run.url}")
         wandb.log({"total_objects": len(articulated_objects), "step": 0})
     else:
-        print(f"Starting processing of {len(articulated_objects)} articulated objects (wandb disabled)")
+        print(
+            f"Starting processing of {len(articulated_objects)} articulated objects (wandb disabled)"
+        )
 
-    output_base = "output_articulate"
+    output_base = "output_articulate2"
     os.makedirs(output_base, exist_ok=True)
 
     processed_objects = 0
@@ -467,7 +475,7 @@ def main():
                         print(
                             f"      Visualizing joint: {entry['joint']} ({grasps_file})"
                         )
-                        viz_grasps = False #False # True
+                        viz_grasps = False  # False # True
                         if viz_grasps:
                             try:
                                 subprocess.run(
@@ -479,8 +487,8 @@ def main():
                                         grasps_file,
                                         "--render",
                                         "--grasp-shape-only",
-                                        #"--save-png",   
-                                        #os.path.join(object_output_dir, f"{object_name}_grasps.png"),
+                                        # "--save-png",
+                                        # os.path.join(object_output_dir, f"{object_name}_grasps.png"),
                                     ],
                                     check=True,
                                 )
@@ -495,7 +503,7 @@ def main():
                 print(
                     f"   Visualizing all per-joint grasps on full mesh for {object_name}..."
                 )
-                viz_grasps = 0  
+                viz_grasps = 0
                 if viz_grasps:
                     try:
                         subprocess.run(
@@ -615,7 +623,8 @@ def main():
                         object_output_dir, "joint_meshes_info_filtered.json"
                     )
                     visualization_png = os.path.join(
-                        object_output_dir, f"{object_name}_filtered_grasps_visualization.png"
+                        object_output_dir,
+                        f"{object_name}_filtered_grasps_visualization.png",
                     )
                     subprocess.run(
                         [
@@ -630,21 +639,21 @@ def main():
                             "--filtered_grasps",
                             "--save-png",
                             visualization_png,
-                            "--no-render"
+                            "--no-render",
                         ],
                         check=True,
                     )
                     print(
                         f"   Filtered per-joint grasp visualization completed for {object_name}"
                     )
-                    
+
                     # Log visualization to wandb if enabled
                     if USE_WANDB and os.path.exists(visualization_png):
                         wandb.log(
                             {
                                 f"{object_name}_filtered_grasps_visualization": wandb.Image(
-                                    visualization_png, 
-                                    caption=f"Filtered articulated grasps for {object_name}"
+                                    visualization_png,
+                                    caption=f"Filtered articulated grasps for {object_name}",
                                 ),
                                 "visualization_success": True,
                             }
@@ -677,9 +686,9 @@ def main():
                     "handle_mesh": handle_mesh,
                     "full_mesh": full_mesh,
                     "grasps": grasps_path if grasps_success else None,
-                    "filtered_grasps": filtered_grasps_path
-                    if filtering_success
-                    else None,
+                    "filtered_grasps": (
+                        filtered_grasps_path if filtering_success else None
+                    ),
                     "joint_axis": joint_axis_path if joint_axis_success else None,
                     "xml": obj["xml"],
                     "output_dir": object_output_dir,
@@ -701,14 +710,18 @@ def main():
             else:
                 status = "Partially processed (no joint analysis)"
             print(f"   {status}: {object_name}")
-            
+
             # Log object completion to wandb
             if USE_WANDB:
                 # Calculate grasp metrics
                 grasp_count = 0
                 filtered_count = 0
-                
-                if filtering_success and filtered_grasps_path and os.path.exists(filtered_grasps_path):
+
+                if (
+                    filtering_success
+                    and filtered_grasps_path
+                    and os.path.exists(filtered_grasps_path)
+                ):
                     try:
                         with open(filtered_grasps_path, "r") as f:
                             filtered_data = json.load(f)
@@ -720,8 +733,10 @@ def main():
                                 if os.path.exists(filtered_file):
                                     with open(filtered_file, "r") as ff:
                                         filtered_grasp_data = json.load(ff)
-                                    filtered_count += len(filtered_grasp_data.get("transforms", []))
-                            
+                                    filtered_count += len(
+                                        filtered_grasp_data.get("transforms", [])
+                                    )
+
                             if "grasps_file" in entry:
                                 grasp_file = os.path.join(
                                     object_output_dir, entry["grasps_file"]
@@ -732,16 +747,22 @@ def main():
                                     grasp_count += len(grasp_data.get("transforms", []))
                     except:
                         pass
-                
-                filter_success_rate = (filtered_count / grasp_count * 100) if grasp_count > 0 else 0
-                completion_percentage = (processed_objects / len(articulated_objects)) * 100
-                
+
+                filter_success_rate = (
+                    (filtered_count / grasp_count * 100) if grasp_count > 0 else 0
+                )
+                completion_percentage = (
+                    processed_objects / len(articulated_objects)
+                ) * 100
+
                 wandb.log(
                     {
                         "completion_percentage": completion_percentage,
                         "processed_objects": processed_objects,
-                        "remaining_objects": len(articulated_objects) - processed_objects,
-                        "overall_progress": processed_objects / len(articulated_objects),
+                        "remaining_objects": len(articulated_objects)
+                        - processed_objects,
+                        "overall_progress": processed_objects
+                        / len(articulated_objects),
                         "object_completed": object_name,
                         "grasp_count": grasp_count,
                         "filtered_count": filtered_count,
@@ -759,13 +780,15 @@ def main():
 
         progress = (i + 1) / len(articulated_objects) * 100
         print(f"   Progress: {progress:.1f}% ({i + 1}/{len(articulated_objects)})")
-        
+
         # Progress bar similar to run_pipeline.py
         progress_bar_width = 50
         filled_width = int(progress_bar_width * ((i + 1) / len(articulated_objects)))
         progress_bar = "█" * filled_width + "░" * (progress_bar_width - filled_width)
-        
-        print(f"Progress: [{progress_bar}] {progress:.1f}% ({i + 1}/{len(articulated_objects)})")
+
+        print(
+            f"Progress: [{progress_bar}] {progress:.1f}% ({i + 1}/{len(articulated_objects)})"
+        )
         print("=" * 80)
 
     print("\n" + "=" * 60)
@@ -825,7 +848,11 @@ def main():
                 "objects_with_joint_analysis": objects_with_joint_analysis,
                 "objects_with_grasps": objects_with_grasps,
                 "objects_with_filtered_grasps": objects_with_filtered_grasps,
-                "success_rate": (processed_objects - len(failed_objects)) / processed_objects * 100 if processed_objects > 0 else 0,
+                "success_rate": (
+                    (processed_objects - len(failed_objects)) / processed_objects * 100
+                    if processed_objects > 0
+                    else 0
+                ),
             }
         )
 
@@ -833,19 +860,21 @@ def main():
         summary_data = []
         for obj in successful_objects:
             stages = obj.get("stages_completed", {})
-            summary_data.append([
-                obj["name"],
-                "✓" if stages.get("handle_detection", False) else "✗",
-                "✓" if stages.get("joint_axis_analysis", False) else "✗",
-                "✓" if stages.get("grasp_generation", False) else "✗",
-                "✓" if stages.get("grasp_filtering", False) else "✗",
-            ])
+            summary_data.append(
+                [
+                    obj["name"],
+                    "✓" if stages.get("handle_detection", False) else "✗",
+                    "✓" if stages.get("joint_axis_analysis", False) else "✗",
+                    "✓" if stages.get("grasp_generation", False) else "✗",
+                    "✓" if stages.get("grasp_filtering", False) else "✗",
+                ]
+            )
 
         table = wandb.Table(
             columns=[
                 "Object",
                 "Handle Detection",
-                "Joint Analysis", 
+                "Joint Analysis",
                 "Grasp Generation",
                 "Grasp Filtering",
             ],
