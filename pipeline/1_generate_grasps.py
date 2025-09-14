@@ -55,6 +55,66 @@ class Object(object):
         return self.collision_manager.in_collision_single(mesh, transform=transform)
 
 
+class RobotiqGripper:
+    def __init__(self, q=0.0464, num_contact_points_per_finger=10, root_folder=""):
+        self.q = q
+        fn_base = root_folder + "assets/gripper_models/robotiq_gripper/hand.stl"
+        fn_finger = root_folder + "assets/gripper_models/robotiq_gripper/finger.stl"
+        self.base = trimesh.load(fn_base)
+        self.finger_l = trimesh.load(fn_finger)
+        self.finger_r = self.finger_l.copy()
+
+        self.finger_l.apply_transform(tra.euler_matrix(0, 0, np.pi))
+        self.finger_l.apply_translation([+q, 0, 0.110673])
+        self.finger_r.apply_translation([-q, 0, 0.110673])
+
+        self.standoff_range = np.array(
+            [
+                max(
+                    self.finger_l.bounding_box.bounds[0, 2],
+                    self.base.bounding_box.bounds[1, 2],
+                ),
+                self.finger_l.bounding_box.bounds[1, 2],
+            ]
+        )
+        self.standoff_range[0] += 0.001
+
+        self.ray_origins = []
+        self.ray_directions = []
+
+        for i in np.linspace(-0.03, 0.03, num_contact_points_per_finger):
+            self.ray_origins.append(
+                np.r_[self.finger_l.bounding_box.centroid + [0, 0, i], 1]
+            )
+            self.ray_origins.append(
+                np.r_[self.finger_r.bounding_box.centroid + [0, 0, i], 1]
+            )
+            self.ray_directions.append(
+                np.r_[-self.finger_l.bounding_box.primitive.transform[:3, 0]]
+            )
+            self.ray_directions.append(
+                np.r_[+self.finger_r.bounding_box.primitive.transform[:3, 0]]
+            )
+
+        self.ray_origins = np.array(self.ray_origins)
+        self.ray_directions = np.array(self.ray_directions)
+
+    def get_finger_meshes(self):
+        return [self.finger_l, self.finger_r]
+
+    def get_base_mesh(self):
+        return self.base
+
+    def get_base_obb(self):
+        return self.base.bounding_box
+
+    def get_obbs(self):
+        return [self.finger_l.bounding_box, self.finger_r.bounding_box]
+
+    def get_closing_rays(self):
+        return self.ray_origins[:, :3], self.ray_directions
+
+
 class PandaGripper(object):
     def __init__(self, q=None, num_contact_points_per_finger=10, root_folder=""):
         self.joint_limits = [0.0, 0.04]
@@ -282,6 +342,7 @@ def get_available_grippers():
         {
             "panda": PandaGripper,
             "rum": RumGripper,
+            "robotiq": RobotiqGripper,
         }
     )
     return available_grippers
@@ -292,6 +353,8 @@ def create_gripper(name, configuration=None, root_folder=""):
         return PandaGripper(q=configuration, root_folder=root_folder)
     elif name.lower() == "rum":
         return RumGripper(q=configuration, root_folder=root_folder)
+    elif name.lower() == "robotiq":
+        return RobotiqGripper(q=configuration, root_folder=root_folder)
     else:
         raise Exception("Unknown gripper: {}".format(name))
 
