@@ -13,6 +13,9 @@ from tqdm import tqdm
 
 import trimesh
 import trimesh.transformations as tra
+from grippers.PandaGripper import PandaGripper
+from grippers.RUMGripper import RUMGripper
+from grippers.RobotiqGripper import RobotiqGripper
 
 
 class Object(object):
@@ -55,306 +58,11 @@ class Object(object):
         return self.collision_manager.in_collision_single(mesh, transform=transform)
 
 
-class RobotiqGripper:
-    def __init__(self, q=0.0464, num_contact_points_per_finger=10, root_folder=""):
-        self.default_pregrasp_configuration = 0.0464
-
-        if q is None:
-            q = self.default_pregrasp_configuration
-
-        self.q = q
-        fn_base = root_folder + "assets/gripper_models/robotiq_gripper/hand.stl"
-        fn_finger = root_folder + "assets/gripper_models/robotiq_gripper/finger.stl"
-        self.base = trimesh.load(fn_base)
-        self.finger_l = trimesh.load(fn_finger)
-        self.finger_r = self.finger_l.copy()
-
-        self.finger_l.apply_transform(tra.euler_matrix(0, 0, np.pi))
-        self.finger_l.apply_translation([+q, 0, 0.110673])
-        self.finger_r.apply_translation([-q, 0, 0.110673])
-
-        self.fingers = trimesh.util.concatenate([self.finger_l, self.finger_r])
-        self.hand = trimesh.util.concatenate([self.fingers, self.base])
-
-        self.ray_origins = []
-        self.ray_directions = []
-        for i in np.linspace(-0.03, 0.03, num_contact_points_per_finger):
-            self.ray_origins.append(
-                np.r_[self.finger_l.bounding_box.centroid + [0, 0, i], 1]
-            )
-            self.ray_origins.append(
-                np.r_[self.finger_r.bounding_box.centroid + [0, 0, i], 1]
-            )
-            self.ray_directions.append(
-                np.r_[-self.finger_l.bounding_box.primitive.transform[:3, 0]]
-            )
-            self.ray_directions.append(
-                np.r_[+self.finger_r.bounding_box.primitive.transform[:3, 0]]
-            )
-
-        self.ray_origins = np.array(self.ray_origins)
-        self.ray_directions = np.array(self.ray_directions)
-
-        self.standoff_range = np.array(
-            [
-                max(
-                    self.finger_l.bounding_box.bounds[0, 2],
-                    self.base.bounding_box.bounds[1, 2],
-                ),
-                self.finger_l.bounding_box.bounds[1, 2],
-            ]
-        )
-        self.standoff_range[0] += 0.001
-
-    def get_base_mesh(self):
-        return self.base
-
-    def get_base_obb(self):
-        return self.base.bounding_box
-
-    def get_obbs(self):
-        return [
-            self.finger_l.bounding_box,
-            self.finger_r.bounding_box,
-            self.base.bounding_box,
-        ]
-
-    def get_meshes(self):
-        return [self.finger_l, self.finger_r, self.base]
-
-    def get_closing_rays(self, transform):
-        return transform[:3, :].dot(self.ray_origins.T).T, transform[:3, :3].dot(
-            self.ray_directions.T
-        ).T
-
-
-class PandaGripper(object):
-    def __init__(self, q=None, num_contact_points_per_finger=10, root_folder=""):
-        self.joint_limits = [0.0, 0.04]
-        self.default_pregrasp_configuration = 0.04
-
-        if q is None:
-            q = self.default_pregrasp_configuration
-
-        self.q = q
-        fn_base = root_folder + "assets/gripper_models/panda_gripper/hand.stl"
-        fn_finger = root_folder + "assets/gripper_models/panda_gripper/finger.stl"
-        self.base = trimesh.load(fn_base)
-        self.finger_l = trimesh.load(fn_finger)
-        self.finger_r = self.finger_l.copy()
-
-        self.finger_l.apply_transform(tra.euler_matrix(0, 0, np.pi))
-        self.finger_l.apply_translation([+q, 0, 0.0584])
-        self.finger_r.apply_translation([-q, 0, 0.0584])
-
-        self.fingers = trimesh.util.concatenate([self.finger_l, self.finger_r])
-        self.hand = trimesh.util.concatenate([self.fingers, self.base])
-
-        self.ray_origins = []
-        self.ray_directions = []
-        for i in np.linspace(-0.01, 0.02, num_contact_points_per_finger):
-            self.ray_origins.append(
-                np.r_[self.finger_l.bounding_box.centroid + [0, 0, i], 1]
-            )
-            self.ray_origins.append(
-                np.r_[self.finger_r.bounding_box.centroid + [0, 0, i], 1]
-            )
-            self.ray_directions.append(
-                np.r_[-self.finger_l.bounding_box.primitive.transform[:3, 0]]
-            )
-            self.ray_directions.append(
-                np.r_[+self.finger_r.bounding_box.primitive.transform[:3, 0]]
-            )
-
-        self.ray_origins = np.array(self.ray_origins)
-        self.ray_directions = np.array(self.ray_directions)
-
-        self.standoff_range = np.array(
-            [
-                max(
-                    self.finger_l.bounding_box.bounds[0, 2],
-                    self.base.bounding_box.bounds[1, 2],
-                ),
-                self.finger_l.bounding_box.bounds[1, 2],
-            ]
-        )
-        self.standoff_range[0] += 0.001
-
-    def get_obbs(self):
-        return [
-            self.finger_l.bounding_box,
-            self.finger_r.bounding_box,
-            self.base.bounding_box,
-        ]
-
-    def get_meshes(self):
-        return [self.finger_l, self.finger_r, self.base]
-
-    def get_closing_rays(self, transform):
-        return transform[:3, :].dot(self.ray_origins.T).T, transform[:3, :3].dot(
-            self.ray_directions.T
-        ).T
-
-
-class RumGripper(object):
-    def __init__(self, q=None, num_contact_points_per_finger=10, root_folder=""):
-        self.default_pregrasp_configuration = 0.06
-
-        if q is None:
-            q = self.default_pregrasp_configuration
-
-        self.q = q
-
-        fn_base = (
-            root_folder + "assets/gripper_models/rum_gripper/meshes/simple_body.stl"
-        )
-        fn_finger_l = (
-            root_folder + "assets/gripper_models/rum_gripper/meshes/simple_left.stl"
-        )
-        fn_finger_r = (
-            root_folder + "assets/gripper_models/rum_gripper/meshes/simple_right.stl"
-        )
-        self.base = trimesh.load(fn_base)
-        self.finger_l = trimesh.load(fn_finger_l)
-        self.finger_r = trimesh.load(fn_finger_r)
-
-        self.fingers = trimesh.util.concatenate([self.finger_l, self.finger_r])
-        self.hand = trimesh.util.concatenate([self.fingers, self.base])
-
-        self.standoff_range = np.array(
-            [
-                max(
-                    self.finger_l.bounding_box.bounds[0, 2],
-                    self.base.bounding_box.bounds[1, 2],
-                ),
-                self.finger_l.bounding_box.bounds[1, 2],
-            ]
-        )
-        self.standoff_range[0] += 0.001
-
-        self.ray_origins = []
-        self.ray_directions = []
-
-        for i in np.linspace(-0.01, 0.04, num_contact_points_per_finger):
-            self.ray_origins.append(
-                np.r_[self.finger_l.bounding_box.centroid + [0, 0, i], 1]
-                + [i / np.sqrt(2) + 0.01, 0, 0, 0]
-            )
-            self.ray_origins.append(
-                np.r_[self.finger_r.bounding_box.centroid + [0, 0, i], 1]
-                - [i / np.sqrt(2) + 0.01, 0, 0, 0]
-            )
-            self.ray_directions.append(
-                np.r_[-self.finger_l.bounding_box.primitive.transform[:3, 0]]
-            )
-            self.ray_directions.append(
-                np.r_[+self.finger_r.bounding_box.primitive.transform[:3, 0]]
-            )
-
-        self.ray_origins = np.array(self.ray_origins)
-        self.ray_directions = np.array(self.ray_directions)
-
-    def get_finger_meshes(self):
-        return [self.finger_l, self.finger_r]
-
-    def get_base_mesh(self):
-        return self.base
-
-    def get_base_obb(self):
-        return self.base.bounding_box
-
-    def get_obbs(self):
-        return [self.finger_l.bounding_box, self.finger_r.bounding_box]
-
-    def get_closing_rays(self, transform):
-        return transform[:3, :].dot(self.ray_origins.T).T, transform[:3, :3].dot(
-            self.ray_directions.T
-        ).T
-
-
-def _compute_widths_batch(batch_data):
-    transforms_batch, object_mesh, gripper_name = batch_data
-    from trimesh.ray.ray_triangle import RayMeshIntersector
-    import trimesh
-
-    gripper = create_gripper(gripper_name)
-    widths = []
-
-    if trimesh.ray.has_embree:
-        intersector = trimesh.ray.ray_pyembree.RayMeshIntersector(object_mesh)
-    else:
-        intersector = RayMeshIntersector(object_mesh)
-
-    for tf in transforms_batch:
-        ray_origins, ray_directions = gripper.get_closing_rays(tf)
-
-        locations, index_ray, index_tri = intersector.intersects_location(
-            ray_origins, ray_directions, multiple_hits=False
-        )
-
-        if len(locations) < 2:
-            widths.append(0.0)
-            continue
-
-        left_hits = [(i, loc) for i, loc in zip(index_ray, locations) if i % 2 == 0]
-        right_hits = [(i, loc) for i, loc in zip(index_ray, locations) if i % 2 == 1]
-
-        if not left_hits or not right_hits:
-            widths.append(0.0)
-            continue
-
-        def closest_hit(hits):
-            return min(
-                hits, key=lambda x: np.linalg.norm(ray_origins[x[0]][:3] - x[1])
-            )[1]
-
-        contact_left = closest_hit(left_hits)
-        contact_right = closest_hit(right_hits)
-
-        width = np.linalg.norm(contact_left - contact_right)
-        widths.append(width)
-
-    return widths
-
-
-def compute_grasp_widths(
-    transforms, object_mesh, gripper_name="panda", num_workers=None
-):
-    if num_workers is None:
-        num_workers = mp.cpu_count()
-
-    if len(transforms) < 50 or num_workers <= 1:
-        return _compute_widths_batch((transforms, object_mesh, gripper_name))
-
-    batch_size = max(1, len(transforms) // num_workers)
-    batches = [
-        transforms[i : i + batch_size] for i in range(0, len(transforms), batch_size)
-    ]
-
-    batch_data = [(batch, object_mesh, gripper_name) for batch in batches]
-
-    all_widths = []
-    with mp.Pool(processes=num_workers) as pool:
-        print(f"Computing grasp widths using {num_workers} workers...")
-        pbar = tqdm(
-            total=len(transforms),
-            desc=f"Computing widths (using {num_workers} workers)",
-        )
-
-        for result in pool.imap(_compute_widths_batch, batch_data):
-            all_widths.extend(result)
-            pbar.update(len(result))
-
-        pbar.close()
-
-    return all_widths
-
-
 def get_available_grippers():
     available_grippers = OrderedDict(
         {
             "panda": PandaGripper,
-            "rum": RumGripper,
+            "rum": RUMGripper,
             "robotiq": RobotiqGripper,
         }
     )
@@ -365,7 +73,7 @@ def create_gripper(name, configuration=None, root_folder=""):
     if name.lower() == "panda":
         return PandaGripper(q=configuration, root_folder=root_folder)
     elif name.lower() == "rum":
-        return RumGripper(q=configuration, root_folder=root_folder)
+        return RUMGripper(q=configuration, root_folder=root_folder)
     elif name.lower() == "robotiq":
         return RobotiqGripper(q=configuration, root_folder=root_folder)
     else:
@@ -1188,6 +896,10 @@ def sample_multiple_grasps(
         f"Final result: {len(transforms):,} valid grasps with quality >= {min_quality}"
     )
 
+    # converting to tcp
+    for i in range(len(transforms)):
+        transforms[i][2, 3] -= gripper.tcp_offset
+
     return points, normals, transforms, roll_angles, standoffs, collisions, quality
 
 
@@ -1411,13 +1123,6 @@ if __name__ == "__main__":
             )
         )
 
-        grasp_widths = compute_grasp_widths(
-            transforms,
-            obj.mesh,
-            gripper_name=args.gripper,
-            num_workers=args.num_workers,
-        )
-
         grasps = {
             "object": obj.filename,
             "object_scale": obj.scale,
@@ -1433,7 +1138,6 @@ if __name__ == "__main__":
             "mesh_points": [p.tolist() for p in points],
             "mesh_normals": [n.tolist() for n in normals],
             "collisions": collisions,
-            "grasp_widths": grasp_widths,
         }
 
         with open(args.output, "w") as f:
