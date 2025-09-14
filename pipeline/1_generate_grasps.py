@@ -899,7 +899,7 @@ def sample_multiple_grasps(
     )
 
     for i in range(len(transforms)):
-        transforms[i][:3, 3] -= gripper.tcp_offset
+        transforms[i][:3, 3] -= gripper.tcp_offset * 10.0
 
     return points, normals, transforms, roll_angles, standoffs, collisions, quality
 

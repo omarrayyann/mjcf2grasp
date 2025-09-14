@@ -363,6 +363,8 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
         )
 
         for i, (transform, quality) in pbar:
+            if i < 20:
+                continue
             # transform[0:3, 3] = [0.05835581, 0.03979523, 0.14314214]
             # transform[0:3, 0:3] = R.from_quat(
             #     [0.95983621, 0.23655397, -0.13927727, -0.0579526]
@@ -432,6 +434,11 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                 mujoco.mj_step(model, data)
                 viewer.sync()
 
+                if args.gripper == "panda":
+                    data.ctrl[0] = 255.0
+                elif args.gripper == "rum":
+                    data.ctrl[0] = 1.0
+
                 pos = transform[:3, 3]
                 quat = R.from_matrix(transform[:3, :3]).as_quat(scalar_first=True)
 
@@ -461,24 +468,25 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                 if mocap_id >= 0:
                     data.mocap_pos[0] = pos
 
+                while 1:
+                    mujoco.mj_step(model, data)
+                    viewer.sync()
+
                 # Let system stabilize
                 for step in range(100):
                     mujoco.mj_step(model, data)
                     if step % 20 == 0:
                         viewer.sync()
                         if not viewer.is_running():
+                            viewer.close()
                             return ([], [], [])
-
-                if args.gripper == "panda":
-                    data.ctrl[0] = 255.0
-                elif args.gripper == "rum":
-                    data.ctrl[0] = 1.0
 
                 for step in range(5000):
                     mujoco.mj_step(model, data)
                     if step % 50 == 0:
                         viewer.sync()
                         if not viewer.is_running():
+                            viewer.close()
                             return (
                                 successful_transforms,
                                 successful_qualities,
@@ -490,6 +498,7 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                     if step % 20 == 0:
                         viewer.sync()
                         if not viewer.is_running():
+                            viewer.close()
                             return (
                                 successful_transforms,
                                 successful_qualities,
@@ -509,6 +518,7 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                     if step % 20 == 0:
                         viewer.sync()
                         if not viewer.is_running():
+                            viewer.close()
                             return (
                                 successful_transforms,
                                 successful_qualities,
@@ -519,6 +529,7 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                     pbar.set_description(
                         f"Testing grasps ({len(successful_transforms)}/{i + 1} successful)"
                     )
+                    viewer.close()
                     continue
 
                 directions = ["x", "y", "z"]
@@ -552,6 +563,7 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                             if step % 5 == 0:
                                 viewer.sync()
                                 if not viewer.is_running():
+                                    viewer.close()
                                     return (
                                         successful_transforms,
                                         successful_qualities,
@@ -660,6 +672,7 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                                     if step % 20 == 0:
                                         viewer.sync()
                                         if not viewer.is_running():
+                                            viewer.close()
                                             return (
                                                 successful_transforms,
                                                 successful_qualities,
