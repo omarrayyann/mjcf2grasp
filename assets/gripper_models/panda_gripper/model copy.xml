@@ -1,6 +1,9 @@
 <mujoco model="panda hand">
     <compiler angle="radian" meshdir="" autolimits="true"/>
-
+    <option timestep="0.002" impratio="10" integrator="implicitfast" cone="elliptic" jacobian="sparse" solver="Newton"
+        noslip_iterations="4" gravity="0 0 0">
+        <flag contact="enable" warmstart="enable" energy="enable" multiccd="enable"/>
+    </option>
     <option integrator="implicitfast"/>
 
     <default>
@@ -42,16 +45,16 @@
         <material class="panda" name="off_white" rgba="0.901961 0.921569 0.929412 1"/>
         <material class="panda" name="black" rgba="0.25 0.25 0.25 1"/>
 
-        <mesh name="hand_c" file="assets/gripper_models/panda_gripper/meshes/hand.stl"/>
+        <mesh name="hand_c" file="meshes/hand.stl"/>
 
-        <mesh file="assets/gripper_models/panda_gripper/meshes/hand_0.obj"/>
-        <mesh file="assets/gripper_models/panda_gripper/panda_with_frame.obj"/>
-        <mesh file="assets/gripper_models/panda_gripper/meshes/hand_1.obj"/>
-        <mesh file="assets/gripper_models/panda_gripper/meshes/hand_2.obj"/>
-        <mesh file="assets/gripper_models/panda_gripper/meshes/hand_3.obj"/>
-        <mesh file="assets/gripper_models/panda_gripper/meshes/hand_4.obj"/>
-        <mesh file="assets/gripper_models/panda_gripper/meshes/finger_0.obj"/>
-        <mesh file="assets/gripper_models/panda_gripper/meshes/finger_1.obj"/>
+        <mesh file="meshes/hand_0.obj"/>
+        <mesh file="panda_with_frame.obj"/>
+        <mesh file="meshes/hand_1.obj"/>
+        <mesh file="meshes/hand_2.obj"/>
+        <mesh file="meshes/hand_3.obj"/>
+        <mesh file="meshes/hand_4.obj"/>
+        <mesh file="meshes/finger_0.obj"/>
+        <mesh file="meshes/finger_1.obj"/>
     </asset>
 
     <worldbody>

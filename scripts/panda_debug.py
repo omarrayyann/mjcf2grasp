@@ -9,7 +9,6 @@ from mpl_toolkits.mplot3d import Axes3D
 
 
 class PandaGripper:
-
     def __init__(self, q=0.04, num_contact_points_per_finger=10, root_folder=""):
         self.q = q
         fn_base = root_folder + "assets/gripper_models/panda_gripper/hand.stl"
@@ -135,5 +134,5 @@ def plot_gripper(gripper):
 
 
 if __name__ == "__main__":
-    gripper = PandaGripper(root_folder="/scratch/olr7742/ai2/thor-grasp/")
+    gripper = PandaGripper(root_folder="")
     plot_gripper(gripper)

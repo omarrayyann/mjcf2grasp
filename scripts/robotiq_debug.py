@@ -9,20 +9,17 @@ from mpl_toolkits.mplot3d import Axes3D
 
 
 class PandaGripper:
-    def __init__(self, q=0.04, num_contact_points_per_finger=10, root_folder=""):
+    def __init__(self, q=0.0464, num_contact_points_per_finger=10, root_folder=""):
         self.q = q
-        fn_base = (
-            root_folder + "assets/gripper_models/rum_gripper/meshes/simple_body.stl"
-        )
-        fn_finger_l = (
-            root_folder + "assets/gripper_models/rum_gripper/meshes/simple_left.stl"
-        )
-        fn_finger_r = (
-            root_folder + "assets/gripper_models/rum_gripper/meshes/simple_right.stl"
-        )
+        fn_base = root_folder + "assets/gripper_models/robotiq_gripper/hand.stl"
+        fn_finger = root_folder + "assets/gripper_models/robotiq_gripper/finger.stl"
         self.base = trimesh.load(fn_base)
-        self.finger_l = trimesh.load(fn_finger_l)
-        self.finger_r = trimesh.load(fn_finger_r)
+        self.finger_l = trimesh.load(fn_finger)
+        self.finger_r = self.finger_l.copy()
+
+        self.finger_l.apply_transform(tra.euler_matrix(0, 0, np.pi))
+        self.finger_l.apply_translation([+q, 0, 0.110673])
+        self.finger_r.apply_translation([-q, 0, 0.110673])
 
         self.standoff_range = np.array(
             [
@@ -38,14 +35,12 @@ class PandaGripper:
         self.ray_origins = []
         self.ray_directions = []
 
-        for i in np.linspace(-0.01, 0.045, num_contact_points_per_finger):
+        for i in np.linspace(-0.03, 0.03, num_contact_points_per_finger):
             self.ray_origins.append(
                 np.r_[self.finger_l.bounding_box.centroid + [0, 0, i], 1]
-                + [i / np.sqrt(2) + 0.01, 0, 0, 1]
             )
             self.ray_origins.append(
                 np.r_[self.finger_r.bounding_box.centroid + [0, 0, i], 1]
-                - [i / np.sqrt(2) + 0.01, 0, 0, 1]
             )
             self.ray_directions.append(
                 np.r_[-self.finger_l.bounding_box.primitive.transform[:3, 0]]
@@ -134,32 +129,6 @@ def plot_gripper(gripper):
 
     ax.text(0, 0, z_min, "Standoff min", color="green")
     ax.text(0, 0, z_max, "Standoff max", color="green")
-
-    origins, directions = gripper.get_closing_rays()
-
-    arrow_origins, arrow_dirs = gripper.get_closing_rays()
-    max_dist = 2.0 * gripper.q
-
-    segment_start = arrow_origins
-    segment_end = arrow_origins + arrow_dirs * max_dist
-
-    for start, end in zip(segment_start, segment_end):
-        ax.plot(
-            [start[0], end[0]],
-            [start[1], end[1]],
-            [start[2], end[2]],
-            color="limegreen",
-            linewidth=2,
-            alpha=0.6,
-        )
-
-    ax.text(
-        segment_end[0][0],
-        segment_end[0][1],
-        segment_end[0][2],
-        f"2q = {max_dist:.3f}m",
-        color="green",
-    )
 
     plt.show()
 
