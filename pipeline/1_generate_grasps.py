@@ -57,14 +57,15 @@ class Object(object):
 
 class RobotiqGripper:
     def __init__(self, q=0.0464, num_contact_points_per_finger=10, root_folder=""):
+        self.default_pregrasp_configuration = 0.0464
+
         if q is None:
-            q = 0.0464
+            q = self.default_pregrasp_configuration
 
         self.q = q
         fn_base = root_folder + "assets/gripper_models/robotiq_gripper/hand.stl"
         fn_finger = root_folder + "assets/gripper_models/robotiq_gripper/finger.stl"
         self.base = trimesh.load(fn_base)
-        self.hand = self.base
         self.finger_l = trimesh.load(fn_finger)
         self.finger_r = self.finger_l.copy()
 
@@ -72,20 +73,11 @@ class RobotiqGripper:
         self.finger_l.apply_translation([+q, 0, 0.110673])
         self.finger_r.apply_translation([-q, 0, 0.110673])
 
-        self.standoff_range = np.array(
-            [
-                max(
-                    self.finger_l.bounding_box.bounds[0, 2],
-                    self.base.bounding_box.bounds[1, 2],
-                ),
-                self.finger_l.bounding_box.bounds[1, 2],
-            ]
-        )
-        self.standoff_range[0] += 0.001
+        self.fingers = trimesh.util.concatenate([self.finger_l, self.finger_r])
+        self.hand = trimesh.util.concatenate([self.fingers, self.base])
 
         self.ray_origins = []
         self.ray_directions = []
-
         for i in np.linspace(-0.03, 0.03, num_contact_points_per_finger):
             self.ray_origins.append(
                 np.r_[self.finger_l.bounding_box.centroid + [0, 0, i], 1]
@@ -102,6 +94,17 @@ class RobotiqGripper:
 
         self.ray_origins = np.array(self.ray_origins)
         self.ray_directions = np.array(self.ray_directions)
+
+        self.standoff_range = np.array(
+            [
+                max(
+                    self.finger_l.bounding_box.bounds[0, 2],
+                    self.base.bounding_box.bounds[1, 2],
+                ),
+                self.finger_l.bounding_box.bounds[1, 2],
+            ]
+        )
+        self.standoff_range[0] += 0.001
 
     def get_base_mesh(self):
         return self.base
