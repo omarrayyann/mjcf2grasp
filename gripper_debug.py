@@ -95,16 +95,25 @@ def plot_gripper(gripper):
     y = radius * np.outer(np.sin(u), np.sin(v))
     z = radius * np.outer(np.ones(np.size(u)), np.cos(v))
     ax.plot_surface(x, y, z, color="red", alpha=1.0)
-    
+
     # Add blue sphere at origin + gripper.tcp_offset with half the size
-    if hasattr(gripper, 'tcp_offset'):
+    if hasattr(gripper, "tcp_offset"):
         offset_pos = gripper.tcp_offset
         small_radius = radius / 2
         x_offset = small_radius * np.outer(np.cos(u), np.sin(v)) + offset_pos[0]
         y_offset = small_radius * np.outer(np.sin(u), np.sin(v)) + offset_pos[1]
-        z_offset = small_radius * np.outer(np.ones(np.size(u)), np.cos(v)) + offset_pos[2]
+        z_offset = (
+            small_radius * np.outer(np.ones(np.size(u)), np.cos(v)) + offset_pos[2]
+        )
         ax.plot_surface(x_offset, y_offset, z_offset, color="blue", alpha=1.0)
-        ax.text(offset_pos[0], offset_pos[1], offset_pos[2], "TCP Offset", color="blue", fontsize=8)
+        ax.text(
+            offset_pos[0],
+            offset_pos[1],
+            offset_pos[2],
+            "TCP Offset",
+            color="blue",
+            fontsize=8,
+        )
 
     plt.show()
 

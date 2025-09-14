@@ -1,4 +1,6 @@
-{"object": "/scratch/olr7742/ai2/thor-grasp/tmp/output.obj", "object_scale": 1.0, "object_position": [0, 0, 0], "object_rotation": [1, 0, 0, 0], "object_class": "UNKNOWN", "object_dataset": "UNKNOWN", "gripper": "panda", "gripper_configuration": [0.04], "transforms": [[
+{
+  "transforms": [
+    [
       [
         0.6137767177895745,
         0.4063724459678649,
@@ -257,5 +259,44 @@
         0.0,
         1.0
       ]
-    ]],
-    "grasp_scores": [0.998, 0.997, 0.997, 0.996, 0.995, 0.994, 0.994, 0.993, 0.993, 0.992]}
+    ]
+  ],
+  "quality_antipodal": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "object": "tmp/output.obj",
+  "object_scale": 1.0,
+  "object_position": [
+    0,
+    0,
+    0
+  ],
+  "object_rotation": [
+    1,
+    0,
+    0,
+    0
+  ],
+  "approach_distance": 0.3,
+  "grasp_widths": [
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05,
+    0.05
+  ]
+}

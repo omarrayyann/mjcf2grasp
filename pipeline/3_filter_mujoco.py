@@ -174,7 +174,12 @@ def test_single_grasp(grasp_data, object_name):
     initial_relative_position = None
     initial_grasp_verified = False
 
-    mujoco.mj_step(model, data)
+    if args.gripper == "rum":
+        data.ctrl[0] = 1.0
+    elif args.gripper == "panda":
+        data.ctrl[0] = 255.0
+
+    mujoco.mj_step(model, data, nstep=500)
 
     pos = transform[:3, 3]
     quat = R.from_matrix(transform[:3, :3]).as_quat(scalar_first=True)
@@ -203,16 +208,22 @@ def test_single_grasp(grasp_data, object_name):
         data.mocap_pos[0] = pos
 
     # Let system stabilize
-    for step in range(100):
+    for step in range(500):
         mujoco.mj_step(model, data)
 
     if args.gripper == "rum":
-        data.ctrl[0] = 1.0
+        data.ctrl[0] = -0.8
     elif args.gripper == "panda":
-        data.ctrl[0] = 255.0
+        data.ctrl[0] = 0.0
 
-    for step in range(5000):
+    for step in range(3000):
         mujoco.mj_step(model, data)
+
+    object_pose = np.eye(4)
+    object_pose[:3, :3] = data.body(object_name).xmat.reshape(3, 3)
+    object_pose[:3, 3] = data.body(object_name).xpos
+
+    transform = np.linalg.inv(object_pose) @ transform
 
     for step in range(100):
         mujoco.mj_step(model, data)
@@ -286,9 +297,9 @@ def test_single_grasp(grasp_data, object_name):
             )  # MuJoCo uses w,x,y,z, scipy uses x,y,z,w
 
             # Test rotations around x (roll), y (pitch), z (yaw) axes
-            for axis_idx in range(3):  # x, y, z axes
-                for shake in range(config["num_shakes"]):
-                    total_steps = config["shake_steps"] * 2
+            for axis_idx in range(2, 3):  # x, y, z axes
+                for shake in range(1):
+                    total_steps = config["shake_steps"] * 5
 
                     for step in range(total_steps):
                         angle = 2 * np.pi * step / total_steps
@@ -362,9 +373,30 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
             desc="Testing grasps (0/0 successful)",
         )
 
+        viewer = None
+
         for i, (transform, quality) in pbar:
+            # transform[:3, 3] += transform[:3, :3] @ np.array([0, 0, 0.089275])
             if i < 20:
                 continue
+            # transform = np.array(
+            #     [
+            #         [9.95544306e-01, 7.81320014e-02, 5.27913288e-02, 2.61137130e-04],
+            #         [3.59627602e-02, 2.02932125e-01, -9.78532183e-01, 4.26163344e-03],
+            #         [-8.71677344e-02, 9.76070665e-01, 1.99218079e-01, 1.45099702e-01],
+            #         [0.00000000e00, 0.00000000e00, 0.00000000e00, 1.00000000e00],
+            #     ]
+            # )
+            # print(f"Transform: {transform}")
+
+            # transform = np.array(
+            #     [
+            #         [0.99573922, 0.03518446, -0.0852377, 0.01196972],
+            #         [0.05151341, -0.9789079, 0.19770099, -0.02450723],
+            #         [-0.07648385, -0.20124952, -0.97654946, 0.14257034],
+            #         [0.0, 0.0, 0.0, 1.0],
+            #     ]
+            # )
             # transform[0:3, 3] = [0.05835581, 0.03979523, 0.14314214]
             # transform[0:3, 0:3] = R.from_quat(
             #     [0.95983621, 0.23655397, -0.13927727, -0.0579526]
@@ -428,6 +460,10 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
             model = mujoco.MjModel.from_xml_string(xml_content)
             data = mujoco.MjData(model)
 
+            if viewer is not None:
+                viewer.close()
+
+            time.sleep(0.1)
             with mujoco.viewer.launch_passive(
                 model, data, show_left_ui=True, show_right_ui=True
             ) as viewer:
@@ -439,6 +475,8 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                 elif args.gripper == "rum":
                     data.ctrl[0] = 1.0
 
+                mujoco.mj_step(model, data, nstep=2000)
+
                 pos = transform[:3, 3]
                 quat = R.from_matrix(transform[:3, :3]).as_quat(scalar_first=True)
 
@@ -447,7 +485,7 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                 )
 
                 # Now approach by moving mocap towards target position
-                approach_steps = args.approach_steps
+                approach_steps = 5000
                 for step in range(approach_steps):
                     alpha = step / approach_steps
                     current_target_pos = approach_pos + alpha * (pos - approach_pos)
@@ -468,9 +506,9 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                 if mocap_id >= 0:
                     data.mocap_pos[0] = pos
 
-                while 1:
-                    mujoco.mj_step(model, data)
-                    viewer.sync()
+                # while 1:
+                #     mujoco.mj_step(model, data)
+                #     viewer.sync()
 
                 # Let system stabilize
                 for step in range(100):
@@ -484,18 +522,6 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                 for step in range(5000):
                     mujoco.mj_step(model, data)
                     if step % 50 == 0:
-                        viewer.sync()
-                        if not viewer.is_running():
-                            viewer.close()
-                            return (
-                                successful_transforms,
-                                successful_qualities,
-                                successful_widths,
-                            )
-
-                for step in range(100):
-                    mujoco.mj_step(model, data)
-                    if step % 20 == 0:
                         viewer.sync()
                         if not viewer.is_running():
                             viewer.close()
@@ -524,6 +550,12 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                                 successful_qualities,
                                 successful_widths,
                             )
+
+                object_pose = np.eye(4)
+                object_pose[:3, :3] = data.body(object_name).xmat.reshape(3, 3)
+                object_pose[:3, 3] = data.body(object_name).xpos
+
+                transform = np.linalg.inv(object_pose) @ transform
 
                 if not check_grasp(model, data, object_name, store_initial=True):
                     pbar.set_description(
@@ -589,6 +621,7 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                             if step % 20 == 0:
                                 viewer.sync()
                                 if not viewer.is_running():
+                                    viewer.close()
                                     return (
                                         successful_transforms,
                                         successful_qualities,
@@ -608,9 +641,9 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                         )  # MuJoCo uses w,x,y,z, scipy uses x,y,z,w
 
                         # Test rotations around x (roll), y (pitch), z (yaw) axes
-                        for axis_idx in range(3):  # x, y, z axes
-                            for shake in range(args.num_shakes):
-                                total_steps = args.shake_steps * 2
+                        for axis_idx in range(2, 3):  # x, y, z axes
+                            for shake in range(1):
+                                total_steps = args.shake_steps * 5
 
                                 for step in range(total_steps):
                                     angle = 2 * np.pi * step / total_steps
@@ -697,6 +730,7 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                         tqdm.write(
                             f"Found {len(successful_transforms)} successful grasps (reached max_successful limit)"
                         )
+                        viewer.close()
                         return (
                             successful_transforms,
                             successful_qualities,
