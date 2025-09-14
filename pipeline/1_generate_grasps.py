@@ -57,6 +57,9 @@ class Object(object):
 
 class RobotiqGripper:
     def __init__(self, q=0.0464, num_contact_points_per_finger=10, root_folder=""):
+        if q is None:
+            q = 0.0464
+
         self.q = q
         fn_base = root_folder + "assets/gripper_models/robotiq_gripper/hand.stl"
         fn_finger = root_folder + "assets/gripper_models/robotiq_gripper/finger.stl"
