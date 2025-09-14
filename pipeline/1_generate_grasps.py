@@ -64,6 +64,7 @@ class RobotiqGripper:
         fn_base = root_folder + "assets/gripper_models/robotiq_gripper/hand.stl"
         fn_finger = root_folder + "assets/gripper_models/robotiq_gripper/finger.stl"
         self.base = trimesh.load(fn_base)
+        self.hand = self.base
         self.finger_l = trimesh.load(fn_finger)
         self.finger_r = self.finger_l.copy()
 
