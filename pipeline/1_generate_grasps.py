@@ -8,11 +8,13 @@ import os
 import numpy as np
 import multiprocessing as mp
 from functools import partial
-
 from tqdm import tqdm
-
 import trimesh
 import trimesh.transformations as tra
+import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from grippers.PandaGripper import PandaGripper
 from grippers.RUMGripper import RUMGripper
 from grippers.RobotiqGripper import RobotiqGripper
