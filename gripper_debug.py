@@ -56,7 +56,7 @@ def plot_gripper(gripper):
         linewidth=1,
     )
 
-    ax.set_title("Panda Gripper Closing Rays and Finger OBBs")
+    ax.set_title("Gripper Closing Rays and Finger OBBs")
     ax.set_xlabel("X")
     ax.set_ylabel("Y")
     ax.set_zlabel("Z")
