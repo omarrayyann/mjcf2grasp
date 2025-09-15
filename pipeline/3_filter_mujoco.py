@@ -251,6 +251,8 @@ def test_single_grasp(grasp_data, object_name):
     for direction_idx, direction in enumerate(directions):
         for shake in range(config["num_shakes"]):
             total_steps = config["shake_steps"] * 2
+            if args.gripper == "panda":
+                total_steps = total_steps * 4
 
             for step in range(total_steps):
                 angle = 2 * np.pi * step / total_steps
@@ -295,6 +297,8 @@ def test_single_grasp(grasp_data, object_name):
             for axis_idx in range(2, 3):  # x, y, z axes
                 for shake in range(1):
                     total_steps = config["shake_steps"] * 5
+                    if args.gripper == "panda":
+                        total_steps = total_steps * 2
 
                     for step in range(total_steps):
                         angle = 2 * np.pi * step / total_steps
@@ -577,6 +581,8 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                 for direction_idx, direction in enumerate(directions):
                     for shake in range(args.num_shakes):
                         total_steps = args.shake_steps * 2
+                        if args.gripper == "panda":
+                            total_steps = total_steps * 4
 
                         for step in range(total_steps):
                             angle = 2 * np.pi * step / total_steps
@@ -643,6 +649,8 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                         for axis_idx in range(2, 3):  # x, y, z axes
                             for shake in range(1):
                                 total_steps = args.shake_steps * 5
+                                if args.gripper == "panda":
+                                    total_steps = total_steps * 2
 
                                 for step in range(total_steps):
                                     angle = 2 * np.pi * step / total_steps

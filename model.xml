@@ -61,7 +61,7 @@
 
     <body name="target_ee_pose" mocap="true" pos="4.91421922e-20 -3.86000000e-01  9.50000000e-01"
       quat="7.93352409e-01  6.08762643e-01 -4.10350822e-19 -1.17533825e-18">
-      <geom name="target_ee_pose" type="box" rgba="0 1 0 1.0" size="0.01 0.01 0.01" conaffinity="0" contype="0"
+      <geom name="target_ee_pose" type="box" rgba="0 1 0 1.0" size="0.02 0.02 0.02" conaffinity="0" contype="0"
         mass="10.0"/>
       <site name="target_ee_pose" pos="0 0 0.0" size="0.01" rgba="0 1 0 1"/>
     </body>
@@ -87,7 +87,7 @@
           </body>
         </body>
 
-        <body name="tcp" pos="0 0.1 0" euler="0 0 0">
+        <body name="tcp" pos="0 0.15 0" euler="0 0 0">
           <site name="tcp" pos="0 0 0" size="0.01" rgba="1 0 0 1"/>
         </body>
 
