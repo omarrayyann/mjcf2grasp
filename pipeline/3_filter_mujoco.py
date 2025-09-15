@@ -57,8 +57,8 @@ def is_object_grasped(model, data, object_name):
     left_finger_contact = False
     right_finger_contact = False
 
-    left_patterns = ["left_finger", "finger_l", "gripper_finger_left"]
-    right_patterns = ["right_finger", "finger_r", "gripper_finger_right"]
+    left_patterns = ["left_finger", "finger_l", "gripper_finger_left", "left"]
+    right_patterns = ["right_finger", "finger_r", "gripper_finger_right", "right"]
 
     for i in range(data.ncon):
         contact = data.contact[i]
@@ -113,15 +113,10 @@ def test_single_grasp(grasp_data, object_name):
     xml_content = ET.tostring(root, encoding="unicode")
 
     # Merge with gripper XML to get mocap functionality
-    if args.gripper == "rum":
-        gripper_xml_path = os.path.join(
-            os.path.dirname(__file__), "../assets/gripper_models/rum_gripper/model.xml"
-        )
-    elif args.gripper == "panda":
-        gripper_xml_path = os.path.join(
-            os.path.dirname(__file__),
-            "../assets/gripper_models/panda_gripper/model.xml",
-        )
+    gripper_xml_path = os.path.join(
+        os.path.dirname(__file__),
+        f"../assets/gripper_models/{args.gripper}_gripper/model.xml",
+    )
     with open(gripper_xml_path, "r") as f:
         additional_xml_content = f.read()
     xml_content = merge_xml_contents(xml_content, additional_xml_content)
@@ -178,6 +173,8 @@ def test_single_grasp(grasp_data, object_name):
         data.ctrl[0] = 1.0
     elif args.gripper == "panda":
         data.ctrl[0] = 255.0
+    elif args.gripper == "robotiq":
+        data.ctrl[0] = 0.0
 
     mujoco.mj_step(model, data, nstep=500)
 
@@ -215,8 +212,10 @@ def test_single_grasp(grasp_data, object_name):
         data.ctrl[0] = -0.8
     elif args.gripper == "panda":
         data.ctrl[0] = 0.0
+    elif args.gripper == "robotiq":
+        data.ctrl[0] = 255.0
 
-    for step in range(3000):
+    for step in range(1000):
         mujoco.mj_step(model, data)
 
     object_pose = np.eye(4)
@@ -225,16 +224,12 @@ def test_single_grasp(grasp_data, object_name):
 
     transform = np.linalg.inv(object_pose) @ transform
 
-    for step in range(100):
-        mujoco.mj_step(model, data)
-
     if args.gripper == "rum":
         data.ctrl[0] = -0.8
     elif args.gripper == "panda":
         data.ctrl[0] = 0.0
-
-    for step in range(2000):
-        mujoco.mj_step(model, data)
+    elif args.gripper == "robotiq":
+        data.ctrl[0] = 255.0
 
     for step in range(2000):
         mujoco.mj_step(model, data)
@@ -474,6 +469,8 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                     data.ctrl[0] = 255.0
                 elif args.gripper == "rum":
                     data.ctrl[0] = 1.0
+                elif args.gripper == "robotiq":
+                    data.ctrl[0] = 0.0
 
                 mujoco.mj_step(model, data, nstep=2000)
 
@@ -538,6 +535,8 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                     data.ctrl[0] = -0.8
                 elif args.gripper == "panda":
                     data.ctrl[0] = 0.0
+                elif args.gripper == "robotiq":
+                    data.ctrl[0] = 255.0
 
                 for step in range(2000):
                     mujoco.mj_step(model, data)
@@ -922,15 +921,10 @@ if __name__ == "__main__":
     root.append(include)
     xml_content = ET.tostring(root, encoding="unicode")
 
-    if args.gripper == "rum":
-        gripper_xml_path = os.path.join(
-            os.path.dirname(__file__), "../assets/gripper_models/rum_gripper/model.xml"
-        )
-    elif args.gripper == "panda":
-        gripper_xml_path = os.path.join(
-            os.path.dirname(__file__),
-            "../assets/gripper_models/panda_gripper/model.xml",
-        )
+    gripper_xml_path = os.path.join(
+        os.path.dirname(__file__),
+        f"../assets/gripper_models/{args.gripper}_gripper/model.xml",
+    )
     with open(gripper_xml_path, "r") as f:
         additional_xml_content = f.read()
     xml_content = merge_xml_contents(xml_content, additional_xml_content)
