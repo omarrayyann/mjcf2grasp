@@ -1,6 +1,3278 @@
 [
     {
+        "name": "Bread_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bread/Prefabs/Bread_2/Bread_2.xml"
+    },
+    {
+        "name": "Remote_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room Objects/Remotes/Prefabs/Remote_1/Remote_1.xml"
+    },
+    
+    {
+        "name": "ButterKnife_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/ButterKnife/Prefab/ButterKnife_1/ButterKnife_1.xml"
+    },
+    {
+        "name": "Alarm_Clock_8",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/AlarmClock/Prefabs/Alarm_Clock_8/Alarm_Clock_8.xml"
+    },
+    {
+        "name": "Toilet_Paper_Hanger_30",
+        "xml": "/scratch/olr7742/ai2/thor-garasp/assets/ThorAssets/Bathroom Objects/ToiletPaperHanger/Prefabs/Toilet_Paper_Hanger_30/Toilet_Paper_Hanger_30.xml"
+    },
+    {
+        "name": "Apple_24",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Apple/Prefabs/Apple_24/Apple_24.xml"
+    },
+    
+    {
+        "name": "Bath_Towel_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/Towel/Prefabs/Bath_Towel_1/Bath_Towel_1.xml"
+    },
+    {
+        "name": "Toilet_Paper_Hanger_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/ToiletPaperHanger/Prefabs/Toilet_Paper_Hanger_3/Toilet_Paper_Hanger_3.xml"
+    },
+    {
+        "name": "Soap_Bottle_30",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SoapBottle/Prefabs/Soap_Bottle_30/Soap_Bottle_30.xml"
+    },
+    {
+        "name": "Pan_29",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pan/Prefabs/Pan_29/Pan_29.xml"
+    },
+    {
+        "name": "Book_22",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Book/Prefabs/Book_22/Book_22.xml"
+    },
+    {
+        "name": "Soap_Bottle_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SoapBottle/Prefabs/Soap_Bottle_3/Soap_Bottle_3.xml"
+    },
+    {
+        "name": "Vase_Medium_4",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Vase/Prefabs/Vase_Medium_4/Vase_Medium_4.xml"
+    },
+    {
+        "name": "Book_4",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Book/Prefabs/Book_4/Book_4.xml"
+    },
+    {
+        "name": "Soap_Bottle_7",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SoapBottle/Prefabs/Soap_Bottle_7/Soap_Bottle_7.xml"
+    },
+    {
+        "name": "Bowl_28",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bowl/Prefabs/Bowl_28/Bowl_28.xml"
+    },
+    {
+        "name": "Pot_23",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pot/Prefabs/Pot_23/Pot_23.xml"
+    },
+    {
+        "name": "Laptop_29",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Laptop_Full/Prefabs/Laptop_29/Laptop_29.xml"
+    },
+    
+    {
+        "name": "Soap_Bottle_24",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SoapBottle/Prefabs/Soap_Bottle_24/Soap_Bottle_24.xml"
+    },
+    {
+        "name": "Plate_23",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Plate/Prefabs/Plate_23/Plate_23.xml"
+    },
+    {
+        "name": "Egg_Cracked_29",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/EggCracked/Prefabs/Egg_Cracked_29/Egg_Cracked_29.xml"
+    },
+    {
+        "name": "RoboTHOR_television_props_america_1_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Target_SmallObjects/Television/Prefabs/RoboTHOR_television_props_america_1_v/RoboTHOR_television_props_america_1_v.xml"
+    },
+    {
+        "name": "Lettuce_13",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Lettuce/Prefabs/Lettuce_13/Lettuce_13.xml"
+    },
+    {
+        "name": "Plate_20",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Plate/Prefabs/Plate_20/Plate_20.xml"
+    },
+    
+    {
+        "name": "RoboTHOR_vase_stilren_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Target_SmallObjects/Vase/Prefabs/RoboTHOR_vase_stilren_v/RoboTHOR_vase_stilren_v.xml"
+    },
+    {
+        "name": "Room_Decor_1_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/RoomDecor/Prefabs/Room_Decor_1_2/Room_Decor_1_2.xml"
+    },
+    
+    
+    {
+        "name": "Apple_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Apple/Prefabs/Apple_1/Apple_1.xml"
+    },
+    {
+        "name": "Pan_26",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pan/Prefabs/Pan_26/Pan_26.xml"
+    },
+    
+    
+    {
+        "name": "Toilet_Paper_Hanger_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/ToiletPaperHanger/Prefabs/Toilet_Paper_Hanger_2/Toilet_Paper_Hanger_2.xml"
+    },
+    
+    {
+        "name": "Vase_Open_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Vase/Prefabs/Vase_Open_2/Vase_Open_2.xml"
+    },
+    {
+        "name": "Laptop_13",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Laptop_Full/Prefabs/Laptop_13/Laptop_13.xml"
+    },
+    {
+        "name": "Soap_Bottle_21",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SoapBottle/Prefabs/Soap_Bottle_21/Soap_Bottle_21.xml"
+    },
+    {
+        "name": "Stone_Statue_4",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Statue/Prefabs/Stone_Statue_4/Stone_Statue_4.xml"
+    },
+    {
+        "name": "Alarm_Clock_19",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/AlarmClock/Prefabs/Alarm_Clock_19/Alarm_Clock_19.xml"
+    },
+    {
+        "name": "pillow_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Pillow/Prefabs/pillow_3/pillow_3.xml"
+    },
+    {
+        "name": "Waving_Statue_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Statue/Prefabs/Waving_Statue_2/Waving_Statue_2.xml"
+    },
+    {
+        "name": "pillow_21",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Pillow/Prefabs/pillow_21/pillow_21.xml"
+    },
+    {
+        "name": "Candle_5",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Candle/Prefabs/Candle_5/Candle_5.xml"
+    },
+    {
+        "name": "Book_6",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Book/Prefabs/Book_6/Book_6.xml"
+    },
+    {
+        "name": "Boot_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Boot/Prefabs/Boot_1/Boot_1.xml"
+    },
+    
+    {
+        "name": "Waving_Statue_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Statue/Prefabs/Waving_Statue_3/Waving_Statue_3.xml"
+    },
+    
+    
+    
+    {
+        "name": "Book_29",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Book/Prefabs/Book_29/Book_29.xml"
+    },
+    
+    
+    {
+        "name": "Towel_Statue_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Statue/Prefabs/Towel_Statue_3/Towel_Statue_3.xml"
+    },
+    
+    {
+        "name": "Box_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Box_Full/Prefabs/Box_2/Box_2.xml"
+    },
+    {
+        "name": "Toilet_Paper_Hanger_19",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/ToiletPaperHanger/Prefabs/Toilet_Paper_Hanger_19/Toilet_Paper_Hanger_19.xml"
+    },
+    
+    {
+        "name": "Cup_13",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Cup/Prefabs/Cup_13/Cup_13.xml"
+    },
+    
+    {
+        "name": "Egg_22",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Egg/Prefabs/Egg_22/Egg_22.xml"
+    },
+    {
+        "name": "Potato_22",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Potato/Prefabs/Potato_22/Potato_22.xml"
+    },
+    {
+        "name": "Watch_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Watch/Prefabs/Watch_1/Watch_1.xml"
+    },
+    
+    {
+        "name": "Lettuce_27",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Lettuce/Prefabs/Lettuce_27/Lettuce_27.xml"
+    },
+    {
+        "name": "RoboTHOR_candle_glittrig_2_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Background_SmallObjects/Candle/Prefabs/RoboTHOR_candle_glittrig_2_v/RoboTHOR_candle_glittrig_2_v.xml"
+    },
+    {
+        "name": "Pen_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Pen/Prefabs/Pen_2/Pen_2.xml"
+    },
+    {
+        "name": "pillow_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Pillow/Prefabs/pillow_1/pillow_1.xml"
+    },
+    {
+        "name": "Apple_29",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Apple/Prefabs/Apple_29/Apple_29.xml"
+    },
+    
+    {
+        "name": "Dog_Statue_4",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Statue/Prefabs/Dog_Statue_4/Dog_Statue_4.xml"
+    },
+    {
+        "name": "Pot_6",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pot/Prefabs/Pot_6/Pot_6.xml"
+    },
+    {
+        "name": "Egg_28",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Egg/Prefabs/Egg_28/Egg_28.xml"
+    },
+    {
+        "name": "pillow_22",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Pillow/Prefabs/pillow_22/pillow_22.xml"
+    },
+    {
+        "name": "Cup_12",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Cup/Prefabs/Cup_12/Cup_12.xml"
+    },
+    {
+        "name": "Bowl_15",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bowl/Prefabs/Bowl_15/Bowl_15.xml"
+    },
+    {
+        "name": "Pot_5",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pot/Prefabs/Pot_5/Pot_5.xml"
+    },
+    {
+        "name": "Laptop_24",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Laptop_Full/Prefabs/Laptop_24/Laptop_24.xml"
+    },
+    {
+        "name": "Plate_7",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Plate/Prefabs/Plate_7/Plate_7.xml"
+    },
+    {
+        "name": "RoboTHOR_remote_coolux_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Target_SmallObjects/Remote/Prefabs/RoboTHOR_remote_coolux_v/RoboTHOR_remote_coolux_v.xml"
+    },
+    {
+        "name": "Egg_24",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Egg/Prefabs/Egg_24/Egg_24.xml"
+    },
+    {
+        "name": "Cup_20",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Cup/Prefabs/Cup_20/Cup_20.xml"
+    },
+    {
+        "name": "Tomato_5",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Tomato/Prefabs/Tomato_5/Tomato_5.xml"
+    },
+    {
+        "name": "Pan_16",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pan/Prefabs/Pan_16/Pan_16.xml"
+    },
+    {
+        "name": "Pot_21",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pot/Prefabs/Pot_21/Pot_21.xml"
+    },
+    {
+        "name": "Soap_Bottle_19",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SoapBottle/Prefabs/Soap_Bottle_19/Soap_Bottle_19.xml"
+    },
+    {
+        "name": "Egg_Cracked_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/EggCracked/Prefabs/Egg_Cracked_2/Egg_Cracked_2.xml"
+    },
+    {
+        "name": "Pan_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pan/Prefabs/Pan_3/Pan_3.xml"
+    },
+    
+    {
+        "name": "Apple_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Apple/Prefabs/Apple_2/Apple_2.xml"
+    },
+    {
+        "name": "Bread_29",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bread/Prefabs/Bread_29/Bread_29.xml"
+    },
+    
+    {
+        "name": "Soap_Bottle_16",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SoapBottle/Prefabs/Soap_Bottle_16/Soap_Bottle_16.xml"
+    },
+    {
+        "name": "pillow_6",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Pillow/Prefabs/pillow_6/pillow_6.xml"
+    },
+    {
+        "name": "Candle_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Candle/Prefabs/Candle_3/Candle_3.xml"
+    },
+    {
+        "name": "Hand_Towel_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/Towel/Prefabs/Hand_Towel_1/Hand_Towel_1.xml"
+    },
+    {
+        "name": "Bread_16",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bread/Prefabs/Bread_16/Bread_16.xml"
+    },
+    
+    {
+        "name": "Book_25",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Book/Prefabs/Book_25/Book_25.xml"
+    },
+    {
+        "name": "Cup_26",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Cup/Prefabs/Cup_26/Cup_26.xml"
+    },
+    {
+        "name": "Plate_17",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Plate/Prefabs/Plate_17/Plate_17.xml"
+    },
+    {
+        "name": "Box_6",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Box_Full/Prefabs/Box_6/Box_6.xml"
+    },
+    
+    {
+        "name": "Bread_27",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bread/Prefabs/Bread_27/Bread_27.xml"
+    },
+    {
+        "name": "RoboTHOR_armchair_ekenas_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_Furniture/Armchair/Prefabs/RoboTHOR_armchair_ekenas_v/RoboTHOR_armchair_ekenas_v.xml"
+    },
+    {
+        "name": "Bread_14",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bread/Prefabs/Bread_14/Bread_14.xml"
+    },
+    {
+        "name": "Potato_21",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Potato/Prefabs/Potato_21/Potato_21.xml"
+    },
+    {
+        "name": "Knife_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Knife/Prefabs/Knife_1/Knife_1.xml"
+    },
+    {
+        "name": "Pot_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pot/Prefabs/Pot_2/Pot_2.xml"
+    },
+    {
+        "name": "Apple_23",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Apple/Prefabs/Apple_23/Apple_23.xml"
+    },
+    
+    {
+        "name": "Tomato_8",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Tomato/Prefabs/Tomato_8/Tomato_8.xml"
+    },
+    {
+        "name": "Cellphone_6",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Cellphone/Prefabs/Cellphone_6/Cellphone_6.xml"
+    },
+    {
+        "name": "Lettuce_5",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Lettuce/Prefabs/Lettuce_5/Lettuce_5.xml"
+    },
+    {
+        "name": "Bowl_14",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bowl/Prefabs/Bowl_14/Bowl_14.xml"
+    },
+    {
+        "name": "Teddy_Bear_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/TeddyBear/Prefabs/Teddy_Bear_1/Teddy_Bear_1.xml"
+    },
+    {
+        "name": "Laptop_7",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Laptop_Full/Prefabs/Laptop_7/Laptop_7.xml"
+    },
+    {
+        "name": "Alarm_Clock_27",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/AlarmClock/Prefabs/Alarm_Clock_27/Alarm_Clock_27.xml"
+    },
+    
+    {
+        "name": "Toilet_Paper_Hanger_22",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/ToiletPaperHanger/Prefabs/Toilet_Paper_Hanger_22/Toilet_Paper_Hanger_22.xml"
+    },
+    {
+        "name": "Box_20",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Box_Full/Prefabs/Box_20/Box_20.xml"
+    },
+    {
+        "name": "Lettuce_4",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Lettuce/Prefabs/Lettuce_4/Lettuce_4.xml"
+    },
+    {
+        "name": "RoboTHOR_chair_jokkmokk_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_Furniture/Chair/Prefabs/RoboTHOR_chair_jokkmokk_v/RoboTHOR_chair_jokkmokk_v.xml"
+    },
+    {
+        "name": "Candle_6",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Candle/Prefabs/Candle_6/Candle_6.xml"
+    },
+    {
+        "name": "Tomato_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Tomato/Prefabs/Tomato_3/Tomato_3.xml"
+    },
+    {
+        "name": "Mug_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Mug/Prefabs/Mug_3/Mug_3.xml"
+    },
+    {
+        "name": "Pan_11",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pan/Prefabs/Pan_11/Pan_11.xml"
+    },
+    
+    
+    {
+        "name": "Bread_12",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bread/Prefabs/Bread_12/Bread_12.xml"
+    },
+    {
+        "name": "Cup_7",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Cup/Prefabs/Cup_7/Cup_7.xml"
+    },
+    {
+        "name": "Spray_Bottle_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SprayBottle/Prefabs/Spray_Bottle_2/Spray_Bottle_2.xml"
+    },
+    {
+        "name": "Laptop_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Laptop_Full/Prefabs/Laptop_2/Laptop_2.xml"
+    },
+    {
+        "name": "Plate_11",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Plate/Prefabs/Plate_11/Plate_11.xml"
+    },
+    {
+        "name": "Book_15",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Book/Prefabs/Book_15/Book_15.xml"
+    },
+    {
+        "name": "Apple_5",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Apple/Prefabs/Apple_5/Apple_5.xml"
+    },
+    {
+        "name": "Bread_7",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bread/Prefabs/Bread_7/Bread_7.xml"
+    },
+    {
+        "name": "Pot_28",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pot/Prefabs/Pot_28/Pot_28.xml"
+    },
+    {
+        "name": "Alarm_Clock_11",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/AlarmClock/Prefabs/Alarm_Clock_11/Alarm_Clock_11.xml"
+    },
+    {
+        "name": "Laptop_9",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Laptop_Full/Prefabs/Laptop_9/Laptop_9.xml"
+    },
+    {
+        "name": "Box_21",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Box_Full/Prefabs/Box_21/Box_21.xml"
+    },
+    
+    {
+        "name": "Spoon_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Spoon/Prefabs/Spoon_1/Spoon_1.xml"
+    },
+    
+    {
+        "name": "Apple_9",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Apple/Prefabs/Apple_9/Apple_9.xml"
+    },
+    
+    
+    {
+        "name": "Cellphone_7",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Cellphone/Prefabs/Cellphone_7/Cellphone_7.xml"
+    },
+    {
+        "name": "Toilet_Paper_Hanger_5",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/ToiletPaperHanger/Prefabs/Toilet_Paper_Hanger_5/Toilet_Paper_Hanger_5.xml"
+    },
+    {
+        "name": "Egg_Cracked_11",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/EggCracked/Prefabs/Egg_Cracked_11/Egg_Cracked_11.xml"
+    },
+    {
+        "name": "Bread_11",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bread/Prefabs/Bread_11/Bread_11.xml"
+    },
+    {
+        "name": "pillow_5",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Pillow/Prefabs/pillow_5/pillow_5.xml"
+    },
+    {
+        "name": "Fork_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Fork/Prefabs/Fork_1/Fork_1.xml"
+    },
+    {
+        "name": "Pan_22",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pan/Prefabs/Pan_22/Pan_22.xml"
+    },
+    
+    {
+        "name": "CreditCard_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/CreditCard/Prefabs/CreditCard_3/CreditCard_3.xml"
+    },
+    {
+        "name": "Alarm_Clock_18",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/AlarmClock/Prefabs/Alarm_Clock_18/Alarm_Clock_18.xml"
+    },
+    
+    {
+        "name": "Lettuce_11",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Lettuce/Prefabs/Lettuce_11/Lettuce_11.xml"
+    },
+    {
+        "name": "Plate_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Plate/Prefabs/Plate_3/Plate_3.xml"
+    },
+    {
+        "name": "Egg_Cracked_13",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/EggCracked/Prefabs/Egg_Cracked_13/Egg_Cracked_13.xml"
+    },
+    {
+        "name": "Tomato_17",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Tomato/Prefabs/Tomato_17/Tomato_17.xml"
+    },
+    {
+        "name": "Cup_30",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Cup/Prefabs/Cup_30/Cup_30.xml"
+    },
+    {
+        "name": "Pan_27",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pan/Prefabs/Pan_27/Pan_27.xml"
+    },
+    {
+        "name": "Lettuce_12",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Lettuce/Prefabs/Lettuce_12/Lettuce_12.xml"
+    },
+    {
+        "name": "Laptop_19",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Laptop_Full/Prefabs/Laptop_19/Laptop_19.xml"
+    },
+    {
+        "name": "pillow_4",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Pillow/Prefabs/pillow_4/pillow_4.xml"
+    },
+    {
+        "name": "Vase_Flat_4",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Vase/Prefabs/Vase_Flat_4/Vase_Flat_4.xml"
+    },
+    {
+        "name": "Potato_24",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Potato/Prefabs/Potato_24/Potato_24.xml"
+    },
+    {
+        "name": "Bowl_4",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bowl/Prefabs/Bowl_4/Bowl_4.xml"
+    },
+    {
+        "name": "Book_20",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Book/Prefabs/Book_20/Book_20.xml"
+    },
+    {
+        "name": "Pan_14",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pan/Prefabs/Pan_14/Pan_14.xml"
+    },
+    {
+        "name": "Egg_Cracked_5",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/EggCracked/Prefabs/Egg_Cracked_5/Egg_Cracked_5.xml"
+    },
+    
+    {
+        "name": "Paper_Towel_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/PaperTowel/Prefabs/Paper_Towel_1/Paper_Towel_1.xml"
+    },
+    {
+        "name": "Pencil_7",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Pencil/Prefabs/Pencil_7/Pencil_7.xml"
+    },
+    {
+        "name": "Plate_26",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Plate/Prefabs/Plate_26/Plate_26.xml"
+    },
+    {
+        "name": "Room_Decor_1_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/RoomDecor/Prefabs/Room_Decor_1_1/Room_Decor_1_1.xml"
+    },
+    {
+        "name": "Alarm_Clock_4",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/AlarmClock/Prefabs/Alarm_Clock_4/Alarm_Clock_4.xml"
+    },
+    {
+        "name": "Vase_Medium_5",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Vase/Prefabs/Vase_Medium_5/Vase_Medium_5.xml"
+    },
+    {
+        "name": "Vase_Flat_5",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Vase/Prefabs/Vase_Flat_5/Vase_Flat_5.xml"
+    },
+    
+    
+    {
+        "name": "Cellphone_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Cellphone/Prefabs/Cellphone_2/Cellphone_2.xml"
+    },
+    {
+        "name": "CreditCard_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/CreditCard/Prefabs/CreditCard_2/CreditCard_2.xml"
+    },
+    {
+        "name": "Plate_14",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Plate/Prefabs/Plate_14/Plate_14.xml"
+    },
+    {
+        "name": "RoboTHOR_floor_lamp_holmo_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Background_SmallObjects/FloorLamp/Prefabs/RoboTHOR_floor_lamp_holmo_v/RoboTHOR_floor_lamp_holmo_v.xml"
+    },
+    
+    {
+        "name": "Plate_10",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Plate/Prefabs/Plate_10/Plate_10.xml"
+    },
+    {
+        "name": "Box_8",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Box_Full/Prefabs/Box_8/Box_8.xml"
+    },
+    {
+        "name": "Book_11",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Book/Prefabs/Book_11/Book_11.xml"
+    },
+    {
+        "name": "Apple_15",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Apple/Prefabs/Apple_15/Apple_15.xml"
+    },
+    {
+        "name": "Box_10",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Box_Full/Prefabs/Box_10/Box_10.xml"
+    },
+    {
+        "name": "Cup_11",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Cup/Prefabs/Cup_11/Cup_11.xml"
+    },
+    {
+        "name": "Tomato_19",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Tomato/Prefabs/Tomato_19/Tomato_19.xml"
+    },
+    {
+        "name": "Pot_8",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pot/Prefabs/Pot_8/Pot_8.xml"
+    },
+    {
+        "name": "pillow_30",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Pillow/Prefabs/pillow_30/pillow_30.xml"
+    },
+    
+    {
+        "name": "Soap_Bottle_5",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SoapBottle/Prefabs/Soap_Bottle_5/Soap_Bottle_5.xml"
+    },
+    {
+        "name": "Potato_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Potato/Prefabs/Potato_3/Potato_3.xml"
+    },
+    {
+        "name": "Toilet_Paper_Hanger_16",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/ToiletPaperHanger/Prefabs/Toilet_Paper_Hanger_16/Toilet_Paper_Hanger_16.xml"
+    },
+    {
+        "name": "Soap_Bottle_14",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SoapBottle/Prefabs/Soap_Bottle_14/Soap_Bottle_14.xml"
+    },
+    
+    {
+        "name": "Laptop_25",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Laptop_Full/Prefabs/Laptop_25/Laptop_25.xml"
+    },
+    {
+        "name": "Plate_6",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Plate/Prefabs/Plate_6/Plate_6.xml"
+    },
+    {
+        "name": "Egg_Cracked_15",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/EggCracked/Prefabs/Egg_Cracked_15/Egg_Cracked_15.xml"
+    },
+    {
+        "name": "RoboTHOR_garbage_bin_ai2_1_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Target_SmallObjects/GarbageBin/Prefabs/RoboTHOR_garbage_bin_ai2_1_v/RoboTHOR_garbage_bin_ai2_1_v.xml"
+    },
+    {
+        "name": "Plunger_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/Plunger/Prefabs/Plunger_2/Plunger_2.xml"
+    },
+    
+    
+    {
+        "name": "Egg_11",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Egg/Prefabs/Egg_11/Egg_11.xml"
+    },
+    {
+        "name": "Egg_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Egg/Prefabs/Egg_3/Egg_3.xml"
+    },
+    {
+        "name": "Lettuce_6",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Lettuce/Prefabs/Lettuce_6/Lettuce_6.xml"
+    },
+    {
+        "name": "Pot_18",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pot/Prefabs/Pot_18/Pot_18.xml"
+    },
+    {
+        "name": "Toilet_Paper_Hanger_17",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/ToiletPaperHanger/Prefabs/Toilet_Paper_Hanger_17/Toilet_Paper_Hanger_17.xml"
+    },
+    {
+        "name": "Scrub_Brush_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/ScrubBrush/Prefabs/Scrub_Brush_1/Scrub_Brush_1.xml"
+    },
+    {
+        "name": "Soap_Bottle_15",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SoapBottle/Prefabs/Soap_Bottle_15/Soap_Bottle_15.xml"
+    },
+    {
+        "name": "Spray_Bottle_4",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SprayBottle/Prefabs/Spray_Bottle_4/Spray_Bottle_4.xml"
+    },
+    {
+        "name": "Bowl_13",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bowl/Prefabs/Bowl_13/Bowl_13.xml"
+    },
+    {
+        "name": "Pot_26",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pot/Prefabs/Pot_26/Pot_26.xml"
+    },
+    {
+        "name": "Laptop_27",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Laptop_Full/Prefabs/Laptop_27/Laptop_27.xml"
+    },
+    {
+        "name": "Cup_4",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Cup/Prefabs/Cup_4/Cup_4.xml"
+    },
+    {
+        "name": "Apple_30",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Apple/Prefabs/Apple_30/Apple_30.xml"
+    },
+    
+    {
+        "name": "Box_4",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Box_Full/Prefabs/Box_4/Box_4.xml"
+    },
+    {
+        "name": "Pen_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Pen/Prefabs/Pen_1/Pen_1.xml"
+    },
+    {
+        "name": "Cloth_7",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Cloth/Prefabs/Cloth_7/Cloth_7.xml"
+    },
+    {
+        "name": "Cloth_9",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Cloth/Prefabs/Cloth_9/Cloth_9.xml"
+    },
+    
+    {
+        "name": "Pen_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Pen/Prefabs/Pen_3/Pen_3.xml"
+    },
+    {
+        "name": "Plate_30",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Plate/Prefabs/Plate_30/Plate_30.xml"
+    },
+    {
+        "name": "Egg_23",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Egg/Prefabs/Egg_23/Egg_23.xml"
+    },
+    {
+        "name": "Book_23",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Book/Prefabs/Book_23/Book_23.xml"
+    },
+    {
+        "name": "Watering_Can_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/WateringCan/Prefabs/Watering_Can_1/Watering_Can_1.xml"
+    },
+    {
+        "name": "pillow_8",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Pillow/Prefabs/pillow_8/pillow_8.xml"
+    },
+    {
+        "name": "Fertility_Statue_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Statue/Prefabs/Fertility_Statue_1/Fertility_Statue_1.xml"
+    },
+    
+    
+    {
+        "name": "Egg_Cracked_22",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/EggCracked/Prefabs/Egg_Cracked_22/Egg_Cracked_22.xml"
+    },
+    
+    
+    
+    
+    {
+        "name": "Laptop_6",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Laptop_Full/Prefabs/Laptop_6/Laptop_6.xml"
+    },
+    {
+        "name": "Soap_Bottle_26",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SoapBottle/Prefabs/Soap_Bottle_26/Soap_Bottle_26.xml"
+    },
+    {
+        "name": "Apple_16",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Apple/Prefabs/Apple_16/Apple_16.xml"
+    },
+    {
+        "name": "Bread_25",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bread/Prefabs/Bread_25/Bread_25.xml"
+    },
+    {
+        "name": "Spray_Bottle_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SprayBottle/Prefabs/Spray_Bottle_1/Spray_Bottle_1.xml"
+    },
+    {
+        "name": "pillow_14",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Pillow/Prefabs/pillow_14/pillow_14.xml"
+    },
+    {
+        "name": "Soap_Bottle_27",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SoapBottle/Prefabs/Soap_Bottle_27/Soap_Bottle_27.xml"
+    },
+    {
+        "name": "RoboTHOR_desk_lamp_ai2_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Background_SmallObjects/DeskLamp/Prefabs/RoboTHOR_desk_lamp_ai2_v/RoboTHOR_desk_lamp_ai2_v.xml"
+    },
+    {
+        "name": "Bowl_18",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bowl/Prefabs/Bowl_18/Bowl_18.xml"
+    },
+    {
+        "name": "Laptop_16",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Laptop_Full/Prefabs/Laptop_16/Laptop_16.xml"
+    },
+    {
+        "name": "Tomato_9",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Tomato/Prefabs/Tomato_9/Tomato_9.xml"
+    },
+    {
+        "name": "Apple_12",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Apple/Prefabs/Apple_12/Apple_12.xml"
+    },
+    {
+        "name": "Laptop_28",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Laptop_Full/Prefabs/Laptop_28/Laptop_28.xml"
+    },
+    {
+        "name": "Apple_27",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Apple/Prefabs/Apple_27/Apple_27.xml"
+    },
+    {
+        "name": "Alarm_Clock_7",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/AlarmClock/Prefabs/Alarm_Clock_7/Alarm_Clock_7.xml"
+    },
+    {
+        "name": "Egg_21",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Egg/Prefabs/Egg_21/Egg_21.xml"
+    },
+    {
+        "name": "Remote_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room Objects/Remotes/Prefabs/Remote_3/Remote_3.xml"
+    },
+    {
+        "name": "Toilet_Paper_Hanger_4",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/ToiletPaperHanger/Prefabs/Toilet_Paper_Hanger_4/Toilet_Paper_Hanger_4.xml"
+    },
+    {
+        "name": "Apple_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Apple/Prefabs/Apple_3/Apple_3.xml"
+    },
+    
+    
+    {
+        "name": "Egg_17",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Egg/Prefabs/Egg_17/Egg_17.xml"
+    },
+    {
+        "name": "Bowl_19",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bowl/Prefabs/Bowl_19/Bowl_19.xml"
+    },
+    
+    {
+        "name": "Pot_27",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pot/Prefabs/Pot_27/Pot_27.xml"
+    },
+    {
+        "name": "Potato_25",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Potato/Prefabs/Potato_25/Potato_25.xml"
+    },
+    {
+        "name": "Cloth_4",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Cloth/Prefabs/Cloth_4/Cloth_4.xml"
+    },
+    {
+        "name": "Egg_7",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Egg/Prefabs/Egg_7/Egg_7.xml"
+    },
+    {
+        "name": "Laptop_4",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Laptop_Full/Prefabs/Laptop_4/Laptop_4.xml"
+    },
+    {
+        "name": "Pot_7",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pot/Prefabs/Pot_7/Pot_7.xml"
+    },
+    {
+        "name": "Alarm_Clock_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/AlarmClock/Prefabs/Alarm_Clock_3/Alarm_Clock_3.xml"
+    },
+    {
+        "name": "RoboTHOR_houseplant_ai2_2_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Target_SmallObjects/Houseplant/Prefabs/RoboTHOR_houseplant_ai2_2_v/RoboTHOR_houseplant_ai2_2_v.xml"
+    },
+    {
+        "name": "pillow_10",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Pillow/Prefabs/pillow_10/pillow_10.xml"
+    },
+    {
+        "name": "Pan_6",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pan/Prefabs/Pan_6/Pan_6.xml"
+    },
+    {
+        "name": "Ladle_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Ladle/Prefabs/Ladle_2/Ladle_2.xml"
+    },
+    {
+        "name": "Plate_4",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Plate/Prefabs/Plate_4/Plate_4.xml"
+    },
+    {
+        "name": "Potato_28",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Potato/Prefabs/Potato_28/Potato_28.xml"
+    },
+    {
+        "name": "Box_15",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Box_Full/Prefabs/Box_15/Box_15.xml"
+    },
+    
+    {
+        "name": "Hand_Statue_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Statue/Prefabs/Hand_Statue_1/Hand_Statue_1.xml"
+    },
+    {
+        "name": "Bread_21",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bread/Prefabs/Bread_21/Bread_21.xml"
+    },
+    {
+        "name": "pillow_19",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Pillow/Prefabs/pillow_19/pillow_19.xml"
+    },
+    {
+        "name": "Knife_6",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Knife/Prefabs/Knife_6/Knife_6.xml"
+    },
+    {
+        "name": "Bowl_12",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bowl/Prefabs/Bowl_12/Bowl_12.xml"
+    },
+    {
+        "name": "Watch_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Watch/Prefabs/Watch_2/Watch_2.xml"
+    },
+    {
+        "name": "Pot_30",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pot/Prefabs/Pot_30/Pot_30.xml"
+    },
+    {
+        "name": "Cup_22",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Cup/Prefabs/Cup_22/Cup_22.xml"
+    },
+    {
+        "name": "Lettuce_25",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Lettuce/Prefabs/Lettuce_25/Lettuce_25.xml"
+    },
+    {
+        "name": "Box_9",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Box_Full/Prefabs/Box_9/Box_9.xml"
+    },
+    {
+        "name": "Egg_27",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Egg/Prefabs/Egg_27/Egg_27.xml"
+    },
+    {
+        "name": "Bowl_11",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bowl/Prefabs/Bowl_11/Bowl_11.xml"
+    },
+    {
+        "name": "Bowl_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bowl/Prefabs/Bowl_2/Bowl_2.xml"
+    },
+    {
+        "name": "Egg_Cracked_7",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/EggCracked/Prefabs/Egg_Cracked_7/Egg_Cracked_7.xml"
+    },
+    {
+        "name": "Toilet_Paper_Hanger_18",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/ToiletPaperHanger/Prefabs/Toilet_Paper_Hanger_18/Toilet_Paper_Hanger_18.xml"
+    },
+    
+    
+    
+    
+    
+    {
+        "name": "Tomato_30",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Tomato/Prefabs/Tomato_30/Tomato_30.xml"
+    },
+    
+    
+    {
+        "name": "Pot_24",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pot/Prefabs/Pot_24/Pot_24.xml"
+    },
+    {
+        "name": "Laptop_12",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Laptop_Full/Prefabs/Laptop_12/Laptop_12.xml"
+    },
+    {
+        "name": "Plate_12",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Plate/Prefabs/Plate_12/Plate_12.xml"
+    },
+    
+    
+    {
+        "name": "pillow_15",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Pillow/Prefabs/pillow_15/pillow_15.xml"
+    },
+    {
+        "name": "Stone_Statue_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Statue/Prefabs/Stone_Statue_3/Stone_Statue_3.xml"
+    },
+    {
+        "name": "Laptop_18",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Laptop_Full/Prefabs/Laptop_18/Laptop_18.xml"
+    },
+    {
+        "name": "Spray_Bottle_6",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SprayBottle/Prefabs/Spray_Bottle_6/Spray_Bottle_6.xml"
+    },
+    {
+        "name": "RoboTHOR_pen_signo_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Background_SmallObjects/Pen/Prefabs/RoboTHOR_pen_signo_v/RoboTHOR_pen_signo_v.xml"
+    },
+    
+    {
+        "name": "Alarm_Clock_10",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/AlarmClock/Prefabs/Alarm_Clock_10/Alarm_Clock_10.xml"
+    },
+    {
+        "name": "Book_19",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Book/Prefabs/Book_19/Book_19.xml"
+    },
+    
+    {
+        "name": "Tomato_14",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Tomato/Prefabs/Tomato_14/Tomato_14.xml"
+    },
+    {
+        "name": "Egg_Cracked_4",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/EggCracked/Prefabs/Egg_Cracked_4/Egg_Cracked_4.xml"
+    },
+    {
+        "name": "Tomato_10",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Tomato/Prefabs/Tomato_10/Tomato_10.xml"
+    },
+    {
+        "name": "Plunger_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/Plunger/Prefabs/Plunger_3/Plunger_3.xml"
+    },
+    {
+        "name": "Toilet_Paper_Hanger_25",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/ToiletPaperHanger/Prefabs/Toilet_Paper_Hanger_25/Toilet_Paper_Hanger_25.xml"
+    },
+    {
+        "name": "Potato_16",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Potato/Prefabs/Potato_16/Potato_16.xml"
+    },
+    {
+        "name": "Tissue_Box_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/TissueBox/Prefabs/Tissue_Box_1/Tissue_Box_1.xml"
+    },
+    {
+        "name": "Book_21",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Book/Prefabs/Book_21/Book_21.xml"
+    },
+    {
+        "name": "Pan_5",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pan/Prefabs/Pan_5/Pan_5.xml"
+    },
+    {
+        "name": "Pot_4",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pot/Prefabs/Pot_4/Pot_4.xml"
+    },
+    {
+        "name": "Cloth_12",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Cloth/Prefabs/Cloth_12/Cloth_12.xml"
+    },
+    {
+        "name": "Bread_13",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bread/Prefabs/Bread_13/Bread_13.xml"
+    },
+    {
+        "name": "Vase_Tall_5",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Vase/Prefabs/Vase_Tall_5/Vase_Tall_5.xml"
+    },
+    {
+        "name": "Pot_13",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pot/Prefabs/Pot_13/Pot_13.xml"
+    },
+    
+    
+    
+    {
+        "name": "Apple_26",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Apple/Prefabs/Apple_26/Apple_26.xml"
+    },
+    {
+        "name": "Bread_8",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bread/Prefabs/Bread_8/Bread_8.xml"
+    },
+    {
+        "name": "Bread_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bread/Prefabs/Bread_1/Bread_1.xml"
+    },
+    {
+        "name": "RoboTHOR_basketball_rhode_island_novelty_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Target_SmallObjects/Basketball/Prefabs/RoboTHOR_basketball_rhode_island_novelty_v/RoboTHOR_basketball_rhode_island_novelty_v.xml"
+    },
+    {
+        "name": "Pan_30",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pan/Prefabs/Pan_30/Pan_30.xml"
+    },
+    {
+        "name": "Alarm_Clock_12",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/AlarmClock/Prefabs/Alarm_Clock_12/Alarm_Clock_12.xml"
+    },
+    {
+        "name": "Toilet_Paper_Hanger_14",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/ToiletPaperHanger/Prefabs/Toilet_Paper_Hanger_14/Toilet_Paper_Hanger_14.xml"
+    },
+    {
+        "name": "RoboTHOR_cellphone_blackberry_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Background_SmallObjects/Cellphone/Prefabs/RoboTHOR_cellphone_blackberry_v/RoboTHOR_cellphone_blackberry_v.xml"
+    },
+    {
+        "name": "Apple_7",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Apple/Prefabs/Apple_7/Apple_7.xml"
+    },
+    {
+        "name": "Cup_18",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Cup/Prefabs/Cup_18/Cup_18.xml"
+    },
+    {
+        "name": "Lettuce_18",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Lettuce/Prefabs/Lettuce_18/Lettuce_18.xml"
+    },
+    
+    {
+        "name": "Bread_20",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bread/Prefabs/Bread_20/Bread_20.xml"
+    },
+    {
+        "name": "Bowl_5",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bowl/Prefabs/Bowl_5/Bowl_5.xml"
+    },
+    {
+        "name": "Aluminum_Foil_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/AluminumFoil/Prefabs/Aluminum_Foil_1/Aluminum_Foil_1.xml"
+    },
+    {
+        "name": "pillow_20",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Pillow/Prefabs/pillow_20/pillow_20.xml"
+    },
+    
+    {
+        "name": "Potato_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Potato/Prefabs/Potato_1/Potato_1.xml"
+    },
+    {
+        "name": "Toilet_Paper_Hanger_28",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/ToiletPaperHanger/Prefabs/Toilet_Paper_Hanger_28/Toilet_Paper_Hanger_28.xml"
+    },
+    {
+        "name": "pillow_16",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Pillow/Prefabs/pillow_16/pillow_16.xml"
+    },
+    
+    {
+        "name": "Egg_Cracked_16",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/EggCracked/Prefabs/Egg_Cracked_16/Egg_Cracked_16.xml"
+    },
+    {
+        "name": "Alarm_Clock_22",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/AlarmClock/Prefabs/Alarm_Clock_22/Alarm_Clock_22.xml"
+    },
+    
+    {
+        "name": "Cellphone_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Cellphone/Prefabs/Cellphone_3/Cellphone_3.xml"
+    },
+    {
+        "name": "Lettuce_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Lettuce/Prefabs/Lettuce_3/Lettuce_3.xml"
+    },
+    {
+        "name": "Box_22",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Box_Full/Prefabs/Box_22/Box_22.xml"
+    },
+    {
+        "name": "RoboTHOR_alarm_clock_bajk_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Target_SmallObjects/AlarmClock/Prefabs/RoboTHOR_alarm_clock_bajk_v/RoboTHOR_alarm_clock_bajk_v.xml"
+    },
+    {
+        "name": "Lettuce_21",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Lettuce/Prefabs/Lettuce_21/Lettuce_21.xml"
+    },
+    
+    {
+        "name": "Egg_26",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Egg/Prefabs/Egg_26/Egg_26.xml"
+    },
+    {
+        "name": "Pan_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pan/Prefabs/Pan_2/Pan_2.xml"
+    },
+    {
+        "name": "Soap_Bottle_29",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SoapBottle/Prefabs/Soap_Bottle_29/Soap_Bottle_29.xml"
+    },
+    
+    {
+        "name": "Book_8",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Book/Prefabs/Book_8/Book_8.xml"
+    },
+    
+    
+    {
+        "name": "Egg_Cracked_24",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/EggCracked/Prefabs/Egg_Cracked_24/Egg_Cracked_24.xml"
+    },
+    
+    
+    {
+        "name": "Plate_21",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Plate/Prefabs/Plate_21/Plate_21.xml"
+    },
+    {
+        "name": "Laptop_14",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Laptop_Full/Prefabs/Laptop_14/Laptop_14.xml"
+    },
+    {
+        "name": "Egg_Cracked_23",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/EggCracked/Prefabs/Egg_Cracked_23/Egg_Cracked_23.xml"
+    },
+    {
+        "name": "Pot_9",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pot/Prefabs/Pot_9/Pot_9.xml"
+    },
+    
+    
+    {
+        "name": "Potato_6",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Potato/Prefabs/Potato_6/Potato_6.xml"
+    },
+    {
+        "name": "Cup_8",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Cup/Prefabs/Cup_8/Cup_8.xml"
+    },
+    {
+        "name": "Knife_4",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Knife/Prefabs/Knife_4/Knife_4.xml"
+    },
+    {
+        "name": "Book_17",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Book/Prefabs/Book_17/Book_17.xml"
+    },
+    
+    
+    {
+        "name": "Laptop_20",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Laptop_Full/Prefabs/Laptop_20/Laptop_20.xml"
+    },
+    {
+        "name": "Bath_Towel_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/Towel/Prefabs/Bath_Towel_3/Bath_Towel_3.xml"
+    },
+    {
+        "name": "Apple_19",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Apple/Prefabs/Apple_19/Apple_19.xml"
+    },
+    {
+        "name": "RoboTHOR_shelving_unit_kallax_small_2_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_Furniture/ShelvingUnit/Prefabs/RoboTHOR_shelving_unit_kallax_small_2_v/RoboTHOR_shelving_unit_kallax_small_2_v.xml"
+    },
+    {
+        "name": "Pan_23",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pan/Prefabs/Pan_23/Pan_23.xml"
+    },
+    {
+        "name": "RoboTHOR_candle_glittrig_3_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Background_SmallObjects/Candle/Prefabs/RoboTHOR_candle_glittrig_3_v/RoboTHOR_candle_glittrig_3_v.xml"
+    },
+    {
+        "name": "Bread_24",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bread/Prefabs/Bread_24/Bread_24.xml"
+    },
+    
+    
+    
+    {
+        "name": "Lettuce_26",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Lettuce/Prefabs/Lettuce_26/Lettuce_26.xml"
+    },
+    {
+        "name": "Soap_Bottle_9",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SoapBottle/Prefabs/Soap_Bottle_9/Soap_Bottle_9.xml"
+    },
+    
+    {
+        "name": "Plate_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Plate/Prefabs/Plate_1/Plate_1.xml"
+    },
+    {
+        "name": "Candle_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Candle/Prefabs/Candle_1/Candle_1.xml"
+    },
+    {
+        "name": "RoboTHOR_floor_lamp_not_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Background_SmallObjects/FloorLamp/Prefabs/RoboTHOR_floor_lamp_not_v/RoboTHOR_floor_lamp_not_v.xml"
+    },
+    {
+        "name": "Spray_Bottle_7",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SprayBottle/Prefabs/Spray_Bottle_7/Spray_Bottle_7.xml"
+    },
+    {
+        "name": "RoboTHOR_tennis_racquet_speed_kids_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Background_SmallObjects/TennisRacquet/Prefabs/RoboTHOR_tennis_racquet_speed_kids_v/RoboTHOR_tennis_racquet_speed_kids_v.xml"
+    },
+    {
+        "name": "Egg_5",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Egg/Prefabs/Egg_5/Egg_5.xml"
+    },
+    {
+        "name": "Pencil_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Pencil/Prefabs/Pencil_3/Pencil_3.xml"
+    },
+    
+    {
+        "name": "Tomato_15",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Tomato/Prefabs/Tomato_15/Tomato_15.xml"
+    },
+    {
+        "name": "Apple_14",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Apple/Prefabs/Apple_14/Apple_14.xml"
+    },
+    {
+        "name": "Remote_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room Objects/Remotes/Prefabs/Remote_2/Remote_2.xml"
+    },
+    
+    
+    
+    {
+        "name": "RoboTHOR_desk_lamp_arstid_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Background_SmallObjects/DeskLamp/Prefabs/RoboTHOR_desk_lamp_arstid_v/RoboTHOR_desk_lamp_arstid_v.xml"
+    },
+    {
+        "name": "Bowl_23",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bowl/Prefabs/Bowl_23/Bowl_23.xml"
+    },
+    {
+        "name": "Egg_Cracked_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/EggCracked/Prefabs/Egg_Cracked_3/Egg_Cracked_3.xml"
+    },
+    {
+        "name": "Newspaper_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Newspaper/Prefabs/Newspaper_1/Newspaper_1.xml"
+    },
+    {
+        "name": "Kettle_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Kettle/Prefabs/Kettle_1/Kettle_1.xml"
+    },
+    {
+        "name": "Lettuce_9",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Lettuce/Prefabs/Lettuce_9/Lettuce_9.xml"
+    },
+    {
+        "name": "Soap_Bottle_22",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SoapBottle/Prefabs/Soap_Bottle_22/Soap_Bottle_22.xml"
+    },
+    {
+        "name": "Towel_Statue_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Statue/Prefabs/Towel_Statue_1/Towel_Statue_1.xml"
+    },
+    
+    {
+        "name": "Laptop_23",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Laptop_Full/Prefabs/Laptop_23/Laptop_23.xml"
+    },
+    {
+        "name": "Egg_18",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Egg/Prefabs/Egg_18/Egg_18.xml"
+    },
+    
+    {
+        "name": "Plate_22",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Plate/Prefabs/Plate_22/Plate_22.xml"
+    },
+    {
+        "name": "Cloth_11",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Cloth/Prefabs/Cloth_11/Cloth_11.xml"
+    },
+    {
+        "name": "Vase_Tall_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Vase/Prefabs/Vase_Tall_2/Vase_Tall_2.xml"
+    },
+    {
+        "name": "Soap_Bottle_4",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SoapBottle/Prefabs/Soap_Bottle_4/Soap_Bottle_4.xml"
+    },
+    {
+        "name": "Bowl_17",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bowl/Prefabs/Bowl_17/Bowl_17.xml"
+    },
+    {
+        "name": "Vase_Flat_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Vase/Prefabs/Vase_Flat_2/Vase_Flat_2.xml"
+    },
+    {
+        "name": "Bowl_27",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bowl/Prefabs/Bowl_27/Bowl_27.xml"
+    },
+    
+    {
+        "name": "Bowl_21",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bowl/Prefabs/Bowl_21/Bowl_21.xml"
+    },
+    
+    {
+        "name": "Bottle_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bottle/Prefabs/Bottle_1/Bottle_1.xml"
+    },
+    {
+        "name": "Tomato_18",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Tomato/Prefabs/Tomato_18/Tomato_18.xml"
+    },
+    
+    {
+        "name": "Egg_Cracked_21",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/EggCracked/Prefabs/Egg_Cracked_21/Egg_Cracked_21.xml"
+    },
+    {
+        "name": "Plate_25",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Plate/Prefabs/Plate_25/Plate_25.xml"
+    },
+    {
+        "name": "Egg_Cracked_14",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/EggCracked/Prefabs/Egg_Cracked_14/Egg_Cracked_14.xml"
+    },
+    {
+        "name": "Book_5",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Book/Prefabs/Book_5/Book_5.xml"
+    },
+    {
+        "name": "Tomato_4",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Tomato/Prefabs/Tomato_4/Tomato_4.xml"
+    },
+    
+    {
+        "name": "Bread_26",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bread/Prefabs/Bread_26/Bread_26.xml"
+    },
+    {
+        "name": "Potato_27",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Potato/Prefabs/Potato_27/Potato_27.xml"
+    },
+    {
+        "name": "Soap_Bottle_20",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SoapBottle/Prefabs/Soap_Bottle_20/Soap_Bottle_20.xml"
+    },
+    {
+        "name": "Pepper_Shaker_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pepper_Shaker/Prefabs/Pepper_Shaker_1/Pepper_Shaker_1.xml"
+    },
+    {
+        "name": "Bowl_22",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bowl/Prefabs/Bowl_22/Bowl_22.xml"
+    },
+    {
+        "name": "Alarm_Clock_26",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/AlarmClock/Prefabs/Alarm_Clock_26/Alarm_Clock_26.xml"
+    },
+    {
+        "name": "Laptop_10",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Laptop_Full/Prefabs/Laptop_10/Laptop_10.xml"
+    },
+    {
+        "name": "Bread_9",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bread/Prefabs/Bread_9/Bread_9.xml"
+    },
+    {
+        "name": "Soap_Bottle_13",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SoapBottle/Prefabs/Soap_Bottle_13/Soap_Bottle_13.xml"
+    },
+    {
+        "name": "Potato_13",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Potato/Prefabs/Potato_13/Potato_13.xml"
+    },
+    {
+        "name": "Toilet_Paper",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/ToiletPaper/Prefabs/Toilet_Paper/Toilet_Paper.xml"
+    },
+    {
+        "name": "Wine_Bottle_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/WineBottle/Prefabs/Wine_Bottle_1/Wine_Bottle_1.xml"
+    },
+    {
+        "name": "Box_18",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Box_Full/Prefabs/Box_18/Box_18.xml"
+    },
+    {
+        "name": "Mug_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Mug/Prefabs/Mug_1/Mug_1.xml"
+    },
+    {
+        "name": "Bread_23",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bread/Prefabs/Bread_23/Bread_23.xml"
+    },
+    
+    {
+        "name": "Soap_Bar_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SoapBar/Prefabs/Soap_Bar_1/Soap_Bar_1.xml"
+    },
+    {
+        "name": "Keychain_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/KeyChain/Prefabs/Keychain_1/Keychain_1.xml"
+    },
+    
+    {
+        "name": "Dog_Statue_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Statue/Prefabs/Dog_Statue_1/Dog_Statue_1.xml"
+    },
+    {
+        "name": "Potato_5",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Potato/Prefabs/Potato_5/Potato_5.xml"
+    },
+    
+    
+    {
+        "name": "Egg_Cracked_20",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/EggCracked/Prefabs/Egg_Cracked_20/Egg_Cracked_20.xml"
+    },
+    {
+        "name": "Pot_29",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pot/Prefabs/Pot_29/Pot_29.xml"
+    },
+    
+    {
+        "name": "Apple_13",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Apple/Prefabs/Apple_13/Apple_13.xml"
+    },
+    {
+        "name": "Apple_4",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Apple/Prefabs/Apple_4/Apple_4.xml"
+    },
+    
+    {
+        "name": "Bath_Towel_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/Towel/Prefabs/Bath_Towel_2/Bath_Towel_2.xml"
+    },
+    {
+        "name": "Lettuce_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Lettuce/Prefabs/Lettuce_1/Lettuce_1.xml"
+    },
+    
+    {
+        "name": "Lettuce_30",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Lettuce/Prefabs/Lettuce_30/Lettuce_30.xml"
+    },
+    {
+        "name": "Waving_Statue_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Statue/Prefabs/Waving_Statue_1/Waving_Statue_1.xml"
+    },
+    {
+        "name": "RoboTHOR_sofa_ektorp_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_Furniture/Sofa/Prefabs/RoboTHOR_sofa_ektorp_v/RoboTHOR_sofa_ektorp_v.xml"
+    },
+    {
+        "name": "Alarm_Clock_15",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/AlarmClock/Prefabs/Alarm_Clock_15/Alarm_Clock_15.xml"
+    },
+    
+    {
+        "name": "Bread_4",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bread/Prefabs/Bread_4/Bread_4.xml"
+    },
+    {
+        "name": "Book_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Book/Prefabs/Book_3/Book_3.xml"
+    },
+    {
+        "name": "Tomato_25",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Tomato/Prefabs/Tomato_25/Tomato_25.xml"
+    },
+    {
+        "name": "Plate_24",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Plate/Prefabs/Plate_24/Plate_24.xml"
+    },
+    
+    
+    
+    {
+        "name": "Egg_Cracked_25",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/EggCracked/Prefabs/Egg_Cracked_25/Egg_Cracked_25.xml"
+    },
+    {
+        "name": "Laptop_11",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Laptop_Full/Prefabs/Laptop_11/Laptop_11.xml"
+    },
+    {
+        "name": "Cloth_5",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Cloth/Prefabs/Cloth_5/Cloth_5.xml"
+    },
+    {
+        "name": "Cup_15",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Cup/Prefabs/Cup_15/Cup_15.xml"
+    },
+    {
+        "name": "Plate_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Plate/Prefabs/Plate_2/Plate_2.xml"
+    },
+    {
+        "name": "Plate_28",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Plate/Prefabs/Plate_28/Plate_28.xml"
+    },
+    {
+        "name": "Cloth_8",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Cloth/Prefabs/Cloth_8/Cloth_8.xml"
+    },
+    {
+        "name": "Pan_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pan/Prefabs/Pan_1/Pan_1.xml"
+    },
+    {
+        "name": "Apple_20",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Apple/Prefabs/Apple_20/Apple_20.xml"
+    },
+    {
+        "name": "Bowl_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bowl/Prefabs/Bowl_1/Bowl_1.xml"
+    },
+    
+    {
+        "name": "Egg_29",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Egg/Prefabs/Egg_29/Egg_29.xml"
+    },
+    {
+        "name": "Cup_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Cup/Prefabs/Cup_2/Cup_2.xml"
+    },
+    {
+        "name": "Lettuce_24",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Lettuce/Prefabs/Lettuce_24/Lettuce_24.xml"
+    },
+    {
+        "name": "Lettuce_17",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Lettuce/Prefabs/Lettuce_17/Lettuce_17.xml"
+    },
+    {
+        "name": "Bread_17",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bread/Prefabs/Bread_17/Bread_17.xml"
+    },
+    {
+        "name": "Lettuce_15",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Lettuce/Prefabs/Lettuce_15/Lettuce_15.xml"
+    },
+    {
+        "name": "Pan_21",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pan/Prefabs/Pan_21/Pan_21.xml"
+    },
+    {
+        "name": "Cloth_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Cloth/Prefabs/Cloth_3/Cloth_3.xml"
+    },
+    {
+        "name": "Tomato_11",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Tomato/Prefabs/Tomato_11/Tomato_11.xml"
+    },
+    {
+        "name": "Toilet_Paper_Hanger_7",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/ToiletPaperHanger/Prefabs/Toilet_Paper_Hanger_7/Toilet_Paper_Hanger_7.xml"
+    },
+    {
+        "name": "Candle_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Candle/Prefabs/Candle_2/Candle_2.xml"
+    },
+    {
+        "name": "Bowl_8",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bowl/Prefabs/Bowl_8/Bowl_8.xml"
+    },
+    {
+        "name": "Tomato_20",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Tomato/Prefabs/Tomato_20/Tomato_20.xml"
+    },
+    {
+        "name": "Lettuce_8",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Lettuce/Prefabs/Lettuce_8/Lettuce_8.xml"
+    },
+    {
+        "name": "Vase_Decorative_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Vase/Prefabs/Vase_Decorative_1/Vase_Decorative_1.xml"
+    },
+    {
+        "name": "Pan_20",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pan/Prefabs/Pan_20/Pan_20.xml"
+    },
+    {
+        "name": "RoboTHOR_candle_glittrig_1_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Background_SmallObjects/Candle/Prefabs/RoboTHOR_candle_glittrig_1_v/RoboTHOR_candle_glittrig_1_v.xml"
+    },
+    
+    {
+        "name": "Book_7",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Book/Prefabs/Book_7/Book_7.xml"
+    },
+    
+    {
+        "name": "Egg_Cracked_17",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/EggCracked/Prefabs/Egg_Cracked_17/Egg_Cracked_17.xml"
+    },
+    {
+        "name": "Egg_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Egg/Prefabs/Egg_1/Egg_1.xml"
+    },
+    
+    {
+        "name": "Plate_8",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Plate/Prefabs/Plate_8/Plate_8.xml"
+    },
+    {
+        "name": "Potato_14",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Potato/Prefabs/Potato_14/Potato_14.xml"
+    },
+    {
+        "name": "pillow_18",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Pillow/Prefabs/pillow_18/pillow_18.xml"
+    },
+    {
+        "name": "Dog_Statue_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Statue/Prefabs/Dog_Statue_2/Dog_Statue_2.xml"
+    },
+    {
+        "name": "Alarm_Clock_28",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/AlarmClock/Prefabs/Alarm_Clock_28/Alarm_Clock_28.xml"
+    },
+    {
+        "name": "Toilet_Paper_Hanger_23",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/ToiletPaperHanger/Prefabs/Toilet_Paper_Hanger_23/Toilet_Paper_Hanger_23.xml"
+    },
+    {
+        "name": "Toilet_Paper_Hanger_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/ToiletPaperHanger/Prefabs/Toilet_Paper_Hanger_1/Toilet_Paper_Hanger_1.xml"
+    },
+    {
+        "name": "RoboTHOR_pencil_amazon_basics_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Background_SmallObjects/Pencil/Prefabs/RoboTHOR_pencil_amazon_basics_v/RoboTHOR_pencil_amazon_basics_v.xml"
+    },
+    {
+        "name": "pillow_28",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Pillow/Prefabs/pillow_28/pillow_28.xml"
+    },
+    {
+        "name": "RoboTHOR_book_ai2_2_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Background_SmallObjects/Book/Prefabs/RoboTHOR_book_ai2_2_v/RoboTHOR_book_ai2_2_v.xml"
+    },
+    {
+        "name": "Soap_Bottle_10",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SoapBottle/Prefabs/Soap_Bottle_10/Soap_Bottle_10.xml"
+    },
+    {
+        "name": "Laptop_30",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Laptop_Full/Prefabs/Laptop_30/Laptop_30.xml"
+    },
+    
+    {
+        "name": "Potato_11",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Potato/Prefabs/Potato_11/Potato_11.xml"
+    },
+    {
+        "name": "Laptop_17",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Laptop_Full/Prefabs/Laptop_17/Laptop_17.xml"
+    },
+    {
+        "name": "Egg_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Egg/Prefabs/Egg_2/Egg_2.xml"
+    },
+    {
+        "name": "Box_28",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Box_Full/Prefabs/Box_28/Box_28.xml"
+    },
+    {
+        "name": "Book_30",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Book/Prefabs/Book_30/Book_30.xml"
+    },
+    {
+        "name": "Bread_15",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bread/Prefabs/Bread_15/Bread_15.xml"
+    },
+    {
+        "name": "Spray_Bottle_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SprayBottle/Prefabs/Spray_Bottle_3/Spray_Bottle_3.xml"
+    },
+    {
+        "name": "Alarm_Clock_9",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/AlarmClock/Prefabs/Alarm_Clock_9/Alarm_Clock_9.xml"
+    },
+    {
+        "name": "Keychain_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/KeyChain/Prefabs/Keychain_3/Keychain_3.xml"
+    },
+    {
+        "name": "Pan_7",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pan/Prefabs/Pan_7/Pan_7.xml"
+    },
+    
+    {
+        "name": "Hand_Statue_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Statue/Prefabs/Hand_Statue_3/Hand_Statue_3.xml"
+    },
+    {
+        "name": "Pan_28",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pan/Prefabs/Pan_28/Pan_28.xml"
+    },
+    {
+        "name": "Egg_6",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Egg/Prefabs/Egg_6/Egg_6.xml"
+    },
+    {
+        "name": "pillow_29",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Pillow/Prefabs/pillow_29/pillow_29.xml"
+    },
+    {
+        "name": "Bowl_26",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bowl/Prefabs/Bowl_26/Bowl_26.xml"
+    },
+    {
+        "name": "RoboTHOR_bowl_ai2_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Target_SmallObjects/Bowl/Prefabs/RoboTHOR_bowl_ai2_v/RoboTHOR_bowl_ai2_v.xml"
+    },
+    {
+        "name": "Soap_Bottle_12",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SoapBottle/Prefabs/Soap_Bottle_12/Soap_Bottle_12.xml"
+    },
+    {
+        "name": "Egg_20",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Egg/Prefabs/Egg_20/Egg_20.xml"
+    },
+    {
+        "name": "Newspaper_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Newspaper/Prefabs/Newspaper_3/Newspaper_3.xml"
+    },
+    {
+        "name": "Egg_19",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Egg/Prefabs/Egg_19/Egg_19.xml"
+    },
+    {
+        "name": "Book_18",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Book/Prefabs/Book_18/Book_18.xml"
+    },
+    {
+        "name": "Lettuce_22",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Lettuce/Prefabs/Lettuce_22/Lettuce_22.xml"
+    },
+    {
+        "name": "RoboTHOR_salt_pepper_shaker_bnyd_salt_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Background_SmallObjects/SaltPepperShaker/Prefabs/RoboTHOR_salt_pepper_shaker_bnyd_salt_v/RoboTHOR_salt_pepper_shaker_bnyd_salt_v.xml"
+    },
+    
+    {
+        "name": "Vase_Open_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Vase/Prefabs/Vase_Open_3/Vase_Open_3.xml"
+    },
+    {
+        "name": "Alarm_Clock_16",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/AlarmClock/Prefabs/Alarm_Clock_16/Alarm_Clock_16.xml"
+    },
+    {
+        "name": "Apple_11",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Apple/Prefabs/Apple_11/Apple_11.xml"
+    },
+    {
+        "name": "Box_23",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Box_Full/Prefabs/Box_23/Box_23.xml"
+    },
+    {
+        "name": "Laptop_5",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Laptop_Full/Prefabs/Laptop_5/Laptop_5.xml"
+    },
+    {
+        "name": "Tomato_21",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Tomato/Prefabs/Tomato_21/Tomato_21.xml"
+    },
+    {
+        "name": "pillow_24",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Pillow/Prefabs/pillow_24/pillow_24.xml"
+    },
+    
+    {
+        "name": "Box_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Box_Full/Prefabs/Box_3/Box_3.xml"
+    },
+    {
+        "name": "Cup_29",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Cup/Prefabs/Cup_29/Cup_29.xml"
+    },
+    {
+        "name": "RoboTHOR_plate_ai2_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Background_SmallObjects/Plate/Prefabs/RoboTHOR_plate_ai2_v/RoboTHOR_plate_ai2_v.xml"
+    },
+    {
+        "name": "Vase_Flat_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Vase/Prefabs/Vase_Flat_3/Vase_Flat_3.xml"
+    },
+    {
+        "name": "Pan_25",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pan/Prefabs/Pan_25/Pan_25.xml"
+    },
+    {
+        "name": "Salt_Shaker_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/SaltShaker/Prefabs/Salt_Shaker_2/Salt_Shaker_2.xml"
+    },
+    {
+        "name": "RoboTHOR_apple_ai2_1_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Target_SmallObjects/Apple/Prefabs/RoboTHOR_apple_ai2_1_v/RoboTHOR_apple_ai2_1_v.xml"
+    },
+    {
+        "name": "Potato_8",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Potato/Prefabs/Potato_8/Potato_8.xml"
+    },
+    {
+        "name": "Soap_Bottle_18",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SoapBottle/Prefabs/Soap_Bottle_18/Soap_Bottle_18.xml"
+    },
+    {
+        "name": "Alarm_Clock_24",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/AlarmClock/Prefabs/Alarm_Clock_24/Alarm_Clock_24.xml"
+    },
+    {
+        "name": "Pan_9",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pan/Prefabs/Pan_9/Pan_9.xml"
+    },
+    {
+        "name": "Stone_Statue_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Statue/Prefabs/Stone_Statue_2/Stone_Statue_2.xml"
+    },
+    {
+        "name": "Vase_Flat_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Vase/Prefabs/Vase_Flat_1/Vase_Flat_1.xml"
+    },
+    {
+        "name": "Book_28",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Book/Prefabs/Book_28/Book_28.xml"
+    },
+    {
+        "name": "pillow_17",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Pillow/Prefabs/pillow_17/pillow_17.xml"
+    },
+    {
         "name": "Tennis_Racquet_2",
         "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/TennisRacquet/Prefabs/Tennis_Racquet_2/Tennis_Racquet_2.xml"
+    },
+    {
+        "name": "Egg_Cracked_27",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/EggCracked/Prefabs/Egg_Cracked_27/Egg_Cracked_27.xml"
+    },
+    
+    
+    
+    {
+        "name": "Toilet_Paper_Used_Up",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/ToiletPaper/Prefabs/Toilet_Paper_Used_Up/Toilet_Paper_Used_Up.xml"
+    },
+    {
+        "name": "Apple_6",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Apple/Prefabs/Apple_6/Apple_6.xml"
+    },
+    
+    {
+        "name": "Cup_9",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Cup/Prefabs/Cup_9/Cup_9.xml"
+    },
+    {
+        "name": "Book_16",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Book/Prefabs/Book_16/Book_16.xml"
+    },
+    {
+        "name": "Pan_19",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pan/Prefabs/Pan_19/Pan_19.xml"
+    },
+    {
+        "name": "Plate_13",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Plate/Prefabs/Plate_13/Plate_13.xml"
+    },
+    {
+        "name": "Alarm_Clock_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/AlarmClock/Prefabs/Alarm_Clock_2/Alarm_Clock_2.xml"
+    },
+    {
+        "name": "Tomato_7",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Tomato/Prefabs/Tomato_7/Tomato_7.xml"
+    },
+    {
+        "name": "Vase_Tall_4",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Vase/Prefabs/Vase_Tall_4/Vase_Tall_4.xml"
+    },
+    
+    {
+        "name": "Box_26",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Box_Full/Prefabs/Box_26/Box_26.xml"
+    },
+    
+    {
+        "name": "Bread_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bread/Prefabs/Bread_3/Bread_3.xml"
+    },
+    {
+        "name": "Fertility_Statue_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Statue/Prefabs/Fertility_Statue_2/Fertility_Statue_2.xml"
+    },
+    
+    {
+        "name": "Soap_Bottle_23",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SoapBottle/Prefabs/Soap_Bottle_23/Soap_Bottle_23.xml"
+    },
+    {
+        "name": "Box_30",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Box_Full/Prefabs/Box_30/Box_30.xml"
+    },
+    {
+        "name": "Box_16",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Box_Full/Prefabs/Box_16/Box_16.xml"
+    },
+    {
+        "name": "Book_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Book/Prefabs/Book_2/Book_2.xml"
+    },
+    {
+        "name": "Bowl_6",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bowl/Prefabs/Bowl_6/Bowl_6.xml"
+    },
+    
+    {
+        "name": "Dish_Sponge_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/DishSponge/Prefabs/Dish_Sponge_1/Dish_Sponge_1.xml"
+    },
+    
+    {
+        "name": "Book_12",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Book/Prefabs/Book_12/Book_12.xml"
+    },
+    {
+        "name": "Tennis_Racquet_5",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/TennisRacquet/Prefabs/Tennis_Racquet_5/Tennis_Racquet_5.xml"
+    },
+    {
+        "name": "Tomato_22",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Tomato/Prefabs/Tomato_22/Tomato_22.xml"
+    },
+    
+    {
+        "name": "Egg_13",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Egg/Prefabs/Egg_13/Egg_13.xml"
+    },
+    {
+        "name": "Alarm_Clock_6",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/AlarmClock/Prefabs/Alarm_Clock_6/Alarm_Clock_6.xml"
+    },
+    {
+        "name": "pillow_13",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Pillow/Prefabs/pillow_13/pillow_13.xml"
+    },
+    {
+        "name": "Cloth_6",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Cloth/Prefabs/Cloth_6/Cloth_6.xml"
+    },
+    {
+        "name": "Ladle_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Ladle/Prefabs/Ladle_3/Ladle_3.xml"
+    },
+    {
+        "name": "Cup_19",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Cup/Prefabs/Cup_19/Cup_19.xml"
+    },
+    
+    
+    
+    {
+        "name": "Vase_Medium_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Vase/Prefabs/Vase_Medium_1/Vase_Medium_1.xml"
+    },
+    {
+        "name": "Laptop_21",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Laptop_Full/Prefabs/Laptop_21/Laptop_21.xml"
+    },
+    {
+        "name": "Lettuce_16",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Lettuce/Prefabs/Lettuce_16/Lettuce_16.xml"
+    },
+    {
+        "name": "Egg_25",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Egg/Prefabs/Egg_25/Egg_25.xml"
+    },
+    {
+        "name": "Bowl_30",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bowl/Prefabs/Bowl_30/Bowl_30.xml"
+    },
+    
+    {
+        "name": "Lettuce_28",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Lettuce/Prefabs/Lettuce_28/Lettuce_28.xml"
+    },
+    {
+        "name": "Book_26",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Book/Prefabs/Book_26/Book_26.xml"
+    },
+    {
+        "name": "Lettuce_14",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Lettuce/Prefabs/Lettuce_14/Lettuce_14.xml"
+    },
+    {
+        "name": "Plate_5",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Plate/Prefabs/Plate_5/Plate_5.xml"
+    },
+    {
+        "name": "Cup_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Cup/Prefabs/Cup_1/Cup_1.xml"
+    },
+    {
+        "name": "RoboTHOR_book_ai2_3_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Background_SmallObjects/Book/Prefabs/RoboTHOR_book_ai2_3_v/RoboTHOR_book_ai2_3_v.xml"
+    },
+    {
+        "name": "Knife_7",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Knife/Prefabs/Knife_7/Knife_7.xml"
+    },
+    {
+        "name": "Pan_24",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pan/Prefabs/Pan_24/Pan_24.xml"
+    },
+    {
+        "name": "pillow_27",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Pillow/Prefabs/pillow_27/pillow_27.xml"
+    },
+    {
+        "name": "Toilet_Paper_Hanger_6",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/ToiletPaperHanger/Prefabs/Toilet_Paper_Hanger_6/Toilet_Paper_Hanger_6.xml"
+    },
+    {
+        "name": "Egg_Cracked_18",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/EggCracked/Prefabs/Egg_Cracked_18/Egg_Cracked_18.xml"
+    },
+    {
+        "name": "Pan_10",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pan/Prefabs/Pan_10/Pan_10.xml"
+    },
+    {
+        "name": "Cup_16",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Cup/Prefabs/Cup_16/Cup_16.xml"
+    },
+    {
+        "name": "Pot_10",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pot/Prefabs/Pot_10/Pot_10.xml"
+    },
+    {
+        "name": "Tomato_26",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Tomato/Prefabs/Tomato_26/Tomato_26.xml"
+    },
+    {
+        "name": "Alarm_Clock_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/AlarmClock/Prefabs/Alarm_Clock_1/Alarm_Clock_1.xml"
+    },
+    {
+        "name": "Bread_5",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bread/Prefabs/Bread_5/Bread_5.xml"
+    },
+    {
+        "name": "Potato_10",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Potato/Prefabs/Potato_10/Potato_10.xml"
+    },
+    {
+        "name": "Apple_8",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Apple/Prefabs/Apple_8/Apple_8.xml"
+    },
+    {
+        "name": "Knife_5",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Knife/Prefabs/Knife_5/Knife_5.xml"
+    },
+    {
+        "name": "Alarm_Clock_21",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/AlarmClock/Prefabs/Alarm_Clock_21/Alarm_Clock_21.xml"
+    },
+    {
+        "name": "Toilet_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/Toilet/Prefabs/Toilet_2/Toilet_2.xml"
+    },
+    
+    
+    {
+        "name": "Alarm_Clock_17",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/AlarmClock/Prefabs/Alarm_Clock_17/Alarm_Clock_17.xml"
+    },
+    {
+        "name": "Plate_18",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Plate/Prefabs/Plate_18/Plate_18.xml"
+    },
+    {
+        "name": "Toilet_Paper_Hanger_10",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/ToiletPaperHanger/Prefabs/Toilet_Paper_Hanger_10/Toilet_Paper_Hanger_10.xml"
+    },
+    {
+        "name": "Knife_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Knife/Prefabs/Knife_3/Knife_3.xml"
+    },
+    {
+        "name": "Pot_25",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pot/Prefabs/Pot_25/Pot_25.xml"
+    },
+    {
+        "name": "Cup_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Cup/Prefabs/Cup_3/Cup_3.xml"
+    },
+    {
+        "name": "Pencil_6",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Pencil/Prefabs/Pencil_6/Pencil_6.xml"
+    },
+    {
+        "name": "Salt_Shaker_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/SaltShaker/Prefabs/Salt_Shaker_1/Salt_Shaker_1.xml"
+    },
+    {
+        "name": "Tomato_6",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Tomato/Prefabs/Tomato_6/Tomato_6.xml"
+    },
+    {
+        "name": "Egg_Cracked_8",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/EggCracked/Prefabs/Egg_Cracked_8/Egg_Cracked_8.xml"
+    },
+    
+    {
+        "name": "Lettuce_10",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Lettuce/Prefabs/Lettuce_10/Lettuce_10.xml"
+    },
+    {
+        "name": "Potato_15",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Potato/Prefabs/Potato_15/Potato_15.xml"
+    },
+    {
+        "name": "Mug_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Mug/Prefabs/Mug_2/Mug_2.xml"
+    },
+    {
+        "name": "CreditCard_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/CreditCard/Prefabs/CreditCard_1/CreditCard_1.xml"
+    },
+    {
+        "name": "Cellphone_5",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Cellphone/Prefabs/Cellphone_5/Cellphone_5.xml"
+    },
+    {
+        "name": "Tomato_29",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Tomato/Prefabs/Tomato_29/Tomato_29.xml"
+    },
+    {
+        "name": "Bread_22",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bread/Prefabs/Bread_22/Bread_22.xml"
+    },
+    {
+        "name": "Potato_18",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Potato/Prefabs/Potato_18/Potato_18.xml"
+    },
+    {
+        "name": "Ladle_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Ladle/Prefabs/Ladle_1/Ladle_1.xml"
+    },
+    {
+        "name": "Box_29",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Box_Full/Prefabs/Box_29/Box_29.xml"
+    },
+    {
+        "name": "Lettuce_20",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Lettuce/Prefabs/Lettuce_20/Lettuce_20.xml"
+    },
+    {
+        "name": "Alarm_Clock_29",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/AlarmClock/Prefabs/Alarm_Clock_29/Alarm_Clock_29.xml"
+    },
+    {
+        "name": "Tomato_12",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Tomato/Prefabs/Tomato_12/Tomato_12.xml"
+    },
+    {
+        "name": "Toilet_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/Toilet/Prefabs/Toilet_1/Toilet_1.xml"
+    },
+    
+    {
+        "name": "Box_24",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Box_Full/Prefabs/Box_24/Box_24.xml"
+    },
+    
+    {
+        "name": "Pan_12",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pan/Prefabs/Pan_12/Pan_12.xml"
+    },
+    {
+        "name": "Lettuce_29",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Lettuce/Prefabs/Lettuce_29/Lettuce_29.xml"
+    },
+    {
+        "name": "Vase_Tall_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Vase/Prefabs/Vase_Tall_1/Vase_Tall_1.xml"
+    },
+    {
+        "name": "Bowl_7",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bowl/Prefabs/Bowl_7/Bowl_7.xml"
+    },
+    {
+        "name": "Pot_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pot/Prefabs/Pot_1/Pot_1.xml"
+    },
+    
+    {
+        "name": "Plate_9",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Plate/Prefabs/Plate_9/Plate_9.xml"
+    },
+    
+    {
+        "name": "Pencil_5",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Pencil/Prefabs/Pencil_5/Pencil_5.xml"
+    },
+    {
+        "name": "Egg_14",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Egg/Prefabs/Egg_14/Egg_14.xml"
+    },
+    {
+        "name": "RoboTHOR_book_ai2_5_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Background_SmallObjects/Book/Prefabs/RoboTHOR_book_ai2_5_v/RoboTHOR_book_ai2_5_v.xml"
+    },
+    {
+        "name": "Vase_Medium_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Vase/Prefabs/Vase_Medium_3/Vase_Medium_3.xml"
+    },
+    {
+        "name": "Toilet_Paper_Hanger_27",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/ToiletPaperHanger/Prefabs/Toilet_Paper_Hanger_27/Toilet_Paper_Hanger_27.xml"
+    },
+    {
+        "name": "Alarm_Clock_20",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/AlarmClock/Prefabs/Alarm_Clock_20/Alarm_Clock_20.xml"
+    },
+    {
+        "name": "RoboTHOR_office_chair_molte_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_Furniture/OfficeChair/Prefabs/RoboTHOR_office_chair_molte_v/RoboTHOR_office_chair_molte_v.xml"
+    },
+    {
+        "name": "Potato_23",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Potato/Prefabs/Potato_23/Potato_23.xml"
+    },
+    {
+        "name": "Cloth_10",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Cloth/Prefabs/Cloth_10/Cloth_10.xml"
+    },
+    {
+        "name": "Bread_6",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bread/Prefabs/Bread_6/Bread_6.xml"
+    },
+    {
+        "name": "Newspaper_5",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Newspaper/Prefabs/Newspaper_5/Newspaper_5.xml"
+    },
+    {
+        "name": "RoboTHOR_pillow_dvala_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Target_SmallObjects/Pillow/Prefabs/RoboTHOR_pillow_dvala_v/RoboTHOR_pillow_dvala_v.xml"
+    },
+    
+    {
+        "name": "Bread_18",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bread/Prefabs/Bread_18/Bread_18.xml"
+    },
+    {
+        "name": "Pen_4",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Pen/Prefabs/Pen_4/Pen_4.xml"
+    },
+    
+    {
+        "name": "RoboTHOR_book_ai2_1_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Background_SmallObjects/Book/Prefabs/RoboTHOR_book_ai2_1_v/RoboTHOR_book_ai2_1_v.xml"
+    },
+    
+    {
+        "name": "Lettuce_19",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Lettuce/Prefabs/Lettuce_19/Lettuce_19.xml"
+    },
+    {
+        "name": "Book_13",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Book/Prefabs/Book_13/Book_13.xml"
+    },
+    
+    {
+        "name": "Dog_Statue_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Statue/Prefabs/Dog_Statue_3/Dog_Statue_3.xml"
+    },
+    {
+        "name": "Pepper_Shaker_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pepper_Shaker/Prefabs/Pepper_Shaker_2/Pepper_Shaker_2.xml"
+    },
+    {
+        "name": "Bowl_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bowl/Prefabs/Bowl_3/Bowl_3.xml"
+    },
+    {
+        "name": "Toilet_Paper_Hanger_26",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/ToiletPaperHanger/Prefabs/Toilet_Paper_Hanger_26/Toilet_Paper_Hanger_26.xml"
+    },
+    {
+        "name": "Pan_8",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pan/Prefabs/Pan_8/Pan_8.xml"
+    },
+    
+    {
+        "name": "RoboTHOR_salt_pepper_shaker_bnyd_pepper_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Background_SmallObjects/SaltPepperShaker/Prefabs/RoboTHOR_salt_pepper_shaker_bnyd_pepper_v/RoboTHOR_salt_pepper_shaker_bnyd_pepper_v.xml"
+    },
+    {
+        "name": "Newspaper_4",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Newspaper/Prefabs/Newspaper_4/Newspaper_4.xml"
+    },
+    {
+        "name": "Potato_4",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Potato/Prefabs/Potato_4/Potato_4.xml"
+    },
+    
+    {
+        "name": "Egg_4",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Egg/Prefabs/Egg_4/Egg_4.xml"
+    },
+    {
+        "name": "CD_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/CD/Prefabs/CD_1/CD_1.xml"
+    },
+    
+    {
+        "name": "Toilet_Paper_Hanger_9",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/ToiletPaperHanger/Prefabs/Toilet_Paper_Hanger_9/Toilet_Paper_Hanger_9.xml"
+    },
+    
+    {
+        "name": "Pot_16",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pot/Prefabs/Pot_16/Pot_16.xml"
+    },
+    {
+        "name": "Egg_Cracked_26",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/EggCracked/Prefabs/Egg_Cracked_26/Egg_Cracked_26.xml"
+    },
+    {
+        "name": "Cup_17",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Cup/Prefabs/Cup_17/Cup_17.xml"
+    },
+    {
+        "name": "RoboTHOR_cup_ai2_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Background_SmallObjects/Cup/Prefabs/RoboTHOR_cup_ai2_v/RoboTHOR_cup_ai2_v.xml"
+    },
+    {
+        "name": "Laptop_22",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Laptop_Full/Prefabs/Laptop_22/Laptop_22.xml"
+    },
+    
+    
+    {
+        "name": "Toilet_Paper_Hanger_29",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/ToiletPaperHanger/Prefabs/Toilet_Paper_Hanger_29/Toilet_Paper_Hanger_29.xml"
+    },
+    {
+        "name": "Book_27",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Book/Prefabs/Book_27/Book_27.xml"
+    },
+    {
+        "name": "RoboTHOR_fork_ai2_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Background_SmallObjects/Fork/Prefabs/RoboTHOR_fork_ai2_v/RoboTHOR_fork_ai2_v.xml"
+    },
+    {
+        "name": "Apple_10",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Apple/Prefabs/Apple_10/Apple_10.xml"
+    },
+    {
+        "name": "Pencil_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Pencil/Prefabs/Pencil_2/Pencil_2.xml"
+    },
+    {
+        "name": "Bowl_25",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bowl/Prefabs/Bowl_25/Bowl_25.xml"
+    },
+    {
+        "name": "Box_5",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Box_Full/Prefabs/Box_5/Box_5.xml"
+    },
+    {
+        "name": "Plate_27",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Plate/Prefabs/Plate_27/Plate_27.xml"
+    },
+    {
+        "name": "Cellphone_4",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Cellphone/Prefabs/Cellphone_4/Cellphone_4.xml"
+    },
+    {
+        "name": "Spray_Bottle_8",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SprayBottle/Prefabs/Spray_Bottle_8/Spray_Bottle_8.xml"
+    },
+    {
+        "name": "Apple_25",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Apple/Prefabs/Apple_25/Apple_25.xml"
+    },
+    {
+        "name": "Vase_Medium_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Vase/Prefabs/Vase_Medium_2/Vase_Medium_2.xml"
+    },
+    
+    {
+        "name": "Pot_17",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pot/Prefabs/Pot_17/Pot_17.xml"
+    },
+    {
+        "name": "Cup_27",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Cup/Prefabs/Cup_27/Cup_27.xml"
+    },
+    
+    {
+        "name": "Egg_Cracked_12",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/EggCracked/Prefabs/Egg_Cracked_12/Egg_Cracked_12.xml"
+    },
+    {
+        "name": "Book_14",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Book/Prefabs/Book_14/Book_14.xml"
+    },
+    {
+        "name": "RoboTHOR_spray_bottle_kramig_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Target_SmallObjects/SprayBottle/Prefabs/RoboTHOR_spray_bottle_kramig_v/RoboTHOR_spray_bottle_kramig_v.xml"
+    },
+    {
+        "name": "pillow_23",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Pillow/Prefabs/pillow_23/pillow_23.xml"
+    },
+    
+    {
+        "name": "Pan_18",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pan/Prefabs/Pan_18/Pan_18.xml"
+    },
+    
+    {
+        "name": "Spray_Bottle_5",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SprayBottle/Prefabs/Spray_Bottle_5/Spray_Bottle_5.xml"
+    },
+    
+    {
+        "name": "Alarm_Clock_14",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/AlarmClock/Prefabs/Alarm_Clock_14/Alarm_Clock_14.xml"
+    },
+    
+    {
+        "name": "Tomato_23",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Tomato/Prefabs/Tomato_23/Tomato_23.xml"
+    },
+    {
+        "name": "Cup_21",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Cup/Prefabs/Cup_21/Cup_21.xml"
+    },
+    {
+        "name": "pillow_9",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Pillow/Prefabs/pillow_9/pillow_9.xml"
+    },
+    {
+        "name": "Pan_13",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pan/Prefabs/Pan_13/Pan_13.xml"
+    },
+    {
+        "name": "Tomato_13",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Tomato/Prefabs/Tomato_13/Tomato_13.xml"
+    },
+    {
+        "name": "Book_10",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Book/Prefabs/Book_10/Book_10.xml"
+    },
+    {
+        "name": "Tennis_Racquet_4",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/TennisRacquet/Prefabs/Tennis_Racquet_4/Tennis_Racquet_4.xml"
+    },
+    
+    
+    {
+        "name": "Box_19",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Box_Full/Prefabs/Box_19/Box_19.xml"
+    },
+    {
+        "name": "Cup_14",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Cup/Prefabs/Cup_14/Cup_14.xml"
+    },
+    {
+        "name": "Teddy_Bear_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/TeddyBear/Prefabs/Teddy_Bear_2/Teddy_Bear_2.xml"
+    },
+    {
+        "name": "Apple_22",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Apple/Prefabs/Apple_22/Apple_22.xml"
+    },
+    {
+        "name": "Tomato_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Tomato/Prefabs/Tomato_1/Tomato_1.xml"
+    },
+    {
+        "name": "Box_13",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Box_Full/Prefabs/Box_13/Box_13.xml"
+    },
+    {
+        "name": "Book_9",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Book/Prefabs/Book_9/Book_9.xml"
+    },
+    {
+        "name": "Bowl_9",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bowl/Prefabs/Bowl_9/Bowl_9.xml"
+    },
+    {
+        "name": "Bread_28",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bread/Prefabs/Bread_28/Bread_28.xml"
+    },
+    {
+        "name": "Toilet_Paper_Hanger_21",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/ToiletPaperHanger/Prefabs/Toilet_Paper_Hanger_21/Toilet_Paper_Hanger_21.xml"
+    },
+    {
+        "name": "pillow_12",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Pillow/Prefabs/pillow_12/pillow_12.xml"
+    },
+    {
+        "name": "pillow_7",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Pillow/Prefabs/pillow_7/pillow_7.xml"
+    },
+    {
+        "name": "Box_12",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Box_Full/Prefabs/Box_12/Box_12.xml"
+    },
+    {
+        "name": "Egg_Cracked_10",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/EggCracked/Prefabs/Egg_Cracked_10/Egg_Cracked_10.xml"
+    },
+    {
+        "name": "Cup_25",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Cup/Prefabs/Cup_25/Cup_25.xml"
+    },
+    {
+        "name": "Alarm_Clock_13",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/AlarmClock/Prefabs/Alarm_Clock_13/Alarm_Clock_13.xml"
+    },
+    {
+        "name": "RoboTHOR_mug_ai2_2_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Target_SmallObjects/Mug/Prefabs/RoboTHOR_mug_ai2_2_v/RoboTHOR_mug_ai2_2_v.xml"
+    },
+    {
+        "name": "Cup_23",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Cup/Prefabs/Cup_23/Cup_23.xml"
+    },
+    {
+        "name": "Egg_30",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Egg/Prefabs/Egg_30/Egg_30.xml"
+    },
+    
+    {
+        "name": "Tennis_Racquet_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/TennisRacquet/Prefabs/Tennis_Racquet_3/Tennis_Racquet_3.xml"
+    },
+    {
+        "name": "Cup_5",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Cup/Prefabs/Cup_5/Cup_5.xml"
+    },
+    {
+        "name": "Pot_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pot/Prefabs/Pot_3/Pot_3.xml"
+    },
+    {
+        "name": "Spatula_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Spatula/Prefabs/Spatula_1/Spatula_1.xml"
+    },
+    {
+        "name": "Tomato_27",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Tomato/Prefabs/Tomato_27/Tomato_27.xml"
+    },
+    
+    {
+        "name": "Plate_15",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Plate/Prefabs/Plate_15/Plate_15.xml"
+    },
+    {
+        "name": "Tomato_16",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Tomato/Prefabs/Tomato_16/Tomato_16.xml"
+    },
+    {
+        "name": "Vase_Open_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Vase/Prefabs/Vase_Open_1/Vase_Open_1.xml"
+    },
+    {
+        "name": "Plate_29",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Plate/Prefabs/Plate_29/Plate_29.xml"
+    },
+    {
+        "name": "Pencil_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Pencil/Prefabs/Pencil_1/Pencil_1.xml"
+    },
+    {
+        "name": "Lettuce_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Lettuce/Prefabs/Lettuce_2/Lettuce_2.xml"
+    },
+    {
+        "name": "pillow_26",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Pillow/Prefabs/pillow_26/pillow_26.xml"
+    },
+    {
+        "name": "Bowl_24",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bowl/Prefabs/Bowl_24/Bowl_24.xml"
+    },
+    {
+        "name": "Book_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Book/Prefabs/Book_1/Book_1.xml"
+    },
+    {
+        "name": "Toilet_Paper_Hanger_12",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/ToiletPaperHanger/Prefabs/Toilet_Paper_Hanger_12/Toilet_Paper_Hanger_12.xml"
+    },
+    {
+        "name": "Book_24",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Book/Prefabs/Book_24/Book_24.xml"
+    },
+    {
+        "name": "Plate_16",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Plate/Prefabs/Plate_16/Plate_16.xml"
+    },
+    {
+        "name": "Tomato_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Tomato/Prefabs/Tomato_2/Tomato_2.xml"
+    },
+    
+    {
+        "name": "Newspaper_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Newspaper/Prefabs/Newspaper_2/Newspaper_2.xml"
+    },
+    {
+        "name": "Bowl_20",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bowl/Prefabs/Bowl_20/Bowl_20.xml"
+    },
+    {
+        "name": "Soap_Bottle_28",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SoapBottle/Prefabs/Soap_Bottle_28/Soap_Bottle_28.xml"
+    },
+    {
+        "name": "Box_17",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Box_Full/Prefabs/Box_17/Box_17.xml"
+    },
+    {
+        "name": "Cellphone_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Cellphone/Prefabs/Cellphone_1/Cellphone_1.xml"
+    },
+    {
+        "name": "Egg_9",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Egg/Prefabs/Egg_9/Egg_9.xml"
+    },
+    {
+        "name": "Cup_28",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Cup/Prefabs/Cup_28/Cup_28.xml"
+    },
+    {
+        "name": "Soap_Bottle_17",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SoapBottle/Prefabs/Soap_Bottle_17/Soap_Bottle_17.xml"
+    },
+    {
+        "name": "Egg_16",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Egg/Prefabs/Egg_16/Egg_16.xml"
+    },
+    {
+        "name": "Egg_10",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Egg/Prefabs/Egg_10/Egg_10.xml"
+    },
+    
+    {
+        "name": "Pot_14",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pot/Prefabs/Pot_14/Pot_14.xml"
+    },
+    {
+        "name": "Box_25",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Box_Full/Prefabs/Box_25/Box_25.xml"
+    },
+    {
+        "name": "Egg_12",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Egg/Prefabs/Egg_12/Egg_12.xml"
+    },
+    {
+        "name": "Soap_Bottle_25",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SoapBottle/Prefabs/Soap_Bottle_25/Soap_Bottle_25.xml"
+    },
+    {
+        "name": "Egg_Cracked_30",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/EggCracked/Prefabs/Egg_Cracked_30/Egg_Cracked_30.xml"
+    },
+    
+    {
+        "name": "Apple_21",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Apple/Prefabs/Apple_21/Apple_21.xml"
+    },
+    {
+        "name": "Alarm_Clock_30",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/AlarmClock/Prefabs/Alarm_Clock_30/Alarm_Clock_30.xml"
+    },
+    {
+        "name": "Knife_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Knife/Prefabs/Knife_2/Knife_2.xml"
+    },
+    {
+        "name": "Dumbbell_1_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Dumbbell/Prefabs/Dumbbell_1_1/Dumbbell_1_1.xml"
+    },
+    {
+        "name": "Egg_Cracked_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/EggCracked/Prefabs/Egg_Cracked_1/Egg_Cracked_1.xml"
+    },
+    
+    {
+        "name": "Soap_Bottle_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SoapBottle/Prefabs/Soap_Bottle_2/Soap_Bottle_2.xml"
+    },
+    
+    {
+        "name": "Cup_24",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Cup/Prefabs/Cup_24/Cup_24.xml"
+    },
+    {
+        "name": "Egg_15",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Egg/Prefabs/Egg_15/Egg_15.xml"
+    },
+    {
+        "name": "Cloth_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Cloth/Prefabs/Cloth_1/Cloth_1.xml"
+    },
+    {
+        "name": "Soap_Bottle_6",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SoapBottle/Prefabs/Soap_Bottle_6/Soap_Bottle_6.xml"
+    },
+    {
+        "name": "Alarm_Clock_25",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/AlarmClock/Prefabs/Alarm_Clock_25/Alarm_Clock_25.xml"
+    },
+    {
+        "name": "Potato_19",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Potato/Prefabs/Potato_19/Potato_19.xml"
+    },
+    
+    
+    {
+        "name": "Towel_Statue_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Statue/Prefabs/Towel_Statue_2/Towel_Statue_2.xml"
+    },
+    
+    
+    {
+        "name": "Cup_10",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Cup/Prefabs/Cup_10/Cup_10.xml"
+    },
+    {
+        "name": "Plate_19",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Plate/Prefabs/Plate_19/Plate_19.xml"
+    },
+    
+    {
+        "name": "Laptop_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Laptop_Full/Prefabs/Laptop_3/Laptop_3.xml"
+    },
+    {
+        "name": "Alarm_Clock_5",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/AlarmClock/Prefabs/Alarm_Clock_5/Alarm_Clock_5.xml"
+    },
+    {
+        "name": "RoboTHOR_bed_tarva_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_Furniture/Bed/Prefabs/RoboTHOR_bed_tarva_v/RoboTHOR_bed_tarva_v.xml"
+    },
+    {
+        "name": "Lettuce_23",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Lettuce/Prefabs/Lettuce_23/Lettuce_23.xml"
+    },
+    
+    {
+        "name": "Bowl_29",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bowl/Prefabs/Bowl_29/Bowl_29.xml"
+    },
+    {
+        "name": "Box_7",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Box_Full/Prefabs/Box_7/Box_7.xml"
+    },
+    
+    {
+        "name": "Soap_Bottle_8",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SoapBottle/Prefabs/Soap_Bottle_8/Soap_Bottle_8.xml"
+    },
+    {
+        "name": "Toilet_Paper_Hanger_13",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/ToiletPaperHanger/Prefabs/Toilet_Paper_Hanger_13/Toilet_Paper_Hanger_13.xml"
+    },
+    {
+        "name": "Plunger_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/Plunger/Prefabs/Plunger_1/Plunger_1.xml"
+    },
+    
+    {
+        "name": "Toilet_Paper_Hanger_20",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/ToiletPaperHanger/Prefabs/Toilet_Paper_Hanger_20/Toilet_Paper_Hanger_20.xml"
+    },
+    {
+        "name": "pillow_11",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Pillow/Prefabs/pillow_11/pillow_11.xml"
+    },
+    {
+        "name": "Egg_8",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Egg/Prefabs/Egg_8/Egg_8.xml"
+    },
+    {
+        "name": "Pot_22",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pot/Prefabs/Pot_22/Pot_22.xml"
+    },
+    {
+        "name": "Potato_30",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Potato/Prefabs/Potato_30/Potato_30.xml"
+    },
+    
+    {
+        "name": "Egg_Cracked_6",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/EggCracked/Prefabs/Egg_Cracked_6/Egg_Cracked_6.xml"
+    },
+    {
+        "name": "RoboTHOR_mug_ai2_1_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Target_SmallObjects/Mug/Prefabs/RoboTHOR_mug_ai2_1_v/RoboTHOR_mug_ai2_1_v.xml"
+    },
+    {
+        "name": "Potato_17",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Potato/Prefabs/Potato_17/Potato_17.xml"
+    },
+    
+    
+    {
+        "name": "Pan_17",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pan/Prefabs/Pan_17/Pan_17.xml"
+    },
+    
+    {
+        "name": "RoboTHOR_butter_knife_ai2_1_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Background_SmallObjects/ButterKnife/Prefabs/RoboTHOR_butter_knife_ai2_1_v/RoboTHOR_butter_knife_ai2_1_v.xml"
+    },
+    {
+        "name": "RoboTHOR_book_ai2_6_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Background_SmallObjects/Book/Prefabs/RoboTHOR_book_ai2_6_v/RoboTHOR_book_ai2_6_v.xml"
+    },
+    {
+        "name": "Egg_Cracked_19",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/EggCracked/Prefabs/Egg_Cracked_19/Egg_Cracked_19.xml"
+    },
+    
+    {
+        "name": "pillow_25",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Pillow/Prefabs/pillow_25/pillow_25.xml"
+    },
+    {
+        "name": "Cup_6",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Cup/Prefabs/Cup_6/Cup_6.xml"
+    },
+    {
+        "name": "Potato_20",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Potato/Prefabs/Potato_20/Potato_20.xml"
+    },
+    {
+        "name": "Cellphone_8",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Cellphone/Prefabs/Cellphone_8/Cellphone_8.xml"
+    },
+    {
+        "name": "Potato_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Potato/Prefabs/Potato_2/Potato_2.xml"
+    },
+    {
+        "name": "Tomato_24",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Tomato/Prefabs/Tomato_24/Tomato_24.xml"
+    },
+    {
+        "name": "Pot_20",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pot/Prefabs/Pot_20/Pot_20.xml"
+    },
+    {
+        "name": "CreditCard_4",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/CreditCard/Prefabs/CreditCard_4/CreditCard_4.xml"
+    },
+    {
+        "name": "Laptop_26",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Laptop_Full/Prefabs/Laptop_26/Laptop_26.xml"
+    },
+    
+    {
+        "name": "Pan_15",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pan/Prefabs/Pan_15/Pan_15.xml"
+    },
+    {
+        "name": "Vase_Tall_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Vase/Prefabs/Vase_Tall_3/Vase_Tall_3.xml"
+    },
+    {
+        "name": "Box_11",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Box_Full/Prefabs/Box_11/Box_11.xml"
+    },
+    {
+        "name": "Potato_12",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Potato/Prefabs/Potato_12/Potato_12.xml"
+    },
+    {
+        "name": "Bread_19",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bread/Prefabs/Bread_19/Bread_19.xml"
+    },
+    
+    {
+        "name": "Pencil_4",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/Pencil/Prefabs/Pencil_4/Pencil_4.xml"
+    },
+    
+    {
+        "name": "Pot_11",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pot/Prefabs/Pot_11/Pot_11.xml"
+    },
+    {
+        "name": "Bowl_10",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bowl/Prefabs/Bowl_10/Bowl_10.xml"
+    },
+    {
+        "name": "Alarm_Clock_23",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bedroom Objects/AlarmClock/Prefabs/Alarm_Clock_23/Alarm_Clock_23.xml"
+    },
+    {
+        "name": "Pot_19",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pot/Prefabs/Pot_19/Pot_19.xml"
+    },
+    
+    {
+        "name": "Bread_30",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bread/Prefabs/Bread_30/Bread_30.xml"
+    },
+    
+    
+    
+    {
+        "name": "Toilet_Paper_Hanger_24",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/ToiletPaperHanger/Prefabs/Toilet_Paper_Hanger_24/Toilet_Paper_Hanger_24.xml"
+    },
+    {
+        "name": "Keychain_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/KeyChain/Prefabs/Keychain_2/Keychain_2.xml"
+    },
+    {
+        "name": "Lettuce_7",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Lettuce/Prefabs/Lettuce_7/Lettuce_7.xml"
+    },
+    
+    {
+        "name": "Bread_10",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bread/Prefabs/Bread_10/Bread_10.xml"
+    },
+    {
+        "name": "RoboTHOR_laptop_props_america_1_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Target_SmallObjects/Laptop/Prefabs/RoboTHOR_laptop_props_america_1_v/RoboTHOR_laptop_props_america_1_v.xml"
+    },
+    {
+        "name": "Soap_Bottle_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SoapBottle/Prefabs/Soap_Bottle_1/Soap_Bottle_1.xml"
+    },
+    {
+        "name": "Soap_Bottle_11",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/SoapBottle/Prefabs/Soap_Bottle_11/Soap_Bottle_11.xml"
+    },
+    
+    {
+        "name": "Potato_29",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Potato/Prefabs/Potato_29/Potato_29.xml"
+    },
+    
+    {
+        "name": "Toilet_Paper_Hanger_15",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/ToiletPaperHanger/Prefabs/Toilet_Paper_Hanger_15/Toilet_Paper_Hanger_15.xml"
+    },
+    {
+        "name": "Pan_4",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pan/Prefabs/Pan_4/Pan_4.xml"
+    },
+    {
+        "name": "Potato_7",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Potato/Prefabs/Potato_7/Potato_7.xml"
+    },
+    {
+        "name": "Egg_Cracked_28",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/EggCracked/Prefabs/Egg_Cracked_28/Egg_Cracked_28.xml"
+    },
+    {
+        "name": "Potato_26",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Potato/Prefabs/Potato_26/Potato_26.xml"
+    },
+    {
+        "name": "pillow_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Pillow/Prefabs/pillow_2/pillow_2.xml"
+    },
+    {
+        "name": "Apple_28",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Apple/Prefabs/Apple_28/Apple_28.xml"
+    },
+    {
+        "name": "Laptop_8",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Laptop_Full/Prefabs/Laptop_8/Laptop_8.xml"
+    },
+    {
+        "name": "Candle_4",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Candle/Prefabs/Candle_4/Candle_4.xml"
+    },
+    {
+        "name": "Cloth_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Cloth/Prefabs/Cloth_2/Cloth_2.xml"
+    },
+    {
+        "name": "Stone_Statue_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Statue/Prefabs/Stone_Statue_1/Stone_Statue_1.xml"
+    },
+    
+    {
+        "name": "Pot_15",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pot/Prefabs/Pot_15/Pot_15.xml"
+    },
+    {
+        "name": "Box_27",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Box_Full/Prefabs/Box_27/Box_27.xml"
+    },
+    {
+        "name": "RoboTHOR_pillow_sanglarka_1_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Target_SmallObjects/Pillow/Prefabs/RoboTHOR_pillow_sanglarka_1_v/RoboTHOR_pillow_sanglarka_1_v.xml"
+    },
+    {
+        "name": "Laptop_15",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Laptop_Full/Prefabs/Laptop_15/Laptop_15.xml"
+    },
+    
+    {
+        "name": "Fertility_Statue_3",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Statue/Prefabs/Fertility_Statue_3/Fertility_Statue_3.xml"
+    },
+    
+    {
+        "name": "Toilet_Paper_Hanger_8",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/ToiletPaperHanger/Prefabs/Toilet_Paper_Hanger_8/Toilet_Paper_Hanger_8.xml"
+    },
+    {
+        "name": "Egg_Cracked_9",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/EggCracked/Prefabs/Egg_Cracked_9/Egg_Cracked_9.xml"
+    },
+    {
+        "name": "Laptop_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Laptop_Full/Prefabs/Laptop_1/Laptop_1.xml"
+    },
+    {
+        "name": "Tennis_Racquet_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/TennisRacquet/Prefabs/Tennis_Racquet_1/Tennis_Racquet_1.xml"
+    },
+    {
+        "name": "Box_14",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Box_Full/Prefabs/Box_14/Box_14.xml"
+    },
+    
+    {
+        "name": "Box_1",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Living Room and Bedroom Objects/Box_Full/Prefabs/Box_1/Box_1.xml"
+    },
+    {
+        "name": "RoboTHOR_baseball_bat_rawlings_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_SmallObjects/Target_SmallObjects/BaseballBat/Prefabs/RoboTHOR_baseball_bat_rawlings_v/RoboTHOR_baseball_bat_rawlings_v.xml"
+    },
+    {
+        "name": "Tomato_28",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Tomato/Prefabs/Tomato_28/Tomato_28.xml"
+    },
+    
+    {
+        "name": "RoboTHOR_dresser_rast_v",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_Furniture/Dresser/Prefabs/RoboTHOR_dresser_rast_v/RoboTHOR_dresser_rast_v.xml"
+    },
+    {
+        "name": "Apple_18",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Apple/Prefabs/Apple_18/Apple_18.xml"
+    },
+    {
+        "name": "Apple_17",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Apple/Prefabs/Apple_17/Apple_17.xml"
+    },
+    {
+        "name": "Toilet_Paper_Hanger_11",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Bathroom Objects/ToiletPaperHanger/Prefabs/Toilet_Paper_Hanger_11/Toilet_Paper_Hanger_11.xml"
+    },
+    
+    {
+        "name": "Potato_9",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Potato/Prefabs/Potato_9/Potato_9.xml"
+    },
+    
+    {
+        "name": "Pot_12",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Pot/Prefabs/Pot_12/Pot_12.xml"
+    },
+    {
+        "name": "Hand_Statue_2",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Miscellaneous Objects/Statue/Prefabs/Hand_Statue_2/Hand_Statue_2.xml"
+    },
+    
+    {
+        "name": "Bowl_16",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Bowl/Prefabs/Bowl_16/Bowl_16.xml"
+    },
+    {
+        "name": "Wall_Decor_Painting_7",
+        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_Furniture/WallDecor/Prefabs/Wall_Decor_Painting_7/Wall_Decor_Painting_7.xml"
     }
 ]
