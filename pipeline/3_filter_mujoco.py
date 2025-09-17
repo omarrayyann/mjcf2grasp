@@ -73,7 +73,6 @@ def is_object_grasped(model, data, object_name):
         contact = data.contact[i]
         geom1 = mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_GEOM, contact.geom1)
         geom2 = mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_GEOM, contact.geom2)
-        print(f"{geom1} and {geom2}")
 
         if not geom1 or not geom2:
             continue
@@ -86,9 +85,6 @@ def is_object_grasped(model, data, object_name):
                 right_finger_contact = True
 
     grasped = left_finger_contact and right_finger_contact
-    if not grasped:
-        print()
-        print("false")
 
     return grasped
 
@@ -390,8 +386,8 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
             gripper = RobotiqGripper()
 
         for i, (transform, quality) in pbar:
-            transform[:3, 3] += transform[:3, :3] @ gripper.tcp_offset
-            if i < 10:
+            # transform[:3, 3] += transform[:3, :3] @ gripper.tcp_offset
+            # if i < 10:
                 continue
             # transform = np.array(
             #     [
