@@ -898,8 +898,8 @@ def sample_multiple_grasps(
         f"Final result: {len(transforms):,} valid grasps with quality >= {min_quality}"
     )
 
-    for i in range(len(transforms)):
-        transforms[i][:3, 3] += transforms[i][:3, 3] @ gripper.tcp_offset
+    # for i in range(len(transforms)):
+    #     transforms[i][:3, 3] += transforms[i][:3, 3] @ gripper.tcp_offset
 
     return points, normals, transforms, roll_angles, standoffs, collisions, quality
 
