@@ -5,7 +5,7 @@ import wandb
 from datetime import datetime
 
 USE_WANDB = False
-gripper_name = "panda"
+gripper_name = "robotiq"
 
 with open("matched_objs.json", "r") as f:
     data = json.load(f)
