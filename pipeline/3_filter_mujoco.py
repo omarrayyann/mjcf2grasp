@@ -375,8 +375,8 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
         viewer = None
 
         for i, (transform, quality) in pbar:
-            # transform[:3, 3] += transform[:3, :3] @ np.array([0, 0, 0.089275])
-            # if i < 20:
+            # transform[:3, 3] += transform[:3, :3] @ np.array([0, 0, 0.08911275])
+            # if i < 40:
             #     continue
             # transform = np.array(
             #     [
