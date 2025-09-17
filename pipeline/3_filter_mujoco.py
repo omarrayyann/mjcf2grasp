@@ -10,6 +10,15 @@ import multiprocessing as mp
 from scipy.spatial.transform import Rotation as R
 from tqdm import tqdm
 
+import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from grippers.PandaGripper import PandaGripper
+from grippers.RUMGripper import RUMGripper
+from grippers.RobotiqGripper import RobotiqGripper
+
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--object_name", type=str)
 parser.add_argument("--grasps_path", type=str)
@@ -64,6 +73,7 @@ def is_object_grasped(model, data, object_name):
         contact = data.contact[i]
         geom1 = mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_GEOM, contact.geom1)
         geom2 = mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_GEOM, contact.geom2)
+        print(f"{geom1} and {geom2}")
 
         if not geom1 or not geom2:
             continue
@@ -75,7 +85,12 @@ def is_object_grasped(model, data, object_name):
             if any(p in other.lower() for p in right_patterns):
                 right_finger_contact = True
 
-    return left_finger_contact and right_finger_contact
+    grasped = left_finger_contact and right_finger_contact
+    if not grasped:
+        print()
+        print("false")
+
+    return grasped
 
 
 def check_grasp(model, data, object_name, store_initial=False):
@@ -97,7 +112,9 @@ def check_grasp(model, data, object_name, store_initial=False):
         return False
 
     position_change = np.linalg.norm(relative_position - initial_relative_position)
-    return is_object_grasped(model, data, object_name)
+
+    grasping = is_object_grasped(model, data, object_name)
+    return grasping
 
 
 def test_single_grasp(grasp_data, object_name):
@@ -205,7 +222,7 @@ def test_single_grasp(grasp_data, object_name):
         data.mocap_pos[0] = pos
 
     # Let system stabilize
-    for step in range(500):
+    for step in range(400):
         mujoco.mj_step(model, data)
 
     if args.gripper == "rum":
@@ -215,7 +232,7 @@ def test_single_grasp(grasp_data, object_name):
     elif args.gripper == "robotiq":
         data.ctrl[0] = 255.0
 
-    for step in range(1000):
+    for step in range(4000):
         mujoco.mj_step(model, data)
 
     object_pose = np.eye(4)
@@ -223,16 +240,6 @@ def test_single_grasp(grasp_data, object_name):
     object_pose[:3, 3] = data.body(object_name).xpos
 
     transform = np.linalg.inv(object_pose) @ transform
-
-    if args.gripper == "rum":
-        data.ctrl[0] = -0.8
-    elif args.gripper == "panda":
-        data.ctrl[0] = 0.0
-    elif args.gripper == "robotiq":
-        data.ctrl[0] = 255.0
-
-    for step in range(2000):
-        mujoco.mj_step(model, data)
 
     if not check_grasp(model, data, object_name, store_initial=True):
         return i, None, None
@@ -374,10 +381,18 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
 
         viewer = None
 
+        gripper = None
+        if args.gripper == "panda":
+            gripper = PandaGripper()
+        elif args.gripper == "rum":
+            gripper = RUMGripper()
+        elif args.gripper == "robotiq":
+            gripper = RobotiqGripper()
+
         for i, (transform, quality) in pbar:
-            # transform[:3, 3] += transform[:3, :3] @ np.array([0, 0, 0.08911275])
-            # if i < 40:
-            #     continue
+            transform[:3, 3] += transform[:3, :3] @ gripper.tcp_offset
+            if i < 10:
+                continue
             # transform = np.array(
             #     [
             #         [9.95544306e-01, 7.81320014e-02, 5.27913288e-02, 2.61137130e-04],
@@ -486,7 +501,7 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                 )
 
                 # Now approach by moving mocap towards target position
-                approach_steps = 5000
+                approach_steps = args.approach_steps
                 for step in range(approach_steps):
                     alpha = step / approach_steps
                     current_target_pos = approach_pos + alpha * (pos - approach_pos)
@@ -520,7 +535,7 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                             viewer.close()
                             return ([], [], [])
 
-                for step in range(5000):
+                for step in range(4000):
                     mujoco.mj_step(model, data)
                     if step % 50 == 0:
                         viewer.sync()
@@ -542,7 +557,7 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                 elif args.gripper == "robotiq":
                     data.ctrl[0] = 255.0
 
-                for step in range(2000):
+                for step in range(4000):
                     mujoco.mj_step(model, data)
                     if step % 20 == 0:
                         viewer.sync()
