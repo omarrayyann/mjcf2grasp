@@ -3235,11 +3235,6 @@
         "name": "Tomato_28",
         "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Tomato/Prefabs/Tomato_28/Tomato_28.xml"
     },
-    
-    {
-        "name": "RoboTHOR_dresser_rast_v",
-        "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/RoboTHOR Objects/RoboTHOR_Assets_Furniture/Dresser/Prefabs/RoboTHOR_dresser_rast_v/RoboTHOR_dresser_rast_v.xml"
-    },
     {
         "name": "Apple_18",
         "xml": "/scratch/olr7742/ai2/thor-grasp/assets/ThorAssets/Kitchen Objects/Apple/Prefabs/Apple_18/Apple_18.xml"

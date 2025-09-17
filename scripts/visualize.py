@@ -21,9 +21,19 @@ from multiprocessing import Pool, cpu_count
 from PIL import Image
 import io
 
+import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from grippers.PandaGripper import PandaGripper
+from grippers.RUMGripper import RUMGripper
+from grippers.RobotiqGripper import RobotiqGripper
+
+
 parser = argparse.ArgumentParser(description="Visualize grasps from a JSON file.")
 parser.add_argument("object_name", type=str)
 parser.add_argument("--filtered", action="store_true")
+parser.add_argument("--gripper_name", action="store_true")
 parser.add_argument(
     "--compare",
     action="store_true",
@@ -74,15 +84,12 @@ GRIPPER_PC[:, 3] = 1.0
 
 
 class Object(object):
-
     def __init__(self, filename):
-
         self.mesh = trimesh.load(filename)
         self.scale = 1.0
 
         self.filename = filename
         if isinstance(self.mesh, list):
-
             print("Warning: Will do a concatenation")
             self.mesh = trimesh.util.concatenate(self.mesh)
 
@@ -90,7 +97,6 @@ class Object(object):
         self.collision_manager.add_object("object", self.mesh)
 
     def rescale(self, scale=1.0):
-
         self.scale = scale
         self.mesh.apply_scale(self.scale)
 
@@ -107,34 +113,29 @@ class Object(object):
         self.mesh.apply_transform(matrix)
 
     def resize(self, size=1.0):
-
         self.scale = size / np.max(self.mesh.extents)
         self.mesh.apply_scale(self.scale)
 
     def in_collision_with(self, mesh, transform):
-
         return self.collision_manager.in_collision_single(mesh, transform=transform)
 
 
 def get_shape(x):
-
     return x.get_shape().as_list()
 
 
 def count_nan(x):
-
     isnan = tf.cast(tf.is_nan(x), tf.int32)
     isnan = tf.reshape(isnan, [-1])
     return tf.reduce_sum(isnan)
 
 
 def get_gripper_pc(batch_size, npoints, use_tf=True):
-
     output = np.copy(GRIPPER_PC)
     if npoints != -1:
-        assert (
-            npoints > 0 and npoints <= output.shape[0]
-        ), "gripper_pc_npoint is too large {} > {}".format(npoints, output.shape[0])
+        assert npoints > 0 and npoints <= output.shape[0], (
+            "gripper_pc_npoint is too large {} > {}".format(npoints, output.shape[0])
+        )
         output = output[:npoints]
         output = np.expand_dims(output, 0)
     else:
@@ -151,7 +152,6 @@ def get_gripper_pc(batch_size, npoints, use_tf=True):
 
 
 def get_control_point_tensor(batch_size, use_tf=True):
-
     control_points = np.load("assets/gripper_control_points/panda.npy")[:, :3]
     control_points = [
         [0, 0, 0],
@@ -173,7 +173,6 @@ def get_control_point_tensor(batch_size, use_tf=True):
 def transform_control_points(
     gt_grasps, batch_size, mode="qt", scope="transform_gt_control_points"
 ):
-
     assert mode == "qt" or mode == "rt", mode
     grasp_shape = get_shape(gt_grasps)
     if mode == "qt":
@@ -215,7 +214,6 @@ def transform_control_points(
 
 
 def quaternion_mult(Q, R):
-
     Q_shape = Q.get_shape().as_list()
     R_shape = R.get_shape().as_list()
     assert Q_shape[-1] == 4
@@ -233,14 +231,12 @@ def quaternion_mult(Q, R):
 
 
 def conj_quaternion(q):
-
     q_conj = tf.split(q, 4, axis=-1)
     q_conj = tf.concat([q_conj[0], -q_conj[1], -q_conj[2], -q_conj[3]], axis=-1)
     return q_conj
 
 
 def rotate_point_by_quaternion(point, q):
-
     shape = point.get_shape().as_list()
     q_shape = q.get_shape().as_list()
 
@@ -385,7 +381,6 @@ def get_color_plasma(x):
 
 
 def plot_mesh_matplotlib(ax, mesh, color=None, alpha=0.3):
-
     if color is None:
         color = [0.7, 0.7, 1.0]
 
@@ -422,7 +417,6 @@ def draw_scene(
     render=True,
     grasp_widths=None,
 ):
-
     max_grasps = 200
     grasps = np.array(grasps)
 
@@ -446,7 +440,6 @@ def draw_scene(
             grasp_widths = grasp_widths[chosen_ones]
 
     if save_png:
-
         _create_parallel_collage(
             pc,
             grasps,
@@ -465,7 +458,6 @@ def draw_scene(
         )
 
     elif render:
-
         fig = plt.figure(figsize=(12, 10), facecolor="black")
         ax = fig.add_subplot(111, projection="3d")
 
@@ -510,7 +502,6 @@ def _plot_single_view(
     azim=45,
     elev=30,
 ):
-
     ax.xaxis.pane.fill = False
     ax.yaxis.pane.fill = False
     ax.zaxis.pane.fill = False
@@ -533,7 +524,6 @@ def _plot_single_view(
     if pc is not None:
         if pc_color is None:
             if plasma_coloring:
-
                 z_values = pc[:, 2]
                 z_normalized = (z_values - np.min(z_values)) / (
                     np.max(z_values) - np.min(z_values)
@@ -631,7 +621,6 @@ def _plot_single_view(
                 current_gripper_color = (0.0, 1.0, 0.0)
 
         if show_gripper_mesh:
-
             try:
                 object = Object("assets/gripper_models/rum_gripper/model.obj")
                 gripper_mesh = object.mesh.copy()
@@ -655,7 +644,6 @@ def _plot_single_view(
             )
 
     if mesh is not None:
-
         bounds = mesh.bounds
         center = mesh.center_mass
         max_extent = np.max(mesh.extents)
@@ -686,7 +674,6 @@ def _plot_single_view(
 
 
 def _render_single_view_to_image(args):
-
     (
         view_idx,
         azim,
@@ -754,7 +741,6 @@ def _create_parallel_collage(
     grasp_widths,
     save_png,
 ):
-
     camera_setups = [
         (0, 60),
         (60, 60),
@@ -829,7 +815,6 @@ def _create_parallel_collage(
 
 
 def get_axis():
-
     pass
 
 
@@ -853,7 +838,6 @@ if not os.path.exists(filtered_json_file):
 
 
 if args.compare:
-
     try:
         with open(base_json_file, "r") as f:
             base_data = json.load(f)
@@ -924,7 +908,6 @@ if args.compare:
         )
         print(f"Exception: {e}")
 else:
-
     if args.filtered:
         extra = "_filtered"
     else:
@@ -949,6 +932,18 @@ else:
     mesh.apply_transform(pose)
 
     transforms = np.array(data["transforms"])
+
+    gripper = None
+    if args.gripper == "panda":
+        gripper = PandaGripper()
+    elif args.gripper == "rum":
+        gripper = RUMGripper()
+    elif args.gripper == "robotiq":
+        gripper = RobotiqGripper()
+
+    for i in range(len(transforms)):
+        transforms[i][:3] -= transforms[i][:3, :3] @ gripper.tcp_offset
+
     quality = np.array(
         data.get(
             "quality_antipodal",

@@ -4,7 +4,7 @@ import subprocess
 import wandb
 from datetime import datetime
 
-USE_WANDB = False
+USE_WANDB = 1
 gripper_name = "robotiq"
 
 with open("matched_objs.json", "r") as f:
@@ -357,7 +357,7 @@ for obj in data:
                     "0.2",
                     "--shake_steps",
                     "1000",
-                    "--render",
+                    # "--render",
                     "--rotate",
                     "--max_successful",
                     "5000",
@@ -386,6 +386,8 @@ for obj in data:
                     filtered_viz_path,
                     # "--no-render",
                     "--grasp-shape-only",
+                    "--gripper",
+                    gripper_name,
                 ],
                 check=True,
             )
