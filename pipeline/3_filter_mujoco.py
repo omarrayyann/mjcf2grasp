@@ -228,7 +228,7 @@ def test_single_grasp(grasp_data, object_name):
     elif args.gripper == "robotiq":
         data.ctrl[0] = 255.0
 
-    for step in range(4000):
+    for step in range(2000):
         mujoco.mj_step(model, data)
 
     object_pose = np.eye(4)
