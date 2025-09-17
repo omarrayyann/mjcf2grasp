@@ -33,7 +33,7 @@ from grippers.RobotiqGripper import RobotiqGripper
 parser = argparse.ArgumentParser(description="Visualize grasps from a JSON file.")
 parser.add_argument("object_name", type=str)
 parser.add_argument("--filtered", action="store_true")
-parser.add_argument("--gripper_name", action="store_true")
+parser.add_argument("--gripper_name", type=str, default="panda")
 parser.add_argument(
     "--compare",
     action="store_true",
