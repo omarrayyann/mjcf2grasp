@@ -386,7 +386,7 @@ for obj in data:
                     filtered_viz_path,
                     # "--no-render",
                     "--grasp-shape-only",
-                    "--gripper",
+                    "--gripper_name",
                     gripper_name,
                 ],
                 check=True,

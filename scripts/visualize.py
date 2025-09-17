@@ -934,11 +934,11 @@ else:
     transforms = np.array(data["transforms"])
 
     gripper = None
-    if args.gripper == "panda":
+    if args.gripper_name == "panda":
         gripper = PandaGripper()
-    elif args.gripper == "rum":
+    elif args.gripper_name == "rum":
         gripper = RUMGripper()
-    elif args.gripper == "robotiq":
+    elif args.gripper_name == "robotiq":
         gripper = RobotiqGripper()
 
     for i in range(len(transforms)):
