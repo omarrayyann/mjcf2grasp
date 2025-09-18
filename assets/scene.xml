@@ -9,8 +9,8 @@
         <quality shadowsize="0"/>
     </visual>
     <compiler autolimits="true" boundmass="0" balanceinertia="true" angle="radian"/>
-    <option timestep="0.002" impratio="10" integrator="implicitfast" cone="elliptic" jacobian="sparse" solver="Newton"
-        noslip_iterations="4" gravity="0 0 0">
+    <option timestep="0.002" impratio="10" integrator="implicitfast" cone="elliptic" noslip_iterations="4"
+        gravity="0 0 0">
         <flag contact="enable" warmstart="enable" energy="enable" multiccd="enable"/>
     </option>
 
