@@ -10,3 +10,4 @@ pillow
 pymeshlab
 python-fcl 
 rtree
+open3d
