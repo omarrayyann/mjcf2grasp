@@ -5,16 +5,20 @@ tasks:
   # We only have one step in our experiment, so there's only one entry in this list
   - name: Objaverse-Grasp-Generation
     image:
-      beaker: yejink/thor-grasp-generation 
-      command: [
-        "/opt/miniconda3/envs/mjgrasp/bin/python",
-        'run_pipeline.py',
+      beaker: yejink/thor-grasp-generation2
+    command: [
+        '/bin/bash',
+        '/root/thor-grasp/run_objaverse_pipeline.sh',
       ]
+    envVars:
+      - name: WANDB_API_KEY
+        secret: wandb-api-key
     datasets:
     - mountPath: '/data/prior-default'
+      subPath: 'yejink'
       source:
         weka: prior-default
     resources:
-      gpuCount: 1
+      gpuCount: 0
     constraints:
       cluster: [ ai2/neptune ]

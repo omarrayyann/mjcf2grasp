@@ -10,18 +10,24 @@ gripper_name = "robotiq"
 with open("objaverse_matched_objs.json", "r") as f:
     data = json.load(f)
 if USE_WANDB:
-    wandb.init(
-        project="thor-grasp-pipeline",
-        name=f"grasp-processing-{datetime.now().strftime('%Y%m%d_%H%M%S')}",
-        config={
-            "total_objects": len(data),
-            "approach_distance": 0.1,
-            "approach_steps": 1000,
-            "max_successful_grasps": 1000,
-            "max_grasps_to_visualize": 2000,
-        },
-    )
+    try:
+        wandb.init(
+            project="thor-grasp-pipeline",
+            name=f"grasp-processing-{datetime.now().strftime('%Y%m%d_%H%M%S')}",
+            config={
+                "total_objects": len(data),
+                "approach_distance": 0.1,
+                "approach_steps": 1000,
+                "max_successful_grasps": 1000,
+                "max_grasps_to_visualize": 2000,
+            },
+        )
+    except Exception as e:
+        print(f"Warning: Failed to initialize wandb: {e}")
+        print("Continuing without wandb logging...")
+        USE_WANDB = 0
 
+if USE_WANDB:
     wandb.define_metric("step")
     wandb.define_metric("completion_percentage", step_metric="step")
     wandb.define_metric("processed_objects", step_metric="step")
@@ -31,8 +37,9 @@ if USE_WANDB:
     wandb.define_metric("filter_success_rate", step_metric="step")
 
     print(f"Starting processing of {len(data)} objects")
-    print(f"Monitor progress at: {wandb.run.url}")
-    wandb.log({"total_objects": len(data), "step": 0})
+    if USE_WANDB:
+        print(f"Monitor progress at: {wandb.run.url}")
+        wandb.log({"total_objects": len(data), "step": 0})
 else:
     print(f"Starting processing of {len(data)} objects (wandb disabled)")
 
