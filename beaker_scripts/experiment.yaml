@@ -1,6 +1,6 @@
 version: v2
 budget: ai2/prior
-description: Objavers Grasp Generation Pipeline
+description: Objaverse Grasp Generation Pipeline
 tasks:
   # We only have one step in our experiment, so there's only one entry in this list
   - name: Objaverse-Grasp-Generation
@@ -8,14 +8,14 @@ tasks:
       beaker: yejink/thor-grasp-generation2
     command: [
         '/bin/bash',
-        '/root/thor-grasp/run_objaverse_pipeline.sh',
+        '/root/yejink/thor-grasp/run_objaverse_pipeline.sh',
+        '/root/datasets/mujoco-thor/assets/scenes/procthor-100k-debug'
       ]
     envVars:
       - name: WANDB_API_KEY
         secret: wandb-api-key
     datasets:
-    - mountPath: '/data/prior-default'
-      subPath: 'yejink'
+    - mountPath: '/root'
       source:
         weka: prior-default
     resources:
