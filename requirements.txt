@@ -11,3 +11,4 @@ pymeshlab
 python-fcl 
 rtree
 open3d
+lxml
