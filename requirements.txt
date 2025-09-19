@@ -8,3 +8,5 @@ wandb
 tensorflow
 pillow
 pymeshlab
+python-fcl 
+rtree

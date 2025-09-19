@@ -7,7 +7,7 @@ from datetime import datetime
 USE_WANDB = 1
 gripper_name = "robotiq"
 
-with open("matched_objs.json", "r") as f:
+with open("objaverse_matched_objs.json", "r") as f:
     data = json.load(f)
 if USE_WANDB:
     wandb.init(
@@ -327,7 +327,7 @@ for obj in data:
                     "--shake_steps",
                     "1000",
                     "--rotate",
-                    "--render",
+                    # "--render",
                     "--max_successful",
                     "5000",
                     "--gripper",
