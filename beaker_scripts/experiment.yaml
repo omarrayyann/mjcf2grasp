@@ -1,0 +1,20 @@
+version: v2
+budget: ai2/prior
+description: Objavers Grasp Generation Pipeline
+tasks:
+  # We only have one step in our experiment, so there's only one entry in this list
+  - name: Objaverse-Grasp-Generation
+    image:
+      beaker: yejink/thor-grasp-generation 
+      command: [
+        "/opt/miniconda3/envs/mjgrasp/bin/python",
+        'run_pipeline.py',
+      ]
+    datasets:
+    - mountPath: '/data/prior-default'
+      source:
+        weka: prior-default
+    resources:
+      gpuCount: 1
+    constraints:
+      cluster: [ ai2/neptune ]

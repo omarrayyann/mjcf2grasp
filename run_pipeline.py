@@ -36,7 +36,9 @@ if USE_WANDB:
 else:
     print(f"Starting processing of {len(data)} objects (wandb disabled)")
 
-thor_assets_path = "/scratch/olr7742/ai2/thor-grasp/assets/Thor-Assets"
+#thor_assets_path = "/scratch/olr7742/ai2/thor-grasp/assets/Thor-Assets"
+thor_assets_path = "../mujoco-thor/assets/scenes/procthor-100k-debug"
+
 base_input_path = "../../../assets/objects"
 temp_folder = "tmp"
 os.makedirs(temp_folder, exist_ok=True)
@@ -325,7 +327,7 @@ for obj in data:
                     "--shake_steps",
                     "1000",
                     "--rotate",
-                    # "--render",
+                    "--render",
                     "--max_successful",
                     "5000",
                     "--gripper",
