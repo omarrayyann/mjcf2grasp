@@ -1034,9 +1034,11 @@ def verboseprint(*args, **kwargs):
 
 
 if __name__ == "__main__":
+    mp.set_start_method("spawn")
+
     parser = make_parser()
     args = parser.parse_args()
-
+    
     verboseprint = print if not args.silent else lambda *a, **k: None
 
     if args.add_quality_metric:

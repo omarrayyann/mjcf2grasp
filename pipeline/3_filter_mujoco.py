@@ -930,6 +930,8 @@ def merge_xml_contents(base_xml_content, additional_xml_content):
 
 
 if __name__ == "__main__":
+    mp.set_start_method("spawn")
+
     xml_path = os.path.join(os.path.dirname(__file__), "../assets/scene.xml")
     tree = ET.parse(xml_path)
     root = tree.getroot()
