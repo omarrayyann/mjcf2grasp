@@ -19,6 +19,8 @@ tasks:
       source:
         weka: prior-default
     resources:
-      gpuCount: 0
+      gpuCount: 1
     constraints:
-      cluster: [ ai2/neptune ]
+      cluster: [ ai2/rhea ]
+    context:
+      priority: normal
