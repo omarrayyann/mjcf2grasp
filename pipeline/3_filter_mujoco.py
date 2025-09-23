@@ -113,11 +113,11 @@ def check_grasp(model, data, object_name, store_initial=False):
     return grasping
 
 
-def test_single_grasp(grasp_data, object_name):
+def test_single_grasp(grasp_data, object_name, base_xml_content, gripper_xml_content):
     i, transform, quality, config = grasp_data
 
-    xml_path = os.path.join(os.path.dirname(__file__), "../assets/scene.xml")
-    tree = ET.parse(xml_path)
+    # Use pre-loaded XML content instead of file I/O in worker
+    tree = ET.ElementTree(ET.fromstring(base_xml_content))
     root = tree.getroot()
 
     include = ET.Element("include", {"file": args.xml_file})
@@ -125,14 +125,8 @@ def test_single_grasp(grasp_data, object_name):
 
     xml_content = ET.tostring(root, encoding="unicode")
 
-    # Merge with gripper XML to get mocap functionality
-    gripper_xml_path = os.path.join(
-        os.path.dirname(__file__),
-        f"../assets/gripper_models/{args.gripper}_gripper/model.xml",
-    )
-    with open(gripper_xml_path, "r") as f:
-        additional_xml_content = f.read()
-    xml_content = merge_xml_contents(xml_content, additional_xml_content)
+    # Use pre-loaded gripper XML content
+    xml_content = merge_xml_contents(xml_content, gripper_xml_content)
 
     # Create combined XML for the scene with the gripper and object - EXACTLY like viewer version
     tree = ET.ElementTree(ET.fromstring(xml_content))
@@ -788,6 +782,21 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
             "approach_steps": args.approach_steps,
         }
 
+        # Pre-load XML content to avoid file I/O in workers
+        xml_path = os.path.join(os.path.dirname(__file__), "../assets/scene.xml")
+        tree = ET.parse(xml_path)
+        root = tree.getroot()
+        include = ET.Element("include", {"file": args.xml_file})
+        root.append(include)
+        base_xml_content = ET.tostring(root, encoding="unicode")
+        
+        gripper_xml_path = os.path.join(
+            os.path.dirname(__file__),
+            f"../assets/gripper_models/{args.gripper}_gripper/model.xml",
+        )
+        with open(gripper_xml_path, "r") as f:
+            gripper_xml_content = f.read()
+
         grasp_params = [
             (i, transform, quality, config)
             for i, (transform, quality) in enumerate(zip(transforms, qualities))
@@ -839,25 +848,39 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                 results = [
                     pool.apply_async(
                         test_single_grasp,
-                        args=(param, object_name),
+                        args=(param, object_name, base_xml_content, gripper_xml_content),
                         callback=update_progress_bar,
                     )
                     for param in grasp_params
                 ]
 
                 completed = 0
+                timeout_counter = 0
+                max_timeout = 300  # 5 minutes timeout
+                
                 while completed < len(results):
                     if should_stop.value:
-                        pool.terminate()
+                        # Graceful shutdown instead of abrupt termination
+                        pool.close()
+                        pool.join()
                         tqdm.write(
-                            "Terminating remaining workers after reaching max successful grasps"
+                            "Stopped processing after reaching max successful grasps"
                         )
                         break
 
+                    # Check for timeout to prevent infinite waiting
+                    if timeout_counter > max_timeout:
+                        tqdm.write("Timeout reached, terminating pool")
+                        pool.terminate()
+                        pool.join()
+                        break
+                    
+                    timeout_counter += 1
+                    
                     for i, r in enumerate(results):
                         if r is not None and r.ready() and not r.successful():
                             try:
-                                r.get()
+                                r.get(timeout=1)  # Add timeout to get()
                             except Exception as e:
                                 tqdm.write(f"Worker error: {str(e)}")
                             results[i] = None

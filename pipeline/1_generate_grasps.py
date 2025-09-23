@@ -13,11 +13,15 @@ import trimesh
 import trimesh.transformations as tra
 import sys
 import os
+import threading
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from grippers.PandaGripper import PandaGripper
 from grippers.RUMGripper import RUMGripper
 from grippers.RobotiqGripper import RobotiqGripper
+
+# Global cache for gripper instances to avoid file I/O in worker processes
+_gripper_cache = {}
 
 
 class Object(object):
@@ -72,14 +76,17 @@ def get_available_grippers():
 
 
 def create_gripper(name, configuration=None, root_folder=""):
-    if name.lower() == "panda":
-        return PandaGripper(q=configuration, root_folder=root_folder)
-    elif name.lower() == "rum":
-        return RUMGripper(q=configuration, root_folder=root_folder)
-    elif name.lower() == "robotiq":
-        return RobotiqGripper(q=configuration, root_folder=root_folder)
-    else:
-        raise Exception("Unknown gripper: {}".format(name))
+    cache_key = f"{name.lower()}_{configuration}_{root_folder}"
+    if cache_key not in _gripper_cache:
+        if name.lower() == "panda":
+            _gripper_cache[cache_key] = PandaGripper(q=configuration, root_folder=root_folder)
+        elif name.lower() == "rum":
+            _gripper_cache[cache_key] = RUMGripper(q=configuration, root_folder=root_folder)
+        elif name.lower() == "robotiq":
+            _gripper_cache[cache_key] = RobotiqGripper(q=configuration, root_folder=root_folder)
+        else:
+            raise Exception("Unknown gripper: {}".format(name))
+    return _gripper_cache[cache_key]
 
 
 def _check_collision_worker(object_mesh, gripper_mesh, transform_batch):
@@ -94,10 +101,10 @@ def _check_collision_worker(object_mesh, gripper_mesh, transform_batch):
 
 
 def _quality_point_contacts_worker(batch_data):
-    transform_batch, collision_batch, object_mesh, gripper_name = batch_data
+    transform_batch, collision_batch, object_mesh, gripper_name, gripper_instance = batch_data
 
     res = []
-    gripper = create_gripper(gripper_name)
+    gripper = gripper_instance
 
     if trimesh.ray.has_embree:
         intersector = trimesh.ray.ray_pyembree.RayMeshIntersector(
@@ -137,10 +144,10 @@ def _quality_point_contacts_worker(batch_data):
 
 
 def _quality_antipodal_worker(batch_data):
-    transform_batch, collision_batch, object_mesh, gripper_name = batch_data
+    transform_batch, collision_batch, object_mesh, gripper_name, gripper_instance = batch_data
 
     res = []
-    gripper = create_gripper(gripper_name)
+    gripper = gripper_instance
 
     if trimesh.ray.has_embree:
         intersector = trimesh.ray.ray_pyembree.RayMeshIntersector(
@@ -330,8 +337,11 @@ def grasp_quality_point_contacts(
         collisions[i : i + batch_size] for i in range(0, len(collisions), batch_size)
     ]
 
+    # Create gripper instance once in main process to avoid file I/O in workers
+    gripper_instance = create_gripper(gripper_name)
+    
     batch_data = [
-        (t_batch, c_batch, object_mesh, gripper_name)
+        (t_batch, c_batch, object_mesh, gripper_name, gripper_instance)
         for t_batch, c_batch in zip(transform_batches, collision_batches)
     ]
 
@@ -455,8 +465,11 @@ def grasp_quality_antipodal(
         collisions[i : i + batch_size] for i in range(0, len(collisions), batch_size)
     ]
 
+    # Create gripper instance once in main process to avoid file I/O in workers
+    gripper_instance = create_gripper(gripper_name)
+    
     batch_data = [
-        (t_batch, c_batch, object_mesh, gripper_name)
+        (t_batch, c_batch, object_mesh, gripper_name, gripper_instance)
         for t_batch, c_batch in zip(transform_batches, collision_batches)
     ]
 
