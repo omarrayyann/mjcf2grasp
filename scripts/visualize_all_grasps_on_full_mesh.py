@@ -225,10 +225,10 @@ def _create_parallel_collage(full_mesh, joint_grasps, args, save_png):
     for view_idx, (azim, elev) in enumerate(camera_setups):
         args_list.append((view_idx, azim, elev, full_mesh, joint_grasps, args))
     
-    print(f"Rendering 16 views in parallel using {min(len(args_list), cpu_count())} processes...")
+    print(f"Rendering 16 views in parallel using {min(len(args_list), max(1, cpu_count() // 8))} processes...")
     start_time = time.time()
     
-    with Pool(processes=min(len(args_list), cpu_count())) as pool:
+    with Pool(processes=min(len(args_list), max(1, cpu_count() // 8))) as pool:
         results = pool.map(_render_single_view_to_image, args_list)
     
     parallel_time = time.time() - start_time

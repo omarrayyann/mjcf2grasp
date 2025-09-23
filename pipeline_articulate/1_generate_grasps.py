@@ -248,7 +248,7 @@ def compute_grasp_widths(
     transforms, object_mesh, gripper_name="panda", num_workers=None
 ):
     if num_workers is None:
-        num_workers = mp.cpu_count()
+        num_workers = max(1, mp.cpu_count() // 8)
 
     if len(transforms) < 50 or num_workers <= 1:
         return _compute_widths_batch((transforms, object_mesh, gripper_name))
@@ -437,7 +437,7 @@ def in_collision_with_gripper(
     object_mesh, gripper_transforms, gripper_name, silent=False, num_workers=None
 ):
     if num_workers is None:
-        num_workers = mp.cpu_count()
+        num_workers = max(1, mp.cpu_count() // 8)
 
     if len(gripper_transforms) < 100 or num_workers <= 1:
         manager = trimesh.collision.CollisionManager()
@@ -494,7 +494,7 @@ def grasp_quality_point_contacts(
     num_workers=None,
 ):
     if num_workers is None:
-        num_workers = mp.cpu_count()
+        num_workers = max(1, mp.cpu_count() // 8)
 
     if len(transforms) < 100 or num_workers <= 1:
         res = []
@@ -575,7 +575,7 @@ def grasp_quality_antipodal(
     num_workers=None,
 ):
     if num_workers is None:
-        num_workers = mp.cpu_count()
+        num_workers = max(1, mp.cpu_count() // 8)
 
     if len(transforms) < 100 or num_workers <= 1:
         res = []
@@ -861,7 +861,7 @@ def sample_multiple_grasps(
     num_workers=None,
 ):
     if num_workers is None:
-        num_workers = mp.cpu_count()
+        num_workers = max(1, mp.cpu_count() // 8)
 
     transforms = []
     points = []

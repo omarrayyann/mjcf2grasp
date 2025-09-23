@@ -5,4 +5,9 @@ assets/Thor-Assets
 /assets/ThorAssets
 /assets/Prefabs
 /output_articulate*
-
+/output*
+*.json
+*.png
+*.obj
+*.mtl
+*.pyc

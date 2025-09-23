@@ -844,7 +844,7 @@ def main():
     parser.add_argument("--waypoint_pause", type=float, default=0.025)
     parser.add_argument("--endpoint_pause", type=float, default=0.2)
     parser.add_argument("--render", action="store_true")
-    parser.add_argument("--num_workers", type=int, default=mp.cpu_count())
+    parser.add_argument("--num_workers", type=int, default=max(1, mp.cpu_count() // 8))
     parser.add_argument("--max_successful", type=int, default=0)
     parser.add_argument("--filtered", action="store_true")
     args = parser.parse_args()

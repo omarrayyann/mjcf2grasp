@@ -777,11 +777,11 @@ def _create_parallel_collage(
         )
 
     print(
-        f"Rendering 9 views in parallel using {min(len(args_list), cpu_count())} processes..."
+        f"Rendering 9 views in parallel using {min(len(args_list), max(1, cpu_count() // 8))} processes..."
     )
     start_time = time.time()
 
-    with Pool(processes=min(len(args_list), cpu_count())) as pool:
+    with Pool(processes=min(len(args_list), max(1, cpu_count() // 8))) as pool:
         results = pool.map(_render_single_view_to_image, args_list)
 
     parallel_time = time.time() - start_time

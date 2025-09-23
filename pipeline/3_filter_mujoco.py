@@ -44,7 +44,7 @@ parser.add_argument("--rotate", action="store_true", help="Enable rotation shaki
 parser.add_argument(
     "--num_workers",
     type=int,
-    default=mp.cpu_count(),
+    default=max(1, mp.cpu_count() // 8),
     help="Number of parallel processes to use",
 )
 parser.add_argument(
