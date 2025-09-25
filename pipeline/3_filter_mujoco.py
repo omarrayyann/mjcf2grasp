@@ -387,8 +387,8 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
 
         for i, (transform, quality) in pbar:
             # transform[:3, 3] += transform[:3, :3] @ gripper.tcp_offset
-            # if i < 10:
-            # continue
+            if i < 299:
+                continue
             # transform = np.array(
             #     [
             #         [9.95544306e-01, 7.81320014e-02, 5.27913288e-02, 2.61137130e-04],
@@ -565,11 +565,21 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                                 successful_widths,
                             )
 
+                tcp_pose = np.eye(4)
+                tcp_pose[:3, 3] = data.site("tcp").xpos
+                mat = data.site("tcp").xmat.reshape(3, 3)
+                rot_x_90 = R.from_euler("x", -90, degrees=True).as_matrix()
+                rotated_mat = mat @ rot_x_90
+                tcp_pose[:3, :3] = rotated_mat
+
                 object_pose = np.eye(4)
                 object_pose[:3, :3] = data.body(object_name).xmat.reshape(3, 3)
                 object_pose[:3, 3] = data.body(object_name).xpos
 
-                transform = np.linalg.inv(object_pose) @ transform
+                print(f"Before: {transform}")
+                transform = np.linalg.inv(object_pose) @ tcp_pose
+
+                print(f"After: {transform}")
 
                 if not check_grasp(model, data, object_name, store_initial=True):
                     pbar.set_description(
