@@ -386,37 +386,6 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
             gripper = RobotiqGripper()
 
         for i, (transform, quality) in pbar:
-            # transform[:3, 3] += transform[:3, :3] @ gripper.tcp_offset
-            if i < 299:
-                continue
-            # transform = np.array(
-            #     [
-            #         [9.95544306e-01, 7.81320014e-02, 5.27913288e-02, 2.61137130e-04],
-            #         [3.59627602e-02, 2.02932125e-01, -9.78532183e-01, 4.26163344e-03],
-            #         [-8.71677344e-02, 9.76070665e-01, 1.99218079e-01, 1.45099702e-01],
-            #         [0.00000000e00, 0.00000000e00, 0.00000000e00, 1.00000000e00],
-            #     ]
-            # )
-            # print(f"Transform: {transform}")
-
-            # transform = np.array(
-            #     [
-            #         [0.99573922, 0.03518446, -0.0852377, 0.01196972],
-            #         [0.05151341, -0.9789079, 0.19770099, -0.02450723],
-            #         [-0.07648385, -0.20124952, -0.97654946, 0.14257034],
-            #         [0.0, 0.0, 0.0, 1.0],
-            #     ]
-            # )
-            # transform[0:3, 3] = [0.05835581, 0.03979523, 0.14314214]
-            # transform[0:3, 0:3] = R.from_quat(
-            #     [0.95983621, 0.23655397, -0.13927727, -0.0579526]
-            # ).as_matrix()
-
-            # (array([0.05835581, 0.03979523, 0.14314214]), array([-0.0579526 ,  0.95983621,  0.23655397, -0.13927727]))
-
-            # print(transform)
-
-            # Create combined XML for the scene with the gripper and object
             tree = ET.ElementTree(ET.fromstring(xml_content))
             root = tree.getroot()
 
@@ -427,7 +396,6 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
             approach_vector = transform[:3, 2] * approach_distance
             approach_pos = pos - approach_vector
 
-            # Find the body element with name="base" and modify its position
             for body in root.findall(".//body"):
                 if body.get("name") == "base":
                     org_rot = R.from_matrix(transform[:3, :3])
