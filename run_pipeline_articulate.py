@@ -7,6 +7,7 @@ from datetime import datetime
 from pathlib import Path
 
 USE_WANDB = False
+gripper = "robotiq"
 
 
 def load_articulated_objects():
@@ -206,6 +207,8 @@ def run_grasp_generation_stage(object_name, handle_mesh_path, full_mesh, output_
                 "thor_articulated",
                 "--collision_object_file",
                 full_mesh,
+                "--gripper",
+                gripper,
             ],
             check=True,
         )
@@ -298,6 +301,8 @@ def run_per_joint_grasp_generation(
                 "thor_articulated",
                 "--collision_object_file",
                 full_mesh,
+                "--gripper",
+                gripper,
             ],
             check=True,
         )
