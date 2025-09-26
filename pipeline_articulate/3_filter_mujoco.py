@@ -7,12 +7,19 @@ import xml.etree.ElementTree as ET
 import time
 import traceback
 from tqdm import tqdm
-
 import mujoco
 import mujoco.viewer
 
 from scipy.spatial.transform import Rotation as R
 import re
+
+import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from grippers.PandaGripper import PandaGripper
+from grippers.RUMGripper import RUMGripper
+from grippers.RobotiqGripper import RobotiqGripper
 
 
 def rotation_matrix_from_axis_angle(axis, angle):
@@ -69,13 +76,12 @@ def check_sufficient_joint_movement(
 
 
 def is_grasping(model, data, handle_geoms):
-    left_patterns = ["left_finger", "finger_l", "gripper_finger_left"]
-    right_patterns = ["right_finger", "finger_r", "gripper_finger_right"]
+    left_patterns = ["left_finger", "finger_l", "gripper_finger_left", "left"]
+    right_patterns = ["right_finger", "finger_r", "gripper_finger_right", "right"]
 
     handle_geoms = [
         re.sub(r"^[^a-zA-Z]+|[^a-zA-Z]+$", "", geom) for geom in handle_geoms
     ]
-
     for i in range(data.ncon):
         contact = data.contact[i]
 
@@ -86,9 +92,17 @@ def is_grasping(model, data, handle_geoms):
             continue
 
         if any(
-            [handle_geom.lower() in geom1.lower() for handle_geom in handle_geoms]
+            [
+                handle_geom.lower() in geom1.lower()
+                or geom1.lower() in handle_geom.lower()
+                for handle_geom in handle_geoms
+            ]
         ) or any(
-            [handle_geom.lower() in geom2.lower() for handle_geom in handle_geoms]
+            [
+                handle_geom.lower() in geom2.lower()
+                or geom2.lower() in handle_geom.lower()
+                for handle_geom in handle_geoms
+            ]
         ):
             other = (
                 geom2
@@ -222,6 +236,14 @@ def test_single_grasp(
         return grasp_data[0], None, None
 
     i, transform, quality, config = grasp_data
+
+    offset = RobotiqGripper.tcp_offset
+    new_transform = transform.copy()
+    new_transform[:3, 3] += new_transform[:3, :3] @ offset
+    # rot_x = R.from_euler("x", 90, degrees=True).as_matrix()
+    # new_transform[:3, :3] = new_transform[:3, :3] @ rot_x
+    transform = new_transform
+
     pos = transform[:3, 3]
     quat = R.from_matrix(transform[:3, :3]).as_quat(scalar_first=True)
 
@@ -232,7 +254,7 @@ def test_single_grasp(
 
     tree = ET.ElementTree(ET.fromstring(xml_content))
     root = tree.getroot()
-    gripper_base = root.find(".//body[@name='gripper_base']")
+    gripper_base = root.find(".//body[@name='base']")
     if gripper_base is not None:
         gripper_base.set(
             "pos", f"{approach_pos[0]} {approach_pos[1]} {approach_pos[2]}"
@@ -252,10 +274,32 @@ def test_single_grasp(
         viewer = mujoco.viewer.launch_passive(
             model, data, show_left_ui=False, show_right_ui=False
         )
-
-    data.ctrl[0] = 1.0
+    if args.gripper == "rum":
+        data.ctrl[0] = 1.0
+    elif args.gripper == "panda":
+        data.ctrl[0] = 255.0
+    elif args.gripper == "robotiq":
+        data.ctrl[0] = 0.0
 
     for _ in range(500):
+        mujoco.mj_step(model, data)
+        if render and viewer is not None:
+            viewer.sync()
+
+    if 1:
+        model.site_pos[mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_SITE, "origin")] = (
+            transform[:3, 3]
+        )
+        model.site_pos[mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_SITE, "x_axis")] = (
+            transform[:3, 3] + transform[:3, 0] * 0.1
+        )
+        model.site_pos[mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_SITE, "y_axis")] = (
+            transform[:3, 3] + transform[:3, 1] * 0.1
+        )
+        model.site_pos[mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_SITE, "z_axis")] = (
+            transform[:3, 3] + transform[:3, 2] * 0.1
+        )
+
         mujoco.mj_step(model, data)
         if render and viewer is not None:
             viewer.sync()
@@ -302,10 +346,24 @@ def test_single_grasp(
     if render and viewer is not None:
         viewer.sync()
 
-    data.ctrl[0] = -1.0
-    mujoco.mj_step(model, data, nstep=1000)
-    if render and viewer is not None:
-        viewer.sync()
+    if args.gripper == "rum":
+        data.ctrl[0] = -0.8
+    elif args.gripper == "panda":
+        data.ctrl[0] = 0.0
+    elif args.gripper == "robotiq":
+        data.ctrl[0] = 255.0
+
+    # is_grasping(model, data, handle_geoms)
+    for _ in range(2000):
+        mujoco.mj_step(model, data)
+        if render and viewer is not None:
+            viewer.sync()
+
+    while 1:
+        mujoco.mj_step(model, data)
+        if render and viewer is not None:
+            viewer.sync()
+        break
 
     if not is_grasping(model, data, handle_geoms):
         if render and viewer is not None:
@@ -314,7 +372,7 @@ def test_single_grasp(
             time.sleep(0.1)
         return i, None, None
 
-    num_waypoints = 200
+    num_waypoints = 400
     waypoints = []
     primary_joint_data = None
     if joint_info and "primary_joint" in joint_info:
@@ -326,10 +384,11 @@ def test_single_grasp(
         joint_range_str = primary_joint_data.get("range", "0 0")
         joint_range = [float(x) for x in joint_range_str.split()]
 
-        gripper_pos = data.body("gripper_base").xpos.copy()
-        gripper_quat = data.body("gripper_base").xquat.copy()
+        gripper_pos = data.site("tcp").xpos.copy()
+        gripper_rot = data.site("tcp").xmat.copy().reshape(3, 3)
+        gripper_quat = quat
 
-        if joint_type == "hinge":
+        if joint_type == "hinge" or joint_type == "unknown":
             rotation_axis = primary_joint_data.get(
                 "rotation_axis", {"x": 0, "y": 0, "z": 0}
             )
@@ -455,6 +514,7 @@ def run_simulation_with_viewer(
     with open(args.grasps_path, "r") as f:
         grasp_data = json.load(f)
     transforms = np.array(grasp_data["transforms"])
+    print(len(transforms), "grasps to evaluate")
     qualities = np.array(grasp_data.get("quality_antipodal", [1.0] * len(transforms)))
     width = np.array(grasp_data.get("grasp_widths", [0.1] * len(transforms)))
 
@@ -470,7 +530,6 @@ def run_simulation_with_viewer(
             total=len(transforms),
             desc="Testing grasps (0/0 successful)",
         )
-
         for i, (transform, quality) in pbar:
             pos = transform[:3, 3]
             quat = R.from_matrix(transform[:3, :3]).as_quat(scalar_first=True)
@@ -481,7 +540,7 @@ def run_simulation_with_viewer(
 
             tree = ET.ElementTree(ET.fromstring(xml_content))
             root = tree.getroot()
-            gripper_base = root.find(".//body[@name='gripper_base']")
+            gripper_base = root.find(".//body[@name='base']")
             if gripper_base is not None:
                 gripper_base.set(
                     "pos", f"{approach_pos[0]} {approach_pos[1]} {approach_pos[2]}"
@@ -756,7 +815,7 @@ def main_single_file_filtering(
     xml_content = ET.tostring(root, encoding="unicode")
     robot_xml_path = os.path.join(
         os.path.dirname(__file__),
-        "../assets/gripper_models/rum_gripper/model_articulate.xml",
+        f"../assets/gripper_models/{args.gripper}_gripper/model_articulate.xml",
     )
     with open(robot_xml_path, "r") as f:
         robot_xml_content = f.read()
@@ -831,6 +890,7 @@ def main():
     parser.add_argument(
         "--grasps_path", type=str, help="Path to single grasps file (legacy mode)"
     )
+    parser.add_argument("--gripper", type=str, default="robotiq")
     parser.add_argument("--xml_file", type=str)
     parser.add_argument(
         "--per_joint_summary_json",

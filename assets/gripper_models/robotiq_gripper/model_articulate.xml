@@ -1,4 +1,5 @@
 <mujoco model="robotiq_2f85_v4">
+  <compiler angle="radian"/>
 
   <asset>
 
@@ -65,9 +66,17 @@
 
 
     <body gravcomp="1" name="base" childclass="2f85">
+
+
       <joint type="free" name="robotiq_free_joint" damping="1"/>
 
-      <site name="tcp" pos="0 0 0.13675" size="0.01" rgba="0 0 1 1" euler="1.57 0 0"/>
+      <site name="tcp" pos="0 0 0.13675" size="0.01" rgba="0 0 1 1"/>
+
+      <body pos="0 0 0.13675" quat="1 0 0 0">
+        <geom type="sphere" name="z_axis" pos="0 0 0.1" size="0.01" rgba="0 0 1 1" conaffinity="0" contype="0"/>
+        <geom type="sphere" name="y_axis" pos="0 0.1 0" size="0.01" rgba="0 1 0 1" conaffinity="0" contype="0"/>
+        <geom type="sphere" name="x_axis" pos="0.1 0 0" size="0.01" rgba="1 0 0 1" conaffinity="0" contype="0"/>
+      </body>
 
 
       <camera name="follower" pos="0 -0.5 -0.5" euler="2.5 0 0" mode="fixed" fovy="53.1"/>
@@ -111,8 +120,8 @@
           <geom class="collision" pos="0.0509079 -0.10392 -0.0091" quat="1 -1 0 0" type="mesh" mesh="follower"/>
           <geom class="collision" pos="0.0509079 -0.10392 -0.0091" quat="1 -1 0 0" type="mesh" mesh="tongue"/>
           <body gravcomp="1" name="left_pad" pos="-0.0377897 -0.103916 -0.0091" quat="1 -1 0 0">
-            <geom class="pad_box1" name="left_pad1"/>
-            <geom class="pad_box2" name="left_pad2"/>
+            <geom class="pad_box1" name="left_pad1" rgba="1 0 0 0"/>
+            <geom class="pad_box2" name="left_pad2" rgba="1 0 0 0"/>
           </body>
         </body>
       </body>

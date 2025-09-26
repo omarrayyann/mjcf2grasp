@@ -4,6 +4,8 @@ import trimesh.transformations as tra
 
 
 class RobotiqGripper:
+    tcp_offset = np.array([0, 0, 0.13675])
+
     def __init__(self, q=0.048372, num_contact_points_per_finger=15, root_folder=""):
         self.default_pregrasp_configuration = 0.048372
 
@@ -11,7 +13,7 @@ class RobotiqGripper:
             q = self.default_pregrasp_configuration
 
         self.q = q
-        gripping_center = 0.12582
+        gripping_center = 0.13675
         self.tcp_offset = np.array([0, 0, gripping_center])
         fn_base = root_folder + "assets/gripper_models/robotiq_gripper/hand.stl"
         fn_finger = root_folder + "assets/gripper_models/robotiq_gripper/finger.stl"

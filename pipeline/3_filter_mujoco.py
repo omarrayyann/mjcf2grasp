@@ -218,7 +218,7 @@ def test_single_grasp(grasp_data, object_name):
         data.mocap_pos[0] = pos
 
     # Let system stabilize
-    for step in range(400):
+    for step in range(2000):
         mujoco.mj_step(model, data)
 
     if args.gripper == "rum":
