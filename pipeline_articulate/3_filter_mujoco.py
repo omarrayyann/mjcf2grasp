@@ -437,6 +437,7 @@ def test_single_grasp(
 
     joint_positions = []
     articulation_success = True
+    mujoco.mj_step(model, data, nstep=2000)
 
     if waypoints:
         num_loops = args.articulation_loops
@@ -452,7 +453,7 @@ def test_single_grasp(
                 if render and viewer is not None:
                     viewer.sync()
 
-                if wp_idx % 10 == 0:
+                if wp_idx % 10 == 0 and wp_idx < len(waypoints) * 0.9:
                     is_currently_grasping = is_grasping(model, data, handle_geoms)
                 else:
                     is_currently_grasping = True
@@ -476,8 +477,10 @@ def test_single_grasp(
                 if render and viewer is not None:
                     viewer.sync()
 
-                if wp_idx % 10 == 0:
+                if wp_idx % 10 == 0 and wp_idx < len(waypoints) * 0.9:
                     is_currently_grasping = is_grasping(model, data, handle_geoms)
+                else:
+                    is_currently_grasping = True
 
                 joint_position = get_joint_position(model, data, primary_joint["name"])
                 joint_positions.append(joint_position)
@@ -531,6 +534,8 @@ def run_simulation_with_viewer(
             desc="Testing grasps (0/0 successful)",
         )
         for i, (transform, quality) in pbar:
+            if i < 20:
+                continue
             pos = transform[:3, 3]
             quat = R.from_matrix(transform[:3, :3]).as_quat(scalar_first=True)
 
@@ -618,7 +623,7 @@ def run_simulation_with_viewer(
         # This prevents submitting thousands of tasks when we only need a few hundred
         if args.max_successful > 0 and args.max_successful < len(grasp_params) // 2:
             # Submit 3x max_successful to account for failures, but cap it
-            initial_batch_size = min(args.max_successful * 3, len(grasp_params))
+            initial_batch_size = len(grasp_params)
             grasp_params_batch = grasp_params[:initial_batch_size]
             tqdm.write(
                 f"Optimizing: Processing first {initial_batch_size} grasps instead of all {len(grasp_params)} (target: {args.max_successful} successful)"

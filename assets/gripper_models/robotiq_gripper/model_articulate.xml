@@ -191,7 +191,7 @@
       solref="0.005 1"/>
     <joint joint1="right_driver_joint" joint2="left_driver_joint" polycoef="0 1 0 0 0" solimp="0.95 0.99 0.001"
       solref="0.005 1"/>
-    <weld site1="target_ee_pose" site2="tcp" solref="0.001 1" solimp="0.99 0.99 0.001"/>
+    <weld site1="target_ee_pose" site2="tcp" solref="0.01 1" solimp="0.8 0.8 0.05"/>
   </equality>
 
   <!--

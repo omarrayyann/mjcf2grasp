@@ -2,6 +2,7 @@
     <statistic extent="0.3" center="0 0.075 0"/>
     <size njmax="5000" nconmax="5000"/>
     <compiler autolimits="true" boundmass="0" balanceinertia="true" angle="radian"/>
+
     <option timestep="0.002" gravity="0 0 0" impratio="10" integrator="implicitfast" cone="elliptic" jacobian="sparse"
         solver="Newton" noslip_iterations="3">
         <flag contact="enable" warmstart="enable" energy="enable" multiccd="enable"/>
