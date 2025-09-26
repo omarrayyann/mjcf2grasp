@@ -237,12 +237,9 @@ def test_single_grasp(
 
     i, transform, quality, config = grasp_data
 
-    offset = RobotiqGripper.tcp_offset
-    new_transform = transform.copy()
-    new_transform[:3, 3] += new_transform[:3, :3] @ offset
     # rot_x = R.from_euler("x", 90, degrees=True).as_matrix()
     # new_transform[:3, :3] = new_transform[:3, :3] @ rot_x
-    transform = new_transform
+    # transform = new_transform
 
     pos = transform[:3, 3]
     quat = R.from_matrix(transform[:3, :3]).as_quat(scalar_first=True)
@@ -619,17 +616,7 @@ def run_simulation_with_viewer(
             for i, (transform, quality) in enumerate(zip(transforms, qualities))
         ]
 
-        # Optimize: if max_successful is set and reasonable, limit initial submission
-        # This prevents submitting thousands of tasks when we only need a few hundred
-        if args.max_successful > 0 and args.max_successful < len(grasp_params) // 2:
-            # Submit 3x max_successful to account for failures, but cap it
-            initial_batch_size = len(grasp_params)
-            grasp_params_batch = grasp_params[:initial_batch_size]
-            tqdm.write(
-                f"Optimizing: Processing first {initial_batch_size} grasps instead of all {len(grasp_params)} (target: {args.max_successful} successful)"
-            )
-        else:
-            grasp_params_batch = grasp_params
+        grasp_params_batch = grasp_params
 
         num_workers = min(args.num_workers, len(grasp_params_batch))
 
