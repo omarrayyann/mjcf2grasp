@@ -13,6 +13,7 @@ import trimesh
 import trimesh.transformations as tra
 import sys
 import os
+from scipy.spatial.transform import Rotation as R
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from grippers.PandaGripper import PandaGripper
@@ -874,6 +875,8 @@ def sample_multiple_grasps(
 
     for i in range(len(transforms)):
         transforms[i][:3, 3] += transforms[i][:3, :3] @ gripper.tcp_offset
+        rot_x = R.from_euler("x", 180, degrees=True).as_matrix()
+        transforms[i][:3, :3] = transforms[i][:3, :3] @ rot_x
 
     return points, normals, transforms, roll_angles, standoffs, collisions, quality
 

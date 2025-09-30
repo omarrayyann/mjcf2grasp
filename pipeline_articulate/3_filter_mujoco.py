@@ -237,7 +237,8 @@ def test_single_grasp(
 
     i, transform, quality, config = grasp_data
 
-    # rot_x = R.from_euler("x", 90, degrees=True).as_matrix()
+    # new_transform = transform.copy()
+    # rot_x = R.from_euler("x", 180, degrees=True).as_matrix()
     # new_transform[:3, :3] = new_transform[:3, :3] @ rot_x
     # transform = new_transform
 
@@ -318,7 +319,7 @@ def test_single_grasp(
         new_pos = approach_pos + (step / approach_steps) * approach_vector
         data.mocap_pos[0] = new_pos
         data.mocap_quat[0] = quat
-        for i in range(1000):
+        for i in range(100):
             mujoco.mj_step(model, data)
             if render and viewer is not None:
                 viewer.sync()
@@ -339,7 +340,7 @@ def test_single_grasp(
         return i, None, None
 
     data.mocap_pos[0] = pos
-    mujoco.mj_step(model, data, nstep=1000)
+    mujoco.mj_step(model, data, nstep=500)
     if render and viewer is not None:
         viewer.sync()
 
@@ -351,7 +352,7 @@ def test_single_grasp(
         data.ctrl[0] = 255.0
 
     # is_grasping(model, data, handle_geoms)
-    for _ in range(2000):
+    for _ in range(500):
         mujoco.mj_step(model, data)
         if render and viewer is not None:
             viewer.sync()
@@ -369,7 +370,7 @@ def test_single_grasp(
             time.sleep(0.1)
         return i, None, None
 
-    num_waypoints = 400
+    num_waypoints = 2000
     waypoints = []
     primary_joint_data = None
     if joint_info and "primary_joint" in joint_info:
@@ -446,7 +447,7 @@ def test_single_grasp(
                 data.mocap_pos[0] = wp_pos
                 data.mocap_quat[0] = wp_quat
 
-                mujoco.mj_step(model, data, nstep=200)
+                mujoco.mj_step(model, data, nstep=10)
                 if render and viewer is not None:
                     viewer.sync()
 
@@ -470,7 +471,7 @@ def test_single_grasp(
                 data.mocap_pos[0] = wp_pos
                 data.mocap_quat[0] = wp_quat
 
-                mujoco.mj_step(model, data, nstep=200)
+                mujoco.mj_step(model, data, nstep=10)
                 if render and viewer is not None:
                     viewer.sync()
 
@@ -531,8 +532,6 @@ def run_simulation_with_viewer(
             desc="Testing grasps (0/0 successful)",
         )
         for i, (transform, quality) in pbar:
-            if i < 20:
-                continue
             pos = transform[:3, 3]
             quat = R.from_matrix(transform[:3, :3]).as_quat(scalar_first=True)
 
