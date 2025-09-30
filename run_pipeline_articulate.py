@@ -8,7 +8,6 @@ from pathlib import Path
 
 USE_WANDB = True
 gripper = "robotiq"
-f
 
 def load_articulated_objects():
     matched_file = "articulated_matched_objs.json"
