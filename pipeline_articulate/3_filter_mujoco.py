@@ -629,54 +629,27 @@ def run_simulation_with_viewer(
             for i, (transform, quality) in enumerate(zip(transforms, qualities))
         ]
 
-        grasp_params_batch = grasp_params
-
-        num_workers = min(args.num_workers, len(grasp_params_batch))
+        # Split grasps into 4 groups
+        num_groups = 4
+        group_size = (len(grasp_params) + num_groups - 1) // num_groups
+        grasp_groups = [
+            grasp_params[i * group_size : (i + 1) * group_size]
+            for i in range(num_groups)
+        ]
 
         successful_transforms = []
         successful_qualities = []
         successful_widths = []
 
-        with mp.Manager() as manager:
-            success_count = manager.Value("i", 0)
-            processed_count = manager.Value("i", 0)
-            lock = manager.Lock()
+        total_to_process = len(grasp_params)
+        pbar = tqdm(total=total_to_process, desc="Testing grasps (0/0 successful)")
+        processed_count = 0
+        success_count = 0
 
-            should_stop = manager.Value("b", False)
-
-            def update_progress_bar(result):
-                nonlocal pbar
-                i, transform_result, quality_result = result
-
-                with lock:
-                    processed_count.value += 1
-
-                    if transform_result is not None:
-                        success_count.value += 1
-                        successful_transforms.append(
-                            (i, transform_result, quality_result, 0.1)
-                        )
-
-                        if (
-                            args.max_successful > 0
-                            and success_count.value >= args.max_successful
-                        ):
-                            should_stop.value = True
-                            tqdm.write(
-                                f"Found {success_count.value} successful grasps (reached max_successful limit)"
-                            )
-                            # Return early to avoid more processing
-                            return
-
-                pbar.set_description(
-                    f"Testing grasps ({success_count.value}/{processed_count.value} successful)"
-                )
-                pbar.update(1)
-
-            pbar = tqdm(
-                total=len(grasp_params_batch), desc="Testing grasps (0/0 successful)"
-            )
-
+        for group_idx, grasp_params_batch in enumerate(grasp_groups):
+            if not grasp_params_batch:
+                continue
+            num_workers = min(args.num_workers, len(grasp_params_batch))
             with mp.Pool(processes=num_workers) as pool:
                 results = [
                     pool.apply_async(
@@ -689,52 +662,45 @@ def run_simulation_with_viewer(
                             handle_geoms,
                             primary_joint,
                         ),
-                        callback=update_progress_bar,
                     )
                     for param in grasp_params_batch
                 ]
 
-                completed = 0
-                while completed < len(results):
-                    if should_stop.value:
-                        pool.terminate()
-                        tqdm.write(
-                            "Terminating remaining workers after reaching max successful grasps"
+                for r in results:
+                    try:
+                        result = r.get()
+                        i, transform_result, quality_result = result
+                        processed_count += 1
+                        if transform_result is not None:
+                            success_count += 1
+                            successful_transforms.append(transform_result)
+                            successful_qualities.append(quality_result)
+                            successful_widths.append(0.1)
+                        pbar.set_description(
+                            f"Testing grasps ({success_count}/{processed_count} successful)"
                         )
-                        # Force break immediately instead of waiting for all tasks
-                        break
-
-                    # Add a small delay to prevent high CPU usage during polling
-                    time.sleep(0.01)
-
-                    for i, r in enumerate(results):
-                        if r is not None and r.ready() and not r.successful():
-                            try:
-                                r.get()
-                            except Exception as e:
-                                tqdm.write(f"Worker error: {str(e)}")
-                            results[i] = None
-                            completed += 1
-                        elif r is not None and r.ready():
-                            results[i] = None
-                            completed += 1
-
-                if not should_stop.value:
-                    pool.close()
-                    pool.join()
-                else:
-                    # When stopped early, close the pool without waiting
-                    pool.close()
-
-            successful_transforms_only = [t for _, t, _, _ in successful_transforms]
-            successful_qualities_only = [q for _, _, q, _ in successful_transforms]
-            successful_widths_only = [w for _, _, _, w in successful_transforms]
+                        pbar.update(1)
+                        if (
+                            args.max_successful > 0
+                            and success_count >= args.max_successful
+                        ):
+                            tqdm.write(
+                                f"Reached maximum successful grasps ({args.max_successful}). Stopping early."
+                            )
+                            pool.terminate()
+                            break
+                    except Exception as e:
+                        tqdm.write(f"Worker error: {str(e)}")
+                pool.close()
+                pool.join()
+            if args.max_successful > 0 and success_count >= args.max_successful:
+                break
 
         pbar.close()
         return (
-            successful_transforms_only,
-            successful_qualities_only,
-            successful_widths_only,
+            successful_transforms,
+            successful_qualities,
+            successful_widths,
         )
 
 
