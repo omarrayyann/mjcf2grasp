@@ -6,9 +6,9 @@ import wandb
 from datetime import datetime
 from pathlib import Path
 
-USE_WANDB = False
+USE_WANDB = True
 gripper = "robotiq"
-
+f
 
 def load_articulated_objects():
     matched_file = "articulated_matched_objs.json"
@@ -32,33 +32,33 @@ def run_grasp_filtering_stage(
 ):
     # First, convert XML to use mesh colliders
     xml_mesh_file = xml_file.replace(".xml", "_mesh.xml")
-    # if not os.path.exists(xml_mesh_file):
-    #     print(f"   Converting XML to use mesh colliders...")
-    #     try:
-    #         subprocess.run(
-    #             [
-    #                 "python",
-    #                 "pipeline_articulate/2_mesh_colliders.py",
-    #                 "--input",
-    #                 xml_file,
-    #                 "--output",
-    #                 xml_mesh_file,
-    #             ],
-    #             check=True,
-    #         )
-    #         print(f"   Mesh collider XML created: {xml_mesh_file}")
-    #     except subprocess.CalledProcessError as e:
-    #         print(
-    #             f"   Warning: Failed to convert to mesh colliders, using original XML: {str(e)}"
-    #         )
-    #         xml_mesh_file = xml_file
-    #     except Exception as e:
-    #         print(
-    #             f"   Warning: Unexpected error in mesh collider conversion, using original XML: {str(e)}"
-    #         )
-    #         xml_mesh_file = xml_file
-    # else:
-    #     print(f"   Mesh collider XML already exists: {xml_mesh_file}")
+    if not os.path.exists(xml_mesh_file):
+        print(f"   Converting XML to use mesh colliders...")
+        try:
+            subprocess.run(
+                [
+                    "python",
+                    "pipeline_articulate/2_mesh_colliders.py",
+                    "--input",
+                    xml_file,
+                    "--output",
+                    xml_mesh_file,
+                ],
+                check=True,
+            )
+            print(f"   Mesh collider XML created: {xml_mesh_file}")
+        except subprocess.CalledProcessError as e:
+            print(
+                f"   Warning: Failed to convert to mesh colliders, using original XML: {str(e)}"
+            )
+            xml_mesh_file = xml_file
+        except Exception as e:
+            print(
+                f"   Warning: Unexpected error in mesh collider conversion, using original XML: {str(e)}"
+            )
+            xml_mesh_file = xml_file
+    else:
+        print(f"   Mesh collider XML already exists: {xml_mesh_file}")
 
     # Use the mesh collider XML for filtering
     xml_file_for_filtering = xml_mesh_file
@@ -196,10 +196,6 @@ def run_grasp_generation_stage(object_name, handle_mesh_path, full_mesh, output_
                 handle_mesh_path,
                 "--output",
                 grasps_output_path,
-                "--gripper",
-                "panda",
-                "--num_samples",
-                "50000",
                 "--quality",
                 "antipodal",
                 "--min_quality",
@@ -291,9 +287,7 @@ def run_per_joint_grasp_generation(
                 "--per_joint_grasps_from_meshes",
                 joint_meshes_json,
                 "--gripper",
-                "panda",
-                "--num_samples",
-                "50000",
+                gripper,
                 "--quality",
                 "antipodal",
                 "--min_quality",
@@ -305,8 +299,6 @@ def run_per_joint_grasp_generation(
                 "thor_articulated",
                 "--collision_object_file",
                 full_mesh,
-                "--gripper",
-                gripper,
             ],
             check=True,
         )
