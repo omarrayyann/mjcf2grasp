@@ -944,6 +944,9 @@ def generate_per_joint_grasps(joint_meshes_json, base_prefix, args):
             collisions = [collisions[i] for i in valid_indices]
             qualities = {k: [v[i] for i in valid_indices] for k, v in qualities.items()}
 
+        for i in range(len(transforms)):
+            transforms[i][:3, 3] += transforms[i][:3, :3] @ gripper.tcp_offset
+
         grasps = {
             "object": obj.filename,
             "object_scale": obj.scale,
@@ -1015,7 +1018,7 @@ def make_parser():
     parser.add_argument(
         "--gripper",
         choices=get_available_grippers().keys(),
-        default="rum",
+        default="robotiq",
         help="Type of gripper.",
     )
     parser.add_argument(
@@ -1123,51 +1126,7 @@ if __name__ == "__main__":
 
     verboseprint = print if not args.silent else lambda *a, **k: None
 
-    if args.add_quality_metric:
-        with open(args.add_quality_metric[1], "r") as f:
-            grasps = json.load(f)
-        obj = Object(
-            grasps["object"].replace(".obj", ".stl")
-            if args.use_stl
-            else grasps["object"]
-        )
-        obj.rescale(grasps["object_scale"])
-
-        grasp_tfs = np.array(grasps["transforms"])
-        collisions = np.array(grasps["collisions"])
-
-        key = "quality_{}".format(args.add_quality_metric[0])
-
-        if key in grasps.keys() and not args.force:
-            raise Exception(
-                "Quality metric already part of json file! (Needs --force option) ", key
-            )
-
-        if key == "quality_number_of_contacts":
-            grasps[key] = grasp_quality_point_contacts(
-                grasp_tfs,
-                collisions,
-                object_mesh=obj.mesh,
-                gripper_name=grasps["gripper"],
-                silent=args.silent,
-                num_workers=args.num_workers,
-            )
-        elif key == "quality_antipodal":
-            grasps[key] = grasp_quality_antipodal(
-                grasp_tfs,
-                collisions,
-                object_mesh=obj.mesh,
-                gripper_name=grasps["gripper"],
-                silent=args.silent,
-                num_workers=args.num_workers,
-            )
-        else:
-            raise Exception("Unknown quality metric: ", key)
-
-        with open(args.add_quality_metric[1], "w") as f:
-            json.dump(grasps, f)
-
-    elif args.per_joint_grasps_from_meshes:
+    if args.per_joint_grasps_from_meshes:
         base_prefix = os.path.splitext(
             os.path.basename(args.per_joint_grasps_from_meshes)
         )[0].replace("_joint_meshes", "")
