@@ -873,8 +873,6 @@ def sample_multiple_grasps(
         f"Final result: {len(transforms):,} valid grasps with quality >= {min_quality}"
     )
 
-    # for i in range(len(transforms)):
-    #     transforms[i][:3, 3] += transforms[i][:3, :3] @ gripper.tcp_offset
     # rot_x = R.from_euler("x", 180, degrees=True).as_matrix()
     # transforms[i][:3, :3] = transforms[i][:3, :3] @ rot_x
 
@@ -1243,6 +1241,9 @@ if __name__ == "__main__":
             standoffs = standoffs[valid_indices]
             collisions = [collisions[i] for i in valid_indices]
             qualities = {k: [v[i] for i in valid_indices] for k, v in qualities.items()}
+
+        for i in range(len(transforms)):
+            transforms[i][:3, 3] += transforms[i][:3, :3] @ gripper.tcp_offset
 
         grasps = {
             "object": obj.filename,
