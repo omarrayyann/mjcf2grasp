@@ -316,11 +316,6 @@ def test_single_grasp(
         if render and viewer is not None:
             viewer.sync()
 
-    while 1:
-        mujoco.mj_step(model, data)
-        if render and viewer is not None:
-            viewer.sync()
-
     joint_name = None
     if joint_info and "primary_joint" in joint_info:
         joint_name = joint_info["primary_joint"]["name"]
@@ -389,7 +384,7 @@ def test_single_grasp(
             time.sleep(0.1)
         return i, None, None
 
-    num_waypoints = 2000
+    num_waypoints = 500
     waypoints = []
     primary_joint_data = None
     if joint_info and "primary_joint" in joint_info:
