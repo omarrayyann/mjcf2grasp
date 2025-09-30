@@ -551,8 +551,6 @@ def run_simulation_with_viewer(
             desc="Testing grasps (0/0 successful)",
         )
         for i, (transform, quality) in pbar:
-            if i < 9:
-                continue
             pos = transform[:3, 3]
             quat = R.from_matrix(transform[:3, :3]).as_quat(scalar_first=True)
 
