@@ -32,33 +32,33 @@ def run_grasp_filtering_stage(
 ):
     # First, convert XML to use mesh colliders
     xml_mesh_file = xml_file.replace(".xml", "_mesh.xml")
-    if not os.path.exists(xml_mesh_file):
-        print(f"   Converting XML to use mesh colliders...")
-        try:
-            subprocess.run(
-                [
-                    "python",
-                    "pipeline_articulate/2_mesh_colliders.py",
-                    "--input",
-                    xml_file,
-                    "--output",
-                    xml_mesh_file,
-                ],
-                check=True,
-            )
-            print(f"   Mesh collider XML created: {xml_mesh_file}")
-        except subprocess.CalledProcessError as e:
-            print(
-                f"   Warning: Failed to convert to mesh colliders, using original XML: {str(e)}"
-            )
-            xml_mesh_file = xml_file
-        except Exception as e:
-            print(
-                f"   Warning: Unexpected error in mesh collider conversion, using original XML: {str(e)}"
-            )
-            xml_mesh_file = xml_file
-    else:
-        print(f"   Mesh collider XML already exists: {xml_mesh_file}")
+    # if not os.path.exists(xml_mesh_file):
+    #     print(f"   Converting XML to use mesh colliders...")
+    #     try:
+    #         subprocess.run(
+    #             [
+    #                 "python",
+    #                 "pipeline_articulate/2_mesh_colliders.py",
+    #                 "--input",
+    #                 xml_file,
+    #                 "--output",
+    #                 xml_mesh_file,
+    #             ],
+    #             check=True,
+    #         )
+    #         print(f"   Mesh collider XML created: {xml_mesh_file}")
+    #     except subprocess.CalledProcessError as e:
+    #         print(
+    #             f"   Warning: Failed to convert to mesh colliders, using original XML: {str(e)}"
+    #         )
+    #         xml_mesh_file = xml_file
+    #     except Exception as e:
+    #         print(
+    #             f"   Warning: Unexpected error in mesh collider conversion, using original XML: {str(e)}"
+    #         )
+    #         xml_mesh_file = xml_file
+    # else:
+    #     print(f"   Mesh collider XML already exists: {xml_mesh_file}")
 
     # Use the mesh collider XML for filtering
     xml_file_for_filtering = xml_mesh_file
