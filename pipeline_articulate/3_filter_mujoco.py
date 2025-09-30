@@ -285,6 +285,7 @@ def test_single_grasp(
         viewer = mujoco.viewer.launch_passive(
             model, data, show_left_ui=False, show_right_ui=False
         )
+
     if args.gripper == "rum":
         data.ctrl[0] = 1.0
     elif args.gripper == "panda":
@@ -311,6 +312,11 @@ def test_single_grasp(
             transform[:3, 3] + transform[:3, 2] * 0.1
         )
 
+        mujoco.mj_step(model, data)
+        if render and viewer is not None:
+            viewer.sync()
+
+    while 1:
         mujoco.mj_step(model, data)
         if render and viewer is not None:
             viewer.sync()
@@ -545,6 +551,8 @@ def run_simulation_with_viewer(
             desc="Testing grasps (0/0 successful)",
         )
         for i, (transform, quality) in pbar:
+            if i < 9:
+                continue
             pos = transform[:3, 3]
             quat = R.from_matrix(transform[:3, :3]).as_quat(scalar_first=True)
 
