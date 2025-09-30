@@ -199,7 +199,7 @@ def run_grasp_generation_stage(object_name, handle_mesh_path, full_mesh, output_
                 "--quality",
                 "antipodal",
                 "--min_quality",
-                "0.005",
+                "0.001",
                 "--systematic_sampling",
                 "--classname",
                 "articulated_handle",

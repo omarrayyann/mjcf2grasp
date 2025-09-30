@@ -238,7 +238,20 @@ def test_single_grasp(
     i, transform, quality, config = grasp_data
 
     # new_transform = transform.copy()
-    # rot_x = R.from_euler("x", 180, degrees=True).as_matrix()
+
+    # offset = np.zeros(3)
+    # if args.gripper == "rum":
+    #     offset = RUMGripper.tcp_offset
+    # elif args.gripper == "panda":
+    #     offset = PandaGripper.tcp_offset
+    # elif args.gripper == "robotiq":
+    #     offset = RobotiqGripper.tcp_offset
+
+    # new_transform[:3, 3] += new_transform[:3, :3] @ offset
+    #     rot_x = R.from_euler("x", 180, degrees=True).as_matrix()
+    #     transforms[i][:3, :3] = transforms[i][:3, :3] @ rot_x
+
+    # rot_x = R.from_euler("y", -90, degrees=True).as_matrix()
     # new_transform[:3, :3] = new_transform[:3, :3] @ rot_x
     # transform = new_transform
 
