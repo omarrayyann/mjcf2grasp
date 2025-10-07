@@ -16,6 +16,7 @@ import re
 import sys
 import os
 
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from grippers.PandaGripper import PandaGripper
 from grippers.RUMGripper import RUMGripper
@@ -65,12 +66,10 @@ def get_joint_position(model, data, joint_name):
     return data.joint(joint_id).qpos.copy()
 
 
-def check_sufficient_joint_movement(
-    joint_positions,
-):
+def check_sufficient_joint_movement(joint_positions, max_range):
     max_joint_position = max(joint_positions)
     min_joint_position = min(joint_positions)
-    if max_joint_position - min_joint_position < 0.01:
+    if (max_joint_position - min_joint_position) / max_range < 0.7:  # 0.01:
         return False
     return True
 
@@ -258,6 +257,10 @@ def test_single_grasp(
     pos = transform[:3, 3]
     quat = R.from_matrix(transform[:3, :3]).as_quat(scalar_first=True)
 
+    pose_before = np.eye(4)
+    pose_before[:3, :3] = R.from_quat(quat[[1, 2, 3, 0]]).as_matrix()
+    pose_before[:3, 3] = pos
+
     approach_distance = args.approach_distance
     approach_steps = args.approach_steps
     approach_vector = transform[:3, 2] * approach_distance
@@ -298,23 +301,23 @@ def test_single_grasp(
         if render and viewer is not None:
             viewer.sync()
 
-    if 1:
-        model.site_pos[mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_SITE, "origin")] = (
-            transform[:3, 3]
-        )
-        model.site_pos[mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_SITE, "x_axis")] = (
-            transform[:3, 3] + transform[:3, 0] * 0.1
-        )
-        model.site_pos[mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_SITE, "y_axis")] = (
-            transform[:3, 3] + transform[:3, 1] * 0.1
-        )
-        model.site_pos[mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_SITE, "z_axis")] = (
-            transform[:3, 3] + transform[:3, 2] * 0.1
-        )
+    # if 1:
+    #     model.site_pos[mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_SITE, "origin")] = (
+    #         transform[:3, 3]
+    #     )
+    #     model.site_pos[mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_SITE, "x_axis")] = (
+    #         transform[:3, 3] + transform[:3, 0] * 0.1
+    #     )
+    #     model.site_pos[mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_SITE, "y_axis")] = (
+    #         transform[:3, 3] + transform[:3, 1] * 0.1
+    #     )
+    #     model.site_pos[mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_SITE, "z_axis")] = (
+    #         transform[:3, 3] + transform[:3, 2] * 0.1
+    #     )
 
-        mujoco.mj_step(model, data)
-        if render and viewer is not None:
-            viewer.sync()
+    #     mujoco.mj_step(model, data)
+    #     if render and viewer is not None:
+    #         viewer.sync()
 
     joint_name = None
     if joint_info and "primary_joint" in joint_info:
@@ -371,6 +374,11 @@ def test_single_grasp(
         if render and viewer is not None:
             viewer.sync()
 
+    pose_after = np.eye(4)
+    pose_after[:3, :3] = data.site("tcp").xmat.reshape(3, 3)
+    pose_after[:3, 3] = data.site("tcp").xpos
+
+    transform = pose_after
     while 1:
         mujoco.mj_step(model, data)
         if render and viewer is not None:
@@ -384,7 +392,7 @@ def test_single_grasp(
             time.sleep(0.1)
         return i, None, None
 
-    num_waypoints = 500
+    num_waypoints = 400
     waypoints = []
     primary_joint_data = None
     if joint_info and "primary_joint" in joint_info:
@@ -424,7 +432,7 @@ def test_single_grasp(
 
             max_angle = joint_range[1]
             if max_angle == 0:
-                max_angle = np.pi / 2
+                max_angle = joint_range[0]
 
             rel_pos = gripper_pos - pivot_point
             for i in range(num_waypoints + 1):
@@ -436,16 +444,19 @@ def test_single_grasp(
                 new_quat = quat_multiply(rotation_quat, gripper_quat)
                 waypoints.append((new_pos, new_quat))
 
+            max_range = np.abs(max_angle)
         elif joint_type == "slide":
             axis_str = primary_joint_data.get("axis", "0 0 0")
             slide_axis = np.array([float(x) for x in axis_str.split()])
             max_distance = joint_range[1]
             if max_distance == 0:
-                max_distance = 0.2
+                max_distance = joint_range[0]
             for i in range(num_waypoints + 1):
                 distance = i * max_distance / num_waypoints
                 new_pos = gripper_pos + slide_axis * distance
                 waypoints.append((new_pos, gripper_quat.copy()))
+
+            max_range = np.abs(max_distance)
 
     joint_positions = []
     articulation_success = True
@@ -502,7 +513,9 @@ def test_single_grasp(
                     break
 
     if joint_positions:
-        sufficient_movement = check_sufficient_joint_movement(joint_positions)
+        sufficient_movement = check_sufficient_joint_movement(
+            joint_positions, max_range
+        )
         if not sufficient_movement:
             articulation_success = False
 
@@ -708,9 +721,10 @@ def filter_per_joint_summary(summary_json_path, args):
     with open(summary_json_path, "r") as f:
         summary = json.load(f)
     updated_summary = []
-    for entry in summary:
+    for i, entry in enumerate(summary):
         joint = entry.get("joint")
         grasps_file = entry.get("grasps_file")
+
         handle_mesh = entry.get("handle_mesh")
         xml_file = entry.get("xml_file") if entry.get("xml_file") else args.xml_file
         joint_info = (
@@ -885,7 +899,7 @@ def main():
         with open(summary_path, "r") as f:
             summary = json.load(f)
         updated_summary = []
-        for entry in summary:
+        for i, entry in enumerate(summary):
             joint = entry.get("joint")
             if args.filtered:
                 grasps_file = entry.get("filtered_grasps_file")
