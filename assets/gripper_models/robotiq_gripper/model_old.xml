@@ -17,7 +17,6 @@
     <mesh file="assets/gripper_models/robotiq_gripper/assets/tongue.stl"/>
   </asset>
 
-
   <default>
     <default class="2f85">
       <mesh scale="0.001 0.001 0.001"/>

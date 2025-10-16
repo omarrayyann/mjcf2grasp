@@ -4,6 +4,8 @@ import trimesh.transformations as tra
 
 
 class PandaGripper(object):
+    tcp_offset = np.array([0, 0, 0.089275])
+
     def __init__(self, q=None, num_contact_points_per_finger=10, root_folder=""):
         self.joint_limits = [0.0, 0.04]
         self.default_pregrasp_configuration = 0.04

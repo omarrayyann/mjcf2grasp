@@ -6,8 +6,8 @@ import wandb
 from datetime import datetime
 from pathlib import Path
 
-USE_WANDB = False
-
+USE_WANDB = True
+gripper = "robotiq"
 
 def load_articulated_objects():
     matched_file = "articulated_matched_objs.json"
@@ -77,13 +77,15 @@ def run_grasp_filtering_stage(
                     "--xml_file",
                     xml_file_for_filtering,
                     "--num_workers",
-                    "10",
+                    str(os.cpu_count()),
                     "--approach_distance",
-                    "0.5",
+                    "0.3",
                     "--approach_steps",
-                    "5",
+                    "8",
                     "--max_successful",
-                    "10",
+                    "2000",
+                    "--gripper",
+                    gripper,
                     # "--render",
                 ],
                 check=True,
@@ -145,6 +147,8 @@ def run_grasp_filtering_stage(
                     "5",
                     "--max_successful",
                     "10",
+                    "--gripper",
+                    gripper,
                     # "--render",
                 ],
                 check=True,
@@ -191,14 +195,10 @@ def run_grasp_generation_stage(object_name, handle_mesh_path, full_mesh, output_
                 handle_mesh_path,
                 "--output",
                 grasps_output_path,
-                "--gripper",
-                "panda",
-                "--num_samples",
-                "50000",
                 "--quality",
                 "antipodal",
                 "--min_quality",
-                "0.005",
+                "0.001",
                 "--systematic_sampling",
                 "--classname",
                 "articulated_handle",
@@ -206,6 +206,8 @@ def run_grasp_generation_stage(object_name, handle_mesh_path, full_mesh, output_
                 "thor_articulated",
                 "--collision_object_file",
                 full_mesh,
+                "--gripper",
+                gripper,
             ],
             check=True,
         )
@@ -284,9 +286,7 @@ def run_per_joint_grasp_generation(
                 "--per_joint_grasps_from_meshes",
                 joint_meshes_json,
                 "--gripper",
-                "panda",
-                "--num_samples",
-                "50000",
+                gripper,
                 "--quality",
                 "antipodal",
                 "--min_quality",

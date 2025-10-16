@@ -11,3 +11,6 @@ assets/Thor-Assets
 *.obj
 *.mtl
 *.pyc
+/test
+/grippers/__pycache__
+/assets/objects

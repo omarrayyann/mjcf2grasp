@@ -80,7 +80,6 @@ if __name__ == "__main__":
     parser.add_argument("directory", help="Base directory to search")
     parser.add_argument(
         "--output",
-        default="matched_objs.json",
         help="Output JSON file name",
     )
     parser.add_argument(
@@ -90,6 +89,13 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
+
+    if not args.output:
+        args.output = (
+            "matched_objects.json"
+            if not args.check_joints
+            else "articulated_matched_objs.json"
+        )
 
     matched_objs = find_objs_with_matching_subfolder(args.directory, args.check_joints)
     save_to_json(matched_objs, args.output)

@@ -1,6 +1,12 @@
 <mujoco model="iiwa14_scene">
     <statistic extent="0.3" center="0 0.075 0"/>
     <size njmax="5000" nconmax="5000"/>
+    <compiler autolimits="true" boundmass="0" balanceinertia="true" angle="radian"/>
+
+    <option timestep="0.002" gravity="0 0 0" impratio="10" integrator="implicitfast" cone="elliptic" jacobian="sparse"
+        solver="Newton" noslip_iterations="3">
+        <flag contact="enable" warmstart="enable" energy="enable" multiccd="enable"/>
+    </option>
 
     <visual>
         <headlight diffuse="0.3 0.3 0.3" ambient="0.2 0.2 0.2" specular="0 0 0"/>
@@ -8,11 +14,6 @@
         <global azimuth="-120" elevation="-20" offwidth="1280" offheight="720"/>
         <quality shadowsize="0"/>
     </visual>
-    <compiler autolimits="true" boundmass="0" balanceinertia="true" angle="radian"/>
-    <option timestep="0.002" impratio="10" integrator="implicitfast" cone="elliptic" noslip_iterations="4"
-        gravity="0 0 0">
-        <flag contact="enable" warmstart="enable" energy="enable" multiccd="enable"/>
-    </option>
 
     <asset>
         <texture type="skybox" builtin="gradient" rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512" height="3072"/>
@@ -27,6 +28,11 @@
     </asset>
 
     <worldbody>
+
+        <site name="x_axis" pos="0.1 0 0" size="0.01" rgba="1 0 0 1"/>
+        <site name="y_axis" pos="0 0.1 0" size="0.01" rgba="0 1 0 1"/>
+        <site name="z_axis" pos="0 0 0.1" size="0.01" rgba="0 0 1 1"/>
+        <site name="origin" pos="0 0 0.2" size="0.01" rgba="1 1 1 1"/>
 
 
         <light pos="0 0 4.5" dir="0 0 -1" directional="true"/>

@@ -143,7 +143,7 @@ def test_single_grasp(grasp_data, object_name, base_xml_content, gripper_xml_con
     for body in root.findall(".//body"):
         if body.get("name") == "base":
             org_rot = R.from_matrix(transform[:3, :3])
-            rot_new = org_rot * R.from_euler("x", 90, degrees=True)
+            rot_new = org_rot  # * R.from_euler("x", 90, degrees=True)
             new_quat = rot_new.as_quat(scalar_first=True)
             body.set("pos", f"{approach_pos[0]} {approach_pos[1]} {approach_pos[2]}")
             body.set("quat", f"{new_quat[0]} {new_quat[1]} {new_quat[2]} {new_quat[3]}")
@@ -152,7 +152,7 @@ def test_single_grasp(grasp_data, object_name, base_xml_content, gripper_xml_con
     for body in root.findall(".//body"):
         if body.get("name") == "target_ee_pose":
             org_rot = R.from_matrix(transform[:3, :3])
-            rot_new = org_rot * R.from_euler("x", 90, degrees=True)
+            rot_new = org_rot  # * R.from_euler("x", 90, degrees=True)
             new_quat = rot_new.as_quat(scalar_first=True)
             body.set("pos", f"{approach_pos[0]} {approach_pos[1]} {approach_pos[2]}")
             body.set("quat", f"{new_quat[0]} {new_quat[1]} {new_quat[2]} {new_quat[3]}")
@@ -212,7 +212,7 @@ def test_single_grasp(grasp_data, object_name, base_xml_content, gripper_xml_con
         data.mocap_pos[0] = pos
 
     # Let system stabilize
-    for step in range(400):
+    for step in range(500):
         mujoco.mj_step(model, data)
 
     if args.gripper == "rum":
@@ -222,7 +222,7 @@ def test_single_grasp(grasp_data, object_name, base_xml_content, gripper_xml_con
     elif args.gripper == "robotiq":
         data.ctrl[0] = 255.0
 
-    for step in range(2000):
+    for step in range(500):
         mujoco.mj_step(model, data)
 
     object_pose = np.eye(4)
@@ -380,37 +380,19 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
             gripper = RobotiqGripper()
 
         for i, (transform, quality) in pbar:
-            # transform[:3, 3] += transform[:3, :3] @ gripper.tcp_offset
-            # if i < 10:
-            # continue
-            # transform = np.array(
-            #     [
-            #         [9.95544306e-01, 7.81320014e-02, 5.27913288e-02, 2.61137130e-04],
-            #         [3.59627602e-02, 2.02932125e-01, -9.78532183e-01, 4.26163344e-03],
-            #         [-8.71677344e-02, 9.76070665e-01, 1.99218079e-01, 1.45099702e-01],
-            #         [0.00000000e00, 0.00000000e00, 0.00000000e00, 1.00000000e00],
-            #     ]
-            # )
-            # print(f"Transform: {transform}")
-
-            # transform = np.array(
-            #     [
-            #         [0.99573922, 0.03518446, -0.0852377, 0.01196972],
-            #         [0.05151341, -0.9789079, 0.19770099, -0.02450723],
-            #         [-0.07648385, -0.20124952, -0.97654946, 0.14257034],
-            #         [0.0, 0.0, 0.0, 1.0],
-            #     ]
-            # )
-            # transform[0:3, 3] = [0.05835581, 0.03979523, 0.14314214]
-            # transform[0:3, 0:3] = R.from_quat(
-            #     [0.95983621, 0.23655397, -0.13927727, -0.0579526]
-            # ).as_matrix()
-
-            # (array([0.05835581, 0.03979523, 0.14314214]), array([-0.0579526 ,  0.95983621,  0.23655397, -0.13927727]))
-
-            # print(transform)
-
-            # Create combined XML for the scene with the gripper and object
+            transform = np.array(
+                [
+                    [
+                        -9.77128557e-01,
+                        -7.02050876e-03,
+                        -2.12533516e-01,
+                        -1.95007307e-03,
+                    ],
+                    [2.12649228e-01, -3.08611412e-02, -9.76641129e-01, -1.11673942e-02],
+                    [2.97490752e-04, -9.99499026e-01, 3.16482082e-02, 2.46439797e-01],
+                    [0.00000000e00, 0.00000000e00, 0.00000000e00, 1.00000000e00],
+                ]
+            )
             tree = ET.ElementTree(ET.fromstring(xml_content))
             root = tree.getroot()
 
@@ -421,11 +403,10 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
             approach_vector = transform[:3, 2] * approach_distance
             approach_pos = pos - approach_vector
 
-            # Find the body element with name="base" and modify its position
             for body in root.findall(".//body"):
                 if body.get("name") == "base":
                     org_rot = R.from_matrix(transform[:3, :3])
-                    rot_new = org_rot * R.from_euler("x", 90, degrees=True)
+                    rot_new = org_rot  # * R.from_euler("x", 90, degrees=True)
                     new_quat = rot_new.as_quat(scalar_first=True)
                     body.set(
                         "pos", f"{approach_pos[0]} {approach_pos[1]} {approach_pos[2]}"
@@ -439,7 +420,7 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
             for body in root.findall(".//body"):
                 if body.get("name") == "target_ee_pose":
                     org_rot = R.from_matrix(transform[:3, :3])
-                    rot_new = org_rot * R.from_euler("x", 90, degrees=True)
+                    rot_new = org_rot  #  * R.from_euler("x", 90, degrees=True)
                     new_quat = rot_new.as_quat(scalar_first=True)
                     body.set(
                         "pos", f"{approach_pos[0]} {approach_pos[1]} {approach_pos[2]}"
@@ -537,9 +518,6 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                                 successful_widths,
                             )
 
-                # while 1:
-                #     mujoco.mj_step(model, data)
-                #     viewer.sync()
                 if args.gripper == "rum":
                     data.ctrl[0] = -0.8
                 elif args.gripper == "panda":
@@ -559,11 +537,21 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                                 successful_widths,
                             )
 
+                tcp_pose = np.eye(4)
+                tcp_pose[:3, 3] = data.site("tcp").xpos
+                tcp_pose[:3, :3] = data.site("tcp").xmat.reshape(3, 3)
+
+                # rot_x_90 = R.from_euler("x", -90, degrees=True).as_matrix()
+                # rotated_mat = mat @ rot_x_90
+
                 object_pose = np.eye(4)
                 object_pose[:3, :3] = data.body(object_name).xmat.reshape(3, 3)
                 object_pose[:3, 3] = data.body(object_name).xpos
 
-                transform = np.linalg.inv(object_pose) @ transform
+                print(f"Before: {transform}")
+                transform = np.linalg.inv(object_pose) @ tcp_pose
+
+                print(f"After: {transform}")
 
                 if not check_grasp(model, data, object_name, store_initial=True):
                     pbar.set_description(

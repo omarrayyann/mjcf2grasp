@@ -61,6 +61,20 @@ total_steps_skipped = 0
 for obj in data:
     object_name = obj["name"]
     xml_file_path = obj["xml"]
+    object_output_dir = os.path.join("output", object_name)
+    
+    filtered_viz_path = os.path.join(
+        object_output_dir, f"{object_name}_filtered_grasps_9shot.png"
+    )
+    filtered_file_path = os.path.join(
+        object_output_dir, f"{object_name}_grasps_filtered.json"
+    )
+    
+    if os.path.exists(filtered_file_path):
+        print(f"Skipping {object_name}")
+        continue
+    
+    
 
     print(f"Converting XML to OBJ for {object_name}")
     try:
@@ -343,38 +357,41 @@ for obj in data:
                 check=True,
             )
         except subprocess.CalledProcessError as e:
-            print(f"Error filtering grasps for {object_name}: {str(e)}")
-            print("Trying again with fewer workers...")
-            num_workers = max(1, os.cpu_count() // 2)
-            subprocess.run(
-                [
-                    "python",
-                    "pipeline/3_filter_mujoco.py",
-                    "--object_name",
-                    object_name,
-                    "--grasps_path",
-                    grasp_file_path,
-                    "--xml_file",
-                    xml_file_path,
-                    "--num_workers",
-                    str(num_workers),
-                    "--approach_distance",
-                    "0.1",
-                    "--approach_steps",
-                    "200",
-                    "--shake_magnitude",
-                    "0.2",
-                    "--shake_steps",
-                    "1000",
-                    # "--render",
-                    "--rotate",
-                    "--max_successful",
-                    "5000",
-                    "--gripper",
-                    gripper_name,
-                ],
-                check=True,
-            )
+            try:
+                print(f"Error filtering grasps for {object_name}: {str(e)}")
+                print("Trying again with fewer workers...")
+                num_workers = max(1, os.cpu_count() // 2)
+                subprocess.run(
+                    [
+                        "python",
+                        "pipeline/3_filter_mujoco.py",
+                        "--object_name",
+                        object_name,
+                        "--grasps_path",
+                        grasp_file_path,
+                        "--xml_file",
+                        xml_file_path,
+                        "--num_workers",
+                        str(num_workers),
+                        "--approach_distance",
+                        "0.1",
+                        "--approach_steps",
+                        "200",
+                        "--shake_magnitude",
+                        "0.2",
+                        "--shake_steps",
+                        "1000",
+                        # "--render",
+                        "--rotate",
+                        "--max_successful",
+                        "5000",
+                        "--gripper",
+                        gripper_name,
+                    ],
+                    check=True,
+                )
+            except subprocess.CalledProcessError as e:
+                continue
 
     if os.path.exists(filtered_viz_path):
         print(

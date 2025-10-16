@@ -7,12 +7,20 @@ import xml.etree.ElementTree as ET
 import time
 import traceback
 from tqdm import tqdm
-
 import mujoco
 import mujoco.viewer
 
 from scipy.spatial.transform import Rotation as R
 import re
+
+import sys
+import os
+
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from grippers.PandaGripper import PandaGripper
+from grippers.RUMGripper import RUMGripper
+from grippers.RobotiqGripper import RobotiqGripper
 
 
 def rotation_matrix_from_axis_angle(axis, angle):
@@ -58,24 +66,21 @@ def get_joint_position(model, data, joint_name):
     return data.joint(joint_id).qpos.copy()
 
 
-def check_sufficient_joint_movement(
-    joint_positions,
-):
+def check_sufficient_joint_movement(joint_positions, max_range):
     max_joint_position = max(joint_positions)
     min_joint_position = min(joint_positions)
-    if max_joint_position - min_joint_position < 0.01:
+    if (max_joint_position - min_joint_position) / max_range < 0.7:  # 0.01:
         return False
     return True
 
 
 def is_grasping(model, data, handle_geoms):
-    left_patterns = ["left_finger", "finger_l", "gripper_finger_left"]
-    right_patterns = ["right_finger", "finger_r", "gripper_finger_right"]
+    left_patterns = ["left_finger", "finger_l", "gripper_finger_left", "left"]
+    right_patterns = ["right_finger", "finger_r", "gripper_finger_right", "right"]
 
     handle_geoms = [
         re.sub(r"^[^a-zA-Z]+|[^a-zA-Z]+$", "", geom) for geom in handle_geoms
     ]
-
     for i in range(data.ncon):
         contact = data.contact[i]
 
@@ -86,9 +91,17 @@ def is_grasping(model, data, handle_geoms):
             continue
 
         if any(
-            [handle_geom.lower() in geom1.lower() for handle_geom in handle_geoms]
+            [
+                handle_geom.lower() in geom1.lower()
+                or geom1.lower() in handle_geom.lower()
+                for handle_geom in handle_geoms
+            ]
         ) or any(
-            [handle_geom.lower() in geom2.lower() for handle_geom in handle_geoms]
+            [
+                handle_geom.lower() in geom2.lower()
+                or geom2.lower() in handle_geom.lower()
+                for handle_geom in handle_geoms
+            ]
         ):
             other = (
                 geom2
@@ -222,8 +235,31 @@ def test_single_grasp(
         return grasp_data[0], None, None
 
     i, transform, quality, config = grasp_data
+
+    # new_transform = transform.copy()
+
+    # offset = np.zeros(3)
+    # if args.gripper == "rum":
+    #     offset = RUMGripper.tcp_offset
+    # elif args.gripper == "panda":
+    #     offset = PandaGripper.tcp_offset
+    # elif args.gripper == "robotiq":
+    #     offset = RobotiqGripper.tcp_offset
+
+    # new_transform[:3, 3] += new_transform[:3, :3] @ offset
+    #     rot_x = R.from_euler("x", 180, degrees=True).as_matrix()
+    #     transforms[i][:3, :3] = transforms[i][:3, :3] @ rot_x
+
+    # rot_x = R.from_euler("y", -90, degrees=True).as_matrix()
+    # new_transform[:3, :3] = new_transform[:3, :3] @ rot_x
+    # transform = new_transform
+
     pos = transform[:3, 3]
     quat = R.from_matrix(transform[:3, :3]).as_quat(scalar_first=True)
+
+    pose_before = np.eye(4)
+    pose_before[:3, :3] = R.from_quat(quat[[1, 2, 3, 0]]).as_matrix()
+    pose_before[:3, 3] = pos
 
     approach_distance = args.approach_distance
     approach_steps = args.approach_steps
@@ -232,7 +268,7 @@ def test_single_grasp(
 
     tree = ET.ElementTree(ET.fromstring(xml_content))
     root = tree.getroot()
-    gripper_base = root.find(".//body[@name='gripper_base']")
+    gripper_base = root.find(".//body[@name='base']")
     if gripper_base is not None:
         gripper_base.set(
             "pos", f"{approach_pos[0]} {approach_pos[1]} {approach_pos[2]}"
@@ -253,12 +289,35 @@ def test_single_grasp(
             model, data, show_left_ui=False, show_right_ui=False
         )
 
-    data.ctrl[0] = 1.0
+    if args.gripper == "rum":
+        data.ctrl[0] = 1.0
+    elif args.gripper == "panda":
+        data.ctrl[0] = 255.0
+    elif args.gripper == "robotiq":
+        data.ctrl[0] = 0.0
 
     for _ in range(500):
         mujoco.mj_step(model, data)
         if render and viewer is not None:
             viewer.sync()
+
+    # if 1:
+    #     model.site_pos[mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_SITE, "origin")] = (
+    #         transform[:3, 3]
+    #     )
+    #     model.site_pos[mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_SITE, "x_axis")] = (
+    #         transform[:3, 3] + transform[:3, 0] * 0.1
+    #     )
+    #     model.site_pos[mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_SITE, "y_axis")] = (
+    #         transform[:3, 3] + transform[:3, 1] * 0.1
+    #     )
+    #     model.site_pos[mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_SITE, "z_axis")] = (
+    #         transform[:3, 3] + transform[:3, 2] * 0.1
+    #     )
+
+    #     mujoco.mj_step(model, data)
+    #     if render and viewer is not None:
+    #         viewer.sync()
 
     joint_name = None
     if joint_info and "primary_joint" in joint_info:
@@ -277,7 +336,7 @@ def test_single_grasp(
         new_pos = approach_pos + (step / approach_steps) * approach_vector
         data.mocap_pos[0] = new_pos
         data.mocap_quat[0] = quat
-        for i in range(1000):
+        for i in range(100):
             mujoco.mj_step(model, data)
             if render and viewer is not None:
                 viewer.sync()
@@ -298,14 +357,33 @@ def test_single_grasp(
         return i, None, None
 
     data.mocap_pos[0] = pos
-    mujoco.mj_step(model, data, nstep=1000)
+    mujoco.mj_step(model, data, nstep=500)
     if render and viewer is not None:
         viewer.sync()
 
-    data.ctrl[0] = -1.0
-    mujoco.mj_step(model, data, nstep=1000)
-    if render and viewer is not None:
-        viewer.sync()
+    if args.gripper == "rum":
+        data.ctrl[0] = -0.8
+    elif args.gripper == "panda":
+        data.ctrl[0] = 0.0
+    elif args.gripper == "robotiq":
+        data.ctrl[0] = 255.0
+
+    # is_grasping(model, data, handle_geoms)
+    for _ in range(500):
+        mujoco.mj_step(model, data)
+        if render and viewer is not None:
+            viewer.sync()
+
+    pose_after = np.eye(4)
+    pose_after[:3, :3] = data.site("tcp").xmat.reshape(3, 3)
+    pose_after[:3, 3] = data.site("tcp").xpos
+
+    transform = pose_after
+    while 1:
+        mujoco.mj_step(model, data)
+        if render and viewer is not None:
+            viewer.sync()
+        break
 
     if not is_grasping(model, data, handle_geoms):
         if render and viewer is not None:
@@ -314,7 +392,7 @@ def test_single_grasp(
             time.sleep(0.1)
         return i, None, None
 
-    num_waypoints = 200
+    num_waypoints = 400
     waypoints = []
     primary_joint_data = None
     if joint_info and "primary_joint" in joint_info:
@@ -326,10 +404,11 @@ def test_single_grasp(
         joint_range_str = primary_joint_data.get("range", "0 0")
         joint_range = [float(x) for x in joint_range_str.split()]
 
-        gripper_pos = data.body("gripper_base").xpos.copy()
-        gripper_quat = data.body("gripper_base").xquat.copy()
+        gripper_pos = data.site("tcp").xpos.copy()
+        gripper_rot = data.site("tcp").xmat.copy().reshape(3, 3)
+        gripper_quat = quat
 
-        if joint_type == "hinge":
+        if joint_type == "hinge" or joint_type == "unknown":
             rotation_axis = primary_joint_data.get(
                 "rotation_axis", {"x": 0, "y": 0, "z": 0}
             )
@@ -353,7 +432,7 @@ def test_single_grasp(
 
             max_angle = joint_range[1]
             if max_angle == 0:
-                max_angle = np.pi / 2
+                max_angle = joint_range[0]
 
             rel_pos = gripper_pos - pivot_point
             for i in range(num_waypoints + 1):
@@ -365,19 +444,23 @@ def test_single_grasp(
                 new_quat = quat_multiply(rotation_quat, gripper_quat)
                 waypoints.append((new_pos, new_quat))
 
+            max_range = np.abs(max_angle)
         elif joint_type == "slide":
             axis_str = primary_joint_data.get("axis", "0 0 0")
             slide_axis = np.array([float(x) for x in axis_str.split()])
             max_distance = joint_range[1]
             if max_distance == 0:
-                max_distance = 0.2
+                max_distance = joint_range[0]
             for i in range(num_waypoints + 1):
                 distance = i * max_distance / num_waypoints
                 new_pos = gripper_pos + slide_axis * distance
                 waypoints.append((new_pos, gripper_quat.copy()))
 
+            max_range = np.abs(max_distance)
+
     joint_positions = []
     articulation_success = True
+    mujoco.mj_step(model, data, nstep=2000)
 
     if waypoints:
         num_loops = args.articulation_loops
@@ -389,11 +472,11 @@ def test_single_grasp(
                 data.mocap_pos[0] = wp_pos
                 data.mocap_quat[0] = wp_quat
 
-                mujoco.mj_step(model, data, nstep=200)
+                mujoco.mj_step(model, data, nstep=10)
                 if render and viewer is not None:
                     viewer.sync()
 
-                if wp_idx % 10 == 0:
+                if wp_idx % 10 == 0 and wp_idx < len(waypoints) * 0.9:
                     is_currently_grasping = is_grasping(model, data, handle_geoms)
                 else:
                     is_currently_grasping = True
@@ -413,12 +496,14 @@ def test_single_grasp(
                 data.mocap_pos[0] = wp_pos
                 data.mocap_quat[0] = wp_quat
 
-                mujoco.mj_step(model, data, nstep=200)
+                mujoco.mj_step(model, data, nstep=10)
                 if render and viewer is not None:
                     viewer.sync()
 
-                if wp_idx % 10 == 0:
+                if wp_idx % 10 == 0 and wp_idx < len(waypoints) * 0.9:
                     is_currently_grasping = is_grasping(model, data, handle_geoms)
+                else:
+                    is_currently_grasping = True
 
                 joint_position = get_joint_position(model, data, primary_joint["name"])
                 joint_positions.append(joint_position)
@@ -428,7 +513,9 @@ def test_single_grasp(
                     break
 
     if joint_positions:
-        sufficient_movement = check_sufficient_joint_movement(joint_positions)
+        sufficient_movement = check_sufficient_joint_movement(
+            joint_positions, max_range
+        )
         if not sufficient_movement:
             articulation_success = False
 
@@ -455,6 +542,7 @@ def run_simulation_with_viewer(
     with open(args.grasps_path, "r") as f:
         grasp_data = json.load(f)
     transforms = np.array(grasp_data["transforms"])
+    print(len(transforms), "grasps to evaluate")
     qualities = np.array(grasp_data.get("quality_antipodal", [1.0] * len(transforms)))
     width = np.array(grasp_data.get("grasp_widths", [0.1] * len(transforms)))
 
@@ -470,7 +558,6 @@ def run_simulation_with_viewer(
             total=len(transforms),
             desc="Testing grasps (0/0 successful)",
         )
-
         for i, (transform, quality) in pbar:
             pos = transform[:3, 3]
             quat = R.from_matrix(transform[:3, :3]).as_quat(scalar_first=True)
@@ -481,7 +568,7 @@ def run_simulation_with_viewer(
 
             tree = ET.ElementTree(ET.fromstring(xml_content))
             root = tree.getroot()
-            gripper_base = root.find(".//body[@name='gripper_base']")
+            gripper_base = root.find(".//body[@name='base']")
             if gripper_base is not None:
                 gripper_base.set(
                     "pos", f"{approach_pos[0]} {approach_pos[1]} {approach_pos[2]}"
@@ -555,64 +642,27 @@ def run_simulation_with_viewer(
             for i, (transform, quality) in enumerate(zip(transforms, qualities))
         ]
 
-        # Optimize: if max_successful is set and reasonable, limit initial submission
-        # This prevents submitting thousands of tasks when we only need a few hundred
-        if args.max_successful > 0 and args.max_successful < len(grasp_params) // 2:
-            # Submit 3x max_successful to account for failures, but cap it
-            initial_batch_size = min(args.max_successful * 3, len(grasp_params))
-            grasp_params_batch = grasp_params[:initial_batch_size]
-            tqdm.write(
-                f"Optimizing: Processing first {initial_batch_size} grasps instead of all {len(grasp_params)} (target: {args.max_successful} successful)"
-            )
-        else:
-            grasp_params_batch = grasp_params
-
-        num_workers = min(args.num_workers, len(grasp_params_batch))
+        # Split grasps into 4 groups
+        num_groups = 4
+        group_size = (len(grasp_params) + num_groups - 1) // num_groups
+        grasp_groups = [
+            grasp_params[i * group_size : (i + 1) * group_size]
+            for i in range(num_groups)
+        ]
 
         successful_transforms = []
         successful_qualities = []
         successful_widths = []
 
-        with mp.Manager() as manager:
-            success_count = manager.Value("i", 0)
-            processed_count = manager.Value("i", 0)
-            lock = manager.Lock()
+        total_to_process = len(grasp_params)
+        pbar = tqdm(total=total_to_process, desc="Testing grasps (0/0 successful)")
+        processed_count = 0
+        success_count = 0
 
-            should_stop = manager.Value("b", False)
-
-            def update_progress_bar(result):
-                nonlocal pbar
-                i, transform_result, quality_result = result
-
-                with lock:
-                    processed_count.value += 1
-
-                    if transform_result is not None:
-                        success_count.value += 1
-                        successful_transforms.append(
-                            (i, transform_result, quality_result, 0.1)
-                        )
-
-                        if (
-                            args.max_successful > 0
-                            and success_count.value >= args.max_successful
-                        ):
-                            should_stop.value = True
-                            tqdm.write(
-                                f"Found {success_count.value} successful grasps (reached max_successful limit)"
-                            )
-                            # Return early to avoid more processing
-                            return
-
-                pbar.set_description(
-                    f"Testing grasps ({success_count.value}/{processed_count.value} successful)"
-                )
-                pbar.update(1)
-
-            pbar = tqdm(
-                total=len(grasp_params_batch), desc="Testing grasps (0/0 successful)"
-            )
-
+        for group_idx, grasp_params_batch in enumerate(grasp_groups):
+            if not grasp_params_batch:
+                continue
+            num_workers = min(args.num_workers, len(grasp_params_batch))
             with mp.Pool(processes=num_workers) as pool:
                 results = [
                     pool.apply_async(
@@ -625,52 +675,45 @@ def run_simulation_with_viewer(
                             handle_geoms,
                             primary_joint,
                         ),
-                        callback=update_progress_bar,
                     )
                     for param in grasp_params_batch
                 ]
 
-                completed = 0
-                while completed < len(results):
-                    if should_stop.value:
-                        pool.terminate()
-                        tqdm.write(
-                            "Terminating remaining workers after reaching max successful grasps"
+                for r in results:
+                    try:
+                        result = r.get()
+                        i, transform_result, quality_result = result
+                        processed_count += 1
+                        if transform_result is not None:
+                            success_count += 1
+                            successful_transforms.append(transform_result)
+                            successful_qualities.append(quality_result)
+                            successful_widths.append(0.1)
+                        pbar.set_description(
+                            f"Testing grasps ({success_count}/{processed_count} successful)"
                         )
-                        # Force break immediately instead of waiting for all tasks
-                        break
-
-                    # Add a small delay to prevent high CPU usage during polling
-                    time.sleep(0.01)
-
-                    for i, r in enumerate(results):
-                        if r is not None and r.ready() and not r.successful():
-                            try:
-                                r.get()
-                            except Exception as e:
-                                tqdm.write(f"Worker error: {str(e)}")
-                            results[i] = None
-                            completed += 1
-                        elif r is not None and r.ready():
-                            results[i] = None
-                            completed += 1
-
-                if not should_stop.value:
-                    pool.close()
-                    pool.join()
-                else:
-                    # When stopped early, close the pool without waiting
-                    pool.close()
-
-            successful_transforms_only = [t for _, t, _, _ in successful_transforms]
-            successful_qualities_only = [q for _, _, q, _ in successful_transforms]
-            successful_widths_only = [w for _, _, _, w in successful_transforms]
+                        pbar.update(1)
+                        if (
+                            args.max_successful > 0
+                            and success_count >= args.max_successful
+                        ):
+                            tqdm.write(
+                                f"Reached maximum successful grasps ({args.max_successful}). Stopping early."
+                            )
+                            pool.terminate()
+                            break
+                    except Exception as e:
+                        tqdm.write(f"Worker error: {str(e)}")
+                pool.close()
+                pool.join()
+            if args.max_successful > 0 and success_count >= args.max_successful:
+                break
 
         pbar.close()
         return (
-            successful_transforms_only,
-            successful_qualities_only,
-            successful_widths_only,
+            successful_transforms,
+            successful_qualities,
+            successful_widths,
         )
 
 
@@ -678,9 +721,10 @@ def filter_per_joint_summary(summary_json_path, args):
     with open(summary_json_path, "r") as f:
         summary = json.load(f)
     updated_summary = []
-    for entry in summary:
+    for i, entry in enumerate(summary):
         joint = entry.get("joint")
         grasps_file = entry.get("grasps_file")
+
         handle_mesh = entry.get("handle_mesh")
         xml_file = entry.get("xml_file") if entry.get("xml_file") else args.xml_file
         joint_info = (
@@ -756,7 +800,7 @@ def main_single_file_filtering(
     xml_content = ET.tostring(root, encoding="unicode")
     robot_xml_path = os.path.join(
         os.path.dirname(__file__),
-        "../assets/gripper_models/rum_gripper/model_articulate.xml",
+        f"../assets/gripper_models/{args.gripper}_gripper/model_articulate.xml",
     )
     with open(robot_xml_path, "r") as f:
         robot_xml_content = f.read()
@@ -831,6 +875,7 @@ def main():
     parser.add_argument(
         "--grasps_path", type=str, help="Path to single grasps file (legacy mode)"
     )
+    parser.add_argument("--gripper", type=str, default="robotiq")
     parser.add_argument("--xml_file", type=str)
     parser.add_argument(
         "--per_joint_summary_json",
@@ -854,7 +899,7 @@ def main():
         with open(summary_path, "r") as f:
             summary = json.load(f)
         updated_summary = []
-        for entry in summary:
+        for i, entry in enumerate(summary):
             joint = entry.get("joint")
             if args.filtered:
                 grasps_file = entry.get("filtered_grasps_file")

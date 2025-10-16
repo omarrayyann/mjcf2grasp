@@ -490,26 +490,6 @@ def grasp_quality_antipodal(
     return all_results
 
 
-def _raycast_collision_worker(object_mesh, origins_batch, expected_points_batch):
-    if trimesh.ray.has_embree:
-        intersector = trimesh.ray.ray_pyembree.RayMeshIntersector(
-            object_mesh, scale_to_box=True
-        )
-    else:
-        intersector = trimesh.ray.ray_triangle.RayMeshIntersector(object_mesh)
-
-    locations, index_rays, _ = intersector.intersects_location(
-        origins_batch[:, :3, 3], origins_batch[:, :3, 2], multiple_hits=False
-    )
-
-    res = np.array([False] * len(origins_batch))
-    res[index_rays] = np.all(
-        np.isclose(locations, expected_points_batch[index_rays]), axis=1
-    )
-
-    return res
-
-
 def raycast_collisioncheck(origins, expected_hit_points, object_mesh, num_workers=None):
     assert len(origins) == len(expected_hit_points)
 
@@ -541,11 +521,6 @@ def _process_points_batch(batch_data):
         mesh,
     ) = batch_data
 
-    batch_position_idx = []
-    batch_points = []
-    batch_normals = []
-    batch_roll_angles = []
-    batch_standoffs = []
     batch_transforms = []
 
     total_combinations = (
@@ -782,7 +757,6 @@ def sample_multiple_grasps(
         transforms = np.array(all_transforms)
         roll_angles = np.array(all_roll_angles)
         standoffs = np.array(all_standoffs)
-        position_idx = np.array(all_position_idx)
 
         verboseprint(f"Generated {len(transforms):,} valid grasps after sampling")
 

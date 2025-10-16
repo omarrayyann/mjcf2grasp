@@ -8,11 +8,17 @@ import os
 import numpy as np
 import multiprocessing as mp
 from functools import partial
-
 from tqdm import tqdm
-
 import trimesh
 import trimesh.transformations as tra
+import sys
+import os
+from scipy.spatial.transform import Rotation as R
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from grippers.PandaGripper import PandaGripper
+from grippers.RUMGripper import RUMGripper
+from grippers.RobotiqGripper import RobotiqGripper
 
 
 class Object(object):
@@ -248,7 +254,7 @@ def compute_grasp_widths(
     transforms, object_mesh, gripper_name="panda", num_workers=None
 ):
     if num_workers is None:
-        num_workers = max(1, mp.cpu_count() // 8)
+        num_workers = mp.cpu_count()
 
     if len(transforms) < 50 or num_workers <= 1:
         return _compute_widths_batch((transforms, object_mesh, gripper_name))
@@ -281,7 +287,8 @@ def get_available_grippers():
     available_grippers = OrderedDict(
         {
             "panda": PandaGripper,
-            "rum": RumGripper,
+            "rum": RUMGripper,
+            "robotiq": RobotiqGripper,
         }
     )
     return available_grippers
@@ -291,7 +298,9 @@ def create_gripper(name, configuration=None, root_folder=""):
     if name.lower() == "panda":
         return PandaGripper(q=configuration, root_folder=root_folder)
     elif name.lower() == "rum":
-        return RumGripper(q=configuration, root_folder=root_folder)
+        return RUMGripper(q=configuration, root_folder=root_folder)
+    elif name.lower() == "robotiq":
+        return RobotiqGripper(q=configuration, root_folder=root_folder)
     else:
         raise Exception("Unknown gripper: {}".format(name))
 
@@ -691,26 +700,6 @@ def grasp_quality_antipodal(
     return all_results
 
 
-def _raycast_collision_worker(object_mesh, origins_batch, expected_points_batch):
-    if trimesh.ray.has_embree:
-        intersector = trimesh.ray.ray_pyembree.RayMeshIntersector(
-            object_mesh, scale_to_box=True
-        )
-    else:
-        intersector = trimesh.ray.ray_triangle.RayMeshIntersector(object_mesh)
-
-    locations, index_rays, _ = intersector.intersects_location(
-        origins_batch[:, :3, 3], origins_batch[:, :3, 2], multiple_hits=False
-    )
-
-    res = np.array([False] * len(origins_batch))
-    res[index_rays] = np.all(
-        np.isclose(locations, expected_points_batch[index_rays]), axis=1
-    )
-
-    return res
-
-
 def raycast_collisioncheck(origins, expected_hit_points, object_mesh, num_workers=None):
     assert len(origins) == len(expected_hit_points)
 
@@ -742,11 +731,6 @@ def _process_points_batch(batch_data):
         mesh,
     ) = batch_data
 
-    batch_position_idx = []
-    batch_points = []
-    batch_normals = []
-    batch_roll_angles = []
-    batch_standoffs = []
     batch_transforms = []
 
     total_combinations = (
@@ -983,7 +967,6 @@ def sample_multiple_grasps(
         transforms = np.array(all_transforms)
         roll_angles = np.array(all_roll_angles)
         standoffs = np.array(all_standoffs)
-        position_idx = np.array(all_position_idx)
 
         verboseprint(f"Generated {len(transforms):,} valid grasps after sampling")
 
@@ -1112,6 +1095,9 @@ def sample_multiple_grasps(
         f"Final result: {len(transforms):,} valid grasps with quality >= {min_quality}"
     )
 
+    # rot_x = R.from_euler("x", 180, degrees=True).as_matrix()
+    # transforms[i][:3, :3] = transforms[i][:3, :3] @ rot_x
+
     return points, normals, transforms, roll_angles, standoffs, collisions, quality
 
 
@@ -1180,12 +1166,9 @@ def generate_per_joint_grasps(joint_meshes_json, base_prefix, args):
             collisions = [collisions[i] for i in valid_indices]
             qualities = {k: [v[i] for i in valid_indices] for k, v in qualities.items()}
 
-        grasp_widths = compute_grasp_widths(
-            transforms,
-            obj.mesh,
-            gripper_name=args.gripper,
-            num_workers=args.num_workers,
-        )
+        for i in range(len(transforms)):
+            transforms[i][:3, 3] += transforms[i][:3, :3] @ gripper.tcp_offset
+
         grasps = {
             "object": obj.filename,
             "object_scale": obj.scale,
@@ -1201,7 +1184,6 @@ def generate_per_joint_grasps(joint_meshes_json, base_prefix, args):
             "mesh_points": [p.tolist() for p in points],
             "mesh_normals": [n.tolist() for n in normals],
             "collisions": collisions,
-            "grasp_widths": grasp_widths,
         }
         with open(grasps_out, "w") as f:
             json.dump(grasps, f)
@@ -1258,7 +1240,7 @@ def make_parser():
     parser.add_argument(
         "--gripper",
         choices=get_available_grippers().keys(),
-        default="rum",
+        default="robotiq",
         help="Type of gripper.",
     )
     parser.add_argument(
@@ -1366,51 +1348,7 @@ if __name__ == "__main__":
 
     verboseprint = print if not args.silent else lambda *a, **k: None
 
-    if args.add_quality_metric:
-        with open(args.add_quality_metric[1], "r") as f:
-            grasps = json.load(f)
-        obj = Object(
-            grasps["object"].replace(".obj", ".stl")
-            if args.use_stl
-            else grasps["object"]
-        )
-        obj.rescale(grasps["object_scale"])
-
-        grasp_tfs = np.array(grasps["transforms"])
-        collisions = np.array(grasps["collisions"])
-
-        key = "quality_{}".format(args.add_quality_metric[0])
-
-        if key in grasps.keys() and not args.force:
-            raise Exception(
-                "Quality metric already part of json file! (Needs --force option) ", key
-            )
-
-        if key == "quality_number_of_contacts":
-            grasps[key] = grasp_quality_point_contacts(
-                grasp_tfs,
-                collisions,
-                object_mesh=obj.mesh,
-                gripper_name=grasps["gripper"],
-                silent=args.silent,
-                num_workers=args.num_workers,
-            )
-        elif key == "quality_antipodal":
-            grasps[key] = grasp_quality_antipodal(
-                grasp_tfs,
-                collisions,
-                object_mesh=obj.mesh,
-                gripper_name=grasps["gripper"],
-                silent=args.silent,
-                num_workers=args.num_workers,
-            )
-        else:
-            raise Exception("Unknown quality metric: ", key)
-
-        with open(args.add_quality_metric[1], "w") as f:
-            json.dump(grasps, f)
-
-    elif args.per_joint_grasps_from_meshes:
+    if args.per_joint_grasps_from_meshes:
         base_prefix = os.path.splitext(
             os.path.basename(args.per_joint_grasps_from_meshes)
         )[0].replace("_joint_meshes", "")
@@ -1485,12 +1423,8 @@ if __name__ == "__main__":
             collisions = [collisions[i] for i in valid_indices]
             qualities = {k: [v[i] for i in valid_indices] for k, v in qualities.items()}
 
-        grasp_widths = compute_grasp_widths(
-            transforms,
-            obj.mesh,
-            gripper_name=args.gripper,
-            num_workers=args.num_workers,
-        )
+        for i in range(len(transforms)):
+            transforms[i][:3, 3] += transforms[i][:3, :3] @ gripper.tcp_offset
 
         grasps = {
             "object": obj.filename,
@@ -1507,7 +1441,6 @@ if __name__ == "__main__":
             "mesh_points": [p.tolist() for p in points],
             "mesh_normals": [n.tolist() for n in normals],
             "collisions": collisions,
-            "grasp_widths": grasp_widths,
         }
 
         with open(args.output, "w") as f:
