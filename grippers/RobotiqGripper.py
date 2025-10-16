@@ -13,7 +13,7 @@ class RobotiqGripper:
             q = self.default_pregrasp_configuration
 
         self.q = q
-        gripping_center = 0.13675
+        gripping_center = 0.17365
         self.tcp_offset = np.array([0, 0, gripping_center])
         fn_base = root_folder + "assets/gripper_models/robotiq_gripper/hand.stl"
         fn_finger = root_folder + "assets/gripper_models/robotiq_gripper/finger.stl"
@@ -22,15 +22,15 @@ class RobotiqGripper:
         self.finger_r = self.finger_l.copy()
 
         self.finger_l.apply_transform(tra.euler_matrix(0, 0, np.pi))
-        self.finger_l.apply_translation([+q, 0, gripping_center])
-        self.finger_r.apply_translation([-q, 0, gripping_center])
+        self.finger_l.apply_translation([+q, 0, 0.13686])
+        self.finger_r.apply_translation([-q, 0, 0.13686])
 
         self.fingers = trimesh.util.concatenate([self.finger_l, self.finger_r])
         self.hand = trimesh.util.concatenate([self.fingers, self.base])
 
         self.ray_origins = []
         self.ray_directions = []
-        for i in np.linspace(-0.022, 0.029, num_contact_points_per_finger):
+        for i in np.linspace(0.001, 0.036, num_contact_points_per_finger):
             self.ray_origins.append(
                 np.r_[self.finger_l.bounding_box.centroid + [0, 0, i], 1]
             )
@@ -49,11 +49,8 @@ class RobotiqGripper:
 
         self.standoff_range = np.array(
             [
-                max(
-                    self.finger_l.bounding_box.bounds[0, 2],
-                    self.base.bounding_box.bounds[1, 2],
-                ),
-                self.finger_l.bounding_box.bounds[1, 2],
+                0.135342,
+                self.tcp_offset[2],
             ]
         )
         self.standoff_range[0] += 0.001

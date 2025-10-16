@@ -59,8 +59,8 @@
 
 
     <body name="target_ee_pose" mocap="true" pos="0 0 0.0" quat="1 0 0 0">
-      <site name="target_ee_pose" pos="0 0 0.0" size="0.01" rgba="0 1 0 1"/>
-      <geom name="target_ee_pose" type="box" rgba="0 1 0 0.1" size="0.01 0.01 0.01" conaffinity="0" contype="0"
+      <site name="target_ee_pose" pos="0 0 0.0" size="0.01" rgba="0 1 0 0"/>
+      <geom name="target_ee_pose" type="box" rgba="0 1 0 0.0" size="0.01 0.01 0.01" conaffinity="0" contype="0"
         mass="10.0"/>
     </body>
 
@@ -70,13 +70,13 @@
 
       <joint type="free" name="robotiq_free_joint" damping="1"/>
 
-      <site name="tcp" pos="0 0 0.13675" size="0.01" rgba="0 0 1 1"/>
-
+      <site name="tcp" pos="0 0 0.13675" size="0.01" rgba="0 0 1 0"/>
+      <!-- 
       <body pos="0 0 0.13675" quat="1 0 0 0">
         <geom type="sphere" name="z_axis" pos="0 0 0.1" size="0.01" rgba="0 0 1 1" conaffinity="0" contype="0"/>
         <geom type="sphere" name="y_axis" pos="0 0.1 0" size="0.01" rgba="0 1 0 1" conaffinity="0" contype="0"/>
         <geom type="sphere" name="x_axis" pos="0.1 0 0" size="0.01" rgba="1 0 0 1" conaffinity="0" contype="0"/>
-      </body>
+      </body> -->
 
 
       <camera name="follower" pos="0 -0.5 -0.5" euler="2.5 0 0" mode="fixed" fovy="53.1"/>

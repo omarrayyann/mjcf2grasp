@@ -7,16 +7,15 @@
     <material name="silicone" rgba="0.1882 0.1882 0.1882 1"/>
     <material name="black" rgba="0.149 0.149 0.149 1"/>
 
-    <mesh file="../../../assets/gripper_models/robotiq_gripper/assets/base.stl"/>
-    <mesh file="../../../assets/gripper_models/robotiq_gripper/assets/base_coupling.stl"/>
-    <mesh file="../../../assets/gripper_models/robotiq_gripper/assets/c-a01-85-open.stl"/>
-    <mesh file="../../../assets/gripper_models/robotiq_gripper/assets/driver.stl"/>
-    <mesh file="../../../assets/gripper_models/robotiq_gripper/assets/coupler.stl"/>
-    <mesh file="../../../assets/gripper_models/robotiq_gripper/assets/spring_link.stl"/>
-    <mesh file="../../../assets/gripper_models/robotiq_gripper/assets/follower.stl"/>
-    <mesh file="../../../assets/gripper_models/robotiq_gripper/assets/tongue.stl"/>
+    <mesh file="assets/gripper_models/robotiq_gripper/assets/base.stl"/>
+    <mesh file="assets/gripper_models/robotiq_gripper/assets/base_coupling.stl"/>
+    <mesh file="assets/gripper_models/robotiq_gripper/assets/c-a01-85-open.stl"/>
+    <mesh file="assets/gripper_models/robotiq_gripper/assets/driver.stl"/>
+    <mesh file="assets/gripper_models/robotiq_gripper/assets/coupler.stl"/>
+    <mesh file="assets/gripper_models/robotiq_gripper/assets/spring_link.stl"/>
+    <mesh file="assets/gripper_models/robotiq_gripper/assets/follower.stl"/>
+    <mesh file="assets/gripper_models/robotiq_gripper/assets/tongue.stl"/>
   </asset>
-
 
   <default>
     <default class="2f85">
@@ -59,29 +58,16 @@
 
 
     <body name="target_ee_pose" mocap="true" pos="0 0 0.0" quat="1 0 0 0">
-      <site name="target_ee_pose" pos="0 0 0.0" size="0.01" rgba="0 1 0 0"/>
-      <geom name="target_ee_pose" type="box" rgba="0 1 0 0.0" size="0.01 0.01 0.01" conaffinity="0" contype="0"
+      <site name="target_ee_pose" pos="0 0 0.0" size="0.01" rgba="0 1 0 1"/>
+      <geom name="target_ee_pose" type="box" rgba="0 1 0 0.1" size="0.01 0.01 0.01" conaffinity="0" contype="0"
         mass="10.0"/>
     </body>
 
 
     <body gravcomp="1" name="base" childclass="2f85">
-
-      <geom name="lower_2" pos="0 0 0.136" size="0.06 0.06 0.0001" type="box" rgba="1 0 0 1" conaffinity="0" contype="0"/>
-      <geom name="lower" pos="0 0 0.1215" size="0.06 0.06 0.0001" type="box" rgba="1 0 0 1" conaffinity="0" contype="0"/>
-      <geom name="upper" pos="0 0 0.17365" size="0.06 0.06 0.00001" type="box" rgba="0 1 0 1" conaffinity="0"
-        contype="0"/>
-
-      <site name="tcp" pos="0 0 0.1" size="0.01" rgba="0 0 1 1"/>
-
       <joint type="free" name="robotiq_free_joint" damping="1"/>
 
-      <!-- 
-      <body pos="0 0 0.13675" quat="1 0 0 0">
-        <geom type="sphere" name="z_axis" pos="0 0 0.1" size="0.01" rgba="0 0 1 1" conaffinity="0" contype="0"/>
-        <geom type="sphere" name="y_axis" pos="0 0.1 0" size="0.01" rgba="0 1 0 1" conaffinity="0" contype="0"/>
-        <geom type="sphere" name="x_axis" pos="0.1 0 0" size="0.01" rgba="1 0 0 1" conaffinity="0" contype="0"/>
-      </body> -->
+      <site name="tcp" pos="0 0 0.13675" size="0.01" rgba="0 0 1 1" euler="1.57 0 0"/>
 
 
       <camera name="follower" pos="0 -0.5 -0.5" euler="2.5 0 0" mode="fixed" fovy="53.1"/>
@@ -125,8 +111,8 @@
           <geom class="collision" pos="0.0509079 -0.10392 -0.0091" quat="1 -1 0 0" type="mesh" mesh="follower"/>
           <geom class="collision" pos="0.0509079 -0.10392 -0.0091" quat="1 -1 0 0" type="mesh" mesh="tongue"/>
           <body gravcomp="1" name="left_pad" pos="-0.0377897 -0.103916 -0.0091" quat="1 -1 0 0">
-            <geom class="pad_box1" name="left_pad1" rgba="1 0 0 0"/>
-            <geom class="pad_box2" name="left_pad2" rgba="1 0 0 0"/>
+            <geom class="pad_box1" name="left_pad1"/>
+            <geom class="pad_box2" name="left_pad2"/>
           </body>
         </body>
       </body>
@@ -196,7 +182,7 @@
       solref="0.005 1"/>
     <joint joint1="right_driver_joint" joint2="left_driver_joint" polycoef="0 1 0 0 0" solimp="0.95 0.99 0.001"
       solref="0.005 1"/>
-    <weld site1="target_ee_pose" site2="tcp" solref="0.01 1" solimp="0.8 0.8 0.05"/>
+    <weld site1="target_ee_pose" site2="tcp" solref="0.001 1" solimp="0.99 0.99 0.001"/>
   </equality>
 
   <!--
