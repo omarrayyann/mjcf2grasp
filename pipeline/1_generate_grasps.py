@@ -569,7 +569,8 @@ def _process_points_batch(batch_data):
         batch_transforms[:, :3, 3], batch_transforms[:, :3, 2], multiple_hits=False
     )
     valid = np.array([False] * len(batch_transforms))
-    valid[index_rays] = np.all(np.isclose(locations, all_points[index_rays]), axis=1)
+    if len(index_rays) > 0:
+        valid[index_rays] = np.all(np.isclose(locations, all_points[index_rays]), axis=1)
 
     return (
         all_points[valid],
@@ -704,53 +705,105 @@ def sample_multiple_grasps(
         all_position_idx = []
 
         verboseprint("Sampling grasps in parallel...")
-        with mp.Pool(processes=num_workers) as pool:
-            batch_total = (
-                sum(len(pb) for pb in point_batches)
-                * len(rotation_samples)
-                * len(standoff_samples)
-            )
-            pbar = tqdm(
-                total=batch_total,
-                disable=silent,
-                desc=f"Sampling grasps (using {num_workers} workers)",
-            )
-
-            valid_count = 0
-            processed_count = 0
-
-            for result in pool.imap(_process_points_batch, batch_data):
-                (
-                    batch_points,
-                    batch_normals,
-                    batch_transforms,
-                    batch_roll_angles,
-                    batch_standoffs,
-                    batch_position_idx,
-                ) = result
-
-                if len(batch_points) > 0:
-                    all_points.extend(batch_points)
-                    all_normals.extend(batch_normals)
-                    all_transforms.extend(batch_transforms)
-                    all_roll_angles.extend(batch_roll_angles)
-                    all_standoffs.extend(batch_standoffs)
-                    all_position_idx.extend(batch_position_idx)
-                    valid_count += len(batch_points)
-
-                processed_count += (
-                    len(point_batches[0])
+        
+        # Add timeout and error handling for multiprocessing
+        import signal
+        
+        def timeout_handler(signum, frame):
+            raise TimeoutError("Multiprocessing timeout")
+        
+        try:
+            # Set timeout for pool creation
+            signal.signal(signal.SIGALRM, timeout_handler)
+            signal.alarm(30)  # 30 second timeout for pool creation
+            
+            with mp.Pool(processes=num_workers) as pool:
+                batch_total = (
+                    sum(len(pb) for pb in point_batches)
                     * len(rotation_samples)
                     * len(standoff_samples)
                 )
-                pbar.update(
-                    len(point_batches[0])
-                    * len(rotation_samples)
-                    * len(standoff_samples)
+                pbar = tqdm(
+                    total=batch_total,
+                    disable=silent,
+                    desc=f"Sampling grasps (using {num_workers} workers)",
                 )
-                pbar.set_postfix({"Valid": valid_count})
 
-            pbar.close()
+                valid_count = 0
+                processed_count = 0
+                
+                # Use apply_async with timeout instead of imap to handle hanging workers
+                results = []
+                for batch in batch_data:
+                    result = pool.apply_async(_process_points_batch, args=(batch,))
+                    results.append(result)
+                
+                # Process results with timeout
+                for i, result in enumerate(results):
+                    try:
+                        # Set timeout for each batch (30 seconds per batch)
+                        signal.signal(signal.SIGALRM, timeout_handler)
+                        signal.alarm(30)
+                        
+                        batch_result = result.get(timeout=30)
+                        signal.alarm(0)  # Cancel alarm
+                        
+                        (
+                            batch_points,
+                            batch_normals,
+                            batch_transforms,
+                            batch_roll_angles,
+                            batch_standoffs,
+                            batch_position_idx,
+                        ) = batch_result
+                        
+                        if len(batch_points) > 0:
+                            all_points.extend(batch_points)
+                            all_normals.extend(batch_normals)
+                            all_transforms.extend(batch_transforms)
+                            all_roll_angles.extend(batch_roll_angles)
+                            all_standoffs.extend(batch_standoffs)
+                            all_position_idx.extend(batch_position_idx)
+                            valid_count += len(batch_points)
+
+                        processed_count += (
+                            len(point_batches[0])
+                            * len(rotation_samples)
+                            * len(standoff_samples)
+                        )
+                        pbar.update(
+                            len(point_batches[0])
+                            * len(rotation_samples)
+                            * len(standoff_samples)
+                        )
+                        pbar.set_postfix({"Valid": valid_count})
+                        
+                    except (TimeoutError, Exception) as e:
+                        signal.alarm(0)  # Cancel alarm
+                        verboseprint(f"Batch {i} failed: {str(e)}")
+                        # Skip this batch and continue
+
+                pbar.close()
+                signal.alarm(0)  # Cancel alarm
+            
+        except (TimeoutError, Exception) as e:
+            signal.alarm(0)  # Cancel alarm
+            verboseprint(f"Multiprocessing failed: {str(e)}")
+            verboseprint("Falling back to single-threaded processing...")
+            # Fallback to single-threaded processing
+            return sample_multiple_grasps(
+                number_of_candidates=number_of_candidates,
+                mesh=mesh,
+                gripper_name=gripper_name,
+                systematic_sampling=systematic_sampling,
+                surface_density=surface_density,
+                standoff_density=standoff_density,
+                roll_density=roll_density,
+                type_of_quality=type_of_quality,
+                min_quality=min_quality,
+                silent=silent,
+                num_workers=1,  # Force single worker
+            )
 
         points = np.array(all_points)
         normals = np.array(all_normals)

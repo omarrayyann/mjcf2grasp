@@ -10,8 +10,8 @@ def find_objs_with_matching_subfolder(base_dir, check_joints=False):
     for root, dirs, files in os.walk(base_dir):
         for file in files:
             if file.endswith(".xml"):
-                print(file)
-                if "train" in file:
+                #print(file)
+                if "train" in file: # to ignore house xml files
                     continue
                 obj_name = os.path.splitext(file)[0]
                 abs_xml_path = os.path.join(root, file)
@@ -52,5 +52,5 @@ if __name__ == "__main__":
     save_to_json(matched_objs, args.output)
 
     print(
-        f"Found {len(matched_objs)} matching .obj files with valid .xml and .json. Results saved to {args.output}"
+        f"Found {len(matched_objs)} matching .obj files in {args.directory} with valid .xml and .json. Results saved to {args.output}"
     )

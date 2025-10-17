@@ -117,13 +117,7 @@ def test_single_grasp(grasp_data, object_name, base_xml_content, gripper_xml_con
     i, transform, quality, config = grasp_data
 
     # Use pre-loaded XML content instead of file I/O in worker
-    tree = ET.ElementTree(ET.fromstring(base_xml_content))
-    root = tree.getroot()
-
-    include = ET.Element("include", {"file": args.xml_file})
-    root.append(include)
-
-    xml_content = ET.tostring(root, encoding="unicode")
+    xml_content = base_xml_content
 
     # Use pre-loaded gripper XML content
     xml_content = merge_xml_contents(xml_content, gripper_xml_content)

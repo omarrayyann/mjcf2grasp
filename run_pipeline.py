@@ -2,6 +2,7 @@ import json
 import os
 import subprocess
 import wandb
+import random
 from datetime import datetime
 
 USE_WANDB = 1
@@ -9,6 +10,10 @@ gripper_name = "robotiq"
 
 with open("objaverse_matched_objs.json", "r") as f:
     data = json.load(f)
+
+# random shuffle the data
+random.shuffle(data)
+
 if USE_WANDB:
     try:
         wandb.init(
@@ -44,7 +49,8 @@ else:
     print(f"Starting processing of {len(data)} objects (wandb disabled)")
 
 #thor_assets_path = "/scratch/olr7742/ai2/thor-grasp/assets/Thor-Assets"
-thor_assets_path = "../mujoco-thor/assets/scenes/procthor-100k-debug"
+#thor_assets_path = "../mujoco-thor/assets/scenes/procthor-100k-debug"
+thor_assets_path = "/weka/prior/datasets/mujoco-thor/assets/objects"
 
 base_input_path = "../../../assets/objects"
 temp_folder = "tmp"
@@ -75,7 +81,6 @@ for obj in data:
         continue
     
     
-
     print(f"Converting XML to OBJ for {object_name}")
     try:
         subprocess.run(
@@ -87,6 +92,7 @@ for obj in data:
         print(f"✗ Error converting XML to OBJ for {object_name}: {str(e)}")
         failed_objects.append(object_name)
         continue
+
 
     object_output_dir = os.path.join("output", object_name)
     os.makedirs(object_output_dir, exist_ok=True)
@@ -209,7 +215,7 @@ for obj in data:
                     grasp_file_path,
                     "--systematic_sampling",
                     "--num_workers",
-                    str(os.cpu_count()),
+                    str(max(1, os.cpu_count() // 8)),
                     "--gripper",
                     gripper_name,
                 ],
@@ -218,7 +224,7 @@ for obj in data:
         except subprocess.CalledProcessError as e:
             print(f"Error generating grasps for {object_name}: {str(e)}")
             print("Trying again with fewer workers...")
-            num_workers = max(1, os.cpu_count() // 2)
+            num_workers = max(1, os.cpu_count() // 16)
             subprocess.run(
                 [
                     "python",
@@ -278,8 +284,8 @@ for obj in data:
         "desk",
     ]
 
-    # Skip this object if its name contains any of the ignore types
-    should_skip = False
+    # Skip this object if its name contains any of the ignore types. Also for Objaverse Objects, we skip all objects.
+    should_skip = True
     for ignore_type in ignore_types:
         if ignore_type in object_name.lower():
             should_skip = True
@@ -338,7 +344,7 @@ for obj in data:
                     "--xml_file",
                     xml_mesh_file,
                     "--num_workers",
-                    str(os.cpu_count()),
+                    str(max(1, os.cpu_count() // 8)),
                     "--approach_distance",
                     "0.3",
                     "--approach_steps",
