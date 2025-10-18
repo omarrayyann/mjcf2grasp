@@ -25,9 +25,7 @@ import sys
 import os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from grippers.PandaGripper import PandaGripper
-from grippers.RUMGripper import RUMGripper
-from grippers.RobotiqGripper import RobotiqGripper
+from RobotiqGripper import RobotiqGripper
 
 
 parser = argparse.ArgumentParser(description="Visualize grasps from a JSON file.")
@@ -620,17 +618,6 @@ def _plot_single_view(
             if min_score == 1.0:
                 current_gripper_color = (0.0, 1.0, 0.0)
 
-        if show_gripper_mesh:
-            try:
-                object = Object("assets/gripper_models/rum_gripper/model.obj")
-                gripper_mesh = object.mesh.copy()
-                gripper_mesh.apply_transform(g)
-                plot_mesh_matplotlib(
-                    ax, gripper_mesh, color=current_gripper_color, alpha=0.5
-                )
-            except:
-                print("Warning: Could not load gripper mesh, showing lines only")
-
         pts = np.matmul(grasp_pc, g[:3, :3].T)
         pts += np.expand_dims(g[:3, 3], 0)
 
@@ -932,14 +919,7 @@ else:
     mesh.apply_transform(pose)
 
     transforms = np.array(data["transforms"])
-
-    gripper = None
-    if args.gripper_name == "panda":
-        gripper = PandaGripper()
-    elif args.gripper_name == "rum":
-        gripper = RUMGripper()
-    elif args.gripper_name == "robotiq":
-        gripper = RobotiqGripper()
+    gripper = RobotiqGripper()
 
     for i in range(len(transforms)):
         transforms[i][:3, 3] -= transforms[i][:3, :3] @ gripper.tcp_offset

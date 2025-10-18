@@ -1,0 +1,20 @@
+name: xml2grasp
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pip
+  - numpy
+  - trimesh
+  - matplotlib
+  - scipy
+  - tqdm
+  - pillow
+  - rtree
+  - pip:
+    - mujoco
+    - wandb
+    - tensorflow
+    - pymeshlab
+    - python-fcl

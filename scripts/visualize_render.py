@@ -632,33 +632,25 @@ def draw_scene(
             if min_score == 1.0:
                 current_gripper_color = (0.0, 1.0, 0.0)
 
-        # Create gripper visualization
-        if show_gripper_mesh:
-            # Load and transform gripper mesh
-            object = Object("assets/gripper_models/rum_gripper/model.obj")
-            gripper_mesh = object.mesh
-            gripper_mesh.apply_transform(g)
-            o3d_gripper = plot_mesh(gripper_mesh, color=current_gripper_color)
-            geometries.append(o3d_gripper)
-        else:
-            # Create line set for grasp visualization
-            pts = np.matmul(grasp_pc, g[:3, :3].T)
-            pts += np.expand_dims(g[:3, 3], 0)
 
-            # Create line set connecting the grasp points
-            lines = []
-            for j in range(len(pts) - 1):
-                lines.append([j, j + 1])
+        # Create line set for grasp visualization
+        pts = np.matmul(grasp_pc, g[:3, :3].T)
+        pts += np.expand_dims(g[:3, 3], 0)
 
-            line_set = o3d.geometry.LineSet()
-            line_set.points = o3d.utility.Vector3dVector(pts)
-            line_set.lines = o3d.utility.Vector2iVector(lines)
+        # Create line set connecting the grasp points
+        lines = []
+        for j in range(len(pts) - 1):
+            lines.append([j, j + 1])
 
-            # Set color for all lines
-            colors = [current_gripper_color] * len(lines)
-            line_set.colors = o3d.utility.Vector3dVector(colors)
+        line_set = o3d.geometry.LineSet()
+        line_set.points = o3d.utility.Vector3dVector(pts)
+        line_set.lines = o3d.utility.Vector2iVector(lines)
 
-            geometries.append(line_set)
+        # Set color for all lines
+        colors = [current_gripper_color] * len(lines)
+        line_set.colors = o3d.utility.Vector3dVector(colors)
+
+        geometries.append(line_set)
 
     # Create coordinate frame
     # coord_frame = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.1)
