@@ -386,19 +386,19 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
             gripper = RobotiqGripper()
 
         for i, (transform, quality) in pbar:
-            transform = np.array(
-                [
-                    [
-                        -9.77128557e-01,
-                        -7.02050876e-03,
-                        -2.12533516e-01,
-                        -1.95007307e-03,
-                    ],
-                    [2.12649228e-01, -3.08611412e-02, -9.76641129e-01, -1.11673942e-02],
-                    [2.97490752e-04, -9.99499026e-01, 3.16482082e-02, 2.46439797e-01],
-                    [0.00000000e00, 0.00000000e00, 0.00000000e00, 1.00000000e00],
-                ]
-            )
+            # transform = np.array(
+            #     [
+            #         [
+            #             -9.77128557e-01,
+            #             -7.02050876e-03,
+            #             -2.12533516e-01,
+            #             -1.95007307e-03,
+            #         ],
+            #         [2.12649228e-01, -3.08611412e-02, -9.76641129e-01, -1.11673942e-02],
+            #         [2.97490752e-04, -9.99499026e-01, 3.16482082e-02, 2.46439797e-01],
+            #         [0.00000000e00, 0.00000000e00, 0.00000000e00, 1.00000000e00],
+            #     ]
+            # )
             tree = ET.ElementTree(ET.fromstring(xml_content))
             root = tree.getroot()
 
@@ -554,10 +554,7 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
                 object_pose[:3, :3] = data.body(object_name).xmat.reshape(3, 3)
                 object_pose[:3, 3] = data.body(object_name).xpos
 
-                print(f"Before: {transform}")
                 transform = np.linalg.inv(object_pose) @ tcp_pose
-
-                print(f"After: {transform}")
 
                 if not check_grasp(model, data, object_name, store_initial=True):
                     pbar.set_description(
