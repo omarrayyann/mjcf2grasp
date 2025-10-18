@@ -29,13 +29,7 @@ from assets.grippers.robotiq import RobotiqGripper
 
 
 parser = argparse.ArgumentParser(description="Visualize grasps from a JSON file.")
-parser.add_argument("object_name", type=str)
-parser.add_argument("--filtered", action="store_true")
-parser.add_argument(
-    "--compare",
-    action="store_true",
-    help="Show both filtered (green) and unfiltered (red) grasps",
-)
+parser.add_argument("--grasps_path", type=str)
 parser.add_argument(
     "--save-png",
     type=str,
@@ -807,20 +801,7 @@ def get_axis():
 args = parser.parse_args()
 
 
-base_json_file = os.path.abspath(
-    f"output/{args.object_name}/{args.object_name}_grasps.json"
-)
-filtered_json_file = os.path.abspath(
-    f"output/{args.object_name}/{args.object_name}_grasps_filtered.json"
-)
-
-
-if not os.path.exists(base_json_file):
-    base_json_file = os.path.abspath(f"output/{args.object_name}_grasps.json")
-if not os.path.exists(filtered_json_file):
-    filtered_json_file = os.path.abspath(
-        f"output/{args.object_name}_grasps_filtered.json"
-    )
+grasps_json_fi
 
 
 if args.compare:
@@ -899,11 +880,10 @@ else:
     else:
         extra = ""
 
-    json_file = os.path.abspath(
-        f"output/{args.object_name}/{args.object_name}_grasps{extra}.json"
-    )
+    json_file = os.path.abspath(args.grasps_path)
     if not os.path.exists(json_file):
-        json_file = os.path.abspath(f"output/{args.object_name}_grasps{extra}.json")
+        print(f"Grasps JSON file does not exist: {json_file}")
+        sys.exit(1)
 
     with open(json_file, "r") as f:
         data = json.load(f)
