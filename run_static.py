@@ -6,8 +6,9 @@ from datetime import datetime
 
 USE_WANDB = 0
 gripper_name = "robotiq"
+objects_list_path = "results/static_objects_list.json"
 
-with open("matched_objects.json", "r") as f:
+with open(objects_list_path, "r") as f:
     data = json.load(f)
 if USE_WANDB:
     wandb.init(
@@ -200,7 +201,7 @@ for obj in data:
                     grasp_file_path,
                     "--systematic_sampling",
                     "--num_workers",
-                    str(os.cpu_count()//4),
+                    1,
                     "--gripper",
                     gripper_name,
                 ],

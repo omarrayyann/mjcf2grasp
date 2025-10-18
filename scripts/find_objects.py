@@ -69,6 +69,7 @@ def find_objs_with_matching_subfolder(base_dir, check_joints=False):
 
 
 def save_to_json(data, output_path):
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, "w") as f:
         json.dump(data, f, indent=4)
 
@@ -92,9 +93,9 @@ if __name__ == "__main__":
 
     if not args.output:
         args.output = (
-            "matched_objects.json"
+            "results/static_objects_list.json"
             if not args.check_joints
-            else "articulated_matched_objs.json"
+            else "results/articulable_objects_list.json"
         )
 
     matched_objs = find_objs_with_matching_subfolder(args.directory, args.check_joints)

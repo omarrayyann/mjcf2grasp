@@ -5,7 +5,7 @@ matplotlib.use("TkAgg")
 import numpy as np
 import matplotlib.pyplot as plt
 
-from RobotiqGripper import RobotiqGripper
+from assets.grippers.robotiq import RobotiqGripper
 
 
 def main():

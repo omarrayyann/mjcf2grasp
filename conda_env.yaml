@@ -1,4 +1,4 @@
-name: xml2grasp
+name: mjcf2grasp
 channels:
   - conda-forge
   - defaults

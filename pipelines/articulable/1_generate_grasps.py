@@ -16,9 +16,9 @@ import os
 from scipy.spatial.transform import Rotation as R
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from grippers.PandaGripper import PandaGripper
-from grippers.RUMGripper import RUMGripper
-from grippers.RobotiqGripper import RobotiqGripper
+from Robotiq_Gripper.PandaGripper import PandaGripper
+from Robotiq_Gripper.RUMGripper import RUMGripper
+from assets.grippers.robotiq import RobotiqGripper
 
 
 class Object(object):

@@ -25,13 +25,12 @@ import sys
 import os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from RobotiqGripper import RobotiqGripper
+from assets.grippers.robotiq import RobotiqGripper
 
 
 parser = argparse.ArgumentParser(description="Visualize grasps from a JSON file.")
 parser.add_argument("object_name", type=str)
 parser.add_argument("--filtered", action="store_true")
-parser.add_argument("--gripper_name", type=str, default="panda")
 parser.add_argument(
     "--compare",
     action="store_true",
