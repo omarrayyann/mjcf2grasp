@@ -1,5 +1,5 @@
-# Thor Grasp
-A pipeline that generates grasp samples for Thor objects (static and articulated), with evaluation and filtering in MuJoCo
+# mjcf2grasp
+`mjcf2grasp` lets you generate and verify functional grasps given an MJCF file
 <p>
   <img src="https://github.com/user-attachments/assets/528f1dda-dc60-4434-b04b-c0b67b336bc4" alt="tennis" width="18%" height="auto" />
   <img src="https://github.com/user-attachments/assets/df1ec21f-c457-4ad6-a611-2f16d0ac4f61" alt="cup" width="18%" height="auto" />
@@ -9,63 +9,9 @@ A pipeline that generates grasp samples for Thor objects (static and articulated
 </p>
 
 
-
-
 ## Installation
 
 ```bash
-pip install -r requirements.txt
+conda create -n mjcf2grasp python=3.10
+conda activate mjcf2grasp
 ```
-
-**External dependencies**:
-   - Install [Manifold library](https://github.com/hjwdzh/Manifold) under external_src
-   - Install [PyMeshLab](https://github.com/cnr-isti-vclab/PyMeshLab) under external_src
-## Steps
-
-1. **Find Objects**: Run `scripts/find_objects.py` to scan for valid objects and generate `matched_objs.json`
-   
-   **For static objects:**
-   ```bash
-   python scripts/find_objects.py <directory> --output matched_objs.json
-   ```
-   
-   **For articulated objects (furniture with movable joints):**
-   ```bash
-   python scripts/find_objects.py <directory> --output articulated_matched_objs.json --check-joints
-   ```
-   
-   The `--check-joints` flag adds a filtering requirement for XML files to include articulated joints (non-free joints) 
-   
-   Example output format:
-   ```json
-   [
-       {
-           "name": "Tennis_Racquet_1",
-           "xml": "/path/to/assets/Tennis_Racquet/Prefabs/Tennis_Racquet_1/Tennis_Racquet_1.xml"
-       },
-       {
-           "name": "Microwave_12", 
-           "xml": "/path/to/assets/Microwave/Prefabs/Microwave_12/Microwave_12.xml"
-       }
-   ]
-   ```
-
-2. **Run Pipeline**: Run the appropriate pipeline based on object type:
-   
-   **For static objects:**
-   ```bash
-   python run_pipeline.py
-   ```
-   
-   **For articulated objects (for fuctional grasps):**
-   ```bash
-   python run_pipeline_articulate.py
-   ```
-
-**Pipeline stages:**
-- `pipeline/0_generate_mesh.py` - Combines meshes from MuJoCo XML into a single OBJ file
-- `pipeline/1_generate_grasps.py` - Samples grasp poses for the object mesh  
-- `pipeline/2_mesh_colliders.py` - Converts primitive colliders to mesh colliders
-- `pipeline/3_filter_mujoco.py` - Filters grasps using MuJoCo simulation
-
-(`pipeline_articulate` is similar to  `pipeline` but has additional filtering requirement in the filter_mujoco process. It ensures the grasp allows a later movement to generate motion in one of the non-free joints of the asset.)
