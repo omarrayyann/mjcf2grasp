@@ -4,8 +4,23 @@ assets/Thor-Assets
 /wandb
 /assets/ThorAssets
 /assets/Prefabs
-/output_articulate
+
+# temp files
+/tmp*
+
+# output files
+/output*
+/output_articulate*
 
 /test
 /grippers/__pycache__
 /assets/objects
+
+
+# artifact files
+*.json
+*.xml
+*.png
+*.obj
+*.mtl
+*.pyc
