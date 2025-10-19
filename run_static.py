@@ -4,7 +4,7 @@ import subprocess
 import wandb
 from datetime import datetime
 
-MAX_SUCCESSFUL_GRASPS = 5
+MAX_SUCCESSFUL_GRASPS = 5000
 USE_WANDB = 1
 objects_list_path = "results/static_objects_list.json"
 with open(objects_list_path, "r") as f:
