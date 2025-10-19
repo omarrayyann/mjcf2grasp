@@ -15,8 +15,8 @@ class RobotiqGripper:
         self.q = q
         gripping_center = 0.17365
         self.tcp_offset = np.array([0, 0, gripping_center])
-        fn_base = root_folder + "assets/gripper_models/robotiq_gripper/hand.stl"
-        fn_finger = root_folder + "assets/gripper_models/robotiq_gripper/finger.stl"
+        fn_base = root_folder + "assets/grippers/robotiq/xmls/hand.stl"
+        fn_finger = root_folder + "assets/grippers/robotiq/xmls/finger.stl"
         self.base = trimesh.load(fn_base)
         self.finger_l = trimesh.load(fn_finger)
         self.finger_r = self.finger_l.copy()

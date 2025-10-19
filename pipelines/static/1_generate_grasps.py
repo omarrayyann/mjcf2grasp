@@ -5,19 +5,17 @@ from collections import OrderedDict
 import errno
 import json
 import os
+import sys
 import numpy as np
 import multiprocessing as mp
 from functools import partial
 from tqdm import tqdm
 import trimesh
 import trimesh.transformations as tra
-import sys
 import os
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from Robotiq_Gripper.PandaGripper import PandaGripper
-from Robotiq_Gripper.RUMGripper import RUMGripper
-from assets.grippers.robotiq import RobotiqGripper
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+from assets.grippers.robotiq.robotiq_gripper import RobotiqGripper
 
 
 class Object(object):
@@ -58,17 +56,6 @@ class Object(object):
 
     def in_collision_with(self, mesh, transform):
         return self.collision_manager.in_collision_single(mesh, transform=transform)
-
-
-def get_available_grippers():
-    available_grippers = OrderedDict(
-        {
-            "panda": PandaGripper,
-            "rum": RUMGripper,
-            "robotiq": RobotiqGripper,
-        }
-    )
-    return available_grippers
 
 
 def _check_collision_worker(object_mesh, gripper_mesh, transform_batch):
@@ -1053,7 +1040,7 @@ if __name__ == "__main__":
             position=args.position,
             rotation=args.rotation,
         )
-        gripper = create_gripper(args.gripper)
+        gripper = RobotiqGripper(root_folder="")
 
         points, normals, transforms, roll_angles, standoffs, collisions, qualities = (
             sample_multiple_grasps(

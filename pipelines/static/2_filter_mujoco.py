@@ -128,8 +128,9 @@ def test_single_grasp(grasp_data, object_name):
     # Merge with gripper XML to get mocap functionality
     gripper_xml_path = os.path.join(
         os.path.dirname(__file__),
-        f"../assets/gripper_models/{args.gripper}_gripper/model.xml",
+        f"../../assets/grippers/robotiq/xmls/model.xml"
     )
+
     with open(gripper_xml_path, "r") as f:
         additional_xml_content = f.read()
     xml_content = merge_xml_contents(xml_content, additional_xml_content)

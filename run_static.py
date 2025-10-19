@@ -67,7 +67,7 @@ for obj in data:
     if not os.path.exists(manifold_path):
         print(f"\nProcessing object: {object_name} manifold (using combined mesh from XML)")
         subprocess.run(
-            ["./manifold", mesh_path, manifold_path, "-s"],
+            ["./manifold", os.path.abspath(mesh_path), os.path.abspath(manifold_path), "-s"],
             cwd="external_src/Manifold/build",
             check=True,
         )
@@ -79,9 +79,9 @@ for obj in data:
                 [
                     "./simplify",
                     "-i",
-                    manifold_path,
+                    os.path.abspath(manifold_path),
                     "-o",
-                    simplify_path,
+                    os.path.abspath(simplify_path),
                     "-m",
                     "-r",
                     "0.5",
@@ -95,12 +95,7 @@ for obj in data:
             failed_objects.append(object_name)
             continue
 
-    if not simplify_success:
-        continue
-
-    if os.path.exists():
-        print("Grasp file already exists for {object_name}, skipping grasp generation")
-    else:
+    if not os.path.exists(grasp_file_path):
         print(f"Generating grasps for object: {object_name}")
         try:
             subprocess.run(
@@ -115,7 +110,7 @@ for obj in data:
                     grasp_file_path,
                     "--systematic_sampling",
                     "--num_workers",
-                    1,
+                    str(1),
                 ],
                 check=True,
             )
@@ -135,7 +130,7 @@ for obj in data:
                     "--grasps_path",
                     grasp_file_path,
                     "--save-png",
-                    filtered_viz_path,
+                    non_filtered_viz_path,
                     "--grasp-shape-only",
                 ],
                 check=True,
@@ -145,57 +140,15 @@ for obj in data:
             print("Continuing to next object...")
             failed_objects.append(object_name)
 
-    ignore_types = [
-        "pen",
-        "pencil",
-        "plate",
-        "key",
-        "cd",
-        "book",
-        "phone",
-        "card",
-        "bedsheet",
-        "lamp", 
-        "spoon",
-        "fork",
-        "laptop",
-        "box",
-        "statue",
-        "bed",
-        "shelving",
-        "table",
-        "dresser",
-        "desk",
-    ]
+    if USE_WANDB and os.path.exists(non_filtered_viz_path):
+        wandb.log(
+            {f"non_filtered_visualization": wandb.Image(non_filtered_viz_path), "object_name": object_name}
+        )
 
-    should_skip = False
-    for ignore_type in ignore_types:
-        if ignore_type in object_name.lower():
-            should_skip = True
-            break
 
-    if not should_skip:
-        xml_mesh_file = xml_file_path.replace(".xml", "_mesh.xml")
-        if not os.path.exists(xml_mesh_file):
-            print(f"   Converting XML to use mesh colliders...")
-            try:
-                subprocess.run(
-                    [
-                        "python",
-                        "pipeline_articulate/2_mesh_colliders.py",
-                        "--input",
-                        xml_file_path,
-                        "--output",
-                        xml_mesh_file,
-                    ],
-                    check=True,
-                )
-                print(f"   Mesh collider XML created: {xml_mesh_file}")
-            except Exception as e:
-                print(f"   Warning: Unexpected error in mesh collider conversion, using original XML: {str(e)}")
-                xml_mesh_file = xml_file_path
-    else:
-        xml_mesh_file = xml_file_path
+    xml_mesh_file_path = xml_file_path.replace(".xml", "_mesh.xml")
+    if not os.path.exists(xml_mesh_file_path):
+        xml_mesh_file_path = xml_file_path
 
     if not os.path.exists(filtered_file_path):
         print(f"Filtering grasps for object: {object_name} using MuJoCo")
@@ -203,13 +156,13 @@ for obj in data:
             subprocess.run(
                 [
                     "python",
-                    "pipelines/static/3_filter_mujoco.py",
+                    "pipelines/static/2_filter_mujoco.py",
                     "--object_name",
                     object_name,
                     "--grasps_path",
                     grasp_file_path,
                     "--xml_file",
-                    xml_mesh_file,
+                    xml_mesh_file_path,
                     "--num_workers",
                     str(1),
                     "--approach_distance",
