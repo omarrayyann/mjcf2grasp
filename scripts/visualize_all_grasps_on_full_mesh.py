@@ -89,7 +89,7 @@ def plot_mesh(mesh, color=None):
 
 def get_control_point_tensor():
     # Loads the panda gripper control points as in visualize_render.py
-    control_points = np.load("assets/gripper_control_points/panda.npy")[:, :3]
+    control_points = np.load("assets/grippers/robotiq/panda.npy")[:, :3]
     control_points = [
         [0, 0, 0],
         [0, 0, 0],

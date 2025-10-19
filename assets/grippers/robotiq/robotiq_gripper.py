@@ -4,7 +4,7 @@ import trimesh.transformations as tra
 
 
 class RobotiqGripper:
-    tcp_offset = np.array([0, 0, 0.13675])
+    tcp_offset = np.array([0, 0, 0.17365])
 
     def __init__(self, q=0.048372, num_contact_points_per_finger=15, root_folder=""):
         self.default_pregrasp_configuration = 0.048372

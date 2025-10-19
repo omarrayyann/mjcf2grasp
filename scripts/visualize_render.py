@@ -76,29 +76,19 @@ parser.add_argument(
     help="Path to a specific grasps JSON file to visualize (overrides object_name logic)",
 )
 
-GRIPPER_PC = np.load("assets/gripper_models/panda_pc.npy", allow_pickle=True).item()[
+GRIPPER_PC = np.load("assets/grippers/robotiq/panda_pc.npy", allow_pickle=True).item()[
     "points"
 ]
 GRIPPER_PC[:, 3] = 1.0
 
 
 class Object(object):
-    """Represents a graspable object."""
-
     def __init__(self, filename):
-        """Constructor.
-
-        :param filename: Mesh to load
-        :param scale: Scaling factor
-        """
         self.mesh = trimesh.load(filename)
         self.scale = 1.0
 
-        # print(filename)
         self.filename = filename
         if isinstance(self.mesh, list):
-            # this is fixed in a newer trimesh version:
-            # https://github.com/mikedh/trimesh/issues/69
             print("Warning: Will do a concatenation")
             self.mesh = trimesh.util.concatenate(self.mesh)
 
@@ -106,10 +96,6 @@ class Object(object):
         self.collision_manager.add_object("object", self.mesh)
 
     def rescale(self, scale=1.0):
-        """Set scale of object mesh.
-
-        :param scale
-        """
         self.scale = scale
         self.mesh.apply_scale(self.scale)
 
@@ -126,27 +112,14 @@ class Object(object):
         self.mesh.apply_transform(matrix)
 
     def resize(self, size=1.0):
-        """Set longest of all three lengths in Cartesian space.
-
-        :param size
-        """
         self.scale = size / np.max(self.mesh.extents)
         self.mesh.apply_scale(self.scale)
 
     def in_collision_with(self, mesh, transform):
-        """Check whether the object is in collision with the provided mesh.
-
-        :param mesh:
-        :param transform:
-        :return: boolean value
-        """
         return self.collision_manager.in_collision_single(mesh, transform=transform)
 
 
 def get_shape(x):
-    """
-    Gets the shape of the tensor x.
-    """
     return x.get_shape().as_list()
 
 
@@ -190,7 +163,7 @@ def get_control_point_tensor(batch_size, use_tf=True):
     Outputs a tensor of shape (batch_size x 6 x 3).
     use_tf: switches between outputing a tensor and outputing a numpy array.
     """
-    control_points = np.load("assets/gripper_control_points/panda.npy")[:, :3]
+    control_points = np.load("assets/grippers/robotiq/panda.npy")[:, :3]
     control_points = [
         [0, 0, 0],
         [0, 0, 0],

@@ -1,5 +1,5 @@
 # mjcf2grasp
-`mjcf2grasp` lets you generate and verify functional grasps given an MJCF file
+`mjcf2grasp` lets you generate and verify functional grasps from an [MJCF](https://mujoco.readthedocs.io/en/stable/XMLreference.html) file using [MuJoCo](https://mujoco.org/).
 <p>
   <img src="https://github.com/user-attachments/assets/528f1dda-dc60-4434-b04b-c0b67b336bc4" alt="tennis" width="18%" height="auto" />
   <img src="https://github.com/user-attachments/assets/df1ec21f-c457-4ad6-a611-2f16d0ac4f61" alt="cup" width="18%" height="auto" />
@@ -14,4 +14,5 @@
 ```bash
 conda create -n mjcf2grasp python=3.10
 conda activate mjcf2grasp
+git submodule update --init --recursive
 ```

@@ -24,8 +24,9 @@ import io
 import sys
 import os
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from assets.grippers.robotiq import RobotiqGripper
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from assets.grippers.robotiq.robotiq_gripper import RobotiqGripper
+
 
 
 parser = argparse.ArgumentParser(description="Visualize grasps from a JSON file.")
@@ -68,7 +69,7 @@ parser.add_argument(
     help="Set rotation of the object in the scene as quaternion (default: [0, 0, 0, 1])",
 )
 
-GRIPPER_PC = np.load("assets/gripper_models/panda_pc.npy", allow_pickle=True).item()[
+GRIPPER_PC = np.load("assets/grippers/robotiq/panda_pc.npy", allow_pickle=True).item()[
     "points"
 ]
 GRIPPER_PC[:, 3] = 1.0
@@ -143,7 +144,7 @@ def get_gripper_pc(batch_size, npoints, use_tf=True):
 
 
 def get_control_point_tensor(batch_size, use_tf=True):
-    control_points = np.load("assets/gripper_control_points/panda.npy")[:, :3]
+    control_points = np.load("assets/grippers/robotiq/panda.npy")[:, :3]
     control_points = [
         [0, 0, 0],
         [0, 0, 0],
@@ -801,130 +802,51 @@ def get_axis():
 args = parser.parse_args()
 
 
-grasps_json_fi
+json_file = os.path.abspath(args.grasps_path)
+if not os.path.exists(json_file):
+    print(f"Grasps JSON file does not exist: {json_file}")
+    sys.exit(1)
 
+with open(json_file, "r") as f:
+    data = json.load(f)
 
-if args.compare:
-    try:
-        with open(base_json_file, "r") as f:
-            base_data = json.load(f)
+mesh = trimesh.load(data["object"])
 
-        with open(filtered_json_file, "r") as f:
-            filtered_data = json.load(f)
+mesh.apply_scale(data["object_scale"])
 
-        mesh = trimesh.load(base_data["object"])
-        mesh.apply_scale(base_data["object_scale"])
+pose = tra.quaternion_matrix(data["object_rotation"])
+pose[:3, 3] = data["object_position"]
+pose[3, 3] = 1.0
+mesh.apply_transform(pose)
 
-        pose = np.identity(4)
-        pose[:3, 3] = base_data["object_position"]
-        pose[:3, :3] = tra.quaternion_matrix(base_data["object_rotation"])
-        mesh.apply_transform(pose)
+transforms = np.array(data["transforms"])
+gripper = RobotiqGripper()
 
-        all_transforms = np.array(base_data["transforms"])
-        all_quality = np.array(
-            base_data.get(
-                "quality_antipodal",
-                base_data.get(
-                    "quality_number_of_contacts", [1.0] * len(all_transforms)
-                ),
-            )
-        )
+for i in range(len(transforms)):
+    transforms[i][:3, 3] -= transforms[i][:3, :3] @ (gripper.tcp_offset - 0.035)
 
-        filtered_transforms = np.array(filtered_data["transforms"])
-
-        filtered_transform_lists = [
-            t.tolist() if not isinstance(t, list) else t for t in filtered_transforms
-        ]
-
-        colors = []
-        filtered_indices = []
-        unfiltered_indices = []
-
-        for i, transform in enumerate(all_transforms):
-            transform_list = (
-                transform.tolist() if not isinstance(transform, list) else transform
-            )
-            if any(
-                np.allclose(np.array(transform_list), np.array(ft))
-                for ft in filtered_transform_lists
-            ):
-                colors.append((0, 1, 0))
-                filtered_indices.append(i)
-            else:
-                colors.append((1, 0, 0))
-                unfiltered_indices.append(i)
-
-        print(
-            f"Showing {len(filtered_indices)} filtered grasps (green) and {len(unfiltered_indices)} unfiltered grasps (red)"
-        )
-
-        draw_scene(
-            pc=None,
-            grasps=all_transforms,
-            grasp_scores=all_quality,
-            mesh=mesh,
-            show_gripper_mesh=not args.grasp_shape_only,
-            plasma_coloring=False,
-            gripper_color=colors,
-            save_png=args.save_png,
-            render=args.render,
-        )
-    except FileNotFoundError as e:
-        print(
-            f"Error: Could not find one of the required grasp files. Make sure both filtered and unfiltered files exist."
-        )
-        print(f"Exception: {e}")
-else:
-    if args.filtered:
-        extra = "_filtered"
-    else:
-        extra = ""
-
-    json_file = os.path.abspath(args.grasps_path)
-    if not os.path.exists(json_file):
-        print(f"Grasps JSON file does not exist: {json_file}")
-        sys.exit(1)
-
-    with open(json_file, "r") as f:
-        data = json.load(f)
-
-    mesh = trimesh.load(data["object"])
-
-    mesh.apply_scale(data["object_scale"])
-
-    pose = tra.quaternion_matrix(data["object_rotation"])
-    pose[:3, 3] = data["object_position"]
-    pose[3, 3] = 1.0
-    mesh.apply_transform(pose)
-
-    transforms = np.array(data["transforms"])
-    gripper = RobotiqGripper()
-
-    for i in range(len(transforms)):
-        transforms[i][:3, 3] -= transforms[i][:3, :3] @ gripper.tcp_offset
-
-    quality = np.array(
-        data.get(
-            "quality_antipodal",
-            data.get("quality_number_of_contacts", [1.0] * len(transforms)),
-        )
+quality = np.array(
+    data.get(
+        "quality_antipodal",
+        data.get("quality_number_of_contacts", [1.0] * len(transforms)),
     )
-    grasp_widths = np.array(data.get("grasp_widths", [0.0] * len(transforms)))
+)
+grasp_widths = np.array(data.get("grasp_widths", [0.0] * len(transforms)))
 
-    top_k = 2000
+top_k = 2000
 
-    transforms = transforms[:top_k]
-    quality = quality[:top_k]
-    grasp_widths = grasp_widths[:top_k]
+transforms = transforms[:top_k]
+quality = quality[:top_k]
+grasp_widths = grasp_widths[:top_k]
 
-    draw_scene(
-        pc=None,
-        grasps=transforms,
-        grasp_scores=quality,
-        mesh=mesh,
-        show_gripper_mesh=not args.grasp_shape_only,
-        plasma_coloring=True,
-        save_png=args.save_png,
-        render=args.render,
-        grasp_widths=grasp_widths,
-    )
+draw_scene(
+    pc=None,
+    grasps=transforms,
+    grasp_scores=quality,
+    mesh=mesh,
+    show_gripper_mesh=not args.grasp_shape_only,
+    plasma_coloring=True,
+    save_png=args.save_png,
+    render=args.render,
+    grasp_widths=grasp_widths,
+)

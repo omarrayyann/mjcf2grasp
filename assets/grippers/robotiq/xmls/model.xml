@@ -7,14 +7,14 @@
     <material name="silicone" rgba="0.1882 0.1882 0.1882 1"/>
     <material name="black" rgba="0.149 0.149 0.149 1"/>
 
-    <mesh file="assets/gripper_models/robotiq_gripper/assets/base.stl"/>
-    <mesh file="assets/gripper_models/robotiq_gripper/assets/base_coupling.stl"/>
-    <mesh file="assets/gripper_models/robotiq_gripper/assets/c-a01-85-open.stl"/>
-    <mesh file="assets/gripper_models/robotiq_gripper/assets/driver.stl"/>
-    <mesh file="assets/gripper_models/robotiq_gripper/assets/coupler.stl"/>
-    <mesh file="assets/gripper_models/robotiq_gripper/assets/spring_link.stl"/>
-    <mesh file="assets/gripper_models/robotiq_gripper/assets/follower.stl"/>
-    <mesh file="assets/gripper_models/robotiq_gripper/assets/tongue.stl"/>
+    <mesh file="assets/grippers/robotiq/xmls/meshes/base.stl"/>
+    <mesh file="assets/grippers/robotiq/xmls/meshes/base_coupling.stl"/>
+    <mesh file="assets/grippers/robotiq/xmls/meshes/c-a01-85-open.stl"/>
+    <mesh file="assets/grippers/robotiq/xmls/meshes/driver.stl"/>
+    <mesh file="assets/grippers/robotiq/xmls/meshes/coupler.stl"/>
+    <mesh file="assets/grippers/robotiq/xmls/meshes/spring_link.stl"/>
+    <mesh file="assets/grippers/robotiq/xmls/meshes/follower.stl"/>
+    <mesh file="assets/grippers/robotiq/xmls/meshes/tongue.stl"/>
   </asset>
 
 

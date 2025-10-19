@@ -1,4 +1,3 @@
-import argparse
 import matplotlib
 
 matplotlib.use("TkAgg")
