@@ -1,3 +1,4 @@
 /wandb
 /assets/objects
 /results
+__pycache__/
