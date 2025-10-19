@@ -68,6 +68,18 @@ parser.add_argument(
     default=[0, 0, 0, 1],
     help="Set rotation of the object in the scene as quaternion (default: [0, 0, 0, 1])",
 )
+parser.add_argument(
+    "--min-contact-depth",
+    type=float,
+    default=0.0,
+    help="Minimum contact depth (0.0=base, 1.0=tip). Only show grasps with contact depth >= this value (default: 0.0)",
+)
+parser.add_argument(
+    "--max-contact-depth",
+    type=float,
+    default=0.3,
+    help="Maximum contact depth (0.0=base, 1.0=tip). Only show grasps with contact depth <= this value (default: 1.0)",
+)
 
 GRIPPER_PC = np.load("assets/grippers/robotiq/panda_pc.npy", allow_pickle=True).item()[
     "points"
@@ -832,12 +844,23 @@ quality = np.array(
     )
 )
 grasp_widths = np.array(data.get("grasp_widths", [0.0] * len(transforms)))
+contact_depths = np.array(data.get("contact_depths", [0.5] * len(transforms)))
+
+# Filter by contact depth range
+if args.min_contact_depth > 0.0 or args.max_contact_depth < 1.0:
+    depth_mask = (contact_depths >= args.min_contact_depth) & (contact_depths <= args.max_contact_depth)
+    transforms = transforms[depth_mask]
+    quality = quality[depth_mask]
+    grasp_widths = grasp_widths[depth_mask]
+    contact_depths = contact_depths[depth_mask]
+    print(f"Filtered grasps by contact depth [{args.min_contact_depth}, {args.max_contact_depth}]: {len(transforms)} grasps remaining")
 
 top_k = 2000
 
 transforms = transforms[:top_k]
 quality = quality[:top_k]
 grasp_widths = grasp_widths[:top_k]
+contact_depths = contact_depths[:top_k]
 
 draw_scene(
     pc=None,

@@ -68,8 +68,8 @@ for obj in data:
         print(f"Generating grasps for object: {object_name}")
         try:
             subprocess.run(["python", "pipelines/static/1_generate_grasps.py", "--object_file", simplify_path, 
-                          "--quality", "antipodal", "--output", grasp_file_path, 
-                          "--num_workers", str(5)], check=True)
+                          "--quality", "antipodal", "--output", grasp_file_path, "--systematic_sampling", 
+                          "--num_workers", str(os.cpu_count()//2)], check=True)
         except subprocess.CalledProcessError as e:
             print(f"Error generating grasps for {object_name}: {str(e)}")
             failed_objects.append(object_name)

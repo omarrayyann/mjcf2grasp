@@ -4,7 +4,11 @@ matplotlib.use("TkAgg")
 import numpy as np
 import matplotlib.pyplot as plt
 
-from assets.grippers.robotiq import RobotiqGripper
+import sys
+import os
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from assets.grippers.robotiq.robotiq_gripper import RobotiqGripper
 
 
 def main():
