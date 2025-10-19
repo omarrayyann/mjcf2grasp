@@ -69,7 +69,7 @@ for obj in data:
         try:
             subprocess.run(["python", "pipelines/static/1_generate_grasps.py", "--object_file", simplify_path, 
                           "--quality", "antipodal", "--output", grasp_file_path, "--systematic_sampling", 
-                          "--num_workers", str(1)], check=True)
+                          "--num_workers", str(os.cpu_count()//2)], check=True)
         except subprocess.CalledProcessError as e:
             print(f"Error generating grasps for {object_name}: {str(e)}")
             failed_objects.append(object_name)
@@ -85,7 +85,11 @@ for obj in data:
             print("Continuing to next object...")
             failed_objects.append(object_name)
     if USE_WANDB and os.path.exists(non_filtered_viz_path):
-        wandb.log({f"non_filtered_visualization": wandb.Image(non_filtered_viz_path), "object_name": object_name})
+        wandb.log({
+            f"{object_name}/images/non_filtered_grasps": wandb.Image(
+                non_filtered_viz_path, caption=f"Non-filtered grasps for {object_name}"
+            )
+        })
     xml_mesh_file_path = xml_file_path.replace(".xml", "_mesh.xml")
     if not os.path.exists(xml_mesh_file_path):
         xml_mesh_file_path = xml_file_path
@@ -93,9 +97,9 @@ for obj in data:
         print(f"Filtering grasps for object: {object_name} using MuJoCo")
         try:
             subprocess.run(["python", "pipelines/static/2_filter_mujoco.py", "--object_name", object_name, 
-                          "--grasps_path", grasp_file_path, "--xml_file", xml_mesh_file_path, "--num_workers", str(1), 
+                          "--grasps_path", grasp_file_path, "--xml_file", xml_mesh_file_path, "--num_workers", str(os.cpu_count()//2), 
                           "--approach_distance", "0.3", "--approach_steps", "3000", "--shake_magnitude", "0.1", 
-                          "--shake_steps", "1000", "--rotate", "--render", "--max_successful", str(MAX_SUCCESSFUL_GRASPS)], 
+                          "--shake_steps", "1000", "--rotate", "--max_successful", str(MAX_SUCCESSFUL_GRASPS)], 
                           check=True)
         except subprocess.CalledProcessError as e:
             print(f"   Warning: Failed to filter grasps for {object_name}: {str(e)}")
@@ -109,7 +113,11 @@ for obj in data:
             print(f"Warning: Visualization for {object_name} failed: {str(e)}")
             failed_objects.append(object_name)
     if USE_WANDB and os.path.exists(filtered_viz_path):
-        wandb.log({f"filtered_visualization": wandb.Image(filtered_viz_path), "object_name": object_name})
+        wandb.log({
+            f"{object_name}/images/filtered_grasps": wandb.Image(
+                filtered_viz_path, caption=f"Filtered grasps for {object_name}"
+            )
+        })
     grasp_count = 0
     filtered_count = 0
     if os.path.exists(filtered_file_path):
