@@ -551,7 +551,6 @@ if __name__ == "__main__":
             "object_rotation": obj.rotation,
             "object_class": args.classname,
             "object_dataset": args.dataset,
-            "gripper": args.gripper,
             "gripper_configuration": [gripper.q],
             "transforms": [t.tolist() for t in transforms],
             "roll_angles": roll_angles.tolist(),
