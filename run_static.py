@@ -4,8 +4,8 @@ import subprocess
 import wandb
 from datetime import datetime
 
-MAX_SUCCESSFUL_GRASPS = 5000
-USE_WANDB = 0
+MAX_SUCCESSFUL_GRASPS = 5
+USE_WANDB = 1
 objects_list_path = "results/static_objects_list.json"
 with open(objects_list_path, "r") as f:
     data = json.load(f)
@@ -99,7 +99,7 @@ for obj in data:
             subprocess.run(["python", "pipelines/static/2_filter_mujoco.py", "--object_name", object_name, 
                           "--grasps_path", grasp_file_path, "--xml_file", xml_mesh_file_path, "--num_workers", str(os.cpu_count()//2), 
                           "--approach_distance", "0.3", "--approach_steps", "3000", "--shake_magnitude", "0.1", 
-                          "--shake_steps", "1000", "--rotate", "--max_successful", str(MAX_SUCCESSFUL_GRASPS)], 
+                          "--shake_steps", "1000",  "--rotate", "--max_successful", str(MAX_SUCCESSFUL_GRASPS)], 
                           check=True)
         except subprocess.CalledProcessError as e:
             print(f"   Warning: Failed to filter grasps for {object_name}: {str(e)}")

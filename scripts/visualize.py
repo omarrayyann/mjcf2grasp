@@ -823,7 +823,7 @@ transforms = np.array(data["transforms"])
 gripper = RobotiqGripper()
 
 for i in range(len(transforms)):
-    transforms[i][:3, 3] -= transforms[i][:3, :3] @ (gripper.tcp_offset - 0.035)
+    transforms[i][:3, 3] -= transforms[i][:3, :3] @ (gripper.tcp_offset)
 
 quality = np.array(
     data.get(
