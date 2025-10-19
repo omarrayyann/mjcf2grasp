@@ -130,12 +130,7 @@ for obj in data:
     processed_objects += 1
     filter_success_rate = (filtered_count / grasp_count * 100) if grasp_count > 0 else 0
     completion_percentage = (processed_objects / len(data)) * 100
-    if USE_WANDB:
-        wandb.log({"completion_percentage": completion_percentage, "processed_objects": processed_objects, 
-                  "remaining_objects": len(data) - processed_objects, "overall_progress": processed_objects / len(data), 
-                  f"object_completed": object_name, f"grasp_count": grasp_count, f"filtered_count": filtered_count, 
-                  f"filter_success_rate": filter_success_rate, f"visualization_success": visualization_success, 
-                  "step": processed_objects})
+
     progress_bar_width = 50
     filled_width = int(progress_bar_width * (processed_objects / len(data)))
     progress_bar = "█" * filled_width + "░" * (progress_bar_width - filled_width)
