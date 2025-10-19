@@ -32,7 +32,9 @@ def parse_mujoco_xml(xml_path):
         pos_values = [float(x) for x in pos.split()]
         pos_matrix = tra.translation_matrix(pos_values)
         quat_values = [float(x) for x in quat.split()]
-        quat_matrix = R.from_quat([quat_values[1], quat_values[2], quat_values[3], quat_values[0]]).as_matrix()
+        rot_3x3 = R.from_quat([quat_values[1], quat_values[2], quat_values[3], quat_values[0]]).as_matrix()
+        quat_matrix = np.eye(4)
+        quat_matrix[:3, :3] = rot_3x3
         body_transform = np.dot(parent_transform, np.dot(pos_matrix, quat_matrix))
 
         for geom in body_elem.findall("geom"):
@@ -44,7 +46,9 @@ def parse_mujoco_xml(xml_path):
                     geom_pos_values = [float(x) for x in geom_pos.split()]
                     geom_pos_matrix = tra.translation_matrix(geom_pos_values)
                     geom_quat_values = [float(x) for x in geom_quat.split()]
-                    geom_quat_matrix = R.from_quat([geom_quat_values[1], geom_quat_values[2], geom_quat_values[3], geom_quat_values[0]]).as_matrix()
+                    geom_rot_3x3 = R.from_quat([geom_quat_values[1], geom_quat_values[2], geom_quat_values[3], geom_quat_values[0]]).as_matrix()
+                    geom_quat_matrix = np.eye(4)
+                    geom_quat_matrix[:3, :3] = geom_rot_3x3
                     final_transform = np.dot(body_transform, np.dot(geom_pos_matrix, geom_quat_matrix))
                     mesh_instances.append({
                         "mesh_name": mesh_name,
