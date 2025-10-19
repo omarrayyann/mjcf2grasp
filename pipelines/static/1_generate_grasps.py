@@ -93,7 +93,10 @@ def _quality_point_contacts_worker(batch_data):
 def _quality_antipodal_worker(batch_data):
     transform_batch, collision_batch, object_mesh = batch_data
     res = []
+    contact_depths = []  # Store normalized depth (0=base, 1=tip)
     gripper = RobotiqGripper(root_folder="")
+    num_rays_per_finger = len(gripper.ray_origins) // 2
+    
     if trimesh.ray.has_embree:
         intersector = trimesh.ray.ray_pyembree.RayMeshIntersector(object_mesh, scale_to_box=True)
     else:
@@ -102,12 +105,14 @@ def _quality_antipodal_worker(batch_data):
     for p, colliding in zip(transform_batch, collision_batch):
         if colliding:
             res.append(0)
+            contact_depths.append(0.0)
             continue
 
         ray_origins, ray_directions = gripper.get_closing_rays(p)
         locations, index_ray, index_tri = intersector.intersects_location(ray_origins, ray_directions, multiple_hits=False)
         if locations.size == 0:
             res.append(0)
+            contact_depths.append(0.0)
             continue
         index_ray_left = np.array([
             i for i, num in enumerate(index_ray)
@@ -119,6 +124,7 @@ def _quality_antipodal_worker(batch_data):
         ])
         if index_ray_left.size == 0 or index_ray_right.size == 0:
             res.append(0)
+            contact_depths.append(0.0)
             continue
         left_contact_idx = np.linalg.norm(ray_origins[index_ray[index_ray_left]] - locations[index_ray_left], axis=1).argmin()
         right_contact_idx = np.linalg.norm(ray_origins[index_ray[index_ray_right]] - locations[index_ray_right], axis=1).argmin()
@@ -126,6 +132,12 @@ def _quality_antipodal_worker(batch_data):
         right_contact_point = locations[index_ray_right[right_contact_idx]]
         left_contact_normal = object_mesh.face_normals[index_tri[index_ray_left[left_contact_idx]]]
         right_contact_normal = object_mesh.face_normals[index_tri[index_ray_right[right_contact_idx]]]
+        
+        # Calculate contact depth (normalized 0 to 1, where 0=base, 1=tip)
+        left_ray_num = index_ray[index_ray_left[left_contact_idx]] // 2  # Divide by 2 because rays alternate
+        right_ray_num = index_ray[index_ray_right[right_contact_idx]] // 2
+        avg_contact_depth = ((left_ray_num + right_ray_num) / 2.0) / (num_rays_per_finger - 1)
+        
         l_to_r = (right_contact_point - left_contact_point) / np.linalg.norm(right_contact_point - left_contact_point)
         r_to_l = (left_contact_point - right_contact_point) / np.linalg.norm(left_contact_point - right_contact_point)
         qual_left = np.dot(left_contact_normal, r_to_l)
@@ -135,7 +147,8 @@ def _quality_antipodal_worker(batch_data):
         else:
             qual = min(qual_left, qual_right)
         res.append(qual)
-    return res
+        contact_depths.append(avg_contact_depth)
+    return res, contact_depths
 
 
 def in_collision_with_gripper(object_mesh, gripper_transforms, silent=False, num_workers=None):
@@ -215,7 +228,10 @@ def grasp_quality_antipodal(transforms, collisions, object_mesh, silent=False, n
         num_workers = mp.cpu_count()
     if len(transforms) < 100 or num_workers <= 1:
         res = []
+        contact_depths = []
         gripper = RobotiqGripper(root_folder="")
+        num_rays_per_finger = len(gripper.ray_origins) // 2
+        
         if trimesh.ray.has_embree:
             intersector = trimesh.ray.ray_pyembree.RayMeshIntersector(object_mesh, scale_to_box=True)
         else:
@@ -223,11 +239,13 @@ def grasp_quality_antipodal(transforms, collisions, object_mesh, silent=False, n
         for p, colliding in tqdm(zip(transforms, collisions), total=len(transforms), disable=silent):
             if colliding:
                 res.append(0)
+                contact_depths.append(0.0)
                 continue
             ray_origins, ray_directions = gripper.get_closing_rays(p)
             locations, index_ray, index_tri = intersector.intersects_location(ray_origins, ray_directions, multiple_hits=False)
             if locations.size == 0:
                 res.append(0)
+                contact_depths.append(0.0)
                 continue
             index_ray_left = np.array([
                 i for i, num in enumerate(index_ray)
@@ -239,6 +257,7 @@ def grasp_quality_antipodal(transforms, collisions, object_mesh, silent=False, n
             ])
             if index_ray_left.size == 0 or index_ray_right.size == 0:
                 res.append(0)
+                contact_depths.append(0.0)
                 continue
             left_contact_idx = np.linalg.norm(ray_origins[index_ray[index_ray_left]] - locations[index_ray_left], axis=1).argmin()
             right_contact_idx = np.linalg.norm(ray_origins[index_ray[index_ray_right]] - locations[index_ray_right], axis=1).argmin()
@@ -246,6 +265,12 @@ def grasp_quality_antipodal(transforms, collisions, object_mesh, silent=False, n
             right_contact_point = locations[index_ray_right[right_contact_idx]]
             left_contact_normal = object_mesh.face_normals[index_tri[index_ray_left[left_contact_idx]]]
             right_contact_normal = object_mesh.face_normals[index_tri[index_ray_right[right_contact_idx]]]
+            
+            # Calculate contact depth (normalized 0 to 1, where 0=base, 1=tip)
+            left_ray_num = index_ray[index_ray_left[left_contact_idx]] // 2
+            right_ray_num = index_ray[index_ray_right[right_contact_idx]] // 2
+            avg_contact_depth = ((left_ray_num + right_ray_num) / 2.0) / (num_rays_per_finger - 1)
+            
             l_to_r = (right_contact_point - left_contact_point) / np.linalg.norm(right_contact_point - left_contact_point)
             r_to_l = (left_contact_point - right_contact_point) / np.linalg.norm(left_contact_point - right_contact_point)
             qual_left = np.dot(left_contact_normal, r_to_l)
@@ -255,19 +280,22 @@ def grasp_quality_antipodal(transforms, collisions, object_mesh, silent=False, n
             else:
                 qual = min(qual_left, qual_right)
             res.append(qual)
-        return res
+            contact_depths.append(avg_contact_depth)
+        return res, contact_depths
     batch_size = max(1, len(transforms) // num_workers)
     transform_batches = [transforms[i : i + batch_size] for i in range(0, len(transforms), batch_size)]
     collision_batches = [collisions[i : i + batch_size] for i in range(0, len(collisions), batch_size)]
     batch_data = [(t_batch, c_batch, object_mesh) for t_batch, c_batch in zip(transform_batches, collision_batches)]
     all_results = []
+    all_contact_depths = []
     with mp.Pool(processes=num_workers) as pool:
         pbar = tqdm(total=len(transforms), disable=silent, desc=f"Computing antipodal quality (using {num_workers} workers)")
-        for result in pool.imap(_quality_antipodal_worker, batch_data):
+        for result, depths in pool.imap(_quality_antipodal_worker, batch_data):
             all_results.extend(result)
+            all_contact_depths.extend(depths)
             pbar.update(len(result))
         pbar.close()
-    return all_results
+    return all_results, all_contact_depths
 
 
 def raycast_collisioncheck(origins, expected_hit_points, object_mesh, num_workers=None):
@@ -435,14 +463,17 @@ def sample_multiple_grasps(number_of_candidates, mesh, systematic_sampling, surf
     collisions, _ = in_collision_with_gripper(mesh, transforms, silent=silent, num_workers=num_workers)
     verboseprint("Labelling grasps...")
     quality = {}
+    contact_depths = []
     quality_key = "quality_" + type_of_quality
     if type_of_quality == "antipodal":
-        quality[quality_key] = grasp_quality_antipodal(transforms, collisions, object_mesh=mesh, silent=silent, num_workers=num_workers)
+        quality[quality_key], contact_depths = grasp_quality_antipodal(transforms, collisions, object_mesh=mesh, silent=silent, num_workers=num_workers)
     elif type_of_quality == "number_of_contacts":
         quality[quality_key] = grasp_quality_point_contacts(transforms, collisions, object_mesh=mesh, silent=silent, num_workers=num_workers)
+        contact_depths = [0.0] * len(transforms)  # Not computed for this metric
     else:
         raise Exception("Quality metric unknown: ", quality)
     quality_np = np.array(quality[quality_key])
+    contact_depths_np = np.array(contact_depths)
     collisions = np.array(collisions)
     f_points = []
     f_normals = []
@@ -451,6 +482,7 @@ def sample_multiple_grasps(number_of_candidates, mesh, systematic_sampling, surf
     f_standoffs = []
     f_collisions = []
     f_quality = []
+    f_contact_depths = []
     for i, _ in enumerate(transforms):
         if quality_np[i] >= min_quality:
             f_points.append(points[i])
@@ -460,6 +492,7 @@ def sample_multiple_grasps(number_of_candidates, mesh, systematic_sampling, surf
             f_standoffs.append(standoffs[i])
             f_collisions.append(int(collisions[i]))
             f_quality.append(quality_np[i])
+            f_contact_depths.append(contact_depths_np[i])
     points = np.array(f_points)
     normals = np.array(f_normals)
     transforms = np.array(f_transforms)
@@ -467,10 +500,11 @@ def sample_multiple_grasps(number_of_candidates, mesh, systematic_sampling, surf
     standoffs = np.array(f_standoffs)
     collisions = f_collisions
     quality[quality_key] = f_quality
+    contact_depths = f_contact_depths
     verboseprint(f"Final result: {len(transforms):,} valid grasps with quality >= {min_quality}")
     for i in range(len(transforms)):
         transforms[i][:3, 3] += transforms[i][:3, :3] @ gripper.tcp_offset
-    return points, normals, transforms, roll_angles, standoffs, collisions, quality
+    return points, normals, transforms, roll_angles, standoffs, collisions, quality, contact_depths
 
 
 def make_parser():
@@ -539,7 +573,7 @@ if __name__ == "__main__":
             obj.rescale(args.scale)
         obj.set_transform(position=args.position, rotation=args.rotation)
         gripper = RobotiqGripper(root_folder="")
-        points, normals, transforms, roll_angles, standoffs, collisions, qualities = sample_multiple_grasps(
+        points, normals, transforms, roll_angles, standoffs, collisions, qualities, contact_depths = sample_multiple_grasps(
             args.num_samples, obj.mesh, systematic_sampling=args.systematic_sampling,
             roll_density=args.systematic_roll_density, standoff_density=args.systematic_standoff_density,
             surface_density=args.systematic_surface_density, type_of_quality=args.quality,
@@ -555,6 +589,7 @@ if __name__ == "__main__":
             "transforms": [t.tolist() for t in transforms],
             "roll_angles": roll_angles.tolist(),
             "standoffs": standoffs.tolist(),
+            "contact_depths": contact_depths,
             "mesh_points": [p.tolist() for p in points],
             "mesh_normals": [n.tolist() for n in normals],
             "collisions": collisions,

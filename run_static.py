@@ -5,7 +5,7 @@ import wandb
 from datetime import datetime
 
 MAX_SUCCESSFUL_GRASPS = 5000
-USE_WANDB = 1
+USE_WANDB = 0
 objects_list_path = "results/static_objects_list.json"
 with open(objects_list_path, "r") as f:
     data = json.load(f)
@@ -68,8 +68,8 @@ for obj in data:
         print(f"Generating grasps for object: {object_name}")
         try:
             subprocess.run(["python", "pipelines/static/1_generate_grasps.py", "--object_file", simplify_path, 
-                          "--quality", "antipodal", "--output", grasp_file_path, "--systematic_sampling", 
-                          "--num_workers", str(os.cpu_count()//2)], check=True)
+                          "--quality", "antipodal", "--output", grasp_file_path, 
+                          "--num_workers", str(5)], check=True)
         except subprocess.CalledProcessError as e:
             print(f"Error generating grasps for {object_name}: {str(e)}")
             failed_objects.append(object_name)
