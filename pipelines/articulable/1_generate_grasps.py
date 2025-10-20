@@ -15,11 +15,10 @@ import sys
 import os
 from scipy.spatial.transform import Rotation as R
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from Robotiq_Gripper.PandaGripper import PandaGripper
-from Robotiq_Gripper.RUMGripper import RUMGripper
-from assets.grippers.robotiq import RobotiqGripper
-
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+from assets.grippers.robotiq.robotiq_gripper import RobotiqGripper
+#from assets.grippers.panda.panda_gripper import PandaGripper
+#from assets.grippers.rum.rum_gripper import RUMGripper
 
 class Object(object):
     def __init__(self, filename):
@@ -64,8 +63,8 @@ class Object(object):
 def get_available_grippers():
     available_grippers = OrderedDict(
         {
-            "panda": PandaGripper,
-            "rum": RUMGripper,
+            #"panda": PandaGripper,
+            #"rum": RUMGripper,
             "robotiq": RobotiqGripper,
         }
     )
@@ -73,11 +72,11 @@ def get_available_grippers():
 
 
 def create_gripper(name, configuration=None, root_folder=""):
-    if name.lower() == "panda":
-        return PandaGripper(q=configuration, root_folder=root_folder)
-    elif name.lower() == "rum":
-        return RUMGripper(q=configuration, root_folder=root_folder)
-    elif name.lower() == "robotiq":
+    #if name.lower() == "panda":
+    #    return PandaGripper(q=configuration, root_folder=root_folder)
+    # elif name.lower() == "rum":
+    #    return RUMGripper(q=configuration, root_folder=root_folder)
+    if name.lower() == "robotiq":
         return RobotiqGripper(q=configuration, root_folder=root_folder)
     else:
         raise Exception("Unknown gripper: {}".format(name))

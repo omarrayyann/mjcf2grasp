@@ -10,7 +10,7 @@ USE_WANDB = True
 gripper = "robotiq"
 
 def load_articulated_objects():
-    matched_file = "articulated_matched_objs.json"
+    matched_file = "results/articulable_objects_list.json"
 
     if not os.path.exists(matched_file):
         print(f"Error: {matched_file} not found!")
@@ -37,7 +37,7 @@ def run_grasp_filtering_stage(
             subprocess.run(
                 [
                     "python",
-                    "pipeline_articulate/2_mesh_colliders.py",
+                    "pipelines/articulable/2_mesh_colliders.py",
                     "--input",
                     xml_file,
                     "--output",
@@ -69,7 +69,7 @@ def run_grasp_filtering_stage(
             subprocess.run(
                 [
                     "python",
-                    "pipeline_articulate/3_filter_mujoco.py",
+                    "pipelines/articulable/3_filter_mujoco.py",
                     "--object_name",
                     object_name,
                     "--per_joint_summary_json",
@@ -132,7 +132,7 @@ def run_grasp_filtering_stage(
             subprocess.run(
                 [
                     "python",
-                    "pipeline_articulate/3_filter_mujoco.py",
+                    "pipelines/articulable/3_filter_mujoco.py",
                     "--object_name",
                     object_name,
                     "--grasps_path",
@@ -190,7 +190,7 @@ def run_grasp_generation_stage(object_name, handle_mesh_path, full_mesh, output_
         subprocess.run(
             [
                 "python",
-                "pipeline_articulate/1_generate_grasps.py",
+                "pipelines/articulable/1_generate_grasps.py",
                 "--object_file",
                 handle_mesh_path,
                 "--output",
@@ -282,7 +282,7 @@ def run_per_joint_grasp_generation(
         subprocess.run(
             [
                 "python",
-                "pipeline_articulate/1_generate_grasps.py",
+                "pipelines/articulable/1_generate_grasps.py",
                 "--per_joint_grasps_from_meshes",
                 joint_meshes_json,
                 "--gripper",
@@ -329,7 +329,7 @@ def run_handle_detection_stage(obj, output_dir):
         subprocess.run(
             [
                 "python",
-                "pipeline_articulate/0_generate_mesh.py",
+                "pipelines/articulable/0_generate_mesh.py",
                 xml_file_path,
                 os.path.join(output_dir, "main.obj"),
             ],
@@ -395,7 +395,7 @@ def main():
             f"Starting processing of {len(articulated_objects)} articulated objects (wandb disabled)"
         )
 
-    output_base = "output_articulate"
+    output_base = "results/articulable_objects"
     os.makedirs(output_base, exist_ok=True)
 
     processed_objects = 0
