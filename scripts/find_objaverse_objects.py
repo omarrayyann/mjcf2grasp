@@ -13,25 +13,19 @@ def find_objs_with_matching_subfolder(base_dir, check_joints=False):
                 #print(file)
                 if "train" in file: # to ignore house xml files
                     continue
-            
-                process_obj = False
+                
                 json_filename = "thor_metadata.json"
-                #print(os.path.join(root, json_filename))
-
                 metadata = json.load(open(os.path.join(root, json_filename)))
                 
                 if metadata.get("assetMetadata", None) is not None:
                     primaryProperty = metadata.get("assetMetadata", {}).get("primaryProperty", None)
                     if primaryProperty is not None:
-                        if primaryProperty.lower() in ["CanPickup"]:
-                            process_obj = True
-                            break
-
-                if process_obj:
-                    obj_name = os.path.splitext(file)[0]
-                    abs_xml_path = os.path.join(root, file)
-                    result.append({"name": obj_name, "xml": abs_xml_path})
-                
+                        if primaryProperty in ["CanPickup"]:
+                            obj_name = os.path.splitext(file)[0]
+                            abs_xml_path = os.path.join(root, file)
+                            result.append({"name": obj_name, "xml": abs_xml_path})
+                            print(f"Processing object: {obj_name}")
+                        
     # shuffle
     import random
 
