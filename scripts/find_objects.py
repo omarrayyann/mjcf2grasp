@@ -4,7 +4,7 @@ import argparse
 import xml.etree.ElementTree as ET
 
 #ALL_PICKUP_TYPES_THOR = ["fork", "knife"]
-ALL_PICKUP_TYPES_THOR = ["dresser"]
+ALL_PICKUP_TYPES_THOR = ["fridge"]
 
 
 def find_objs_with_matching_subfolder(base_dir, check_joints=False):
@@ -38,6 +38,7 @@ def find_objs_with_matching_subfolder(base_dir, check_joints=False):
                             subfile.endswith(".xml")
                             and "old" not in subfile.lower()
                             and "mesh" not in subfile.lower()
+                            and "prim" not in subfile.lower()
                         ):
                             abs_xml_path = os.path.abspath(
                                 os.path.join(subfolder_path, subfile)
