@@ -20,7 +20,7 @@ with open(objects_list_path, "r") as f:
 
 # Determine the subset of objects to process
 start_idx = args.start
-end_idx = args.end if args.end is not None else len(all_data)
+end_idx = min(args.end, len(all_data)) if args.end is not None else len(all_data)
 data = all_data[start_idx:end_idx]
 
 print(f"Processing objects {start_idx} to {end_idx-1} (subset of {len(all_data)} total objects)")
