@@ -6,7 +6,7 @@ import argparse
 from datetime import datetime
 
 MAX_SUCCESSFUL_GRASPS = 5000
-USE_WANDB = 0
+USE_WANDB = 1
 
 # Parse command line arguments
 parser = argparse.ArgumentParser(description='Process static objects for grasp generation')
