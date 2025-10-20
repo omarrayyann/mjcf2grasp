@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# Script to create multiple beaker experiments with configurable parameters
+# Usage: ./create_experiments <total_objects> <num_nodes>
+# Example: ./create_experiments 10000 50
+
+# Check if correct number of arguments provided
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <total_objects> <num_nodes>"
+    echo "Example: $0 10000 50"
+    exit 1
+fi
+
+TOTAL_OBJECTS=$1
+NUM_NODES=$2
+
+# Calculate objects per node
+OBJECTS_PER_NODE=$((TOTAL_OBJECTS / NUM_NODES))
+
+echo "Creating $NUM_NODES beaker experiments"
+echo "Total objects: $TOTAL_OBJECTS"
+echo "Objects per node: $OBJECTS_PER_NODE"
+
+# Create experiments in a loop
+for i in $(seq 0 $((NUM_NODES - 1))); do
+    START_INDEX=$((i * OBJECTS_PER_NODE))
+    END_INDEX=$(((i + 1) * OBJECTS_PER_NODE))
+    
+    # For the last node, make sure we cover all remaining objects
+    if [ $i -eq $((NUM_NODES - 1)) ]; then
+        END_INDEX=$TOTAL_OBJECTS
+    fi
+    
+    echo "Creating experiment $((i + 1))/$NUM_NODES: start=$START_INDEX, end=$END_INDEX"
+    
+    # Create a temporary YAML file with the specific start/end values
+    TEMP_YAML="/tmp/experiment_${i}.yaml"
+    
+    # Use sed to replace the hardcoded values in the YAML
+    sed "s/'0', # --start/'$START_INDEX', # --start/g; s/'10000', # --end/'$END_INDEX', # --end/g" beaker_scripts/experiment.yaml > "$TEMP_YAML"
+    
+    # Create the experiment with the temporary YAML file
+    beaker experiment create "$TEMP_YAML"
+    
+    # Clean up the temporary file
+    rm "$TEMP_YAML"
+    
+    # Optional: add a small delay between experiments to avoid overwhelming the system
+    sleep 1
+done
+
+echo "All $NUM_NODES experiments created successfully!" 
