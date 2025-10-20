@@ -121,7 +121,7 @@ for obj in data:
                           "--max_contact_depth", "1.0",
                           "--min_contact_depth", "0.0",
                           "--center_contact_depth", "0.75",
-                          "--contact_depth_bias", "3.0",
+                          "--contact_depth_bias", "1.8",
                           
                           #"--render", 
                           "--rotate", 
