@@ -99,7 +99,14 @@ for obj in data:
             subprocess.run(["python", "pipelines/static/2_filter_mujoco.py", "--object_name", object_name, 
                           "--grasps_path", grasp_file_path, "--xml_file", xml_mesh_file_path, "--num_workers", str(os.cpu_count()//2), 
                           "--approach_distance", "0.3", "--approach_steps", "3000", "--shake_magnitude", "0.1", 
-                          "--shake_steps", "1000",  "--rotate", "--max_successful", str(MAX_SUCCESSFUL_GRASPS)], 
+                          "--shake_steps", "1000", 
+                          
+                          "--max_contact_depth", "1.0",
+                          "--min_contact_depth", "0.0",
+                          "--center_contact_depth", "0.75",
+                          "--contact_depth_bias", "3.0",
+                          
+                          "--render", "--rotate", "--max_successful", str(MAX_SUCCESSFUL_GRASPS)], 
                           check=True)
         except subprocess.CalledProcessError as e:
             print(f"   Warning: Failed to filter grasps for {object_name}: {str(e)}")

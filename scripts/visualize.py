@@ -71,13 +71,13 @@ parser.add_argument(
 parser.add_argument(
     "--min-contact-depth",
     type=float,
-    default=0.0,
+    default=0.8,
     help="Minimum contact depth (0.0=base, 1.0=tip). Only show grasps with contact depth >= this value (default: 0.0)",
 )
 parser.add_argument(
     "--max-contact-depth",
     type=float,
-    default=0.3,
+    default=1.0,
     help="Maximum contact depth (0.0=base, 1.0=tip). Only show grasps with contact depth <= this value (default: 1.0)",
 )
 

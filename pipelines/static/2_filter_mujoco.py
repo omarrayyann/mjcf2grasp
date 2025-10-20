@@ -10,6 +10,7 @@ import multiprocessing as mp
 from scipy.spatial.transform import Rotation as R
 from tqdm import tqdm
 import sys
+import matplotlib.pyplot as plt
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 from assets.grippers.robotiq.robotiq_gripper import RobotiqGripper
@@ -27,6 +28,10 @@ parser.add_argument("--render", action="store_true", help="Enable interactive vi
 parser.add_argument("--rotate", action="store_true", help="Enable rotation shaking")
 parser.add_argument("--num_workers", type=int, default=mp.cpu_count(), help="Number of parallel processes to use")
 parser.add_argument("--max_successful", type=int, default=0, help="Stop after finding this many successful grasps (0 = process all grasps)")
+parser.add_argument("--min_contact_depth", type=float, default=0.0, help="Minimum contact depth (0.0=base, 1.0=tip). Only test grasps with contact depth >= this value (default: 0.0)")
+parser.add_argument("--max_contact_depth", type=float, default=1.0, help="Maximum contact depth (0.0=base, 1.0=tip). Only test grasps with contact depth <= this value (default: 1.0)")
+parser.add_argument("--center_contact_depth", type=float, default=None, help="Center contact depth (0.0=base, 1.0=tip). Prioritize testing grasps closer to this depth value first (default: None = no prioritization)")
+parser.add_argument("--contact_depth_bias", type=float, default=2.0, help="Strength of bias towards center_contact_depth. Higher = stricter (1.0 = linear, 2.0 = squared, 0.5 = weak bias) (default: 2.0)")
 args = parser.parse_args()
 
 initial_relative_position = None
@@ -250,6 +255,35 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
     transforms = np.array(grasp_data["transforms"])
     qualities = np.array(grasp_data.get("quality_antipodal", [1.0] * len(transforms)))
     widths = np.array(grasp_data.get("grasp_widths", [0.05] * len(transforms)))
+    contact_depths = np.array(grasp_data.get("contact_depths", [0.5] * len(transforms)))
+    
+    if args.min_contact_depth > 0.0 or args.max_contact_depth < 1.0:
+        depth_mask = (contact_depths >= args.min_contact_depth) & (contact_depths <= args.max_contact_depth)
+        transforms = transforms[depth_mask]
+        qualities = qualities[depth_mask]
+        widths = widths[depth_mask]
+        contact_depths = contact_depths[depth_mask]
+    
+    if args.center_contact_depth is not None:
+        depth_distances = np.abs(contact_depths - args.center_contact_depth)
+        
+        epsilon = 0.01
+        inverse_distances = 1.0 / (depth_distances + epsilon)
+        biased_weights = np.power(inverse_distances, args.contact_depth_bias)
+        probabilities = biased_weights / np.sum(biased_weights)
+        num_grasps = len(transforms)
+        priority_indices = np.random.choice(
+            num_grasps, 
+            size=num_grasps, 
+            replace=False, 
+            p=probabilities
+        )
+
+        transforms = transforms[priority_indices]
+        qualities = qualities[priority_indices]
+        widths = widths[priority_indices]
+        contact_depths = contact_depths[priority_indices]
+
     config = {"num_shakes": args.num_shakes, "shake_magnitude": args.shake_magnitude, "shake_steps": args.shake_steps,
               "approach_distance": args.approach_distance, "approach_steps": args.approach_steps}
     if use_viewer:
