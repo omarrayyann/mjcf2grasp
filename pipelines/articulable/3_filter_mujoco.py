@@ -16,12 +16,8 @@ import re
 import sys
 import os
 
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from Robotiq_Gripper.PandaGripper import PandaGripper
-from Robotiq_Gripper.RUMGripper import RUMGripper
-from assets.grippers.robotiq import RobotiqGripper
-
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+from assets.grippers.robotiq.robotiq_gripper import RobotiqGripper
 
 def rotation_matrix_from_axis_angle(axis, angle):
     axis = axis / np.linalg.norm(axis)
@@ -170,8 +166,8 @@ def is_object_grasped(model, data, object_name):
     left_finger_contact = False
     right_finger_contact = False
 
-    left_patterns = ["left_finger", "finger_l", "gripper_finger_left"]
-    right_patterns = ["right_finger", "finger_r", "gripper_finger_right"]
+    left_patterns = ["left_finger", "finger_l", "gripper_finger_left", "left"]
+    right_patterns = ["right_finger", "finger_r", "gripper_finger_right", "right"]
 
     for i in range(data.ncon):
         contact = data.contact[i]
@@ -236,24 +232,6 @@ def test_single_grasp(
 
     i, transform, quality, config = grasp_data
 
-    # new_transform = transform.copy()
-
-    # offset = np.zeros(3)
-    # if args.gripper == "rum":
-    #     offset = RUMGripper.tcp_offset
-    # elif args.gripper == "panda":
-    #     offset = PandaGripper.tcp_offset
-    # elif args.gripper == "robotiq":
-    #     offset = RobotiqGripper.tcp_offset
-
-    # new_transform[:3, 3] += new_transform[:3, :3] @ offset
-    #     rot_x = R.from_euler("x", 180, degrees=True).as_matrix()
-    #     transforms[i][:3, :3] = transforms[i][:3, :3] @ rot_x
-
-    # rot_x = R.from_euler("y", -90, degrees=True).as_matrix()
-    # new_transform[:3, :3] = new_transform[:3, :3] @ rot_x
-    # transform = new_transform
-
     pos = transform[:3, 3]
     quat = R.from_matrix(transform[:3, :3]).as_quat(scalar_first=True)
 
@@ -289,12 +267,7 @@ def test_single_grasp(
             model, data, show_left_ui=False, show_right_ui=False
         )
 
-    if args.gripper == "rum":
-        data.ctrl[0] = 1.0
-    elif args.gripper == "panda":
-        data.ctrl[0] = 255.0
-    elif args.gripper == "robotiq":
-        data.ctrl[0] = 0.0
+    data.ctrl[0] = 0.0
 
     for _ in range(500):
         mujoco.mj_step(model, data)
@@ -361,12 +334,7 @@ def test_single_grasp(
     if render and viewer is not None:
         viewer.sync()
 
-    if args.gripper == "rum":
-        data.ctrl[0] = -0.8
-    elif args.gripper == "panda":
-        data.ctrl[0] = 0.0
-    elif args.gripper == "robotiq":
-        data.ctrl[0] = 255.0
+    data.ctrl[0] = 255.0
 
     # is_grasping(model, data, handle_geoms)
     for _ in range(500):
@@ -446,8 +414,20 @@ def test_single_grasp(
 
             max_range = np.abs(max_angle)
         elif joint_type == "slide":
-            axis_str = primary_joint_data.get("axis", "0 0 0")
-            slide_axis = np.array([float(x) for x in axis_str.split()])
+            # print(f"axis for slide joint: {primary_joint_data}")
+            # axis_str = primary_joint_data.get("axis", "0 0 0")
+            # slide_axis = np.array([float(x) for x in axis_str.split()])
+            rotation_axis = primary_joint_data.get(
+                "rotation_axis", {"x": 0, "y": 0, "z": 0}
+            )
+            slide_axis = np.array(
+                [
+                    rotation_axis.get("x", 0),
+                    rotation_axis.get("y", 0),
+                    rotation_axis.get("z", 0),
+                ]
+            )
+
             max_distance = joint_range[1]
             if max_distance == 0:
                 max_distance = joint_range[0]
@@ -763,7 +743,7 @@ def filter_per_joint_summary(summary_json_path, args):
 def main_single_file_filtering(
     grasps_path, object_name, xml_file, args, joint_axis_info=None, handle_geoms=None
 ):
-    xml_path = os.path.join(os.path.dirname(__file__), "../assets/scene.xml")
+    xml_path = os.path.join(os.path.dirname(__file__), "../../assets/scenes/main_scene.xml")
     tree = ET.parse(xml_path)
     root = tree.getroot()
     try:
@@ -798,10 +778,8 @@ def main_single_file_filtering(
         return 0, None
 
     xml_content = ET.tostring(root, encoding="unicode")
-    robot_xml_path = os.path.join(
-        os.path.dirname(__file__),
-        f"../assets/gripper_models/{args.gripper}_gripper/model_articulate.xml",
-    )
+    robot_xml_path = os.path.join(os.path.dirname(__file__), "../../assets/grippers/robotiq/xmls/model_articulate.xml")
+
     with open(robot_xml_path, "r") as f:
         robot_xml_content = f.read()
     xml_content = merge_xml_contents(xml_content, robot_xml_content)

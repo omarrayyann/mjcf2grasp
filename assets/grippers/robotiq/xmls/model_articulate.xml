@@ -6,16 +6,15 @@
     <material name="metal" rgba="0.58 0.58 0.58 1"/>
     <material name="silicone" rgba="0.1882 0.1882 0.1882 1"/>
     <material name="black" rgba="0.149 0.149 0.149 1"/>
-
-    <mesh file="../../assets/gripper_models/robotiq_gripper/assets/base.stl"/>
-    <mesh file="../../assets/gripper_models/robotiq_gripper/assets/base_coupling.stl"/>
-    <mesh file="../../assets/gripper_models/robotiq_gripper/assets/c-a01-85-open.stl"/>
-    <mesh file="../../assets/gripper_models/robotiq_gripper/assets/driver.stl"/>
-    <mesh file="../../assets/gripper_models/robotiq_gripper/assets/coupler.stl"/>
-    <mesh file="../../assets/gripper_models/robotiq_gripper/assets/spring_link.stl"/>
-    <mesh file="../../assets/gripper_models/robotiq_gripper/assets/follower.stl"/>
-    <mesh file="../../assets/gripper_models/robotiq_gripper/assets/tongue.stl"/>
-  </asset>
+    <mesh file="../../../assets/grippers/robotiq/xmls/meshes/base.stl"/>
+    <mesh file="../../../assets/grippers/robotiq/xmls/meshes/base_coupling.stl"/>
+    <mesh file="../../../assets/grippers/robotiq/xmls/meshes/c-a01-85-open.stl"/>
+    <mesh file="../../../assets/grippers/robotiq/xmls/meshes/driver.stl"/>
+    <mesh file="../../../assets/grippers/robotiq/xmls/meshes/coupler.stl"/>
+    <mesh file="../../../assets/grippers/robotiq/xmls/meshes/spring_link.stl"/>
+    <mesh file="../../../assets/grippers/robotiq/xmls/meshes/follower.stl"/>
+    <mesh file="../../../assets/grippers/robotiq/xmls/meshes/tongue.stl"/>
+     </asset>
 
 
   <default>
@@ -70,7 +69,7 @@
 
       <joint type="free" name="robotiq_free_joint" damping="1"/>
 
-      <site name="tcp" pos="0 0 0.13675" size="0.01" rgba="0 0 1 0"/>
+      <site name="tcp" pos="0 0 0.17365" size="0.01" rgba="0 0 1 0"/>
       <!-- 
       <body pos="0 0 0.13675" quat="1 0 0 0">
         <geom type="sphere" name="z_axis" pos="0 0 0.1" size="0.01" rgba="0 0 1 1" conaffinity="0" contype="0"/>
@@ -79,7 +78,7 @@
       </body> -->
 
 
-      <camera name="follower" pos="0 -0.5 -0.5" euler="2.5 0 0" mode="fixed" fovy="53.1"/>
+     <camera name="follower" pos="0 -0.5 -0.5" euler="2.5 0 0" mode="fixed" fovy="53.1"/>
 
       <inertial mass="0.777441" pos="0 -2.70394e-05 0.0354675" quat="1 -0.00152849 0 0"
         diaginertia="0.000260285 0.000225381 0.000152708"/>
@@ -96,12 +95,12 @@
           diaginertia="1.72352e-06 1.60906e-06 3.22006e-07"/>
         <joint name="left_driver_joint" class="driver"/>
         <geom class="visual" pos="0.0306011 0.0549045 -0.0047" quat="1 1 0 0" material="metal" mesh="driver"/>
-        <geom class="collision" pos="0.0306011 0.0549045 -0.0047" quat="1 1 0 0" mesh="driver"/>
+        <geom name="left_driver_collision" class="collision" pos="0.0306011 0.0549045 -0.0047" quat="1 1 0 0" mesh="driver"/>
         <body gravcomp="1" name="left_coupler" pos="-0.0314249 0.00453223 -0.0102" quat="0 0 0 1">
           <inertial mass="0.0140974" pos="0 0.00301209 0.0232175" quat="0.705636 -0.0455904 0.0455904 0.705636"
             diaginertia="4.16206e-06 3.52216e-06 8.88131e-07"/>
           <geom class="visual" pos="-0.062026 -0.0503723 0.0055" quat="1 -1 0 0" mesh="coupler"/>
-          <geom class="collision" pos="-0.062026 -0.0503723 0.0055" quat="1 -1 0 0" mesh="coupler"/>
+          <geom name="left_coupler_collision" class="collision" pos="-0.062026 -0.0503723 0.0055" quat="1 -1 0 0" mesh="coupler"/>
         </body>
       </body>
       <body gravcomp="1" name="left_spring_link" pos="-0.0127 -0.012 0.07222" quat="1 -1 0 0">
@@ -109,7 +108,7 @@
           diaginertia="8.96853e-06 6.71733e-06 2.63931e-06"/>
         <joint name="left_spring_link_joint" class="spring_link"/>
         <geom class="visual" pos="0.0127 0.06142 0.01205" quat="1 1 0 0" type="mesh" mesh="spring_link"/>
-        <geom class="collision" pos="0.0127 0.06142 0.01205" quat="1 1 0 0" type="mesh" mesh="spring_link"/>
+        <geom name="left_spring_link_collision" class="collision" pos="0.0127 0.06142 0.01205" quat="1 1 0 0" type="mesh" mesh="spring_link"/>
         <body gravcomp="1" name="left_follower" pos="-0.0382079 -0.0425003 0.00295" quat="0 -1 -1.90231e-05 0">
           <inertial mass="0.0125222" pos="0 -0.011046 0.0124786" quat="1 0.1664 0 0"
             diaginertia="2.67415e-06 2.4559e-06 6.02031e-07"/>
@@ -117,8 +116,8 @@
           <geom class="visual" pos="0.0509079 -0.10392 -0.0091" quat="1 -1 0 0" type="mesh" mesh="follower"/>
           <geom class="visual" pos="0.0509079 -0.10392 -0.0091" quat="1 -1 0 0" type="mesh" material="silicone"
             mesh="tongue"/>
-          <geom class="collision" pos="0.0509079 -0.10392 -0.0091" quat="1 -1 0 0" type="mesh" mesh="follower"/>
-          <geom class="collision" pos="0.0509079 -0.10392 -0.0091" quat="1 -1 0 0" type="mesh" mesh="tongue"/>
+          <geom name="left_follower_collision" class="collision" pos="0.0509079 -0.10392 -0.0091" quat="1 -1 0 0" type="mesh" mesh="follower"/>
+          <geom name="left_tongue_collision" class="collision" pos="0.0509079 -0.10392 -0.0091" quat="1 -1 0 0" type="mesh" mesh="tongue"/>
           <body gravcomp="1" name="left_pad" pos="-0.0377897 -0.103916 -0.0091" quat="1 -1 0 0">
             <geom class="pad_box1" name="left_pad1" rgba="1 0 0 0"/>
             <geom class="pad_box2" name="left_pad2" rgba="1 0 0 0"/>
@@ -131,12 +130,12 @@
           diaginertia="1.72352e-06 1.60906e-06 3.22006e-07"/>
         <joint name="right_driver_joint" class="driver"/>
         <geom class="visual" pos="0.0306011 0.0549045 -0.0047" quat="1 1 0 0" material="metal" mesh="driver"/>
-        <geom class="collision" pos="0.0306011 0.0549045 -0.0047" quat="1 1 0 0" mesh="driver"/>
+        <geom name="right_driver_collision" class="collision" pos="0.0306011 0.0549045 -0.0047" quat="1 1 0 0" mesh="driver"/>
         <body gravcomp="1" name="right_coupler" pos="-0.0314249 0.00453223 -0.0102" quat="0 0 0 1">
           <inertial mass="0.0140974" pos="0 0.00301209 0.0232175" quat="0.705636 -0.0455904 0.0455904 0.705636"
             diaginertia="4.16206e-06 3.52216e-06 8.88131e-07"/>
           <geom class="visual" pos="-0.062026 -0.0503723 0.0055" quat="1 -1 0 0" mesh="coupler"/>
-          <geom class="collision" pos="-0.062026 -0.0503723 0.0055" quat="1 -1 0 0" mesh="coupler"/>
+          <geom name="right_coupler_collision" class="collision" pos="-0.062026 -0.0503723 0.0055" quat="1 -1 0 0" mesh="coupler"/>
         </body>
       </body>
       <body gravcomp="1" name="right_spring_link" pos="0.0127 0.012 0.07222" quat="0 0 -1 1">
@@ -144,15 +143,15 @@
           diaginertia="8.96853e-06 6.71733e-06 2.63931e-06"/>
         <joint name="right_spring_link_joint" class="spring_link"/>
         <geom class="visual" pos="0.0127 0.06142 0.01205" quat="1 1 0 0" mesh="spring_link"/>
-        <geom class="collision" pos="0.0127 0.06142 0.01205" quat="1 1 0 0" mesh="spring_link"/>
+        <geom name="right_spring_link_collision" class="collision" pos="0.0127 0.06142 0.01205" quat="1 1 0 0" mesh="spring_link"/>
         <body gravcomp="1" name="right_follower" pos="-0.0382079 -0.0425003 0.00295" quat="0 -1 0 0">
           <inertial mass="0.0125222" pos="0 -0.011046 0.0124786" quat="1 0.1664 0 0"
             diaginertia="2.67415e-06 2.4559e-06 6.02031e-07"/>
           <joint name="right_follower_joint" class="follower"/>
           <geom class="visual" pos="0.0509079 -0.10392 -0.0091" quat="1 -1 0 0" material="silicone" mesh="tongue"/>
           <geom class="visual" pos="0.0509079 -0.10392 -0.0091" quat="1 -1 0 0" mesh="follower"/>
-          <geom class="collision" pos="0.0509079 -0.10392 -0.0091" quat="1 -1 0 0" mesh="tongue"/>
-          <geom class="collision" pos="0.0509079 -0.10392 -0.0091" quat="1 -1 0 0" mesh="follower"/>
+          <geom name="right_tongue_collision" class="collision" pos="0.0509079 -0.10392 -0.0091" quat="1 -1 0 0" mesh="tongue"/>
+          <geom name="right_follower_collision" class="collision" pos="0.0509079 -0.10392 -0.0091" quat="1 -1 0 0" mesh="follower"/>
           <body gravcomp="1" name="right_pad" pos="-0.0377897 -0.103916 -0.0091" quat="1 -1 0 0">
             <geom class="pad_box1" name="right_pad1"/>
             <geom class="pad_box2" name="right_pad2"/>

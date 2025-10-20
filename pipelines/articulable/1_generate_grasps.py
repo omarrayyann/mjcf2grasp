@@ -17,8 +17,6 @@ from scipy.spatial.transform import Rotation as R
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 from assets.grippers.robotiq.robotiq_gripper import RobotiqGripper
-#from assets.grippers.panda.panda_gripper import PandaGripper
-#from assets.grippers.rum.rum_gripper import RUMGripper
 
 class Object(object):
     def __init__(self, filename):
@@ -59,27 +57,8 @@ class Object(object):
     def in_collision_with(self, mesh, transform):
         return self.collision_manager.in_collision_single(mesh, transform=transform)
 
-
-def get_available_grippers():
-    available_grippers = OrderedDict(
-        {
-            #"panda": PandaGripper,
-            #"rum": RUMGripper,
-            "robotiq": RobotiqGripper,
-        }
-    )
-    return available_grippers
-
-
-def create_gripper(name, configuration=None, root_folder=""):
-    #if name.lower() == "panda":
-    #    return PandaGripper(q=configuration, root_folder=root_folder)
-    # elif name.lower() == "rum":
-    #    return RUMGripper(q=configuration, root_folder=root_folder)
-    if name.lower() == "robotiq":
-        return RobotiqGripper(q=configuration, root_folder=root_folder)
-    else:
-        raise Exception("Unknown gripper: {}".format(name))
+def create_gripper(configuration=None, root_folder=""):
+    return RobotiqGripper(q=configuration, root_folder=root_folder)
 
 
 def _check_collision_worker(object_mesh, gripper_mesh, transform_batch):
@@ -97,7 +76,7 @@ def _quality_point_contacts_worker(batch_data):
     transform_batch, collision_batch, object_mesh, gripper_name = batch_data
 
     res = []
-    gripper = create_gripper(gripper_name)
+    gripper = create_gripper()
 
     if trimesh.ray.has_embree:
         intersector = trimesh.ray.ray_pyembree.RayMeshIntersector(
@@ -137,10 +116,10 @@ def _quality_point_contacts_worker(batch_data):
 
 
 def _quality_antipodal_worker(batch_data):
-    transform_batch, collision_batch, object_mesh, gripper_name = batch_data
+    transform_batch, collision_batch, object_mesh = batch_data
 
     res = []
-    gripper = create_gripper(gripper_name)
+    gripper = create_gripper()
 
     if trimesh.ray.has_embree:
         intersector = trimesh.ray.ray_pyembree.RayMeshIntersector(
@@ -201,10 +180,10 @@ def _quality_antipodal_worker(batch_data):
         ]
 
         l_to_r = (right_contact_point - left_contact_point) / np.linalg.norm(
-            right_contact_point - left_contact_point
+            (right_contact_point - left_contact_point) + 1e-8
         )
         r_to_l = (left_contact_point - right_contact_point) / np.linalg.norm(
-            left_contact_point - right_contact_point
+            (left_contact_point - right_contact_point) + 1e-8
         )
 
         qual_left = np.dot(left_contact_normal, r_to_l)
@@ -220,7 +199,7 @@ def _quality_antipodal_worker(batch_data):
 
 
 def in_collision_with_gripper(
-    object_mesh, gripper_transforms, gripper_name, silent=False, num_workers=None
+    object_mesh, gripper_transforms, silent=False, num_workers=None
 ):
     if num_workers is None:
         num_workers = mp.cpu_count()
@@ -228,7 +207,7 @@ def in_collision_with_gripper(
     if len(gripper_transforms) < 100 or num_workers <= 1:
         manager = trimesh.collision.CollisionManager()
         manager.add_object("object", object_mesh)
-        gripper_meshes = [create_gripper(gripper_name).hand]
+        gripper_meshes = [create_gripper().hand]
         min_distance = []
         for tf in tqdm(gripper_transforms, disable=silent):
             min_distance.append(
@@ -242,7 +221,7 @@ def in_collision_with_gripper(
 
         return [d == 0 for d in min_distance], min_distance
 
-    gripper_mesh = create_gripper(gripper_name).hand
+    gripper_mesh = create_gripper().hand
 
     num_transforms = len(gripper_transforms)
     batch_size = max(1, num_transforms // num_workers)
@@ -275,7 +254,6 @@ def grasp_quality_point_contacts(
     transforms,
     collisions,
     object_mesh,
-    gripper_name="panda",
     silent=False,
     num_workers=None,
 ):
@@ -284,7 +262,7 @@ def grasp_quality_point_contacts(
 
     if len(transforms) < 100 or num_workers <= 1:
         res = []
-        gripper = create_gripper(gripper_name)
+        gripper = create_gripper()
         if trimesh.ray.has_embree:
             intersector = trimesh.ray.ray_pyembree.RayMeshIntersector(
                 object_mesh, scale_to_box=True
@@ -331,7 +309,7 @@ def grasp_quality_point_contacts(
     ]
 
     batch_data = [
-        (t_batch, c_batch, object_mesh, gripper_name)
+        (t_batch, c_batch, object_mesh)
         for t_batch, c_batch in zip(transform_batches, collision_batches)
     ]
 
@@ -356,7 +334,6 @@ def grasp_quality_antipodal(
     transforms,
     collisions,
     object_mesh,
-    gripper_name="panda",
     silent=False,
     num_workers=None,
 ):
@@ -365,7 +342,7 @@ def grasp_quality_antipodal(
 
     if len(transforms) < 100 or num_workers <= 1:
         res = []
-        gripper = create_gripper(gripper_name)
+        gripper = create_gripper()
         if trimesh.ray.has_embree:
             intersector = trimesh.ray.ray_pyembree.RayMeshIntersector(
                 object_mesh, scale_to_box=True
@@ -456,7 +433,7 @@ def grasp_quality_antipodal(
     ]
 
     batch_data = [
-        (t_batch, c_batch, object_mesh, gripper_name)
+        (t_batch, c_batch, object_mesh)
         for t_batch, c_batch in zip(transform_batches, collision_batches)
     ]
 
@@ -504,7 +481,6 @@ def _process_points_batch(batch_data):
         normals_batch,
         rotation_samples,
         standoff_samples,
-        gripper_name,
         mesh,
     ) = batch_data
 
@@ -611,7 +587,6 @@ def _process_random_points(batch_data):
 def sample_multiple_grasps(
     number_of_candidates,
     mesh,
-    gripper_name,
     systematic_sampling,
     surface_density=0.005 * 0.005,
     standoff_density=0.01,
@@ -630,7 +605,7 @@ def sample_multiple_grasps(
     roll_angles = []
     standoffs = []
 
-    gripper = create_gripper(gripper_name)
+    gripper = create_gripper()
     verboseprint = print if not silent else lambda *a, **k: None
 
     if systematic_sampling:
@@ -677,7 +652,6 @@ def sample_multiple_grasps(
                 normals_batch,
                 rotation_samples,
                 standoff_samples,
-                gripper_name,
                 mesh,
             )
             for points_batch, normals_batch in zip(point_batches, normal_batches)
@@ -810,7 +784,6 @@ def sample_multiple_grasps(
     collisions, _ = in_collision_with_gripper(
         mesh,
         transforms,
-        gripper_name=gripper_name,
         silent=silent,
         num_workers=num_workers,
     )
@@ -823,7 +796,6 @@ def sample_multiple_grasps(
             transforms,
             collisions,
             object_mesh=mesh,
-            gripper_name=gripper_name,
             silent=silent,
             num_workers=num_workers,
         )
@@ -832,7 +804,6 @@ def sample_multiple_grasps(
             transforms,
             collisions,
             object_mesh=mesh,
-            gripper_name=gripper_name,
             silent=silent,
             num_workers=num_workers,
         )
@@ -908,12 +879,10 @@ def generate_per_joint_grasps(joint_meshes_json, base_prefix, args):
         else:
             obj.rescale(args.scale)
         obj.set_transform(position=args.position, rotation=args.rotation)
-        gripper = create_gripper(args.gripper)
         points, normals, transforms, roll_angles, standoffs, collisions, qualities = (
             sample_multiple_grasps(
                 args.num_samples,
                 obj.mesh,
-                gripper_name=args.gripper,
                 systematic_sampling=args.systematic_sampling,
                 roll_density=args.systematic_roll_density,
                 standoff_density=args.systematic_standoff_density,
@@ -930,7 +899,6 @@ def generate_per_joint_grasps(joint_meshes_json, base_prefix, args):
             collisions, _ = in_collision_with_gripper(
                 combined_mesh,
                 transforms,
-                gripper_name=args.gripper,
                 silent=args.silent,
                 num_workers=args.num_workers,
             )
@@ -944,8 +912,9 @@ def generate_per_joint_grasps(joint_meshes_json, base_prefix, args):
             qualities = {k: [v[i] for i in valid_indices] for k, v in qualities.items()}
 
         for i in range(len(transforms)):
-            transforms[i][:3, 3] += transforms[i][:3, :3] @ gripper.tcp_offset
+            transforms[i][:3, 3] += transforms[i][:3, :3] @ RobotiqGripper.tcp_offset
 
+        gripper = create_gripper()
         grasps = {
             "object": obj.filename,
             "object_scale": obj.scale,
@@ -953,7 +922,6 @@ def generate_per_joint_grasps(joint_meshes_json, base_prefix, args):
             "object_rotation": obj.rotation,
             "object_class": args.classname,
             "object_dataset": args.dataset,
-            "gripper": args.gripper,
             "gripper_configuration": [gripper.q],
             "transforms": [t.tolist() for t in transforms],
             "roll_angles": roll_angles.tolist(),
@@ -1013,12 +981,6 @@ def make_parser():
     )
     parser.add_argument(
         "--use_stl", action="store_true", help="Use STL instead of obj."
-    )
-    parser.add_argument(
-        "--gripper",
-        choices=get_available_grippers().keys(),
-        default="robotiq",
-        help="Type of gripper.",
     )
     parser.add_argument(
         "--quality",
@@ -1154,12 +1116,11 @@ if __name__ == "__main__":
             position=args.position,
             rotation=args.rotation,
         )
-        gripper = create_gripper(args.gripper)
+        gripper = create_gripper()
         points, normals, transforms, roll_angles, standoffs, collisions, qualities = (
             sample_multiple_grasps(
                 args.num_samples,
                 obj.mesh,
-                gripper_name=args.gripper,
                 systematic_sampling=args.systematic_sampling,
                 roll_density=args.systematic_roll_density,
                 standoff_density=args.systematic_standoff_density,
@@ -1187,7 +1148,6 @@ if __name__ == "__main__":
             collisions, _ = in_collision_with_gripper(
                 combined_mesh,
                 transforms,
-                gripper_name=args.gripper,
                 silent=args.silent,
                 num_workers=args.num_workers,
             )
@@ -1210,8 +1170,6 @@ if __name__ == "__main__":
             "object_rotation": obj.rotation,
             "object_class": args.classname,
             "object_dataset": args.dataset,
-            "gripper": args.gripper,
-            "gripper_configuration": [gripper.q],
             "transforms": [t.tolist() for t in transforms],
             "roll_angles": roll_angles.tolist(),
             "standoffs": standoffs.tolist(),

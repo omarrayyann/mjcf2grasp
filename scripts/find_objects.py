@@ -4,8 +4,7 @@ import argparse
 import xml.etree.ElementTree as ET
 
 #ALL_PICKUP_TYPES_THOR = ["fork", "knife"]
-ALL_PICKUP_TYPES_THOR = ["fridge"]
-
+ALL_PICKUP_TYPES_THOR = ["desk"]
 
 def find_objs_with_matching_subfolder(base_dir, check_joints=False):
     result = []

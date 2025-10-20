@@ -7,7 +7,7 @@ from datetime import datetime
 from pathlib import Path
 
 USE_WANDB = True
-gripper = "robotiq"
+MAX_SUCCESSFUL= 5000
 
 def load_articulated_objects():
     matched_file = "results/articulable_objects_list.json"
@@ -29,7 +29,6 @@ def load_articulated_objects():
 def run_grasp_filtering_stage(
     object_name, grasps_path, xml_file, output_dir, per_joint_grasps_json=None
 ):
-    # First, convert XML to use mesh colliders
     xml_mesh_file = xml_file.replace(".xml", "_mesh.xml")
     if not os.path.exists(xml_mesh_file):
         print(f"   Converting XML to use mesh colliders...")
@@ -59,7 +58,6 @@ def run_grasp_filtering_stage(
     else:
         print(f"   Mesh collider XML already exists: {xml_mesh_file}")
 
-    # Use the mesh collider XML for filtering
     xml_file_for_filtering = xml_mesh_file
 
     if per_joint_grasps_json:
@@ -77,15 +75,13 @@ def run_grasp_filtering_stage(
                     "--xml_file",
                     xml_file_for_filtering,
                     "--num_workers",
-                    str(os.cpu_count()),
+                    str(1),
                     "--approach_distance",
                     "0.3",
                     "--approach_steps",
                     "8",
                     "--max_successful",
-                    "2000",
-                    "--gripper",
-                    gripper,
+                    str(MAX_SUCCESSFUL),
                     # "--render",
                 ],
                 check=True,
@@ -146,9 +142,7 @@ def run_grasp_filtering_stage(
                     "--approach_steps",
                     "5",
                     "--max_successful",
-                    "10",
-                    "--gripper",
-                    gripper,
+                    str(MAX_SUCCESSFUL),
                     # "--render",
                 ],
                 check=True,
@@ -206,8 +200,6 @@ def run_grasp_generation_stage(object_name, handle_mesh_path, full_mesh, output_
                 "thor_articulated",
                 "--collision_object_file",
                 full_mesh,
-                "--gripper",
-                gripper,
             ],
             check=True,
         )
@@ -285,8 +277,6 @@ def run_per_joint_grasp_generation(
                 "pipelines/articulable/1_generate_grasps.py",
                 "--per_joint_grasps_from_meshes",
                 joint_meshes_json,
-                "--gripper",
-                gripper,
                 "--quality",
                 "antipodal",
                 "--min_quality",
@@ -411,7 +401,6 @@ def main():
         object_output_dir = os.path.join(output_base, object_name)
         os.makedirs(object_output_dir, exist_ok=True)
 
-        # Log current object progress to wandb
         if USE_WANDB:
             wandb.log(
                 {
@@ -515,16 +504,7 @@ def main():
         grasps_success = False
         grasps_path = None
 
-        # if handle_mesh and os.path.exists(handle_mesh):
-        #     grasps_success, grasps_path = run_grasp_generation_stage(
-        #         object_name, handle_mesh, full_mesh, object_output_dir
-        #     )
-        # else:
-        #     print(f"   Error: Handle mesh not found: {handle_mesh}")
-        #     print(f"   Cannot proceed with grasp generation")
-
         filtering_success = True
-        # filtered_grasps_path = f""
         print(f"\nStage 3: Grasp Filtering for {object_name}")
         if per_joint_grasps_success and os.path.exists(joint_meshes_json):
             filtered_grasps_file = "joint_meshes_info_filtered.json"
