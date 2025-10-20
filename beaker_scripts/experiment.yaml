@@ -8,9 +8,10 @@ tasks:
       beaker: yejink/thor-grasp-generation2
     command: [
         '/bin/bash',
-        '/root/yejink/thor-grasp/run_objaverse_pipeline.sh',
-        '/root/datasets/mujoco-thor/assets/objects/objaverse/'
-        #'/root/datasets/mujoco-thor/assets/scenes/procthor-100k-debug'
+        '/root/yejink/mjcf2grasp/run_objaverse_pipeline.sh',
+        '/root/datasets/mujoco-thor/assets/objects/objaverse/',
+        '0', # --start
+        '1', # --end
       ]
     envVars:
       - name: WANDB_API_KEY
@@ -20,8 +21,8 @@ tasks:
       source:
         weka: prior-default
     resources:
-      gpuCount: 1
+      gpuCount: 1 # 8
     constraints:
-      cluster: [ ai2/rhea ]
+      cluster: [ ai2/rhea ] # rhea, neptune
     context:
       priority: normal

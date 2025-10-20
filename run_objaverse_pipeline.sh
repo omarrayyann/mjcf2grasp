@@ -5,7 +5,7 @@ cd /root/yejink/mjcf2grasp
 
 # Set default data path if no argument provided
 #DATA_PATH=${1:-"/root/mujoco-thor/assets/scenes/procthor-100k-debug/"}
-DATA_PATH=${1:-"/root/yejink/thor-grasp/assets/objaverse/"}
+DATA_PATH=${1:-"/root/datasets/mujoco-thor/assets/objects/objaverse/"}
 START_IDX=${2:-0}
 END_IDX=${3:-""}    
 #echo "Using data path: $DATA_PATH"
