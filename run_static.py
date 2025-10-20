@@ -2,17 +2,34 @@ import json
 import os
 import subprocess
 import wandb
+import argparse
 from datetime import datetime
 
 MAX_SUCCESSFUL_GRASPS = 5000
 USE_WANDB = 0
+
+# Parse command line arguments
+parser = argparse.ArgumentParser(description='Process static objects for grasp generation')
+parser.add_argument('--start', type=int, default=0, help='Start index for processing objects (default: 0)')
+parser.add_argument('--end', type=int, default=None, help='End index for processing objects (default: all objects)')
+args = parser.parse_args()
+
 objects_list_path = "results/static_objects_list.json"
 with open(objects_list_path, "r") as f:
-    data = json.load(f)
+    all_data = json.load(f)
+
+# Determine the subset of objects to process
+start_idx = args.start
+end_idx = args.end if args.end is not None else len(all_data)
+data = all_data[start_idx:end_idx]
+
+print(f"Processing objects {start_idx} to {end_idx-1} (subset of {len(all_data)} total objects)")
+print(f"Total objects in this run: {len(data)}")
 
 if USE_WANDB:
     wandb.init(project="thor-grasp-pipeline", name=f"grasp-processing-{datetime.now().strftime('%Y%m%d_%H%M%S')}", 
-               config={"total_objects": len(data), "max_successful_grasps": MAX_SUCCESSFUL_GRASPS})
+               config={"total_objects": len(data), "max_successful_grasps": MAX_SUCCESSFUL_GRASPS, 
+                      "start_idx": start_idx, "end_idx": end_idx, "total_dataset_size": len(all_data)})
     wandb.define_metric("step")
     wandb.define_metric("completion_percentage", step_metric="step")
     wandb.define_metric("processed_objects", step_metric="step")
@@ -106,7 +123,9 @@ for obj in data:
                           "--center_contact_depth", "0.75",
                           "--contact_depth_bias", "3.0",
                           
-                          "--render", "--rotate", "--max_successful", str(MAX_SUCCESSFUL_GRASPS)], 
+                          #"--render", 
+                          "--rotate", 
+                          "--max_successful", str(MAX_SUCCESSFUL_GRASPS)], 
                           check=True)
         except subprocess.CalledProcessError as e:
             print(f"   Warning: Failed to filter grasps for {object_name}: {str(e)}")
@@ -152,7 +171,8 @@ for obj in data:
 print(f"\n{'=' * 80}")
 print(f"PIPELINE COMPLETE!")
 print(f"{'=' * 80}")
-print(f"Total objects processed: {processed_objects}/{len(data)}")
+print(f"Processed objects {start_idx} to {end_idx-1} (subset of {len(all_data)} total objects)")
+print(f"Total objects processed in this run: {processed_objects}/{len(data)}")
 if failed_objects:
     print(f"Failed visualizations: {len(failed_objects)}")
     print(f"Failed objects: {', '.join(failed_objects)}")
