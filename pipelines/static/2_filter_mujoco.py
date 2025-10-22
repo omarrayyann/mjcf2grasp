@@ -11,6 +11,7 @@ from scipy.spatial.transform import Rotation as R
 from tqdm import tqdm
 import sys
 import matplotlib.pyplot as plt
+from functools import partial
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 from assets.grippers.robotiq.robotiq_gripper import RobotiqGripper
@@ -349,52 +350,38 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
         successful_transforms = []
         successful_qualities = []
         successful_widths = []
-        with mp.Manager() as manager:
-            success_count = manager.Value("i", 0)
-            processed_count = manager.Value("i", 0)
-            lock = manager.Lock()
-            should_stop = manager.Value("b", False)
-            def update_progress_bar(result):
-                nonlocal pbar
+        
+        success_count = 0
+        processed_count = 0
+        
+        pbar = tqdm(total=len(grasp_params), desc="Testing grasps (0/0 successful)")
+        
+        test_func = partial(test_single_grasp, object_name=object_name, model=None, data=None, viewer=None)
+        
+        with mp.Pool(processes=num_workers) as pool:
+            for result in pool.imap_unordered(test_func, grasp_params):
                 i, transform_result, quality_result = result
-                with lock:
-                    processed_count.value += 1
-                    if transform_result is not None:
-                        success_count.value += 1
-                        successful_transforms.append((i, transform_result, quality_result, widths[i]))
-                        if args.max_successful > 0 and success_count.value >= args.max_successful:
-                            should_stop.value = True
-                            tqdm.write(f"Found {success_count.value} successful grasps (reached max_successful limit)")
-                pbar.set_description(f"Testing grasps ({success_count.value}/{processed_count.value} successful)")
-                pbar.update(1)
-            pbar = tqdm(total=len(grasp_params), desc="Testing grasps (0/0 successful)")
-            with mp.Pool(processes=num_workers) as pool:
-                results = [pool.apply_async(test_single_grasp, args=(param, object_name, None, None, None), callback=update_progress_bar) for param in grasp_params]
-                completed = 0
-                while completed < len(results):
-                    if should_stop.value:
-                        pool.terminate()
-                        tqdm.write("Terminating remaining workers after reaching max successful grasps")
+                processed_count += 1
+                
+                if transform_result is not None:
+                    success_count += 1
+                    successful_transforms.append((i, transform_result, quality_result, widths[i]))
+                    if args.max_successful > 0 and success_count >= args.max_successful:
+                        tqdm.write(f"Found {success_count} successful grasps (reached max_successful limit)")
+                        pbar.update(1)
                         break
-                    for i, r in enumerate(results):
-                        if r is not None and r.ready() and not r.successful():
-                            try:
-                                r.get()
-                            except Exception as e:
-                                tqdm.write(f"Worker error: {str(e)}")
-                            results[i] = None
-                            completed += 1
-                        elif r is not None and r.ready():
-                            results[i] = None
-                            completed += 1
-                if not should_stop.value:
-                    pool.close()
-                    pool.join()
-            successful_transforms.sort()
-            successful_transforms_only = [t for _, t, _, _ in successful_transforms]
-            successful_qualities_only = [q for _, _, q, _ in successful_transforms]
-            successful_widths_only = [w for _, _, _, w in successful_transforms]
+                
+                pbar.set_description(f"Testing grasps ({success_count}/{processed_count} successful)")
+                pbar.update(1)
+                    
         pbar.close()
+        sys.stdout.flush()
+        
+        successful_transforms.sort()
+        successful_transforms_only = [t for _, t, _, _ in successful_transforms]
+        successful_qualities_only = [q for _, _, q, _ in successful_transforms]
+        successful_widths_only = [w for _, _, _, w in successful_transforms]
+        
         return successful_transforms_only, successful_qualities_only, successful_widths_only
 
 
