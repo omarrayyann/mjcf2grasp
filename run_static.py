@@ -14,7 +14,7 @@ parser.add_argument('--start', type=int, default=0, help='Start index for proces
 parser.add_argument('--end', type=int, default=None, help='End index for processing objects (default: all objects)')
 args = parser.parse_args()
 
-objects_list_path = "results/static_objects_list.json"
+objects_list_path = "results/objaverse_objects_list.json"
 with open(objects_list_path, "r") as f:
     all_data = json.load(f)
 
@@ -91,22 +91,22 @@ for obj in data:
             print(f"Error generating grasps for {object_name}: {str(e)}")
             failed_objects.append(object_name)
             continue
-    # if not os.path.exists(non_filtered_viz_path):
-    #     print(f"Visualizing grasps for object: {object_name}")
-    #     visualization_success = False
-    #     try:
-    #         subprocess.run(["python", "scripts/visualize.py", "--grasps_path", grasp_file_path, 
-    #                       "--save-png", non_filtered_viz_path, "--grasp-shape-only"], check=True)
-    #     except subprocess.CalledProcessError as e:
-    #         print(f"Warning: Visualization for {object_name} failed: {str(e)}")
-    #         print("Continuing to next object...")
-    #         failed_objects.append(object_name)
-    # if USE_WANDB and os.path.exists(non_filtered_viz_path):
-    #     wandb.log({
-    #         f"{object_name}/images/non_filtered_grasps": wandb.Image(
-    #             non_filtered_viz_path, caption=f"Non-filtered grasps for {object_name}"
-    #         )
-    #     })
+#    if not os.path.exists(non_filtered_viz_path):
+#        print(f"Visualizing grasps for object: {object_name}")
+#        visualization_success = False
+#        try:
+#            subprocess.run(["python", "scripts/visualize.py", "--grasps_path", grasp_file_path, 
+#                          "--save-png", non_filtered_viz_path, "--grasp-shape-only"], check=True)
+#        except subprocess.CalledProcessError as e:
+#            print(f"Warning: Visualization for {object_name} failed: {str(e)}")
+#            print("Continuing to next object...")
+#            failed_objects.append(object_name)
+#    if USE_WANDB and os.path.exists(non_filtered_viz_path):
+#        wandb.log({
+#            f"{object_name}/images/non_filtered_grasps": wandb.Image(
+#                non_filtered_viz_path, caption=f"Non-filtered grasps for {object_name}"
+#            )
+#        })
     xml_mesh_file_path = xml_file_path.replace(".xml", "_mesh.xml")
     if not os.path.exists(xml_mesh_file_path):
         xml_mesh_file_path = xml_file_path

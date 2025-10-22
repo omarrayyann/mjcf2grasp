@@ -1,4 +1,4 @@
-name: mjcf2grasp
+name: mjgrasp
 channels:
   - conda-forge
   - defaults

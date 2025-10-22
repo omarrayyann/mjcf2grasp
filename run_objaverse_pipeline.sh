@@ -15,7 +15,8 @@ END_IDX=${3:-""}
 #pwd
 
 
-/opt/miniconda3/envs/mjgrasp/bin/pip install -r requirements.txt
+# Create or update conda environment from YAML file
+/opt/miniconda3/bin/conda env update -f conda_env.yaml --prune
 
 # get all objects from objaverse -- this already exists in the directory 
 #/opt/miniconda3/envs/mjgrasp/bin/python scripts/find_objaverse_objects.py "$DATA_PATH" --output objaverse_matched_objs.json
