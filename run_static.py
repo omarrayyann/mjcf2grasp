@@ -6,7 +6,7 @@ import argparse
 from datetime import datetime
 import numpy as np
 
-MAX_SUCCESSFUL_GRASPS = 5000
+MAX_SUCCESSFUL_GRASPS = 1000
 USE_WANDB = 1
 
 # Parse command line arguments
