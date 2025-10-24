@@ -1,3 +1,4 @@
+from sklearn.cluster import KMeans
 import time
 import numpy as np
 import mujoco
@@ -33,6 +34,8 @@ parser.add_argument("--min_contact_depth", type=float, default=0.0, help="Minimu
 parser.add_argument("--max_contact_depth", type=float, default=1.0, help="Maximum contact depth (0.0=base, 1.0=tip). Only test grasps with contact depth <= this value (default: 1.0)")
 parser.add_argument("--center_contact_depth", type=float, default=None, help="Center contact depth (0.0=base, 1.0=tip). Prioritize testing grasps closer to this depth value first (default: None = no prioritization)")
 parser.add_argument("--contact_depth_bias", type=float, default=2.0, help="Strength of bias towards center_contact_depth. Higher = stricter (1.0 = linear, 2.0 = squared, 0.5 = weak bias) (default: 2.0)")
+parser.add_argument("--diversity_mode", action="store_true", help="Use clustering-based diversity when testing grasps (default: False)")
+parser.add_argument("--num_clusters", type=int, default=40, help="Number of position-rotation clusters for diversity (default: 20)")
 args = parser.parse_args()
 
 initial_relative_position = None
@@ -265,20 +268,79 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
         qualities = qualities[depth_mask]
         widths = widths[depth_mask]
         contact_depths = contact_depths[depth_mask]
+        print(f"Filtered by contact depth [{args.min_contact_depth}, {args.max_contact_depth}]: {len(transforms)} grasps remaining")
     
-    if args.center_contact_depth is not None:
-        depth_distances = np.abs(contact_depths - args.center_contact_depth)
+    if args.diversity_mode:
         
+        positions = transforms[:, :3, 3]
+        rotations = np.array([R.from_matrix(t[:3, :3]).as_rotvec() for t in transforms])
+        
+        pos_normalized = positions / (np.std(positions, axis=0) + 1e-6)
+        rot_normalized = rotations / (np.std(rotations, axis=0) + 1e-6)
+        
+        features = np.concatenate([
+            pos_normalized,
+            rot_normalized
+        ], axis=1)
+        
+        num_clusters = min(args.num_clusters, len(transforms))
+        kmeans = KMeans(n_clusters=num_clusters, random_state=42, n_init=10)
+        cluster_labels = kmeans.fit_predict(features)
+        
+        cluster_orders = []
+        for cluster_id in range(num_clusters):
+            cluster_mask = cluster_labels == cluster_id
+            cluster_indices = np.where(cluster_mask)[0]
+            
+            if len(cluster_indices) == 0:
+                continue
+            
+            if args.center_contact_depth is not None:
+                cluster_depths = contact_depths[cluster_indices]
+                depth_distances = np.abs(cluster_depths - args.center_contact_depth)
+                epsilon = 0.001
+                inverse_distances = 1.0 / (depth_distances + epsilon)
+                depth_scores = np.power(inverse_distances, args.contact_depth_bias)
+                depth_weights = depth_scores / np.sum(depth_scores)
+                sorted_local_indices = np.random.choice(
+                    len(cluster_indices),
+                    size=len(cluster_indices),
+                    replace=False,
+                    p=depth_weights
+                )
+            else:
+                sorted_local_indices = np.arange(len(cluster_indices))
+            
+            cluster_orders.append(cluster_indices[sorted_local_indices])
+        
+        priority_indices = []
+        max_cluster_size = max(len(cluster) for cluster in cluster_orders)
+        
+        for i in range(max_cluster_size):
+            for cluster in cluster_orders:
+                if i < len(cluster):
+                    priority_indices.append(cluster[i])
+        
+        priority_indices = np.array(priority_indices)
+        transforms = transforms[priority_indices]
+        qualities = qualities[priority_indices]
+        widths = widths[priority_indices]
+        contact_depths = contact_depths[priority_indices]
+        
+    elif args.center_contact_depth is not None:
+        
+        depth_distances = np.abs(contact_depths - args.center_contact_depth)
         epsilon = 0.001
         inverse_distances = 1.0 / (depth_distances + epsilon)
-        biased_weights = np.power(inverse_distances, args.contact_depth_bias)
-        probabilities = biased_weights / np.sum(biased_weights)
+        depth_weights = np.power(inverse_distances, args.contact_depth_bias)
+        depth_weights = depth_weights / np.sum(depth_weights)
+        
         num_grasps = len(transforms)
         priority_indices = np.random.choice(
             num_grasps, 
             size=num_grasps, 
             replace=False, 
-            p=probabilities
+            p=depth_weights
         )
 
         transforms = transforms[priority_indices]

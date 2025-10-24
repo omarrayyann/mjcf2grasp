@@ -117,7 +117,7 @@ for obj in data:
         print(f"Filtering grasps for object: {object_name} using MuJoCo")
         try:
             subprocess.run(["python", "pipelines/static/2_filter_mujoco.py", "--object_name", object_name, 
-                          "--grasps_path", grasp_file_path, "--xml_file", xml_mesh_file_path, "--num_workers", str(os.cpu_count()), 
+                          "--grasps_path", grasp_file_path, "--xml_file", xml_mesh_file_path, 
                           "--approach_distance", "0.3", "--approach_steps", "3000", "--shake_magnitude", "0.1", 
                           "--shake_steps", "1000", 
                           
@@ -125,8 +125,11 @@ for obj in data:
                           "--min_contact_depth", "0.0",
                           "--center_contact_depth", "0.75",
                           "--contact_depth_bias", "2.8",
-                          
+
+                          "--num_workers", str(os.cpu_count()//2),
                         #   "--render", 
+                          "--diversity_mode",
+                          
                           "--rotate", 
                           "--max_successful", str(MAX_SUCCESSFUL_GRASPS)], 
                           check=True)
