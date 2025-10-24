@@ -841,8 +841,16 @@ mesh.apply_transform(pose)
 
 # Apply gripper TCP offset
 gripper = RobotiqGripper()
+Rz_90 = np.array([
+    [np.cos(np.pi/2), -np.sin(np.pi/2), 0],
+    [np.sin(np.pi/2),  np.cos(np.pi/2), 0],
+    [0, 0, 1]
+])
+
 for i in range(len(transforms)):
     transforms[i][:3, 3] -= transforms[i][:3, :3] @ (gripper.tcp_offset-np.array([0.0,0.0,0.03]))
+    transforms[i][:3, :3] = transforms[i][:3, :3] @ Rz_90
+    
 
 # For backward compatibility, create default arrays if not present in NPZ
 quality = np.ones(len(transforms), dtype=np.float32)
