@@ -10,8 +10,6 @@ tasks:
         '/bin/bash',
         '/root/yejink/mjcf2grasp/run_objaverse_pipeline.sh',
         '/root/datasets/mujoco-thor/assets/objects/objaverse/',
-        '0', # --start
-        '1', # --end
       ]
     envVars:
       - name: WANDB_API_KEY
