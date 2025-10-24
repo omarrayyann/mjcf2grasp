@@ -4,7 +4,7 @@ import trimesh.transformations as tra
 
 
 class RobotiqGripper:
-    tcp_offset = np.array([0, 0, 0.17365])
+    tcp_offset = np.array([0, 0, 0.155])
 
     def __init__(self, q=0.048372, num_contact_points_per_finger=20, root_folder=""):
         self.default_pregrasp_configuration = 0.048372
@@ -13,7 +13,7 @@ class RobotiqGripper:
             q = self.default_pregrasp_configuration
 
         self.q = q
-        gripping_center = 0.17365
+        gripping_center = 0.155
         self.tcp_offset = np.array([0, 0, gripping_center])
         fn_base = root_folder + "assets/grippers/robotiq/xmls/hand.stl"
         fn_finger = root_folder + "assets/grippers/robotiq/xmls/finger.stl"
@@ -30,7 +30,7 @@ class RobotiqGripper:
 
         self.ray_origins = []
         self.ray_directions = []
-        for i in np.linspace(-0.032, 0.036, num_contact_points_per_finger):
+        for i in np.linspace(-0.032, 0.037, num_contact_points_per_finger):
             self.ray_origins.append(
                 np.r_[self.finger_l.bounding_box.centroid + [0, 0, i], 1]
             )
@@ -50,7 +50,7 @@ class RobotiqGripper:
         self.standoff_range = np.array(
             [
                 0.1,
-                self.tcp_offset[2],
+                0.174
             ]
         )
         self.standoff_range[0] += 0.001

@@ -133,8 +133,7 @@ def _quality_antipodal_worker(batch_data):
         left_contact_normal = object_mesh.face_normals[index_tri[index_ray_left[left_contact_idx]]]
         right_contact_normal = object_mesh.face_normals[index_tri[index_ray_right[right_contact_idx]]]
         
-        # Calculate contact depth (normalized 0 to 1, where 0=base, 1=tip)
-        left_ray_num = index_ray[index_ray_left[left_contact_idx]] // 2  # Divide by 2 because rays alternate
+        left_ray_num = index_ray[index_ray_left[left_contact_idx]] // 2
         right_ray_num = index_ray[index_ray_right[right_contact_idx]] // 2
         avg_contact_depth = ((left_ray_num + right_ray_num) / 2.0) / (num_rays_per_finger - 1)
         

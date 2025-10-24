@@ -29,8 +29,9 @@ from assets.grippers.robotiq.robotiq_gripper import RobotiqGripper
 
 
 
-parser = argparse.ArgumentParser(description="Visualize grasps from a JSON file.")
-parser.add_argument("--grasps_path", type=str)
+parser = argparse.ArgumentParser(description="Visualize grasps from NPZ and object_info JSON files.")
+parser.add_argument("--grasps_npz", type=str, help="Path to NPZ file containing grasp transforms")
+parser.add_argument("--object_info", type=str, help="Path to object_info JSON file containing metadata")
 parser.add_argument(
     "--save-png",
     type=str,
@@ -814,16 +815,23 @@ def get_axis():
 args = parser.parse_args()
 
 
-json_file = os.path.abspath(args.grasps_path)
-if not os.path.exists(json_file):
-    print(f"Grasps JSON file does not exist: {json_file}")
+npz_file = os.path.abspath(args.grasps_npz)
+if not os.path.exists(npz_file):
+    print(f"Grasps NPZ file does not exist: {npz_file}")
     sys.exit(1)
+
+json_file = os.path.abspath(args.object_info)
+if not os.path.exists(json_file):
+    print(f"Object info JSON file does not exist: {json_file}")
+    sys.exit(1)
+
+npz_data = np.load(npz_file)
+transforms = npz_data["transforms"].astype(np.float32)
 
 with open(json_file, "r") as f:
     data = json.load(f)
 
 mesh = trimesh.load(data["object"])
-
 mesh.apply_scale(data["object_scale"])
 
 pose = tra.quaternion_matrix(data["object_rotation"])
@@ -831,22 +839,16 @@ pose[:3, 3] = data["object_position"]
 pose[3, 3] = 1.0
 mesh.apply_transform(pose)
 
-transforms = np.array(data["transforms"])
+# Apply gripper TCP offset
 gripper = RobotiqGripper()
-
 for i in range(len(transforms)):
-    transforms[i][:3, 3] -= transforms[i][:3, :3] @ (gripper.tcp_offset-0.03)
+    transforms[i][:3, 3] -= transforms[i][:3, :3] @ (gripper.tcp_offset-np.array([0.0,0.0,0.03]))
 
-quality = np.array(
-    data.get(
-        "quality_antipodal",
-        data.get("quality_number_of_contacts", [1.0] * len(transforms)),
-    )
-)
-grasp_widths = np.array(data.get("grasp_widths", [0.0] * len(transforms)))
-contact_depths = np.array(data.get("contact_depths", [0.5] * len(transforms)))
+# For backward compatibility, create default arrays if not present in NPZ
+quality = np.ones(len(transforms), dtype=np.float32)
+grasp_widths = np.zeros(len(transforms), dtype=np.float32)
+contact_depths = np.full(len(transforms), 0.5, dtype=np.float32)
 
-# Filter by contact depth range
 if args.min_contact_depth > 0.0 or args.max_contact_depth < 1.0:
     depth_mask = (contact_depths >= args.min_contact_depth) & (contact_depths <= args.max_contact_depth)
     transforms = transforms[depth_mask]

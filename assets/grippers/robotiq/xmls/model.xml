@@ -73,7 +73,7 @@
       <geom name="upper" pos="0 0 0.17365" size="0.06 0.06 0.00001" type="box" rgba="0 1 0 1" conaffinity="0"
         contype="0"/> -->
 
-      <site name="tcp" pos="0 0 0.17365" size="0.01" rgba="0 0 1 1"/>
+      <site name="tcp" pos="0 0 0.155" size="0.01" rgba="0 0 1 1"/>
 
       <joint type="free" name="robotiq_free_joint" damping="1"/>
 

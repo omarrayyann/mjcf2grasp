@@ -12,6 +12,12 @@ import trimesh.transformations as tra
 import os
 import argparse
 import json
+import sys
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from assets.grippers.robotiq.robotiq_gripper import RobotiqGripper
+
+
 
 parser = argparse.ArgumentParser(description="Visualize grasps from a JSON file.")
 parser.add_argument(
@@ -476,7 +482,7 @@ def draw_scene(
     # Create list to hold all geometries
     geometries = []
 
-    max_grasps = 1
+    max_grasps = 2
     grasps = np.array(grasps)
 
     if grasp_scores is not None:
@@ -806,6 +812,11 @@ if args.json_file is not None:
     mesh.apply_transform(pose)
     transforms = np.array(data["transforms"])
 
+    gripper = RobotiqGripper()
+    for i in range(len(transforms)):
+        transforms[i][:3, 3] -= transforms[i][:3, :3] @ (gripper.tcp_offset-[0, 0, 0.03])
+
+
     # for i in range(len(transforms)):
     #     transforms[i][:3, 3] += transforms[i][:3, :3] @ np.array([0, 0, 0.089275])
     quality = np.array(
@@ -969,6 +980,10 @@ else:
     top_indices = np.argsort(quality)[-top_k:][::-1]
     transforms = [transforms[i] for i in top_indices]
     quality = [quality[i] for i in top_indices]
+
+    gripper = RobotiqGripper()
+    for i in range(len(transforms)):
+        transforms[i][:3, 3] -= transforms[i][:3, :3] @ (gripper.tcp_offset-[0, 0, 0.03])
 
     # Visualize
     draw_scene(

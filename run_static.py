@@ -4,6 +4,7 @@ import subprocess
 import wandb
 import argparse
 from datetime import datetime
+import numpy as np
 
 MAX_SUCCESSFUL_GRASPS = 5000
 USE_WANDB = 1
@@ -14,7 +15,7 @@ parser.add_argument('--start', type=int, default=0, help='Start index for proces
 parser.add_argument('--end', type=int, default=None, help='End index for processing objects (default: all objects)')
 args = parser.parse_args()
 
-objects_list_path = "results/objaverse_objects_list.json"
+objects_list_path = "results/static_objects_list.json"
 with open(objects_list_path, "r") as f:
     all_data = json.load(f)
 
@@ -53,8 +54,9 @@ for obj in data:
     grasp_file_path = os.path.join(object_output_dir, f"{object_name}_grasps.json")
     non_filtered_viz_path = os.path.join(object_output_dir, f"{object_name}_grasps_9shot.png")
     filtered_viz_path = os.path.join(object_output_dir, f"{object_name}_filtered_grasps_9shot.png")
-    filtered_file_path = os.path.join(object_output_dir, f"{object_name}_grasps_filtered.json")
-    if os.path.exists(filtered_file_path):
+    filtered_npz_path = os.path.join(object_output_dir, f"{object_name}_grasps_filtered.npz")
+    filtered_json_path = os.path.join(object_output_dir, f"{object_name}_grasps_object_info.json")
+    if os.path.exists(filtered_npz_path) and os.path.exists(filtered_json_path):
         print(f"Filtered grasps already exist for {object_name}, skipping to next object")
         processed_objects += 1
         continue
@@ -85,7 +87,8 @@ for obj in data:
         print(f"Generating grasps for object: {object_name}")
         try:
             subprocess.run(["python", "pipelines/static/1_generate_grasps.py", "--object_file", simplify_path, 
-                          "--quality", "antipodal", "--output", grasp_file_path, "--systematic_sampling", 
+                          "--quality", "antipodal", "--output", grasp_file_path, 
+                        #   "--systematic_sampling", 
                           "--num_workers", str(os.cpu_count()//2)], check=True)
         except subprocess.CalledProcessError as e:
             print(f"Error generating grasps for {object_name}: {str(e)}")
@@ -110,11 +113,11 @@ for obj in data:
     xml_mesh_file_path = xml_file_path.replace(".xml", "_mesh.xml")
     if not os.path.exists(xml_mesh_file_path):
         xml_mesh_file_path = xml_file_path
-    if not os.path.exists(filtered_file_path):
+    if not os.path.exists(filtered_npz_path):
         print(f"Filtering grasps for object: {object_name} using MuJoCo")
         try:
             subprocess.run(["python", "pipelines/static/2_filter_mujoco.py", "--object_name", object_name, 
-                          "--grasps_path", grasp_file_path, "--xml_file", xml_mesh_file_path, "--num_workers", str(os.cpu_count()//2), 
+                          "--grasps_path", grasp_file_path, "--xml_file", xml_mesh_file_path, "--num_workers", str(os.cpu_count()), 
                           "--approach_distance", "0.3", "--approach_steps", "3000", "--shake_magnitude", "0.1", 
                           "--shake_steps", "1000", 
                           
@@ -123,7 +126,7 @@ for obj in data:
                           "--center_contact_depth", "0.75",
                           "--contact_depth_bias", "2.8",
                           
-                          #"--render", 
+                        #   "--render", 
                           "--rotate", 
                           "--max_successful", str(MAX_SUCCESSFUL_GRASPS)], 
                           check=True)
@@ -133,8 +136,9 @@ for obj in data:
     if not os.path.exists(filtered_viz_path):
         print(f"Visualizing filtered grasps for object: {object_name}")
         try:
-            subprocess.run(["python", "scripts/visualize.py", "--grasps_path", filtered_file_path, 
-                          "--save-png", filtered_viz_path, "--grasp-shape-only"], check=True)
+            subprocess.run(["python", "scripts/visualize.py", "--grasps_npz", filtered_npz_path, 
+                          "--object_info", filtered_json_path, "--save-png", filtered_viz_path, 
+                          "--grasp-shape-only"], check=True)
         except subprocess.CalledProcessError as e:
             print(f"Warning: Visualization for {object_name} failed: {str(e)}")
             failed_objects.append(object_name)
@@ -146,11 +150,10 @@ for obj in data:
         })
     grasp_count = 0
     filtered_count = 0
-    if os.path.exists(filtered_file_path):
+    if os.path.exists(filtered_npz_path):
         try:
-            with open(filtered_file_path, "r") as f:
-                filtered_data = json.load(f)
-                filtered_count = len(filtered_data.get("transforms", []))
+            npz_data = np.load(filtered_npz_path)
+            filtered_count = len(npz_data["transforms"])
         except:
             pass
     processed_objects += 1

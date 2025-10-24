@@ -130,7 +130,7 @@ def test_single_grasp(grasp_data, object_name, model=None, data=None, viewer=Non
     initial_relative_position = None
     initial_grasp_verified = False
     data.ctrl[0] = 0.0
-    mujoco.mj_step(model, data, nstep=500 if not viewer else 2000)
+    mujoco.mj_step(model, data, nstep=500)
     if viewer:
         viewer.sync()
     mocap_id = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, "target_ee_pose")
@@ -140,24 +140,25 @@ def test_single_grasp(grasp_data, object_name, model=None, data=None, viewer=Non
         current_target_pos = approach_pos + alpha * (pos - approach_pos)
         if mocap_id >= 0:
             data.mocap_pos[0] = current_target_pos
+            data.mocap_quat[0] = quat
         mujoco.mj_step(model, data)
         if viewer and step % 50 == 0:
             viewer.sync()
     if mocap_id >= 0:
         data.mocap_pos[0] = pos
-    mujoco.mj_step(model, data, nstep=500)
+    mujoco.mj_step(model, data, nstep=300)
     if viewer:
         viewer.sync()
     data.ctrl[0] = 255.0
-    mujoco.mj_step(model, data, nstep=500)
+    mujoco.mj_step(model, data, nstep=300)
     if viewer:
         viewer.sync()
     tcp_pose = np.eye(4)
-    tcp_pose[:3, 3] = data.site("tcp").xpos
-    tcp_pose[:3, :3] = data.site("tcp").xmat.reshape(3, 3)
+    tcp_pose[:3, 3] = data.site("grasp_site").xpos
+    tcp_pose[:3, :3] = data.site("grasp_site").xmat.reshape(3, 3)
     tcp_pose = np.eye(4)
-    tcp_pose[:3, 3] = data.site("tcp").xpos
-    tcp_pose[:3, :3] = data.site("tcp").xmat.reshape(3, 3)
+    tcp_pose[:3, 3] = data.site("grasp_site").xpos
+    tcp_pose[:3, :3] = data.site("grasp_site").xmat.reshape(3, 3)
     object_pose = np.eye(4)
     object_pose[:3, :3] = data.body(object_name).xmat.reshape(3, 3)
     object_pose[:3, 3] = data.body(object_name).xpos
@@ -268,7 +269,7 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
     if args.center_contact_depth is not None:
         depth_distances = np.abs(contact_depths - args.center_contact_depth)
         
-        epsilon = 0.01
+        epsilon = 0.001
         inverse_distances = 1.0 / (depth_distances + epsilon)
         biased_weights = np.power(inverse_distances, args.contact_depth_bias)
         probabilities = biased_weights / np.sum(biased_weights)
@@ -432,20 +433,27 @@ if __name__ == "__main__":
     model = mujoco.MjModel.from_xml_string(xml_content)
     data = mujoco.MjData(model)
     successful_transforms, successful_qualities, successful_widths = run_simulation_with_viewer(xml_content, object_name, args.render)
-    output_path = args.grasps_path.replace(".json", "_filtered.json")
-    with open(output_path, "w") as f:
-        with open(args.grasps_path, "r") as original_f:
-            original_data = json.load(original_f)
+    
+    # Save transforms as NPZ with float16 compression
+    output_path_npz = args.grasps_path.replace(".json", "_filtered.npz")
+    transforms_array = np.array(successful_transforms, dtype=np.float16)
+    np.savez_compressed(output_path_npz, transforms=transforms_array)
+    
+    # Save metadata as object_info.json
+    output_path_json = args.grasps_path.replace(".json", "_object_info.json")
+    with open(args.grasps_path, "r") as original_f:
+        original_data = json.load(original_f)
+    with open(output_path_json, "w") as f:
         json.dump({
-            "transforms": successful_transforms,
-            "quality_antipodal": successful_qualities,
             "object": original_data.get("object", "unknown_object"),
             "object_scale": original_data.get("object_scale", 1.0),
             "object_position": original_data.get("object_position", [0, 0, 0]),
             "object_rotation": original_data.get("object_rotation", [1, 0, 0, 0]),
             "approach_distance": args.approach_distance,
-            "grasp_widths": successful_widths,
+            "num_grasps": len(successful_transforms),
         }, f, indent=2)
-    tqdm.write(f"Saved {len(successful_transforms)} successful grasps to {output_path}")
+    
+    tqdm.write(f"Saved {len(successful_transforms)} successful grasps to {output_path_npz}")
+    tqdm.write(f"Saved object metadata to {output_path_json}")
     if not args.render and args.num_workers > 1:
         tqdm.write(f"Used {args.num_workers} parallel workers for grasp testing")
