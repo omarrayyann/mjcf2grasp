@@ -1,4 +1,4 @@
-from sklearn.cluster import KMeans
+from sklearn.cluster import MiniBatchKMeans
 import time
 import numpy as np
 import mujoco
@@ -273,19 +273,48 @@ def run_simulation_with_viewer(xml_content, object_name, use_viewer):
     if args.diversity_mode:
         
         positions = transforms[:, :3, 3]
-        rotations = np.array([R.from_matrix(t[:3, :3]).as_rotvec() for t in transforms])
-        
-        pos_normalized = positions / (np.std(positions, axis=0) + 1e-6)
-        rot_normalized = rotations / (np.std(rotations, axis=0) + 1e-6)
-        
-        features = np.concatenate([
-            pos_normalized,
-            rot_normalized
-        ], axis=1)
-        
         num_clusters = min(args.num_clusters, len(transforms))
-        kmeans = KMeans(n_clusters=num_clusters, random_state=42, n_init=10)
-        cluster_labels = kmeans.fit_predict(features)
+        
+        
+        try:
+            rotations = np.array([R.from_matrix(t[:3, :3]).as_rotvec() for t in transforms])
+            
+            pos_normalized = positions / (np.std(positions, axis=0) + 1e-6)
+            rot_normalized = rotations / (np.std(rotations, axis=0) + 1e-6)
+            
+            features = np.concatenate([
+                pos_normalized,
+                rot_normalized
+            ], axis=1)
+            
+            batch_size = min(1000, len(transforms))
+            kmeans = MiniBatchKMeans(
+                n_clusters=num_clusters,
+                random_state=42,
+                batch_size=batch_size,
+                max_iter=100,
+                n_init=3,
+                reassignment_ratio=0.01,
+                verbose=0
+            )
+            cluster_labels = kmeans.fit_predict(features)
+        except Exception as e:
+            try:
+                pos_normalized = positions / (np.std(positions, axis=0) + 1e-6)
+                
+                batch_size = min(1000, len(transforms))
+                kmeans = MiniBatchKMeans(
+                    n_clusters=num_clusters,
+                    random_state=42,
+                    batch_size=batch_size,
+                    max_iter=100,
+                    n_init=3, 
+                    reassignment_ratio=0.01,
+                    verbose=0
+                )
+                cluster_labels = kmeans.fit_predict(pos_normalized)
+            except Exception as e2:
+                cluster_labels = np.arange(len(transforms)) % num_clusters
         
         cluster_orders = []
         for cluster_id in range(num_clusters):
