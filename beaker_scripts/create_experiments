@@ -14,8 +14,9 @@ fi
 TOTAL_OBJECTS=$1
 NUM_NODES=$2
 
-# Calculate objects per node
+# Calculate objects per node and remainder
 OBJECTS_PER_NODE=$((TOTAL_OBJECTS / NUM_NODES))
+REMAINDER=$((TOTAL_OBJECTS % NUM_NODES))
 
 echo "Creating $NUM_NODES beaker experiments"
 echo "Total objects: $TOTAL_OBJECTS"
@@ -23,12 +24,15 @@ echo "Objects per node: $OBJECTS_PER_NODE"
 
 # Create experiments in a loop
 for i in $(seq 0 $((NUM_NODES - 1))); do
-    START_INDEX=$((i * OBJECTS_PER_NODE))
-    END_INDEX=$(((i + 1) * OBJECTS_PER_NODE))
-    
-    # For the last node, make sure we cover all remaining objects
-    if [ $i -eq $((NUM_NODES - 1)) ]; then
-        END_INDEX=$TOTAL_OBJECTS
+    # Calculate start index
+    if [ $i -lt $REMAINDER ]; then
+        # First REMAINDER nodes get one extra object
+        START_INDEX=$((i * (OBJECTS_PER_NODE + 1)))
+        END_INDEX=$((START_INDEX + OBJECTS_PER_NODE + 1))
+    else
+        # Remaining nodes get OBJECTS_PER_NODE objects
+        START_INDEX=$((REMAINDER * (OBJECTS_PER_NODE + 1) + (i - REMAINDER) * OBJECTS_PER_NODE))
+        END_INDEX=$((START_INDEX + OBJECTS_PER_NODE))
     fi
     
     echo "Creating experiment $((i + 1))/$NUM_NODES: start=$START_INDEX, end=$END_INDEX"
@@ -37,10 +41,10 @@ for i in $(seq 0 $((NUM_NODES - 1))); do
     TEMP_YAML="/tmp/experiment_${i}.yaml"
     
     # Use sed to replace the hardcoded values in the YAML
-    sed "s/'0', # --start/'$START_INDEX', # --start/g; s/'10000', # --end/'$END_INDEX', # --end/g" beaker_scripts/experiment.yaml > "$TEMP_YAML"
+    sed "s/'0', # --start/'$START_INDEX', # --start/g; s/'1', # --end/'$END_INDEX', # --end/g" beaker_scripts/experiment.yaml > "$TEMP_YAML"
     
     # Create the experiment with the temporary YAML file
-    beaker experiment create "$TEMP_YAML"
+    beaker experiment create --workspace ai2/mujoco-thor-objaverse "$TEMP_YAML"
     
     # Clean up the temporary file
     rm "$TEMP_YAML"
