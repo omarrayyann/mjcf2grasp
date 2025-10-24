@@ -88,7 +88,7 @@ for obj in data:
         try:
             subprocess.run(["python", "pipelines/static/1_generate_grasps.py", "--object_file", simplify_path, 
                           "--quality", "antipodal", "--output", grasp_file_path, 
-                        #   "--systematic_sampling", 
+                          "--systematic_sampling", 
                           "--num_workers", str(os.cpu_count()//2)], check=True)
         except subprocess.CalledProcessError as e:
             print(f"Error generating grasps for {object_name}: {str(e)}")
