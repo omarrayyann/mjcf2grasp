@@ -6,7 +6,6 @@
     <material name="metal" rgba="0.58 0.58 0.58 1"/>
     <material name="silicone" rgba="0.1882 0.1882 0.1882 1"/>
     <material name="black" rgba="0.149 0.149 0.149 1"/>
-
     <mesh file="../../../assets/grippers/robotiq/xmls/meshes/base.stl"/>
     <mesh file="../../../assets/grippers/robotiq/xmls/meshes/base_coupling.stl"/>
     <mesh file="../../../assets/grippers/robotiq/xmls/meshes/c-a01-85-open.stl"/>
@@ -15,7 +14,7 @@
     <mesh file="../../../assets/grippers/robotiq/xmls/meshes/spring_link.stl"/>
     <mesh file="../../../assets/grippers/robotiq/xmls/meshes/follower.stl"/>
     <mesh file="../../../assets/grippers/robotiq/xmls/meshes/tongue.stl"/>
-  </asset>
+     </asset>
 
 
   <default>
@@ -67,16 +66,10 @@
 
     <body gravcomp="1" name="base" childclass="2f85">
 
-      <!-- <geom name="lower_2" pos="0 0 0.136" size="0.06 0.06 0.0001" type="box" rgba="1 0 0 1" conaffinity="0"
-      contype="0"/>
-      <geom name="lower" pos="0 0 0.1215" size="0.06 0.06 0.0001" type="box" rgba="1 0 0 1" conaffinity="0" contype="0"/>
-      <geom name="upper" pos="0 0 0.17365" size="0.06 0.06 0.00001" type="box" rgba="0 1 0 1" conaffinity="0"
-        contype="0"/> -->
-
-      <site name="tcp" pos="0 0 0.155" size="0.01" rgba="0 0 1 1"/>
 
       <joint type="free" name="robotiq_free_joint" damping="1"/>
 
+      <site name="tcp" pos="0 0 0.17365" size="0.01" rgba="0 0 1 0"/>
       <!-- 
       <body pos="0 0 0.13675" quat="1 0 0 0">
         <geom type="sphere" name="z_axis" pos="0 0 0.1" size="0.01" rgba="0 0 1 1" conaffinity="0" contype="0"/>
@@ -85,7 +78,7 @@
       </body> -->
 
 
-      <camera name="follower" pos="0 -0.5 -0.5" euler="2.5 0 0" mode="fixed" fovy="53.1"/>
+     <camera name="follower" pos="0 -0.5 -0.5" euler="2.5 0 0" mode="fixed" fovy="53.1"/>
 
       <inertial mass="0.777441" pos="0 -2.70394e-05 0.0354675" quat="1 -0.00152849 0 0"
         diaginertia="0.000260285 0.000225381 0.000152708"/>

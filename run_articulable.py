@@ -7,7 +7,7 @@ from datetime import datetime
 from pathlib import Path
 
 USE_WANDB = True
-MAX_SUCCESSFUL= 5000
+MAX_SUCCESSFUL= 1000
 
 def load_articulated_objects():
     matched_file = "results/articulable_objects_list.json"
@@ -28,8 +28,12 @@ def load_articulated_objects():
 
 def run_grasp_filtering_stage(
     object_name, grasps_path, xml_file, output_dir, per_joint_grasps_json=None
-):
+):  
     xml_mesh_file = xml_file.replace(".xml", "_mesh.xml")
+    for prim_object in ["shelving", "table", "lightswitch", "laptop"]:
+        if prim_object in object_name.lower():
+            xml_mesh_file = xml_file.replace("_mesh.xml", "_prim.xml")
+
     if not os.path.exists(xml_mesh_file):
         print(f"   Converting XML to use mesh colliders...")
         try:
@@ -64,35 +68,78 @@ def run_grasp_filtering_stage(
         print(f"   Per-joint grasps JSON: {per_joint_grasps_json}")
         try:
             print(f"   Filtering per-joint grasps using MuJoCo simulation...")
-            subprocess.run(
-                [
-                    "python",
-                    "pipelines/articulable/3_filter_mujoco.py",
-                    "--object_name",
-                    object_name,
-                    "--per_joint_summary_json",
-                    per_joint_grasps_json,
-                    "--xml_file",
-                    xml_file_for_filtering,
-                    "--num_workers",
-                    str(1),
-                    "--approach_distance",
-                    "0.3",
-                    "--approach_steps",
-                    "8",
-                    "--max_successful",
-                    str(MAX_SUCCESSFUL),
-                    # "--render",
-                ],
-                check=True,
-            )
-            summary_path = per_joint_grasps_json
+            max_attempts = 2
+            for attempt in range(1, max_attempts + 1):
+                try:
+                    if attempt > 1:
+                        print(f"   Retry attempt {attempt}/{max_attempts} (without diversity mode)...")
+                    
+                    cmd_args = [
+                        "python",
+                        "pipelines/articulable/3_filter_mujoco.py",
+                        "--object_name",
+                        object_name,
+                        "--per_joint_summary_json",
+                        per_joint_grasps_json,
+                        "--xml_file",
+                        xml_file_for_filtering,
+                        "--num_workers",
+                        str(os.cpu_count()),
+                        "--approach_distance",
+                        "0.3",
+                        "--approach_steps",
+                        "8",
+                        "--max_successful",
+                        str(MAX_SUCCESSFUL),
+                        "--max_contact_depth",
+                        "1.0",
+                        "--min_contact_depth",
+                        "0.0",
+                        "--center_contact_depth",
+                        "0.75",
+                        "--contact_depth_bias",
+                        "2.8",
+                        "--num_clusters",
+                        "40",
+                        # "--render",
+                    ]
+                    
+                    # Only add diversity mode on first attempt
+                    if attempt == 1:
+                        cmd_args.append("--diversity_mode")
+                    
+                    subprocess.run(cmd_args, check=True)
+                    break  # Success, exit retry loop
+                except subprocess.CalledProcessError as e:
+                    if attempt == max_attempts:
+                        # Final attempt failed, re-raise the exception
+                        raise
+                    else:
+                        print(f"   Attempt {attempt} failed, retrying without diversity mode...")
+
+            # Use the filtered summary file, not the original
+            summary_path = per_joint_grasps_json.replace(".json", "_filtered.json")
             print(f"   Per-joint filtered summary: {summary_path}")
             if os.path.exists(summary_path):
                 with open(summary_path, "r") as f:
                     summary = json.load(f)
                 for entry in summary:
-                    filtered_count = entry.get("num_successful_filtered_grasps", 0)
+                    # Get filtered grasps file
+                    filtered_grasps_file = entry.get("filtered_grasps_file")
+                    filtered_count = 0
+                    
+                    # Only count if filtering succeeded and file exists
+                    if filtered_grasps_file and os.path.exists(
+                        os.path.join(os.path.dirname(summary_path), filtered_grasps_file)
+                    ):
+                        with open(
+                            os.path.join(os.path.dirname(summary_path), filtered_grasps_file),
+                            "r",
+                        ) as ff:
+                            fdata = json.load(ff)
+                        filtered_count = len(fdata.get("transforms", []))
+                    
+                    # Get original grasps count
                     grasps_file = entry.get("grasps_file", "")
                     original_count = 0
                     if grasps_file and os.path.exists(
@@ -104,14 +151,21 @@ def run_grasp_filtering_stage(
                         ) as gf:
                             gdata = json.load(gf)
                         original_count = len(gdata.get("transforms", []))
+                    
                     success_rate = (
                         (filtered_count / original_count * 100)
                         if original_count > 0
                         else 0
                     )
+                    
+                    # Add status indicator
+                    status = "✓" if filtered_grasps_file else "✗ FAILED"
                     print(
-                        f"      Joint: {entry['joint']} | Success: {filtered_count}/{original_count} ({success_rate:.1f}%)"
+                        f"      Joint: {entry['joint']} | {status} | Success: {filtered_count}/{original_count} ({success_rate:.1f}%)"
                     )
+            else:
+                print(f"   Warning: Filtered summary not found at {summary_path}")
+                return False, None
             return True, summary_path
         except subprocess.CalledProcessError as e:
             print(f"   Error in per-joint grasp filtering: {str(e)}")
@@ -125,28 +179,55 @@ def run_grasp_filtering_stage(
         filtered_grasps_path = grasps_path.replace(".json", "_filtered.json")
         try:
             print(f"   Filtering grasps using MuJoCo simulation...")
-            subprocess.run(
-                [
-                    "python",
-                    "pipelines/articulable/3_filter_mujoco.py",
-                    "--object_name",
-                    object_name,
-                    "--grasps_path",
-                    grasps_path,
-                    "--xml_file",
-                    xml_file_for_filtering,
-                    "--num_workers",
-                    "10",
-                    "--approach_distance",
-                    "0.5",
-                    "--approach_steps",
-                    "5",
-                    "--max_successful",
-                    str(MAX_SUCCESSFUL),
-                    # "--render",
-                ],
-                check=True,
-            )
+            max_attempts = 2
+            for attempt in range(1, max_attempts + 1):
+                try:
+                    if attempt > 1:
+                        print(f"   Retry attempt {attempt}/{max_attempts} (without diversity mode)...")
+                    
+                    cmd_args = [
+                        "python",
+                        "pipelines/articulable/3_filter_mujoco.py",
+                        "--object_name",
+                        object_name,
+                        "--grasps_path",
+                        grasps_path,
+                        "--xml_file",
+                        xml_file_for_filtering,
+                        "--num_workers",
+                        str(os.cpu_count()),
+                        "--approach_distance",
+                        "0.5",
+                        "--approach_steps",
+                        "5",
+                        "--max_successful",
+                        str(MAX_SUCCESSFUL),
+                        "--max_contact_depth",
+                        "1.0",
+                        "--min_contact_depth",
+                        "0.0",
+                        "--center_contact_depth",
+                        "0.75",
+                        "--contact_depth_bias",
+                        "2.8",
+                        "--num_clusters",
+                        "40",
+                        # "--render",
+                    ]
+                    
+                    # Only add diversity mode on first attempt
+                    if attempt == 1:
+                        cmd_args.append("--diversity_mode")
+                    
+                    subprocess.run(cmd_args, check=True)
+                    break  # Success, exit retry loop
+                except subprocess.CalledProcessError as e:
+                    if attempt == max_attempts:
+                        # Final attempt failed, re-raise the exception
+                        raise
+                    else:
+                        print(f"   Attempt {attempt} failed, retrying without diversity mode...")
+
             print(f"   Filtered grasps saved: {filtered_grasps_path}")
             with open(grasps_path, "r") as f:
                 original_grasps = json.load(f)
@@ -336,17 +417,6 @@ def run_handle_detection_stage(obj, output_dir):
 
 
 def main():
-    print("ARTICULATED OBJECT GRASPING PIPELINE")
-    print("=" * 50)
-    print("This pipeline focuses on generating grasps for manipulating")
-    print("articulated objects through handle interaction.")
-    print("")
-    print("Current Stages:")
-    print("  Stage 0: LLM-based handle detection and mesh extraction")
-    print("  Stage 1: Joint axis analysis for primary articulation")
-    print("  Stage 2: Grasp generation for handle meshes")
-    print("  Stage 3: Grasp filtering using MuJoCo simulation")
-    print("=" * 50)
 
     articulated_objects = load_articulated_objects()
 
@@ -354,7 +424,6 @@ def main():
         print("No articulatable objects found to process!")
         return 1
 
-    # Initialize wandb if enabled
     if USE_WANDB:
         wandb.init(
             project="thor-articulated-grasp-pipeline",
@@ -394,10 +463,6 @@ def main():
 
     for i, obj in enumerate(articulated_objects):
         object_name = obj["name"]
-
-        print(f"\nProcessing {i + 1}/{len(articulated_objects)}: {object_name}")
-        print("=" * 60)
-
         object_output_dir = os.path.join(output_base, object_name)
         os.makedirs(object_output_dir, exist_ok=True)
 

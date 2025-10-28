@@ -11,6 +11,7 @@ import mujoco
 import mujoco.viewer
 
 from scipy.spatial.transform import Rotation as R
+from sklearn.cluster import MiniBatchKMeans
 import re
 
 import sys
@@ -343,8 +344,8 @@ def test_single_grasp(
             viewer.sync()
 
     pose_after = np.eye(4)
-    pose_after[:3, :3] = data.site("tcp").xmat.reshape(3, 3)
-    pose_after[:3, 3] = data.site("tcp").xpos
+    pose_after[:3, :3] = data.site("grasp_site").xmat.reshape(3, 3)
+    pose_after[:3, 3] = data.site("grasp_site").xpos
 
     transform = pose_after
     while 1:
@@ -372,8 +373,8 @@ def test_single_grasp(
         joint_range_str = primary_joint_data.get("range", "0 0")
         joint_range = [float(x) for x in joint_range_str.split()]
 
-        gripper_pos = data.site("tcp").xpos.copy()
-        gripper_rot = data.site("tcp").xmat.copy().reshape(3, 3)
+        gripper_pos = data.site("grasp_site").xpos.copy()
+        gripper_rot = data.site("grasp_site").xmat.copy().reshape(3, 3)
         gripper_quat = quat
 
         if joint_type == "hinge" or joint_type == "unknown":
@@ -525,6 +526,118 @@ def run_simulation_with_viewer(
     print(len(transforms), "grasps to evaluate")
     qualities = np.array(grasp_data.get("quality_antipodal", [1.0] * len(transforms)))
     width = np.array(grasp_data.get("grasp_widths", [0.1] * len(transforms)))
+    contact_depths = np.array(grasp_data.get("contact_depths", [0.5] * len(transforms)))
+
+    # Filter by contact depth range
+    if args.min_contact_depth > 0.0 or args.max_contact_depth < 1.0:
+        depth_mask = (contact_depths >= args.min_contact_depth) & (contact_depths <= args.max_contact_depth)
+        transforms = transforms[depth_mask]
+        qualities = qualities[depth_mask]
+        width = width[depth_mask]
+        contact_depths = contact_depths[depth_mask]
+        print(f"Filtered by contact depth [{args.min_contact_depth}, {args.max_contact_depth}]: {len(transforms)} grasps remaining")
+    
+    if args.diversity_mode:
+        positions = transforms[:, :3, 3]
+        num_clusters = min(args.num_clusters, len(transforms))
+        
+        try:
+            rotations = np.array([R.from_matrix(t[:3, :3]).as_rotvec() for t in transforms])
+            
+            pos_normalized = positions / (np.std(positions, axis=0) + 1e-6)
+            rot_normalized = rotations / (np.std(rotations, axis=0) + 1e-6)
+            
+            features = np.concatenate([pos_normalized, rot_normalized], axis=1)
+            
+            batch_size = min(1000, len(transforms))
+            kmeans = MiniBatchKMeans(
+                n_clusters=num_clusters,
+                random_state=42,
+                batch_size=batch_size,
+                max_iter=100,
+                n_init=3,
+                reassignment_ratio=0.01,
+                verbose=0
+            )
+            cluster_labels = kmeans.fit_predict(features)
+        except Exception as e:
+            try:
+                pos_normalized = positions / (np.std(positions, axis=0) + 1e-6)
+                batch_size = min(1000, len(transforms))
+                kmeans = MiniBatchKMeans(
+                    n_clusters=num_clusters,
+                    random_state=42,
+                    batch_size=batch_size,
+                    max_iter=100,
+                    n_init=3,
+                    reassignment_ratio=0.01,
+                    verbose=0
+                )
+                cluster_labels = kmeans.fit_predict(pos_normalized)
+            except Exception as e2:
+                cluster_labels = np.arange(len(transforms)) % num_clusters
+        
+        cluster_orders = []
+        for cluster_id in range(num_clusters):
+            cluster_mask = cluster_labels == cluster_id
+            cluster_indices = np.where(cluster_mask)[0]
+            
+            if len(cluster_indices) == 0:
+                continue
+            
+            if args.center_contact_depth is not None:
+                cluster_depths = contact_depths[cluster_indices]
+                depth_distances = np.abs(cluster_depths - args.center_contact_depth)
+                epsilon = 0.001
+                inverse_distances = 1.0 / (depth_distances + epsilon)
+                depth_scores = np.power(inverse_distances, args.contact_depth_bias)
+                depth_weights = depth_scores / np.sum(depth_scores)
+                sorted_local_indices = np.random.choice(
+                    len(cluster_indices),
+                    size=len(cluster_indices),
+                    replace=False,
+                    p=depth_weights
+                )
+            else:
+                sorted_local_indices = np.arange(len(cluster_indices))
+            
+            cluster_orders.append(cluster_indices[sorted_local_indices])
+
+        priority_indices = []
+        max_cluster_size = max(len(cluster) for cluster in cluster_orders)
+        
+        for i in range(max_cluster_size):
+            for cluster in cluster_orders:
+                if i < len(cluster):
+                    priority_indices.append(cluster[i])
+        
+        priority_indices = np.array(priority_indices)
+        transforms = transforms[priority_indices]
+        qualities = qualities[priority_indices]
+        width = width[priority_indices]
+        contact_depths = contact_depths[priority_indices]
+        print(f"Applied diversity clustering with {num_clusters} clusters")
+        
+    elif args.center_contact_depth is not None:
+        depth_distances = np.abs(contact_depths - args.center_contact_depth)
+        epsilon = 0.001
+        inverse_distances = 1.0 / (depth_distances + epsilon)
+        depth_weights = np.power(inverse_distances, args.contact_depth_bias)
+        depth_weights = depth_weights / np.sum(depth_weights)
+        
+        num_grasps = len(transforms)
+        priority_indices = np.random.choice(
+            num_grasps,
+            size=num_grasps,
+            replace=False,
+            p=depth_weights
+        )
+        
+        transforms = transforms[priority_indices]
+        qualities = qualities[priority_indices]
+        width = width[priority_indices]
+        contact_depths = contact_depths[priority_indices]
+        print(f"Prioritized grasps by contact depth centered at {args.center_contact_depth}")
 
     joint_info_override = primary_joint
 
@@ -784,21 +897,26 @@ def main_single_file_filtering(
         robot_xml_content = f.read()
     xml_content = merge_xml_contents(xml_content, robot_xml_content)
 
-    model = mujoco.MjModel.from_xml_string(xml_content)
-    data = mujoco.MjData(model)
+    try:
+        model = mujoco.MjModel.from_xml_string(xml_content)
+        data = mujoco.MjData(model)
 
-    successful_transforms, successful_qualities, successful_widths = (
-        run_simulation_with_viewer(
-            model,
-            data,
-            xml_content,
-            object_name,
-            args.render,
-            args,
-            primary_joint=primary_joint,
-            handle_geoms=handle_geoms,
+        successful_transforms, successful_qualities, successful_widths = (
+            run_simulation_with_viewer(
+                model,
+                data,
+                xml_content,
+                object_name,
+                args.render,
+                args,
+                primary_joint=primary_joint,
+                handle_geoms=handle_geoms,
+            )
         )
-    )
+    except Exception as e:
+        # If there's an error during model creation or simulation, don't create the filtered file
+        print(f"Error during filtering process: {e}")
+        raise  # Re-raise the exception to be caught by the caller
 
     transforms_list = []
     for transform in successful_transforms:
@@ -870,6 +988,12 @@ def main():
     parser.add_argument("--num_workers", type=int, default=mp.cpu_count())
     parser.add_argument("--max_successful", type=int, default=0)
     parser.add_argument("--filtered", action="store_true")
+    parser.add_argument("--min_contact_depth", type=float, default=0.0, help="Minimum contact depth (0.0=base, 1.0=tip). Only test grasps with contact depth >= this value (default: 0.0)")
+    parser.add_argument("--max_contact_depth", type=float, default=1.0, help="Maximum contact depth (0.0=base, 1.0=tip). Only test grasps with contact depth <= this value (default: 1.0)")
+    parser.add_argument("--center_contact_depth", type=float, default=None, help="Center contact depth (0.0=base, 1.0=tip). Prioritize testing grasps closer to this depth value first (default: None = no prioritization)")
+    parser.add_argument("--contact_depth_bias", type=float, default=2.0, help="Strength of bias towards center_contact_depth. Higher = stricter (1.0 = linear, 2.0 = squared, 0.5 = weak bias) (default: 2.0)")
+    parser.add_argument("--diversity_mode", action="store_true", help="Use clustering-based diversity when testing grasps (default: False)")
+    parser.add_argument("--num_clusters", type=int, default=40, help="Number of position-rotation clusters for diversity (default: 40)")
     args = parser.parse_args()
     if args.per_joint_summary_json:
         summary_path = os.path.abspath(args.per_joint_summary_json)
@@ -916,9 +1040,20 @@ def main():
                 traceback.print_exc()
                 entry["filtered_grasps_file"] = None
             updated_summary.append(entry)
-        summary_out = summary_path.replace(".json", "_filtered.json")
-        with open(summary_out, "w") as f:
-            json.dump(updated_summary, f, indent=2)
+        
+        # Only write the filtered summary if at least one joint succeeded
+        any_success = any(
+            entry.get("filtered_grasps_file") is not None 
+            for entry in updated_summary
+        )
+        
+        if any_success:
+            summary_out = summary_path.replace(".json", "_filtered.json")
+            with open(summary_out, "w") as f:
+                json.dump(updated_summary, f, indent=2)
+            print(f"\nFiltered summary written to: {summary_out}")
+        else:
+            print(f"\nNo joints successfully filtered. Skipping filtered summary creation.")
         return
 
 
