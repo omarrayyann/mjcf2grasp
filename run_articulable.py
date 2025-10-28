@@ -6,8 +6,8 @@ import wandb
 from datetime import datetime
 from pathlib import Path
 
-USE_WANDB = True
-MAX_SUCCESSFUL= 1000
+USE_WANDB = False
+MAX_SUCCESSFUL= 100
 
 def load_articulated_objects():
     matched_file = "results/articulable_objects_list.json"
@@ -101,34 +101,28 @@ def run_grasp_filtering_stage(
                         "2.8",
                         "--num_clusters",
                         "40",
-                        # "--render",
                     ]
                     
-                    # Only add diversity mode on first attempt
                     if attempt == 1:
                         cmd_args.append("--diversity_mode")
                     
                     subprocess.run(cmd_args, check=True)
-                    break  # Success, exit retry loop
+                    break
                 except subprocess.CalledProcessError as e:
                     if attempt == max_attempts:
-                        # Final attempt failed, re-raise the exception
                         raise
                     else:
                         print(f"   Attempt {attempt} failed, retrying without diversity mode...")
 
-            # Use the filtered summary file, not the original
             summary_path = per_joint_grasps_json.replace(".json", "_filtered.json")
             print(f"   Per-joint filtered summary: {summary_path}")
             if os.path.exists(summary_path):
                 with open(summary_path, "r") as f:
                     summary = json.load(f)
                 for entry in summary:
-                    # Get filtered grasps file
                     filtered_grasps_file = entry.get("filtered_grasps_file")
                     filtered_count = 0
                     
-                    # Only count if filtering succeeded and file exists
                     if filtered_grasps_file and os.path.exists(
                         os.path.join(os.path.dirname(summary_path), filtered_grasps_file)
                     ):
@@ -139,7 +133,6 @@ def run_grasp_filtering_stage(
                             fdata = json.load(ff)
                         filtered_count = len(fdata.get("transforms", []))
                     
-                    # Get original grasps count
                     grasps_file = entry.get("grasps_file", "")
                     original_count = 0
                     if grasps_file and os.path.exists(
@@ -158,8 +151,7 @@ def run_grasp_filtering_stage(
                         else 0
                     )
                     
-                    # Add status indicator
-                    status = "✓" if filtered_grasps_file else "✗ FAILED"
+                    status = "SUCCESS" if filtered_grasps_file else "FAILED"
                     print(
                         f"      Joint: {entry['joint']} | {status} | Success: {filtered_count}/{original_count} ({success_rate:.1f}%)"
                     )
@@ -212,18 +204,15 @@ def run_grasp_filtering_stage(
                         "2.8",
                         "--num_clusters",
                         "40",
-                        # "--render",
                     ]
                     
-                    # Only add diversity mode on first attempt
                     if attempt == 1:
                         cmd_args.append("--diversity_mode")
                     
                     subprocess.run(cmd_args, check=True)
-                    break  # Success, exit retry loop
+                    break
                 except subprocess.CalledProcessError as e:
                     if attempt == max_attempts:
-                        # Final attempt failed, re-raise the exception
                         raise
                     else:
                         print(f"   Attempt {attempt} failed, retrying without diversity mode...")
@@ -274,7 +263,6 @@ def run_grasp_generation_stage(object_name, handle_mesh_path, full_mesh, output_
                 "antipodal",
                 "--min_quality",
                 "0.001",
-                "--systematic_sampling",
                 "--classname",
                 "articulated_handle",
                 "--dataset",
@@ -362,7 +350,6 @@ def run_per_joint_grasp_generation(
                 "antipodal",
                 "--min_quality",
                 "0.005",
-                "--systematic_sampling",
                 "--classname",
                 "articulated_handle",
                 "--dataset",
@@ -669,7 +656,6 @@ def main():
                         f"   Filtered per-joint grasp visualization completed for {object_name}"
                     )
 
-                    # Log visualization to wandb if enabled
                     if USE_WANDB and os.path.exists(visualization_png):
                         wandb.log(
                             {
@@ -684,7 +670,6 @@ def main():
                     print(
                         f"   Warning: Filtered per-joint grasp visualization failed for {object_name}: {str(e)}"
                     )
-                    # Log visualization failure to wandb if enabled
                     if USE_WANDB:
                         wandb.log(
                             {
@@ -733,9 +718,7 @@ def main():
                 status = "Partially processed (no joint analysis)"
             print(f"   {status}: {object_name}")
 
-            # Log object completion to wandb
             if USE_WANDB:
-                # Calculate grasp metrics
                 grasp_count = 0
                 filtered_count = 0
 
@@ -803,10 +786,9 @@ def main():
         progress = (i + 1) / len(articulated_objects) * 100
         print(f"   Progress: {progress:.1f}% ({i + 1}/{len(articulated_objects)})")
 
-        # Progress bar similar to run_pipeline.py
         progress_bar_width = 50
         filled_width = int(progress_bar_width * ((i + 1) / len(articulated_objects)))
-        progress_bar = "█" * filled_width + "░" * (progress_bar_width - filled_width)
+        progress_bar = "#" * filled_width + "-" * (progress_bar_width - filled_width)
 
         print(
             f"Progress: [{progress_bar}] {progress:.1f}% ({i + 1}/{len(articulated_objects)})"
@@ -860,7 +842,6 @@ def main():
         json.dump(summary, f, indent=2)
     print(f"\nPipeline summary saved to: {summary_path}")
 
-    # Log final results to wandb
     if USE_WANDB:
         wandb.log(
             {
@@ -878,17 +859,16 @@ def main():
             }
         )
 
-        # Create summary table for wandb
         summary_data = []
         for obj in successful_objects:
             stages = obj.get("stages_completed", {})
             summary_data.append(
                 [
                     obj["name"],
-                    "✓" if stages.get("handle_detection", False) else "✗",
-                    "✓" if stages.get("joint_axis_analysis", False) else "✗",
-                    "✓" if stages.get("grasp_generation", False) else "✗",
-                    "✓" if stages.get("grasp_filtering", False) else "✗",
+                    "YES" if stages.get("handle_detection", False) else "NO",
+                    "YES" if stages.get("joint_axis_analysis", False) else "NO",
+                    "YES" if stages.get("grasp_generation", False) else "NO",
+                    "YES" if stages.get("grasp_filtering", False) else "NO",
                 ]
             )
 
@@ -909,12 +889,6 @@ def main():
     else:
         print("Pipeline completed (wandb was disabled)")
 
-    print("\nNEXT STEPS:")
-    print(
-        "1. Review generated handle meshes, joint analysis, grasps, and filtered grasps in output_articulate/"
-    )
-    print("2. Implement Stage 4: Articulation motion planning")
-    print("3. Implement Stage 5: MuJoCo validation with joint constraints")
 
     return 0 if processed_objects > 0 else 1
 

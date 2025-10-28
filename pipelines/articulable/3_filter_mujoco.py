@@ -891,51 +891,27 @@ def main_single_file_filtering(
         print(f"Error during filtering process: {e}")
         raise
 
-    transforms_list = []
-    for transform in successful_transforms:
-        if isinstance(transform, np.ndarray):
-            transform = transform.tolist()
-        transforms_list.append(transform)
-    qualities_list = []
-    for quality in successful_qualities:
-        if isinstance(quality, np.ndarray):
-            quality = quality.tolist()
-        qualities_list.append(quality)
-    widths_list = []
-    for width in successful_widths:
-        if isinstance(width, np.ndarray):
-            width = width.tolist()
-        widths_list.append(width)
-
-    output_path = grasps_path.replace(".json", "_filtered.json")
-    with open(output_path, "w") as f:
-        with open(grasps_path, "r") as original_f:
-            original_data = json.load(original_f)
+    output_path_npz = grasps_path.replace(".json", "_filtered.npz")
+    transforms_array = np.array(successful_transforms, dtype=np.float16)
+    np.savez_compressed(output_path_npz, transforms=transforms_array)
+    
+    output_path_json = grasps_path.replace(".json", "_object_info.json")
+    with open(grasps_path, "r") as original_f:
+        original_data = json.load(original_f)
+    with open(output_path_json, "w") as f:
         json.dump(
             {
-                "transforms": transforms_list,
-                "quality_antipodal": qualities_list,
                 "object": original_data.get("object", "unknown_object"),
                 "object_scale": original_data.get("object_scale", 1.0),
                 "object_position": original_data.get("object_position", [0, 0, 0]),
                 "object_rotation": original_data.get("object_rotation", [1, 0, 0, 0]),
                 "approach_distance": args.approach_distance,
-                "grasp_widths": widths_list,
-                "object_class": original_data.get("object_class", "unknown"),
-                "object_dataset": original_data.get("object_dataset", "unknown"),
-                "gripper": original_data.get("gripper", "unknown_gripper"),
-                "gripper_configuration": original_data.get("gripper_configuration", []),
-                "transforms_quality": original_data.get("transforms_quality", []),
-                "roll_angles": original_data.get("roll_angles", []),
-                "standoffs": original_data.get("standoffs", []),
-                "mesh_points": original_data.get("mesh_points", []),
-                "mesh_normals": original_data.get("mesh_normals", []),
-                "collisions": original_data.get("collisions", []),
+                "num_grasps": len(successful_transforms),
             },
             f,
             indent=2,
         )
-    return len(successful_transforms), output_path
+    return len(successful_transforms), output_path_npz
 
 
 def main():
@@ -997,7 +973,7 @@ def main():
             filter_args.xml_file = xml_file
 
             try:
-                main_single_file_filtering(
+                num_grasps, output_path = main_single_file_filtering(
                     grasps_file,
                     filter_args.object_name,
                     filter_args.xml_file,
@@ -1005,13 +981,13 @@ def main():
                     joint_axis_info=joint_info,
                     handle_geoms=handle_geoms,
                 )
-                entry["filtered_grasps_file"] = grasps_file.replace(
-                    ".json", "_filtered.json"
-                )
+                entry["filtered_grasps_file"] = output_path
+                entry["filtered_object_info"] = grasps_file.replace(".json", "_object_info.json")
             except Exception as e:
                 print(f"  Error filtering grasps for joint {joint}: {e}")
                 traceback.print_exc()
                 entry["filtered_grasps_file"] = None
+                entry["filtered_object_info"] = None
             updated_summary.append(entry)
         
         any_success = any(

@@ -799,32 +799,48 @@ args = parser.parse_args()
 # If --json_file is provided, use it directly
 if args.json_file is not None:
     json_file = os.path.abspath(args.json_file)
-    if not os.path.exists(json_file):
-        print(f"Error: Specified --json_file does not exist: {json_file}")
+    
+    # Check if it's an NPZ file or if corresponding NPZ exists
+    npz_file = json_file.replace("_filtered.json", "_filtered.npz").replace("_grasps.json", "_grasps.npz")
+    info_file = json_file.replace("_filtered.json", "_object_info.json").replace("_grasps.json", "_object_info.json")
+    
+    if os.path.exists(npz_file) and os.path.exists(info_file):
+        # Load from NPZ + object_info.json
+        print(f"Loading grasps from NPZ: {npz_file}")
+        print(f"Loading object info from: {info_file}")
+        
+        npz_data = np.load(npz_file)
+        transforms = npz_data["transforms"].astype(np.float32)
+        
+        with open(info_file, "r") as f:
+            data = json.load(f)
+    elif os.path.exists(json_file):
+        # Fallback to JSON format
+        print(f"Loading grasps from JSON: {json_file}")
+        if not os.path.exists(json_file):
+            print(f"Error: Specified --json_file does not exist: {json_file}")
+            exit(1)
+        with open(json_file, "r") as f:
+            data = json.load(f)
+        transforms = np.array(data["transforms"])
+    else:
+        print(f"Error: Neither NPZ ({npz_file}) nor JSON ({json_file}) file exists")
         exit(1)
-    with open(json_file, "r") as f:
-        data = json.load(f)
+    
     mesh = trimesh.load(data["object"])
     mesh.apply_scale(data["object_scale"])
     pose = tra.quaternion_matrix(data["object_rotation"])
     pose[:3, 3] = data["object_position"]
     pose[3, 3] = 1.0
     mesh.apply_transform(pose)
-    transforms = np.array(data["transforms"])
 
     gripper = RobotiqGripper()
     for i in range(len(transforms)):
         transforms[i][:3, 3] -= transforms[i][:3, :3] @ (gripper.tcp_offset-[0, 0, 0.03])
 
-
-    # for i in range(len(transforms)):
-    #     transforms[i][:3, 3] += transforms[i][:3, :3] @ np.array([0, 0, 0.089275])
-    quality = np.array(
-        data.get(
-            "quality_antipodal",
-            data.get("quality_number_of_contacts", [1.0] * len(transforms)),
-        )
-    )
+    # Set default quality if not available in metadata
+    quality = np.ones(len(transforms))
+    
     top_k = 2000
     # top_indices = np.argsort(quality)[-top_k:][::-1]
     # transforms = [transforms[i] for i in top_indices]
@@ -843,32 +859,99 @@ if args.json_file is not None:
 
 # Define file paths - check both new structure and old structure
 output_dir = "output_articulate" if args.articulated else "output"
-base_json_file = os.path.abspath(
-    f"{output_dir}/{args.object_name}/{args.object_name}_grasps.json"
+
+# Determine the suffix
+if args.filtered:
+    suffix = "_filtered"
+else:
+    suffix = ""
+
+# Check new structure first (NPZ), then fallback
+npz_file = os.path.abspath(
+    f"{output_dir}/{args.object_name}/{args.object_name}_grasps{suffix}.npz"
 )
-filtered_json_file = os.path.abspath(
-    f"{output_dir}/{args.object_name}/{args.object_name}_grasps_filtered.json"
+info_file = os.path.abspath(
+    f"{output_dir}/{args.object_name}/{args.object_name}_object_info.json"
+)
+json_file = os.path.abspath(
+    f"{output_dir}/{args.object_name}/{args.object_name}_grasps{suffix}.json"
 )
 
 # Fallback to old structure if new structure doesn't exist
-if not os.path.exists(base_json_file):
-    base_json_file = os.path.abspath(f"{output_dir}/{args.object_name}_grasps.json")
-if not os.path.exists(filtered_json_file):
-    filtered_json_file = os.path.abspath(
-        f"{output_dir}/{args.object_name}_grasps_filtered.json"
-    )
+if not os.path.exists(npz_file):
+    npz_file = os.path.abspath(f"{output_dir}/{args.object_name}_grasps{suffix}.npz")
+if not os.path.exists(info_file):
+    info_file = os.path.abspath(f"{output_dir}/{args.object_name}_object_info.json")
+if not os.path.exists(json_file):
+    json_file = os.path.abspath(f"{output_dir}/{args.object_name}_grasps{suffix}.json")
 
 # Load saved grasp data
 if args.compare:
+    # For comparison mode, we need both base and filtered files
+    base_npz = os.path.abspath(
+        f"{output_dir}/{args.object_name}/{args.object_name}_grasps.npz"
+    )
+    filtered_npz = os.path.abspath(
+        f"{output_dir}/{args.object_name}/{args.object_name}_grasps_filtered.npz"
+    )
+    base_json = os.path.abspath(
+        f"{output_dir}/{args.object_name}/{args.object_name}_grasps.json"
+    )
+    filtered_json = os.path.abspath(
+        f"{output_dir}/{args.object_name}/{args.object_name}_grasps_filtered.json"
+    )
+    
+    # Fallback to old structure
+    if not os.path.exists(base_npz):
+        base_npz = os.path.abspath(f"{output_dir}/{args.object_name}_grasps.npz")
+    if not os.path.exists(filtered_npz):
+        filtered_npz = os.path.abspath(f"{output_dir}/{args.object_name}_grasps_filtered.npz")
+    if not os.path.exists(base_json):
+        base_json = os.path.abspath(f"{output_dir}/{args.object_name}_grasps.json")
+    if not os.path.exists(filtered_json):
+        filtered_json = os.path.abspath(f"{output_dir}/{args.object_name}_grasps_filtered.json")
+    
     # Load both files for comparison
     try:
-        with open(base_json_file, "r") as f:
-            base_data = json.load(f)
+        # Try NPZ format first
+        if os.path.exists(base_npz) and os.path.exists(filtered_npz) and os.path.exists(info_file):
+            print(f"Loading base grasps from NPZ: {base_npz}")
+            print(f"Loading filtered grasps from NPZ: {filtered_npz}")
+            print(f"Loading object info from: {info_file}")
+            
+            base_npz_data = np.load(base_npz)
+            all_transforms = base_npz_data["transforms"].astype(np.float32)
+            
+            filtered_npz_data = np.load(filtered_npz)
+            filtered_transforms = filtered_npz_data["transforms"].astype(np.float32)
+            
+            with open(info_file, "r") as f:
+                base_data = json.load(f)
+            
+            all_quality = np.ones(len(all_transforms))
+        else:
+            # Fallback to JSON format
+            print(f"Loading base grasps from JSON: {base_json}")
+            print(f"Loading filtered grasps from JSON: {filtered_json}")
+            
+            with open(base_json, "r") as f:
+                base_data = json.load(f)
 
-        with open(filtered_json_file, "r") as f:
-            filtered_data = json.load(f)
+            with open(filtered_json, "r") as f:
+                filtered_data = json.load(f)
+            
+            all_transforms = np.array(base_data["transforms"])
+            all_quality = np.array(
+                base_data.get(
+                    "quality_antipodal",
+                    base_data.get(
+                        "quality_number_of_contacts", [1.0] * len(all_transforms)
+                    ),
+                )
+            )
+            filtered_transforms = np.array(filtered_data["transforms"])
 
-        # Load object mesh from either file (they should be the same)
+        # Load object mesh from base_data
         mesh = trimesh.load(base_data["object"])
         mesh.apply_scale(base_data["object_scale"])
 
@@ -876,20 +959,6 @@ if args.compare:
         pose[:3, 3] = base_data["object_position"]
         pose[:3, :3] = tra.quaternion_matrix(base_data["object_rotation"])
         mesh.apply_transform(pose)
-
-        # Get all transforms
-        all_transforms = np.array(base_data["transforms"])
-        all_quality = np.array(
-            base_data.get(
-                "quality_antipodal",
-                base_data.get(
-                    "quality_number_of_contacts", [1.0] * len(all_transforms)
-                ),
-            )
-        )
-
-        # Get filtered transforms
-        filtered_transforms = np.array(filtered_data["transforms"])
 
         # Convert filtered transforms to list of lists for easier comparison
         filtered_transform_lists = [
@@ -937,24 +1006,36 @@ if args.compare:
         )
         print(f"Exception: {e}")
 else:
-    # Original behavior
-    if args.filtered:
-        extra = "_filtered"
-    else:
-        extra = ""
-
-    # Check new structure first, then fallback to old structure
-    json_file = os.path.abspath(
-        f"{output_dir}/{args.object_name}/{args.object_name}_grasps{extra}.json"
-    )
-    if not os.path.exists(json_file):
-        json_file = os.path.abspath(
-            f"{output_dir}/{args.object_name}_grasps{extra}.json"
+    # Original behavior - try NPZ first, fallback to JSON
+    # Try NPZ format first
+    if os.path.exists(npz_file) and os.path.exists(info_file):
+        print(f"Loading grasps from NPZ: {npz_file}")
+        print(f"Loading object info from: {info_file}")
+        
+        npz_data = np.load(npz_file)
+        transforms = npz_data["transforms"].astype(np.float32)
+        
+        with open(info_file, "r") as f:
+            data = json.load(f)
+        
+        quality = np.ones(len(transforms))
+    elif os.path.exists(json_file):
+        # Fallback to JSON format
+        print(f"Loading grasps from JSON: {json_file}")
+        
+        with open(json_file, "r") as f:
+            data = json.load(f)
+        
+        transforms = np.array(data["transforms"])
+        quality = np.array(
+            data.get(
+                "quality_antipodal",
+                data.get("quality_number_of_contacts", [1.0] * len(transforms)),
+            )
         )
-
-    # Load saved grasp data
-    with open(json_file, "r") as f:
-        data = json.load(f)
+    else:
+        print(f"Error: Neither NPZ ({npz_file}) nor JSON ({json_file}) file exists")
+        exit(1)
 
     # Load object mesh
     mesh = trimesh.load(data["object"])
@@ -966,15 +1047,6 @@ else:
     pose[:3, 3] = data["object_position"]
     pose[3, 3] = 1.0
     mesh.apply_transform(pose)
-
-    # Extract grasp info
-    transforms = np.array(data["transforms"])
-    quality = np.array(
-        data.get(
-            "quality_antipodal",
-            data.get("quality_number_of_contacts", [1.0] * len(transforms)),
-        )
-    )
 
     top_k = 2000
     top_indices = np.argsort(quality)[-top_k:][::-1]
