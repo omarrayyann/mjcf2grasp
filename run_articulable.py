@@ -6,8 +6,8 @@ import wandb
 from datetime import datetime
 from pathlib import Path
 
-USE_WANDB = False
-MAX_SUCCESSFUL= 100
+USE_WANDB = True
+MAX_SUCCESSFUL= 1000
 
 def load_articulated_objects():
     matched_file = "results/articulable_objects_list.json"
@@ -859,16 +859,17 @@ def main():
             }
         )
 
+        # Create summary table for wandb
         summary_data = []
         for obj in successful_objects:
             stages = obj.get("stages_completed", {})
             summary_data.append(
                 [
                     obj["name"],
-                    "YES" if stages.get("handle_detection", False) else "NO",
-                    "YES" if stages.get("joint_axis_analysis", False) else "NO",
-                    "YES" if stages.get("grasp_generation", False) else "NO",
-                    "YES" if stages.get("grasp_filtering", False) else "NO",
+                    "✓" if stages.get("handle_detection", False) else "✗",
+                    "✓" if stages.get("joint_axis_analysis", False) else "✗",
+                    "✓" if stages.get("grasp_generation", False) else "✗",
+                    "✓" if stages.get("grasp_filtering", False) else "✗",
                 ]
             )
 
