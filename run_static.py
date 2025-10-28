@@ -10,7 +10,7 @@ import time
 MAX_SUCCESSFUL_GRASPS = 1000
 USE_WANDB = 1
 LOCK_TIMEOUT_SECONDS = 1200
-WANDB_RUN_NAME = "shared-grasp-processing-new"
+WANDB_RUN_NAME = "shared-grasp-processing-final"
 
 def get_lock_file_path(object_output_dir):
     return os.path.join(object_output_dir, ".processing_lock")
@@ -246,7 +246,7 @@ for obj in data:
                     if attempt > 1:
                         print(f"Retry attempt {attempt}/{max_attempts} (without diversity mode)...")
                     
-                    cmd_args = ["python", "-u", "pipelines/static/2_filter_mujoco.py", 
+                    cmd_args = ["python", "pipelines/static/2_filter_mujoco.py", 
                                "--object_name", object_name, 
                                "--grasps_path", grasp_file_path, 
                                "--xml_file", xml_mesh_file_path, 
@@ -265,7 +265,7 @@ for obj in data:
                     if attempt == 1:
                         cmd_args.append("--diversity_mode")
                     
-                    result = subprocess.run(cmd_args, check=True, capture_output=True, text=True)
+                    subprocess.run(cmd_args, check=True)
                     update_lock(object_output_dir)
                     break
                 except subprocess.CalledProcessError as e:

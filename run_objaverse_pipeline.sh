@@ -6,8 +6,9 @@ cd /root/yejink/mjcf2grasp
 # Set default data path if no argument provided
 #DATA_PATH=${1:-"/root/mujoco-thor/assets/scenes/procthor-100k-debug/"}
 DATA_PATH=${1:-"/root/datasets/mujoco-thor/assets/objects/objaverse/"}
-START_IDX=${2:-0}
-END_IDX=${3:-""}    
+#START_IDX=${2:-0}
+#END_IDX=${3:-""}    
+
 #echo "Using data path: $DATA_PATH"
 #ls -l "$DATA_PATH"
 
@@ -23,4 +24,4 @@ END_IDX=${3:-""}
 
 # run the pipeline
 # Usage: ./run_objaverse_pipeline.sh [DATA_PATH] [START_IDX] [END_IDX]
-/opt/miniconda3/envs/mjgrasp/bin/python run_static.py --start $START_IDX --end $END_IDX
+/opt/miniconda3/envs/mjgrasp/bin/python run_static.py
