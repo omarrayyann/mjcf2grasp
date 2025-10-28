@@ -15,7 +15,6 @@ from sklearn.cluster import MiniBatchKMeans
 import re
 
 import sys
-import os
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 from assets.grippers.robotiq.robotiq_gripper import RobotiqGripper
@@ -66,7 +65,7 @@ def get_joint_position(model, data, joint_name):
 def check_sufficient_joint_movement(joint_positions, max_range):
     max_joint_position = max(joint_positions)
     min_joint_position = min(joint_positions)
-    if (max_joint_position - min_joint_position) / max_range < 0.7:  # 0.01:
+    if (max_joint_position - min_joint_position) / max_range < 0.7:
         return False
     return True
 
@@ -275,24 +274,6 @@ def test_single_grasp(
         if render and viewer is not None:
             viewer.sync()
 
-    # if 1:
-    #     model.site_pos[mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_SITE, "origin")] = (
-    #         transform[:3, 3]
-    #     )
-    #     model.site_pos[mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_SITE, "x_axis")] = (
-    #         transform[:3, 3] + transform[:3, 0] * 0.1
-    #     )
-    #     model.site_pos[mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_SITE, "y_axis")] = (
-    #         transform[:3, 3] + transform[:3, 1] * 0.1
-    #     )
-    #     model.site_pos[mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_SITE, "z_axis")] = (
-    #         transform[:3, 3] + transform[:3, 2] * 0.1
-    #     )
-
-    #     mujoco.mj_step(model, data)
-    #     if render and viewer is not None:
-    #         viewer.sync()
-
     joint_name = None
     if joint_info and "primary_joint" in joint_info:
         joint_name = joint_info["primary_joint"]["name"]
@@ -337,7 +318,6 @@ def test_single_grasp(
 
     data.ctrl[0] = 255.0
 
-    # is_grasping(model, data, handle_geoms)
     for _ in range(500):
         mujoco.mj_step(model, data)
         if render and viewer is not None:
@@ -415,9 +395,6 @@ def test_single_grasp(
 
             max_range = np.abs(max_angle)
         elif joint_type == "slide":
-            # print(f"axis for slide joint: {primary_joint_data}")
-            # axis_str = primary_joint_data.get("axis", "0 0 0")
-            # slide_axis = np.array([float(x) for x in axis_str.split()])
             rotation_axis = primary_joint_data.get(
                 "rotation_axis", {"x": 0, "y": 0, "z": 0}
             )
@@ -528,7 +505,6 @@ def run_simulation_with_viewer(
     width = np.array(grasp_data.get("grasp_widths", [0.1] * len(transforms)))
     contact_depths = np.array(grasp_data.get("contact_depths", [0.5] * len(transforms)))
 
-    # Filter by contact depth range
     if args.min_contact_depth > 0.0 or args.max_contact_depth < 1.0:
         depth_mask = (contact_depths >= args.min_contact_depth) & (contact_depths <= args.max_contact_depth)
         transforms = transforms[depth_mask]
@@ -712,7 +688,6 @@ def run_simulation_with_viewer(
                 f"Testing grasps ({len(successful_transforms)}/{i + 1} successful)"
             )
 
-            # Check if we've reached max_successful grasps and should stop early
             if (
                 args.max_successful > 0
                 and len(successful_transforms) >= args.max_successful
@@ -735,7 +710,6 @@ def run_simulation_with_viewer(
             for i, (transform, quality) in enumerate(zip(transforms, qualities))
         ]
 
-        # Split grasps into 4 groups
         num_groups = 4
         group_size = (len(grasp_params) + num_groups - 1) // num_groups
         grasp_groups = [
@@ -914,9 +888,8 @@ def main_single_file_filtering(
             )
         )
     except Exception as e:
-        # If there's an error during model creation or simulation, don't create the filtered file
         print(f"Error during filtering process: {e}")
-        raise  # Re-raise the exception to be caught by the caller
+        raise
 
     transforms_list = []
     for transform in successful_transforms:
@@ -1041,7 +1014,6 @@ def main():
                 entry["filtered_grasps_file"] = None
             updated_summary.append(entry)
         
-        # Only write the filtered summary if at least one joint succeeded
         any_success = any(
             entry.get("filtered_grasps_file") is not None 
             for entry in updated_summary

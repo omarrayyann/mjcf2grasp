@@ -1,7 +1,6 @@
 from __future__ import print_function
 
 import argparse
-from collections import OrderedDict
 import errno
 import json
 import os
@@ -12,8 +11,6 @@ from tqdm import tqdm
 import trimesh
 import trimesh.transformations as tra
 import sys
-import os
-from scipy.spatial.transform import Rotation as R
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 from assets.grippers.robotiq.robotiq_gripper import RobotiqGripper
@@ -119,7 +116,7 @@ def _quality_antipodal_worker(batch_data):
     transform_batch, collision_batch, object_mesh = batch_data
 
     res = []
-    contact_depths = []  # Store normalized depth (0=base, 1=tip)
+    contact_depths = []
     gripper = create_gripper()
     num_rays_per_finger = len(gripper.ray_origins) // 2
 
@@ -831,7 +828,7 @@ def sample_multiple_grasps(
             silent=silent,
             num_workers=num_workers,
         )
-        contact_depths = [0.0] * len(transforms)  # Not computed for this metric
+        contact_depths = [0.0] * len(transforms)
     else:
         raise Exception("Quality metric unknown: ", quality)
 
@@ -871,9 +868,6 @@ def sample_multiple_grasps(
     verboseprint(
         f"Final result: {len(transforms):,} valid grasps with quality >= {min_quality}"
     )
-
-    # rot_x = R.from_euler("x", 180, degrees=True).as_matrix()
-    # transforms[i][:3, :3] = transforms[i][:3, :3] @ rot_x
 
     return points, normals, transforms, roll_angles, standoffs, collisions, quality, contact_depths
 
@@ -1106,10 +1100,6 @@ def make_parser():
     )
 
     return parser
-
-
-def verboseprint(*args, **kwargs):
-    pass
 
 
 if __name__ == "__main__":

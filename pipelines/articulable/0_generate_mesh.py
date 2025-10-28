@@ -6,7 +6,6 @@ import trimesh.transformations as tra
 import os
 from pathlib import Path
 import json
-from typing import List, Dict, Any
 
 
 def quaternion_to_matrix(quat):
@@ -247,8 +246,8 @@ def combine_meshes_to_obj(
     root = tree.getroot()
     worldbody = root.find("worldbody")
     handle_meshes_info = []
+    
     if worldbody is not None:
-
         def collect_mesh_geoms_with_depth(body_elem, current_depth=0):
             geoms_with_depth = []
             for geom in body_elem.findall("geom"):
@@ -268,63 +267,67 @@ def combine_meshes_to_obj(
                 joint_type = joint.get("type", "hinge")
                 if joint_type == "free":
                     continue
+                    
                 joint_name = joint.get("name", "unnamed")
                 geoms_with_depth = collect_mesh_geoms_with_depth(body_elem, 0)
+                
                 if geoms_with_depth:
                     max_depth = max([depth for _, depth in geoms_with_depth])
                 else:
                     max_depth = None
+                    
                 max_depth_geoms = [
                     geom for geom, depth in geoms_with_depth if depth == max_depth
                 ]
-                print(
-                    f"[DEBUG] Joint '{joint_name}' handle geoms at max depth {max_depth} (in same body/descendants):"
-                )
+                
+                print(f"Joint '{joint_name}' handle geoms at max depth {max_depth}:")
                 for geom in max_depth_geoms:
-                    print(f"    geom: {geom}")
+                    print(f"  - {geom}")
+                
                 mesh_instances, xml_dir = parse_mujoco_xml(
                     xml_path, handle_geoms_only=True, target_geoms=max_depth_geoms
                 )
+                
                 transformed_meshes = []
-                for i, mesh_info in enumerate(mesh_instances):
+                for mesh_info in mesh_instances:
                     if include_visual_only and "Collider" in mesh_info["geom_name"]:
                         continue
                     transformed_mesh = load_and_transform_mesh(mesh_info, xml_dir)
                     if transformed_mesh is not None:
                         transformed_meshes.append(transformed_mesh)
+                
                 if transformed_meshes:
                     combined_mesh = trimesh.util.concatenate(transformed_meshes)
                     safe_joint_name = joint_name.replace("/", "_").replace(" ", "_")
                     handles_path = output_handles_path.parent / f"{safe_joint_name}.obj"
                     combined_mesh.export(handles_path)
-                    print(
-                        f"Exported handle mesh for joint {joint_name} to: {handles_path}"
-                    )
-                    handle_meshes_info.append(
-                        {
-                            "joint": joint_name,
-                            "handle_mesh": str(handles_path.name),
-                            "handle_geoms": max_depth_geoms,
-                        }
-                    )
+                    print(f"Exported handle mesh for joint {joint_name} to: {handles_path}")
+                    
+                    handle_meshes_info.append({
+                        "joint": joint_name,
+                        "handle_mesh": str(handles_path.name),
+                        "handle_geoms": max_depth_geoms,
+                    })
                 else:
-                    print(
-                        f"No valid handle meshes found to combine for joint {joint_name}."
-                    )
+                    print(f"No valid handle meshes found for joint {joint_name}")
+            
             for child_body in body_elem.findall("body"):
                 process_body(child_body, body_elem)
 
         for body in worldbody.findall("body"):
             process_body(body, worldbody)
+    
     tree = ET.parse(xml_path)
     root = tree.getroot()
     mesh_file_map = {}
     assets = root.find("asset")
+    
     if assets is not None:
         for mesh in assets.findall("mesh"):
             mesh_name = mesh.get("name")
             mesh_file = mesh.get("file", "")
             mesh_file_map[mesh_name] = mesh_file
+    
     all_obj_geoms = set()
     for body in root.findall(".//body"):
         for geom in body.findall("geom"):
@@ -334,105 +337,39 @@ def combine_meshes_to_obj(
                 if mesh_file and mesh_file.lower().endswith(".obj"):
                     geom_name = geom.get("name", mesh_name)
                     all_obj_geoms.add(geom_name)
+    
     mesh_instances, xml_dir = parse_mujoco_xml(
         xml_path, handle_geoms_only=True, target_geoms=list(all_obj_geoms)
     )
+    
     transformed_meshes = []
-    for i, mesh_info in enumerate(mesh_instances):
+    for mesh_info in mesh_instances:
         if include_visual_only and "Collider" in mesh_info["geom_name"]:
             continue
         transformed_mesh = load_and_transform_mesh(mesh_info, xml_dir)
         if transformed_mesh is not None:
             transformed_meshes.append(transformed_mesh)
+    
     if transformed_meshes:
         combined_mesh = trimesh.util.concatenate(transformed_meshes)
         main_mesh_path = output_full_path.parent / "main.obj"
         combined_mesh.export(main_mesh_path)
         print(f"Exported full mesh to: {main_mesh_path}")
     else:
-        print("No valid full meshes found to combine.")
+        print("No valid full meshes found to combine")
+    
     joints = extract_joint_info_from_xml(xml_path)
     primary_joint = select_primary_joint(joints)
     handle_meshes_json_path = str(output_full_path.parent / "joint_meshes_info.json")
+    
     for entry in handle_meshes_info:
         joint_name = entry["joint"]
         joint_info = next((j for j in joints if j.get("name") == joint_name), None)
         entry["joint_info"] = joint_info
+    
     with open(handle_meshes_json_path, "w") as f:
         json.dump(handle_meshes_info, f, indent=2)
     print(f"Per-joint handle mesh mapping saved to: {handle_meshes_json_path}")
-
-
-def find_handle_geoms_by_joints(xml_path: str) -> List[str]:
-    try:
-        tree = ET.parse(xml_path)
-        root = tree.getroot()
-        non_free_joints = []
-        for joint in root.findall(".//joint"):
-            joint_type = joint.get("type", "hinge")
-            if joint_type != "free":
-                joint_name = joint.get("name", "unnamed")
-                non_free_joints.append(joint)
-                print(f"Found non-free joint: {joint_name} (type: {joint_type})")
-        if not non_free_joints:
-            print("No non-free joints found in XML")
-            return []
-        handle_geoms = []
-        for joint in non_free_joints:
-            joint_name = joint.get("name", "unnamed")
-            parent_element = None
-            for body in root.findall(".//body"):
-                if joint in body:
-                    parent_element = body
-                    break
-            if parent_element is None:
-                worldbody = root.find("worldbody")
-                if worldbody is not None and joint in worldbody:
-                    parent_element = worldbody
-            if parent_element is None:
-                print(f"Warning: Could not find parent element for joint {joint_name}")
-                continue
-            parent_name = parent_element.get(
-                "name", "worldbody" if parent_element.tag == "worldbody" else "unnamed"
-            )
-            print(f"Joint {joint_name} is in element: {parent_name}")
-            for geom in parent_element.findall("geom"):
-                if geom.get("type") == "mesh":
-                    geom_name = geom.get("name")
-                    mesh_name = geom.get("mesh")
-                    if geom_name and mesh_name:
-                        handle_geoms.append(geom_name)
-            for child in parent_element:
-                if child.tag == "body":
-                    sibling_body = child
-                    mesh_geoms = collect_mesh_geoms_from_body(sibling_body)
-                    if mesh_geoms:
-                        handle_geoms.extend(mesh_geoms)
-        unique_handle_geoms = []
-        seen = set()
-        for geom in handle_geoms:
-            if geom not in seen:
-                unique_handle_geoms.append(geom)
-                seen.add(geom)
-        print(f"Total unique handle geometries found: {len(unique_handle_geoms)}")
-        return unique_handle_geoms
-    except Exception as e:
-        print(f"Error during joint-based handle analysis: {e}")
-        return []
-
-
-def collect_mesh_geoms_from_body(body_elem: ET.Element) -> List[str]:
-    mesh_geoms = []
-    for geom in body_elem.findall("geom"):
-        if geom.get("type") == "mesh":
-            geom_name = geom.get("name")
-            mesh_name = geom.get("mesh")
-            if geom_name and mesh_name:
-                mesh_geoms.append(geom_name)
-    for child_body in body_elem.findall("body"):
-        child_mesh_geoms = collect_mesh_geoms_from_body(child_body)
-        mesh_geoms.extend(child_mesh_geoms)
-    return mesh_geoms
 
 
 def main():
