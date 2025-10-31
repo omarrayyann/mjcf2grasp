@@ -900,7 +900,8 @@ def main_single_file_filtering(
 
     output_path_npz = grasps_path.replace(".json", "_filtered.npz")
     transforms_array = np.array(successful_transforms, dtype=np.float16)
-    np.savez_compressed(output_path_npz, transforms=transforms_array)
+    if len(successful_transforms) != 0:
+        np.savez_compressed(output_path_npz, transforms=transforms_array)
     
     output_path_json = grasps_path.replace(".json", "_object_info.json")
     with open(grasps_path, "r") as original_f:
