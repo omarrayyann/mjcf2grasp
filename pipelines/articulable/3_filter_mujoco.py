@@ -323,11 +323,18 @@ def test_single_grasp(
         if render and viewer is not None:
             viewer.sync()
 
-    pose_after = np.eye(4)
-    pose_after[:3, :3] = data.site("grasp_site").xmat.reshape(3, 3)
-    pose_after[:3, 3] = data.site("grasp_site").xpos
+    T_world_grasp = np.eye(4)
+    T_world_grasp[:3, :3] = data.site("grasp_site").xmat.reshape(3, 3)
+    T_world_grasp[:3, 3] = data.site("grasp_site").xpos
 
-    transform = pose_after
+    T_world_joint = np.eye(4)
+    joint_id = model.joint(joint_name).bodyid
+    T_world_joint[:3, 3] = data.xpos[joint_id]
+    T_world_joint[:3, :3] = data.xmat[joint_id].reshape(3, 3)
+
+    T_joint_grasp = np.linalg.inv(T_world_joint) @ T_world_grasp
+
+    transform = T_joint_grasp
     while 1:
         mujoco.mj_step(model, data)
         if render and viewer is not None:
