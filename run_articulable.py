@@ -35,7 +35,7 @@ def run_grasp_filtering_stage(
             xml_mesh_file = xml_file.replace("_mesh.xml", "_prim.xml")
 
     if not os.path.exists(xml_mesh_file):
-        print(f"   Converting XML to use mesh colliders...")
+
         try:
             subprocess.run(
                 [
@@ -48,7 +48,6 @@ def run_grasp_filtering_stage(
                 ],
                 check=True,
             )
-            print(f"   Mesh collider XML created: {xml_mesh_file}")
         except subprocess.CalledProcessError as e:
             print(
                 f"   Warning: Failed to convert to mesh colliders, using original XML: {str(e)}"
@@ -59,8 +58,6 @@ def run_grasp_filtering_stage(
                 f"   Warning: Unexpected error in mesh collider conversion, using original XML: {str(e)}"
             )
             xml_mesh_file = xml_file
-    else:
-        print(f"   Mesh collider XML already exists: {xml_mesh_file}")
 
     xml_file_for_filtering = xml_mesh_file
 
@@ -86,9 +83,9 @@ def run_grasp_filtering_stage(
                         "--num_workers",
                         str(os.cpu_count()),
                         "--approach_distance",
-                        "0.3",
+                        "0.6",
                         "--approach_steps",
-                        "8",
+                        "10",
                         "--max_successful",
                         str(MAX_SUCCESSFUL),
                         "--max_contact_depth",
@@ -189,9 +186,9 @@ def run_grasp_filtering_stage(
                         "--num_workers",
                         str(os.cpu_count()),
                         "--approach_distance",
-                        "0.5",
+                        "0.6",
                         "--approach_steps",
-                        "5",
+                        "10",
                         "--max_successful",
                         str(MAX_SUCCESSFUL),
                         "--max_contact_depth",
@@ -385,7 +382,6 @@ def run_handle_detection_stage(obj, output_dir):
         print(f"   Full mesh already exists, skipping...")
         return True, handle_mesh_path, full_mesh_path
     try:
-        print(f"   Generating meshes with LLM analysis...")
         subprocess.run(
             [
                 "python",
@@ -395,7 +391,6 @@ def run_handle_detection_stage(obj, output_dir):
             ],
             check=True,
         )
-        print(f"   Meshes created in: {output_dir}")
         return True, handle_mesh_path, full_mesh_path
     except subprocess.CalledProcessError as e:
         print(f"   Error in handle detection: {str(e)}")
@@ -795,15 +790,7 @@ def main():
         print(
             f"Progress: [{progress_bar}] {progress:.1f}% ({i + 1}/{len(articulated_objects)})"
         )
-        print("=" * 80)
 
-    print("\n" + "=" * 60)
-    print("ARTICULATED PIPELINE STAGES 0-3 COMPLETE!")
-    print("=" * 60)
-    print(
-        f"Successfully processed: {processed_objects}/{len(articulated_objects)} objects"
-    )
-    print(f"Failed objects: {len(failed_objects)}")
 
     objects_with_joint_analysis = sum(
         1
@@ -820,9 +807,6 @@ def main():
         for obj in successful_objects
         if obj.get("stages_completed", {}).get("grasp_filtering", False)
     )
-    print(f"Objects with joint analysis: {objects_with_joint_analysis}")
-    print(f"Objects with grasps generated: {objects_with_grasps}")
-    print(f"Objects with filtered grasps: {objects_with_filtered_grasps}")
 
     if failed_objects:
         print(f"\nFailed objects: {', '.join(failed_objects)}")
