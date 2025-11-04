@@ -90,7 +90,7 @@ def combine_meshes_to_obj(xml_path, output_path, include_visual_only=True):
         return
     transformed_meshes = []
     for mesh_info in mesh_instances:
-        if include_visual_only and "Collider" in mesh_info["geom_name"]:
+        if include_visual_only and "collider" in mesh_info["geom_name"].lower():
             continue
         transformed_mesh = load_and_transform_mesh(mesh_info, xml_dir)
         if transformed_mesh is not None:
