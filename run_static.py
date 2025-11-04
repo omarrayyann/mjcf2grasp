@@ -185,7 +185,7 @@ for obj in data:
         if not os.path.exists(mesh_path):
             print(f"Converting XML to OBJ for {object_name}")
             try:
-                subprocess.run(["python", "pipelines/static/0_generate_mesh.py", xml_file_path, mesh_path], check=True)
+                subprocess.run(["python", "pipelines/static/0_generate_mesh.py", xml_file_path, mesh_path, "--only_collision"], check=True)
                 print(f"Created combined mesh: {mesh_path}")
                 update_lock(object_output_dir)
             except subprocess.CalledProcessError as e:

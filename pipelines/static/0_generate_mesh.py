@@ -83,14 +83,14 @@ def load_and_transform_mesh(mesh_info, xml_dir):
         print(f"Error loading mesh {file_path}: {e}")
         return None
 
-def combine_meshes_to_obj(xml_path, output_path, include_visual_only=True):
+def combine_meshes_to_obj(xml_path, output_path, only_collision=True):
     mesh_instances, xml_dir = parse_mujoco_xml(xml_path)
     if not mesh_instances:
         print("No mesh instances found in XML file")
         return
     transformed_meshes = []
     for mesh_info in mesh_instances:
-        if include_visual_only and "collider" in mesh_info["geom_name"].lower():
+        if only_collision and "collider" not in mesh_info["geom_name"].lower():
             continue
         transformed_mesh = load_and_transform_mesh(mesh_info, xml_dir)
         if transformed_mesh is not None:
@@ -105,7 +105,7 @@ def main():
     parser = argparse.ArgumentParser(description="Combine meshes from MuJoCo XML into single OBJ")
     parser.add_argument("xml_file", help="Path to MuJoCo XML file")
     parser.add_argument("output_obj", help="Output OBJ file path")
-    parser.add_argument("--include-collision", action="store_true", help="Include collision geometries (default: visual only)")
+    parser.add_argument("--only_collision", action="store_true", help="Include only collision meshes")
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
     args = parser.parse_args()
     xml_path = Path(args.xml_file)
@@ -115,7 +115,7 @@ def main():
     output_path = Path(args.output_obj)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     try:
-        combine_meshes_to_obj(xml_path, output_path, include_visual_only=not args.include_collision)
+        combine_meshes_to_obj(xml_path, output_path, only_collision=args.only_collision)
         print("Success!")
         return 0
     except Exception as e:
