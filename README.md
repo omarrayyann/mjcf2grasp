@@ -16,3 +16,14 @@ conda env create -f conda_env.yaml
 conda activate mjcf2grasp
 git submodule update --init --recursive
 ```
+
+### Build Manifold
+
+The Manifold library is required for mesh processing. Build it with:
+
+```bash
+cd external_src/Manifold
+mkdir build && cd build
+cmake ..
+make
+```
