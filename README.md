@@ -66,3 +66,11 @@ results/static_objects/
 ```
 
 The `.npz` file contains the validated grasp transforms.
+
+#### 4. Visualize Results
+
+```bash
+python scripts/visualize_meshcat.py --objects_list path/to/objects_list.json
+```
+
+Use arrow keys (or `n`/`p`) to navigate between objects, `q` to quit.

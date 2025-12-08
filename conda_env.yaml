@@ -22,3 +22,4 @@ dependencies:
     - open3d
     - python-fcl
     - scikit-learn
+    - meshcat
