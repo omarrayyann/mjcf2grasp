@@ -27,3 +27,50 @@ mkdir build && cd build
 cmake ..
 make
 ```
+
+## Usage
+
+### Static Objects
+
+#### 1. Prepare Object List
+
+Create a JSON file containing a list of MJCF objects to process. Each object needs a `name` and `xml` path:
+
+```json
+[
+    {
+        "name": "Tennis_Racquet_5",
+        "xml": "/path/to/Tennis_Racquet_5/Tennis_Racquet_5.xml"
+    },
+    {
+        "name": "Pen_1",
+        "xml": "/path/to/Pen_1/Pen_1.xml"
+    }
+]
+```
+
+See `examples/example_objects_list.json` for a working example.
+
+#### 2. Run the Pipeline
+
+```bash
+python run_static.py --objects_list path/to/objects_list.json
+```
+
+The pipeline will:
+1. Combine meshes from the MJCF file
+2. Process with Manifold for watertight mesh
+3. Generate grasp candidates
+4. Filter and validate grasps using MuJoCo simulation
+
+#### 3. Results
+
+Results are saved to `results/static_objects/<object_name>/`:
+
+```
+results/static_objects/
+└── Tennis_Racquet_5/
+    └── Tennis_Racquet_5_grasps_filtered.npz
+```
+
+The `.npz` file contains the validated grasp transforms.

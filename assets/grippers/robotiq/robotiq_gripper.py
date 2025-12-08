@@ -58,19 +58,6 @@ class RobotiqGripper:
     def get_base_mesh(self):
         return self.base
 
-    def get_base_obb(self):
-        return self.base.bounding_box
-
-    def get_obbs(self):
-        return [
-            self.finger_l.bounding_box,
-            self.finger_r.bounding_box,
-            self.base.bounding_box,
-        ]
-
-    def get_meshes(self):
-        return [self.finger_l, self.finger_r, self.base]
-
     def get_closing_rays(self, transform):
         return transform[:3, :].dot(self.ray_origins.T).T, transform[:3, :3].dot(
             self.ray_directions.T

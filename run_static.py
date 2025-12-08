@@ -11,22 +11,14 @@ WANDB_RUN_NAME = "shared-grasp-processing-final"
 NUM_WORKERS = 5 # os.cpu_count()
 
 parser = argparse.ArgumentParser(description='Process static objects for grasp generation')
-parser.add_argument('--job-id', type=str, default=None, help='Optional job identifier for logging')
-parser.add_argument('--wandb-run-id', type=str, default=None, help='Shared WandB run ID for all jobs to log to')
-parser.add_argument('--randomize', action='store_true', default=True, help='Randomize object processing order (default: True)')
-parser.add_argument('--no-randomize', dest='randomize', action='store_false', help='Process objects in original order')
+parser.add_argument('--objects_list', type=str, default="results/static_objects_list.json", help='Path to the JSON file containing the list of objects')
 args = parser.parse_args()
 
+if not os.path.exists(args.objects_list):
+    raise FileNotFoundError(f"Objects list file not found: {args.objects_list}")
 
-objects_list_path = "results/static_objects_list.json"
-with open(objects_list_path, "r") as f:
+with open(args.objects_list, "r") as f:
     data = json.load(f)
-
-if args.randomize:
-    import random
-    random.seed(os.getpid())
-    random.shuffle(data)
-    print(f"Object processing order randomized (seed: {os.getpid()})")
 
 print(f"Total objects in dataset: {len(data)}")
 
@@ -68,14 +60,10 @@ for obj in data:
     
     if os.path.exists(filtered_npz_path):
         processed_objects += 1
-        print(f"\n{'='*80}")
         print(f"Object {object_name} already fully processed, skipping...")
-        print(f"{'='*80}\n")
         continue
     
-    print(f"\n{'='*80}")
     print(f"Starting processing for {object_name}")
-    print(f"{'='*80}\n")
     
     processing_failed = False
     failure_reason = ""
@@ -115,7 +103,7 @@ for obj in data:
                 failure_reason = "simplify_failed"
                 failed_objects.append(object_name)
                 continue
-                
+        
         if not os.path.exists(grasp_file_path):
             try:
                 subprocess.run(["python", "pipeline/generate_grasps.py", "--object_file", simplify_path, 
@@ -175,22 +163,6 @@ for obj in data:
                         print(f"Attempt {attempt} failed, retrying...")
         else:
             print("File already exist")
-                
-        # if not os.path.exists(filtered_viz_path):
-        #     print(f"Visualizing filtered grasps for object: {object_name}")
-        #     try:
-        #         subprocess.run(["python", "scripts/visualize.py", "--grasps_npz", filtered_npz_path, 
-        #                       "--object_info", filtered_json_path, "--save-png", filtered_viz_path, 
-        #                       "--grasp-shape-only"], check=True)
-        #     except subprocess.CalledProcessError as e:
-        #         print(f"Warning: Visualization for {object_name} failed: {str(e)}")
-                
-        # if USE_WANDB and os.path.exists(filtered_viz_path):
-        #     wandb.log({
-        #         f"{object_name}/images/filtered_grasps": wandb.Image(
-        #             filtered_viz_path, caption=f"Filtered grasps for {object_name}"
-        #         )
-        #     })
             
         grasp_count = 0
         filtered_count = 0
@@ -200,6 +172,10 @@ for obj in data:
                 filtered_count = len(npz_data["transforms"])
             except:
                 pass
+            for f in os.listdir(object_output_dir):
+                file_path = os.path.join(object_output_dir, f)
+                if file_path != filtered_npz_path and os.path.isfile(file_path):
+                    os.remove(file_path)
                 
         processed_objects += 1
         filter_success_rate = (filtered_count / grasp_count * 100) if grasp_count > 0 else 0
@@ -214,14 +190,11 @@ for obj in data:
             print(f"  - Original grasps: {grasp_count}")
         if filtered_count > 0:
             print(f"  - Filtered grasps: {filtered_count}")
-        print("=" * 80)
         
     except Exception as e:
         print(f"Failed with {e}")
 
-print(f"\n{'=' * 80}")
-print(f"PIPELINE COMPLETE!")
-print(f"{'=' * 80}")
+
 print(f"Total objects in dataset: {len(data)}")
 print(f"Objects successfully processed by this job: {processed_objects}")
 if failed_objects:

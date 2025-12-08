@@ -1,6 +1,0 @@
-newmtl PensPencils_DefaultMaterial_AlbedoTransparency
-Kd 1 1 1
-map_Kd ExportedThorAssets/Textures/PensPencils_DefaultMaterial_AlbedoTransparency.png
-map_Ks ExportedThorAssets/Textures/PensPencils_DefaultMaterial_MetallicSmoothness.png
-illum 2
-

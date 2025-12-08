@@ -262,7 +262,7 @@ def combine_meshes_to_obj(
                 )
             return geoms_with_depth
 
-        def process_body(body_elem, parent_elem):
+        def process_body(body_elem):
             for joint in body_elem.findall("joint"):
                 joint_type = joint.get("type", "hinge")
                 if joint_type == "free":
@@ -312,10 +312,10 @@ def combine_meshes_to_obj(
                     print(f"No valid handle meshes found for joint {joint_name}")
             
             for child_body in body_elem.findall("body"):
-                process_body(child_body, body_elem)
+                process_body(child_body)
 
         for body in worldbody.findall("body"):
-            process_body(body, worldbody)
+            process_body(body)
     
     tree = ET.parse(xml_path)
     root = tree.getroot()

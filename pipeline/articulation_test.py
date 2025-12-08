@@ -361,7 +361,6 @@ def test_single_grasp(
         joint_range = [float(x) for x in joint_range_str.split()]
 
         gripper_pos = data.site("grasp_site").xpos.copy()
-        gripper_rot = data.site("grasp_site").xmat.copy().reshape(3, 3)
         gripper_quat = quat
 
         if joint_type == "hinge" or joint_type == "unknown":
@@ -429,7 +428,7 @@ def test_single_grasp(
 
     if waypoints:
         num_loops = args.articulation_loops
-        for loop_idx in range(num_loops):
+        for _ in range(num_loops):
             if not articulation_success:
                 break
 
@@ -733,7 +732,7 @@ def run_simulation_with_viewer(
         processed_count = 0
         success_count = 0
 
-        for group_idx, grasp_params_batch in enumerate(grasp_groups):
+        for _, grasp_params_batch in enumerate(grasp_groups):
             if not grasp_params_batch:
                 continue
             num_workers = min(args.num_workers, len(grasp_params_batch))
@@ -789,50 +788,6 @@ def run_simulation_with_viewer(
             successful_qualities,
             successful_widths,
         )
-
-
-def filter_per_joint_summary(summary_json_path, args):
-    with open(summary_json_path, "r") as f:
-        summary = json.load(f)
-    updated_summary = []
-    for i, entry in enumerate(summary):
-        joint = entry.get("joint")
-        grasps_file = entry.get("grasps_file")
-
-        handle_mesh = entry.get("handle_mesh")
-        xml_file = entry.get("xml_file") if entry.get("xml_file") else args.xml_file
-        joint_info = (
-            entry.get("primary_joint")
-            or entry.get("joint_axis")
-            or entry.get("joint_info")
-        )
-        if not (joint and grasps_file and os.path.exists(grasps_file)):
-            print(f"Skipping joint {joint}: missing grasps file {grasps_file}")
-            continue
-        filter_args = args
-        filter_args.grasps_path = grasps_file
-        filter_args.object_name = joint if joint else args.object_name
-        filter_args.xml_file = xml_file
-        try:
-            main_single_file_filtering(
-                grasps_file,
-                filter_args.object_name,
-                filter_args.xml_file,
-                filter_args,
-                joint_axis_info=joint_info,
-            )
-            entry["filtered_grasps_file"] = grasps_file.replace(
-                ".json", "_filtered.json"
-            )
-        except Exception as e:
-            print(f"  Error filtering grasps for joint {joint}: {e}")
-            traceback.print_exc()
-            entry["filtered_grasps_file"] = None
-        updated_summary.append(entry)
-    summary_out = summary_json_path.replace(".json", "_filtered.json")
-    with open(summary_out, "w") as f:
-        json.dump(updated_summary, f, indent=2)
-
 
 def main_single_file_filtering(
     grasps_path, object_name, xml_file, args, joint_axis_info=None, handle_geoms=None

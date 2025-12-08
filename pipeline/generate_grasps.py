@@ -50,10 +50,6 @@ class Object(object):
         self.scale = size / np.max(self.mesh.extents)
         self.mesh.apply_scale(self.scale)
 
-    def in_collision_with(self, mesh, transform):
-        return self.collision_manager.in_collision_single(mesh, transform=transform)
-
-
 def create_gripper(configuration=None, root_folder=""):
     return RobotiqGripper(q=configuration, root_folder=root_folder)
 
@@ -344,22 +340,6 @@ def grasp_quality_antipodal(transforms, collisions, object_mesh, silent=False, n
         pbar.close()
 
     return all_results, all_contact_depths
-
-
-def raycast_collisioncheck(origins, expected_hit_points, object_mesh, num_workers=None):
-    assert len(origins) == len(expected_hit_points)
-    if trimesh.ray.has_embree:
-        intersector = trimesh.ray.ray_pyembree.RayMeshIntersector(object_mesh, scale_to_box=True)
-    else:
-        intersector = trimesh.ray.ray_triangle.RayMeshIntersector(object_mesh)
-
-    locations, index_rays, _ = intersector.intersects_location(
-        origins[:, :3, 3], origins[:, :3, 2], multiple_hits=False
-    )
-    res = np.array([False] * len(origins))
-    res[index_rays] = np.all(np.isclose(locations, expected_hit_points[index_rays]), axis=1)
-    return res
-
 
 def _process_points_batch(batch_data):
     points_batch, normals_batch, rotation_samples, standoff_samples, mesh = batch_data

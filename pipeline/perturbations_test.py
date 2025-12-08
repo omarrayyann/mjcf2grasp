@@ -14,7 +14,7 @@ import sys
 import matplotlib.pyplot as plt
 from functools import partial
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 from assets.grippers.robotiq.robotiq_gripper import RobotiqGripper
 
 parser = argparse.ArgumentParser()
@@ -93,13 +93,13 @@ def test_single_grasp(grasp_data, object_name, model=None, data=None, viewer=Non
     approach_vector = transform[:3, 2] * approach_distance
     approach_pos = pos - approach_vector
     if model is None or data is None:
-        xml_path = os.path.join(os.path.dirname(__file__), "../../assets/scenes/main_scene.xml")
+        xml_path = os.path.join(os.path.dirname(__file__), "../assets/scenes/main_scene.xml")
         tree = ET.parse(xml_path)
         root = tree.getroot()
         include = ET.Element("include", {"file": args.xml_file})
         root.append(include)
         xml_content = ET.tostring(root, encoding="unicode")
-        gripper_xml_path = os.path.join(os.path.dirname(__file__), f"../../assets/grippers/robotiq/xmls/model.xml")
+        gripper_xml_path = os.path.join(os.path.dirname(__file__), f"../assets/grippers/robotiq/xmls/model.xml")
         with open(gripper_xml_path, "r") as f:
             additional_xml_content = f.read()
         xml_content = merge_xml_contents(xml_content, additional_xml_content)
@@ -177,8 +177,8 @@ def test_single_grasp(grasp_data, object_name, model=None, data=None, viewer=Non
         baseline_pos = pos.copy()
         baseline_quat = quat.copy()
 
-    for direction_idx, direction in enumerate(directions):
-        for shake in range(config["num_shakes"]):
+    for direction_idx, _ in enumerate(directions):
+        for _ in range(config["num_shakes"]):
             total_steps = config["shake_steps"] * 2
             for step in range(total_steps):
                 angle = 2 * np.pi * step / total_steps
@@ -510,14 +510,14 @@ def merge_xml_contents(base_xml_content, additional_xml_content):
 
 
 if __name__ == "__main__":
-    xml_path = os.path.join(os.path.dirname(__file__), "../../assets/scenes/main_scene.xml")
+    xml_path = os.path.join(os.path.dirname(__file__), "../assets/scenes/main_scene.xml")
     tree = ET.parse(xml_path)
     root = tree.getroot()
     object_name = args.object_name
     include = ET.Element("include", {"file": args.xml_file})
     root.append(include)
     xml_content = ET.tostring(root, encoding="unicode")
-    gripper_xml_path = os.path.join(os.path.dirname(__file__), "../../assets/grippers/robotiq/xmls/model.xml")
+    gripper_xml_path = os.path.join(os.path.dirname(__file__), "../assets/grippers/robotiq/xmls/model.xml")
     with open(gripper_xml_path, "r") as f:
         additional_xml_content = f.read()
     xml_content = merge_xml_contents(xml_content, additional_xml_content)

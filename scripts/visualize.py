@@ -7,7 +7,6 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import math
 import numpy as np
@@ -260,84 +259,6 @@ def rotate_point_by_quaternion(point, q):
     final_point = quaternion_mult(quaternion_mult(q, r), q_conj)
     final_output = tf.slice(final_point, [0, 0, 1], shape, name="sliceeeeeee")
     return final_output
-
-
-class QuaternionTest(tf.test.TestCase):
-    def test_mult(self):
-        np.random.seed(int(time.time()))
-        batch_size = 30
-        control_points = 50
-        a = np.random.rand(batch_size, control_points, 4)
-        b = np.random.rand(batch_size, control_points, 4)
-        norm_a = np.sqrt(np.sum(a * a, axis=-1))
-        norm_b = np.sqrt(np.sum(b * b, axis=-1))
-        a /= np.tile(np.expand_dims(norm_a, -1), [1, 1, 4])
-        b /= np.tile(np.expand_dims(norm_b, -1), [1, 1, 4])
-        output = np.zeros((batch_size, control_points, 4), dtype=np.float32)
-        for bindex in range(batch_size):
-            for c in range(control_points):
-                output[bindex, c, :] = tra.quaternion_multiply(
-                    a[bindex, c, :], b[bindex, c, :]
-                )
-
-        ta = tf.convert_to_tensor(a)
-        tb = tf.convert_to_tensor(b)
-        tf_output = quaternion_mult(ta, tb)
-
-        ok = True
-        with self.test_session():
-            if np.all(np.abs(tf_output.eval() - output) < 1e-4):
-                print("----------> Mult passed")
-            else:
-                raise ValueError(
-                    "did not match {} != {}".format(tf_output.eval(), output)
-                )
-
-    def test_rotation(self):
-        np.random.seed(int(time.time()))
-        batch_size = 30
-        control_points = 16
-
-        rot_matrix = np.zeros((batch_size, control_points, 3, 3), dtype=np.float32)
-        quat_matrix = np.zeros((batch_size, control_points, 4), dtype=np.float32)
-        points = np.random.rand(batch_size, control_points, 3)
-
-        rotated_points = np.random.rand(batch_size, control_points, 3)
-        for b in range(batch_size):
-            for c in range(control_points):
-                angles = np.random.uniform(
-                    low=0,
-                    high=math.pi * 2.0,
-                    size=[
-                        3,
-                    ],
-                )
-                rot_matrix[b, c, :, :] = tra.euler_matrix(
-                    angles[0], angles[1], angles[2]
-                )[:3, :3]
-                quat_matrix[b, c, :] = tra.quaternion_from_euler(
-                    angles[0], angles[1], angles[2]
-                )
-
-                rotated_points[b, c, :] = np.matmul(
-                    rot_matrix[b, c, :, :], points[b, c, :]
-                )
-
-        tf_rotated_points = rotate_point_by_quaternion(
-            tf.convert_to_tensor(points, dtype=tf.float32),
-            tf.convert_to_tensor(quat_matrix, dtype=tf.float32),
-        )
-
-        with self.test_session():
-            if np.all(np.abs(tf_rotated_points.eval() - rotated_points) < 1e-4):
-                print("----------> Rotation passed")
-            else:
-                raise ValueError(
-                    "test rotatation did not match {} != {}".format(
-                        tf_rotated_points.eval(), rotated_points
-                    )
-                )
-
 
 def tf_rotation_matrix(az, el, th, batched=False):
     if batched:
