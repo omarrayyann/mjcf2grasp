@@ -5,10 +5,15 @@ import wandb
 import argparse
 import numpy as np
 
-MAX_SUCCESSFUL_GRASPS = 1000
-USE_WANDB = 1
-WANDB_RUN_NAME = "shared-grasp-processing-final"
-NUM_WORKERS = 5 # os.cpu_count()
+parser = argparse.ArgumentParser(description='Process static objects for grasp generation')
+parser.add_argument('--objects_list', type=str, default="results/static_objects_list.json", help='Path to the JSON file containing the list of objects')
+parser.add_argument('--max_successful_grasps', type=int, default=1000, help='Maximum number of successful grasps to generate')
+parser.add_argument('--use_wandb', type=int, default=1, help='Whether to use Weights & Biases logging (0 or 1)')
+parser.add_argument('--num_workers', type=int, default=1, help='Number of worker processes')
+args = parser.parse_args()
+
+if args.num_workers == 0:
+    args.num_workers = os.cpu_count() # use all available CPU cores
 
 parser = argparse.ArgumentParser(description='Process static objects for grasp generation')
 parser.add_argument('--objects_list', type=str, default="results/static_objects_list.json", help='Path to the JSON file containing the list of objects')
@@ -22,15 +27,14 @@ with open(args.objects_list, "r") as f:
 
 print(f"Total objects in dataset: {len(data)}")
 
-if USE_WANDB:
-    run_id = args.wandb_run_id if args.wandb_run_id else WANDB_RUN_NAME
+if args.use_wandb:
+    run_id = wandb.util.generate_id()
     
     wandb.init(
-        project="thor-grasp-pipeline", 
-        name=WANDB_RUN_NAME,
+        project="mjcf2grasp",
         id=run_id,
         resume="allow",
-        config={"total_objects": len(data), "max_successful_grasps": MAX_SUCCESSFUL_GRASPS}
+        config={"total_objects": len(data), "args.max_successful_grasps": args.max_successful_grasps}
     )
     wandb.define_metric("step")
     wandb.define_metric("completion_percentage", step_metric="step")
@@ -109,7 +113,7 @@ for obj in data:
                 subprocess.run(["python", "pipeline/generate_grasps.py", "--object_file", simplify_path, 
                               "--quality", "antipodal", "--output", grasp_file_path, 
                             #   "--systematic_sampling", #TODO: return
-                              "--num_workers", str(NUM_WORKERS)], check=True)
+                              "--args.num_workers", str(args.num_workers)], check=True)
             except subprocess.CalledProcessError as e:
                 print(f"Error generating grasps for {object_name}: {str(e)}")
                 processing_failed = True
@@ -141,9 +145,9 @@ for obj in data:
                                "--min_contact_depth", "0.0",
                                "--center_contact_depth", "0.75",
                                "--contact_depth_bias", "2.8",
-                               "--num_workers", str(NUM_WORKERS),
+                               "--args.num_workers", str(args.num_workers),
                                "--rotate", 
-                               "--max_successful", str(MAX_SUCCESSFUL_GRASPS)]
+                               "--max_successful", str(args.max_successful_grasps)]
                     
                     if attempt == 1:
                         cmd_args.append("--diversity_mode")
@@ -204,7 +208,7 @@ if failed_objects:
     else:
         print(f"Failed objects (first 10): {', '.join(failed_objects[:10])}")
 
-if USE_WANDB:
+if args.use_wandb:
     wandb.log({"pipeline_complete": True, "total_processed": processed_objects, 
               "total_failed": len(failed_objects), 
               "success_rate": (processed_objects - len(failed_objects)) / processed_objects * 100 if processed_objects > 0 else 0})
