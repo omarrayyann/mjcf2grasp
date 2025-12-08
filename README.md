@@ -43,7 +43,8 @@ Create a JSON file containing a list of MJCF objects to process. Each object nee
     {
         "name": "Pen_1",
         "xml": "/path/to/Pen_1/Pen_1.xml"
-    }
+    },
+    ...
 ]
 ```
 
