@@ -57,12 +57,6 @@ See `examples/example_objects_list.json` for a working example.
 python run_static.py --objects_list path/to/objects_list.json
 ```
 
-The pipeline will:
-1. Combine meshes from the MJCF file
-2. Process with Manifold for watertight mesh
-3. Generate grasp candidates
-4. Filter and validate grasps using MuJoCo simulation
-
 #### 3. Results
 
 Results are saved to `results/static_objects/<object_name>/`:
