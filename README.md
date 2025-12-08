@@ -12,7 +12,7 @@
 ## Installation
 
 ```bash
-conda create -n mjcf2grasp python=3.10
+conda env create -f conda_env.yaml
 conda activate mjcf2grasp
 git submodule update --init --recursive
 ```

@@ -1,0 +1,43 @@
+<mujoco model="Tennis_Racquet_2">
+  <compiler autolimits="true" boundmass="0" angle="radian"/>
+  <default>
+    <default class="/">
+      <default class="__VISUAL_MJT__">
+        <geom contype="0" conaffinity="0" group="0"/>
+      </default>
+      <default class="__STRUCTURAL_MJT__">
+        <geom contype="8" conaffinity="15" group="4" friction="0.90000000000000002 0.90000000000000002 0.001" solref="0.025000000000000001 1" solimp="0.998 0.998 0.001"/>
+      </default>
+      <default class="__DYNAMIC_MJT__">
+        <geom contype="1" conaffinity="15" group="4" friction="0.90000000000000002 0.90000000000000002 0.001" solref="0.025000000000000001 1" solimp="0.998 0.998 0.001"/>
+      </default>
+    </default>
+  </default>
+  <asset>
+    <texture name="MediumWoodSmooth" type="2d" file="WoodGrains1.png"/>
+    <material name="material_MediumWoodSmooth" class="/" texture="MediumWoodSmooth" specular="0.5" shininess="0.5" rgba="0.39622639999999998 0.2303684 0.15138840000000001 1"/>
+    <texture name="Copper_AlbedoTransparency" type="2d" file="Copper_AlbedoTransparency.png"/>
+    <material name="material_Copper_AlbedoTransparency" class="/" texture="Copper_AlbedoTransparency" specular="0.5" shininess="0.5" rgba="1 1 1 1"/>
+    <texture name="MaroonPlasticScratched" type="2d" file="MaterialPlane_DefaultMaterial_AlbedoTransparency.png"/>
+    <material name="material_MaroonPlasticScratched" class="/" texture="MaroonPlasticScratched" specular="0.5" shininess="0.5" rgba="0.27941179999999999 0.15115439999999999 0.1294334 1"/>
+    <mesh name="Tennis_Racquet_2_Cube.1755_0" class="/" file="Tennis_Racquet_2_Cube.1755/Tennis_Racquet_2_Cube.1755_0.obj" scale="11.939166069030762 11.939167022705078 11.939169883728027"/>
+    <mesh name="Tennis_Racquet_2_Cube.1755_1" class="/" file="Tennis_Racquet_2_Cube.1755/Tennis_Racquet_2_Cube.1755_1.obj" scale="11.939166069030762 11.939167022705078 11.939169883728027"/>
+    <mesh name="Tennis_Racquet_2_Cube.1755_2" class="/" file="Tennis_Racquet_2_Cube.1755/Tennis_Racquet_2_Cube.1755_2.obj" scale="11.939166069030762 11.939167022705078 11.939169883728027"/>
+  </asset>
+  <worldbody>
+    <body name="Tennis_Racquet_2">
+      <joint name="Tennis_Racquet_2_free" class="/" type="free" pos="0 0 0" axis="0 0 1" stiffness="0" range="0 0" armature="0" damping="0.10000000000000001" frictionloss="0"/>
+      <body name="Tennis_Racquet_2_Cube.1755" pos="0.00042000000000000002 2.9802322387695312e-08 0.27461003981590271" quat="0.70710678118654757 -0.70710678118654746 0 0">
+        <geom name="Tennis_Racquet_2_Cube.1755_0" class="__VISUAL_MJT__" type="mesh" material="material_MediumWoodSmooth" mesh="Tennis_Racquet_2_Cube.1755_0"/>
+        <geom name="Tennis_Racquet_2_Cube.1755_1" class="__VISUAL_MJT__" type="mesh" material="material_Copper_AlbedoTransparency" mesh="Tennis_Racquet_2_Cube.1755_1"/>
+        <geom name="Tennis_Racquet_2_Cube.1755_2" class="__VISUAL_MJT__" type="mesh" material="material_MaroonPlasticScratched" mesh="Tennis_Racquet_2_Cube.1755_2"/>
+        <geom name="Tennis_Racquet_2_Cube.1755_PrimitiveCollider_0" class="__DYNAMIC_MJT__" type="box" size="0.10143066197633743 0.02218727208673954 0.023437594994902611" rgba="0 1 0 1" pos="4.9975582783190475e-08 0.049555461853742599 3.2186531218059145e-09" quat="-0.49999698995993308 -0.49999848007596359 -0.50000301002869652 -0.50000151991266595"/>
+        <geom name="Tennis_Racquet_2_Cube.1755_PrimitiveCollider_1" class="__DYNAMIC_MJT__" type="box" size="0.10687511414289474 0.0091513236984610558 0.12745292484760284" rgba="0 1 0 1" pos="-0 0.45339998602867126 3.2186509013598652e-09" quat="-0.49999694525627075 -0.49999849497698867 -0.5000030249298566 -0.50000153481378162"/>
+        <geom name="Tennis_Racquet_2_Cube.1755_PrimitiveCollider_2" class="__DYNAMIC_MJT__" type="box" size="0.043446280062198639 0.0091513227671384811 0.097044698894023895" rgba="0 1 0 1" pos="-2.5684945725856778e-08 0.30349820852279663 3.21865156749368e-09" quat="-0.49999698995993308 -0.49999848007596359 -0.50000301002869652 -0.50000151991266595"/>
+        <geom name="Tennis_Racquet_2_Cube.1755_PrimitiveCollider_3" class="__DYNAMIC_MJT__" type="box" size="0.02449522353708744 0.0091513227671384811 0.027376912534236908" rgba="0 1 0 1" pos="1.8058698003642348e-07 0.17562627792358398 3.2186520115828898e-09" quat="-0.49999700486095816 -0.49999843537239008 -0.50000302492990101 -0.50000153481382603"/>
+        <geom name="Tennis_Racquet_2_Cube.1755_PrimitiveCollider_4" class="__DYNAMIC_MJT__" type="box" size="0.020805699750781059 0.0091513227671384811 0.088161014020442963" rgba="0 1 0 1" pos="3.076273458191281e-07 0.58008617162704468 3.2186509013598652e-09" quat="-0.49999698995993308 -0.49999848007596359 -0.50000301002869652 -0.50000151991266595"/>
+        <geom name="Tennis_Racquet_2_Cube.1755_PrimitiveCollider_5" class="__DYNAMIC_MJT__" type="box" size="0.029775191098451614 0.0091500068083405495 0.046021893620491028" rgba="0 1 0 1" pos="3.3204139526787912e-07 0.2304263710975647 3.2186517895382849e-09" quat="-0.49999700486095816 -0.49999843537239008 -0.50000302492990101 -0.50000153481382603"/>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>

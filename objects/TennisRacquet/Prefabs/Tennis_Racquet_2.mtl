@@ -1,0 +1,18 @@
+newmtl MaroonPlasticScratched
+Kd 0.2794118 0.1511544 0.1294334
+map_Kd ExportedThorAssets/Textures/MaterialPlane_DefaultMaterial_AlbedoTransparency.png
+map_Bump ExportedThorAssets/Textures/HammeredMetal_Normal.png
+illum 2
+
+newmtl Copper_AlbedoTransparency
+Kd 1 1 1
+map_Kd ExportedThorAssets/Textures/Copper_AlbedoTransparency.png
+map_Ks ExportedThorAssets/Textures/Copper_MetallicSmoothness.png
+map_Bump ExportedThorAssets/Textures/Copper_Normal.png
+illum 2
+
+newmtl MediumWoodSmooth
+Kd 0.3962264 0.2303684 0.1513884
+map_Kd ExportedThorAssets/Textures/WoodGrains1.jpg
+illum 2
+

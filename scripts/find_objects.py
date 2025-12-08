@@ -3,8 +3,7 @@ import json
 import argparse
 import xml.etree.ElementTree as ET
 
-#ALL_PICKUP_TYPES_THOR = ["fork", "knife"]
-ALL_PICKUP_TYPES_THOR = ["desk"]
+ALL_PICKUP_TYPES_THOR = ["tennis"]
 
 def find_objs_with_matching_subfolder(base_dir, check_joints=False):
     result = []
@@ -34,10 +33,7 @@ def find_objs_with_matching_subfolder(base_dir, check_joints=False):
 
                     for subfile in os.listdir(subfolder_path):
                         if (
-                            subfile.endswith(".xml")
-                            and "old" not in subfile.lower()
-                            and "mesh" not in subfile.lower()
-                            and "prim" not in subfile.lower()
+                            subfile.endswith("mesh.xml")
                         ):
                             abs_xml_path = os.path.abspath(
                                 os.path.join(subfolder_path, subfile)

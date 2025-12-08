@@ -1,4 +1,4 @@
-name: mjgrasp
+name: mjcf2grasp
 channels:
   - conda-forge
   - defaults
@@ -12,9 +12,11 @@ dependencies:
   - tqdm
   - pillow
   - rtree
+  - lxml
   - pip:
     - mujoco
     - wandb
     - tensorflow
     - pymeshlab
     - python-fcl
+    - open3d

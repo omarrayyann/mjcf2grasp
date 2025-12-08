@@ -35,29 +35,7 @@ def run_grasp_filtering_stage(
             xml_mesh_file = xml_file.replace("_mesh.xml", "_prim.xml")
 
     if not os.path.exists(xml_mesh_file):
-
-        try:
-            subprocess.run(
-                [
-                    "python",
-                    "pipelines/articulable/2_mesh_colliders.py",
-                    "--input",
-                    xml_file,
-                    "--output",
-                    xml_mesh_file,
-                ],
-                check=True,
-            )
-        except subprocess.CalledProcessError as e:
-            print(
-                f"   Warning: Failed to convert to mesh colliders, using original XML: {str(e)}"
-            )
-            xml_mesh_file = xml_file
-        except Exception as e:
-            print(
-                f"   Warning: Unexpected error in mesh collider conversion, using original XML: {str(e)}"
-            )
-            xml_mesh_file = xml_file
+        xml_mesh_file = xml_file
 
     xml_file_for_filtering = xml_mesh_file
 
@@ -73,7 +51,7 @@ def run_grasp_filtering_stage(
                     
                     cmd_args = [
                         "python",
-                        "pipelines/articulable/3_filter_mujoco.py",
+                        "pipeline/articulable/articulation_test.py",
                         "--object_name",
                         object_name,
                         "--per_joint_summary_json",
@@ -176,7 +154,7 @@ def run_grasp_filtering_stage(
                     
                     cmd_args = [
                         "python",
-                        "pipelines/articulable/3_filter_mujoco.py",
+                        "pipeline/articulable/articulation_test.py",
                         "--object_name",
                         object_name,
                         "--grasps_path",
@@ -251,7 +229,7 @@ def run_grasp_generation_stage(object_name, handle_mesh_path, full_mesh, output_
         subprocess.run(
             [
                 "python",
-                "pipelines/articulable/1_generate_grasps.py",
+                "pipeline/generate_grasps.py",
                 "--object_file",
                 handle_mesh_path,
                 "--output",
@@ -341,7 +319,7 @@ def run_per_joint_grasp_generation(
         subprocess.run(
             [
                 "python",
-                "pipelines/articulable/1_generate_grasps.py",
+                "pipeline/generate_grasps.py",
                 "--per_joint_grasps_from_meshes",
                 joint_meshes_json,
                 "--quality",
@@ -385,7 +363,7 @@ def run_handle_detection_stage(obj, output_dir):
         subprocess.run(
             [
                 "python",
-                "pipelines/articulable/0_generate_mesh.py",
+                "pipeline/extract_leaf_meshes.py",
                 xml_file_path,
                 os.path.join(output_dir, "main.obj"),
             ],

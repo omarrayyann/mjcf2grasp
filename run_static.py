@@ -3,99 +3,12 @@ import os
 import subprocess
 import wandb
 import argparse
-from datetime import datetime
 import numpy as np
-import time
 
 MAX_SUCCESSFUL_GRASPS = 1000
 USE_WANDB = 1
-LOCK_TIMEOUT_SECONDS = 1200
 WANDB_RUN_NAME = "shared-grasp-processing-final"
-
-def get_lock_file_path(object_output_dir):
-    return os.path.join(object_output_dir, ".processing_lock")
-
-def get_completion_marker_path(object_output_dir):
-    return os.path.join(object_output_dir, ".completed")
-
-def get_failed_marker_path(object_output_dir):
-    return os.path.join(object_output_dir, ".failed")
-
-def is_object_done(object_output_dir):
-    return os.path.exists(get_completion_marker_path(object_output_dir)) or \
-           os.path.exists(get_failed_marker_path(object_output_dir))
-
-def mark_object_completed(object_output_dir):
-    try:
-        with open(get_completion_marker_path(object_output_dir), 'w') as f:
-            f.write(f"completed_at: {datetime.now().isoformat()}\n")
-            f.write(f"pid: {os.getpid()}\n")
-    except OSError:
-        pass
-
-def mark_object_failed(object_output_dir, reason=""):
-    try:
-        with open(get_failed_marker_path(object_output_dir), 'w') as f:
-            f.write(f"failed_at: {datetime.now().isoformat()}\n")
-            f.write(f"pid: {os.getpid()}\n")
-            if reason:
-                f.write(f"reason: {reason}\n")
-    except OSError:
-        pass
-
-def is_object_locked(object_output_dir):
-    lock_file = get_lock_file_path(object_output_dir)
-    
-    if not os.path.exists(lock_file):
-        return False
-    
-    try:
-        lock_time = os.path.getmtime(lock_file)
-        current_time = time.time()
-        age = current_time - lock_time
-        
-        if age > LOCK_TIMEOUT_SECONDS:
-            print(f"  Found stale lock (age: {age/60:.1f} minutes), removing...")
-            try:
-                os.remove(lock_file)
-            except OSError:
-                pass
-            return False
-        
-        return True
-    except OSError:
-        return False
-
-def create_lock(object_output_dir):
-    lock_file = get_lock_file_path(object_output_dir)
-    
-    if is_object_locked(object_output_dir):
-        return False
-    
-    try:
-        with open(lock_file, 'w') as f:
-            f.write(f"locked_at: {datetime.now().isoformat()}\n")
-            f.write(f"pid: {os.getpid()}\n")
-        return True
-    except OSError as e:
-        print(f"  Warning: Could not create lock file: {e}")
-        return False
-
-def release_lock(object_output_dir):
-    lock_file = get_lock_file_path(object_output_dir)
-    try:
-        if os.path.exists(lock_file):
-            os.remove(lock_file)
-    except OSError as e:
-        print(f"  Warning: Could not remove lock file: {e}")
-
-def update_lock(object_output_dir):
-    lock_file = get_lock_file_path(object_output_dir)
-    try:
-        if os.path.exists(lock_file):
-            os.utime(lock_file, None)
-    except OSError:
-        pass
+NUM_WORKERS = 5 # os.cpu_count()
 
 parser = argparse.ArgumentParser(description='Process static objects for grasp generation')
 parser.add_argument('--job-id', type=str, default=None, help='Optional job identifier for logging')
@@ -116,8 +29,6 @@ if args.randomize:
     print(f"Object processing order randomized (seed: {os.getpid()})")
 
 print(f"Total objects in dataset: {len(data)}")
-print(f"This job will process any unlocked objects")
-print(f"Lock timeout: {LOCK_TIMEOUT_SECONDS/60:.1f} minutes")
 
 if USE_WANDB:
     run_id = args.wandb_run_id if args.wandb_run_id else WANDB_RUN_NAME
@@ -127,8 +38,7 @@ if USE_WANDB:
         name=WANDB_RUN_NAME,
         id=run_id,
         resume="allow",
-        config={"total_objects": len(data), "max_successful_grasps": MAX_SUCCESSFUL_GRASPS,
-                "lock_timeout_minutes": LOCK_TIMEOUT_SECONDS/60}
+        config={"total_objects": len(data), "max_successful_grasps": MAX_SUCCESSFUL_GRASPS}
     )
     wandb.define_metric("step")
     wandb.define_metric("completion_percentage", step_metric="step")
@@ -141,25 +51,12 @@ if USE_WANDB:
 
 processed_objects = 0
 failed_objects = []
-skipped_locked_objects = []
-skipped_done_objects = []
 
 for obj in data:
     object_name = obj["name"]
     xml_file_path = obj["xml"]
     object_output_dir = os.path.join("results/static_objects", object_name)
     os.makedirs(object_output_dir, exist_ok=True)
-    
-    if is_object_done(object_output_dir):
-        skipped_done_objects.append(object_name)
-        continue
-    
-    if is_object_locked(object_output_dir):
-        print(f"\n{'='*80}")
-        print(f"Object {object_name} is currently locked by another process, skipping...")
-        print(f"{'='*80}\n")
-        skipped_locked_objects.append(object_name)
-        continue
     
     mesh_path = os.path.join(object_output_dir, f"{object_name}_combined.obj")
     manifold_path = os.path.join(object_output_dir, f"{object_name}_manifold.obj")
@@ -169,13 +66,15 @@ for obj in data:
     filtered_npz_path = os.path.join(object_output_dir, f"{object_name}_grasps_filtered.npz")
     filtered_json_path = os.path.join(object_output_dir, f"{object_name}_grasps_object_info.json")
     
-    if not create_lock(object_output_dir):
-        print(f"Could not create lock for {object_name}, skipping...")
-        skipped_locked_objects.append(object_name)
+    if os.path.exists(filtered_npz_path):
+        processed_objects += 1
+        print(f"\n{'='*80}")
+        print(f"Object {object_name} already fully processed, skipping...")
+        print(f"{'='*80}\n")
         continue
     
     print(f"\n{'='*80}")
-    print(f"Starting processing for {object_name} (locked)")
+    print(f"Starting processing for {object_name}")
     print(f"{'='*80}\n")
     
     processing_failed = False
@@ -185,9 +84,8 @@ for obj in data:
         if not os.path.exists(mesh_path):
             print(f"Converting XML to OBJ for {object_name}")
             try:
-                subprocess.run(["python", "pipelines/static/0_generate_mesh.py", xml_file_path, mesh_path, "--only_collision"], check=True)
+                subprocess.run(["python", "pipeline/combine_meshes.py", xml_file_path, mesh_path, "--only_collision"], check=True)
                 print(f"Created combined mesh: {mesh_path}")
-                update_lock(object_output_dir)
             except subprocess.CalledProcessError as e:
                 print(f"Error converting XML to OBJ for {object_name}: {str(e)}")
                 processing_failed = True
@@ -200,7 +98,6 @@ for obj in data:
             try:
                 subprocess.run(["./manifold", os.path.abspath(mesh_path), os.path.abspath(manifold_path), "-s"], 
                               cwd="external_src/Manifold/build", check=True)
-                update_lock(object_output_dir)
             except subprocess.CalledProcessError as e:
                 print(f"Manifold failed for {object_name}: {str(e)}")
                 processing_failed = True
@@ -212,7 +109,6 @@ for obj in data:
             try:
                 subprocess.run(["./simplify", "-i", os.path.abspath(manifold_path), "-o", os.path.abspath(simplify_path), 
                               "-m", "-r", "0.5"], cwd="external_src/Manifold/build", check=True)
-                update_lock(object_output_dir)
             except subprocess.CalledProcessError as e:
                 print(f"Simplify failed for {object_name}: {str(e)}")
                 processing_failed = True
@@ -222,11 +118,10 @@ for obj in data:
                 
         if not os.path.exists(grasp_file_path):
             try:
-                subprocess.run(["python", "pipelines/static/1_generate_grasps.py", "--object_file", simplify_path, 
+                subprocess.run(["python", "pipeline/generate_grasps.py", "--object_file", simplify_path, 
                               "--quality", "antipodal", "--output", grasp_file_path, 
-                              "--systematic_sampling", 
-                              "--num_workers", str(os.cpu_count())], check=True)
-                update_lock(object_output_dir)
+                            #   "--systematic_sampling", #TODO: return
+                              "--num_workers", str(NUM_WORKERS)], check=True)
             except subprocess.CalledProcessError as e:
                 print(f"Error generating grasps for {object_name}: {str(e)}")
                 processing_failed = True
@@ -246,7 +141,7 @@ for obj in data:
                     if attempt > 1:
                         print(f"Retry attempt {attempt}/{max_attempts} (without diversity mode)...")
                     
-                    cmd_args = ["python", "pipelines/static/2_filter_mujoco.py", 
+                    cmd_args = ["python", "pipeline/perturbations_test.py", 
                                "--object_name", object_name, 
                                "--grasps_path", grasp_file_path, 
                                "--xml_file", xml_mesh_file_path, 
@@ -258,7 +153,7 @@ for obj in data:
                                "--min_contact_depth", "0.0",
                                "--center_contact_depth", "0.75",
                                "--contact_depth_bias", "2.8",
-                               "--num_workers", str(os.cpu_count()),
+                               "--num_workers", str(NUM_WORKERS),
                                "--rotate", 
                                "--max_successful", str(MAX_SUCCESSFUL_GRASPS)]
                     
@@ -266,7 +161,6 @@ for obj in data:
                         cmd_args.append("--diversity_mode")
                     
                     subprocess.run(cmd_args, check=True)
-                    update_lock(object_output_dir)
                     break
                 except subprocess.CalledProcessError as e:
                     print(f"  Error output: {e.stderr}")
@@ -279,7 +173,6 @@ for obj in data:
                         continue
                     else:
                         print(f"Attempt {attempt} failed, retrying...")
-                        update_lock(object_output_dir)
         else:
             print("File already exist")
                 
@@ -323,27 +216,14 @@ for obj in data:
             print(f"  - Filtered grasps: {filtered_count}")
         print("=" * 80)
         
-        mark_object_completed(object_output_dir)
-        
     except Exception as e:
         print(f"Failed with {e}")
-        if processing_failed:
-            mark_object_failed(object_output_dir, failure_reason)
-        release_lock(object_output_dir)
 
 print(f"\n{'=' * 80}")
 print(f"PIPELINE COMPLETE!")
 print(f"{'=' * 80}")
 print(f"Total objects in dataset: {len(data)}")
 print(f"Objects successfully processed by this job: {processed_objects}")
-if skipped_done_objects:
-    print(f"Skipped (already completed/failed): {len(skipped_done_objects)}")
-if skipped_locked_objects:
-    print(f"Skipped (locked by other jobs): {len(skipped_locked_objects)}")
-    if len(skipped_locked_objects) <= 10:
-        print(f"Locked objects: {', '.join(skipped_locked_objects)}")
-    else:
-        print(f"Locked objects (first 10): {', '.join(skipped_locked_objects[:10])}")
 if failed_objects:
     print(f"Failed: {len(failed_objects)}")
     if len(failed_objects) <= 10:
@@ -353,7 +233,5 @@ if failed_objects:
 
 if USE_WANDB:
     wandb.log({"pipeline_complete": True, "total_processed": processed_objects, 
-              "total_skipped_locked": len(skipped_locked_objects),
-              "total_skipped_done": len(skipped_done_objects),
               "total_failed": len(failed_objects), 
               "success_rate": (processed_objects - len(failed_objects)) / processed_objects * 100 if processed_objects > 0 else 0})

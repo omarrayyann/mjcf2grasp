@@ -1,0 +1,30 @@
+<mujoco model="Pen_4">
+  <compiler autolimits="true" boundmass="0" angle="radian"/>
+  <default>
+    <default class="/">
+      <default class="__VISUAL_MJT__">
+        <geom contype="0" conaffinity="0" group="0"/>
+      </default>
+      <default class="__STRUCTURAL_MJT__">
+        <geom contype="8" conaffinity="15" group="4" friction="0.90000000000000002 0.90000000000000002 0.001" solref="0.025000000000000001 1" solimp="0.998 0.998 0.001"/>
+      </default>
+      <default class="__DYNAMIC_MJT__">
+        <geom contype="1" conaffinity="15" group="4" friction="0.90000000000000002 0.90000000000000002 0.001" solref="0.025000000000000001 1" solimp="0.998 0.998 0.001"/>
+      </default>
+    </default>
+  </default>
+  <asset>
+    <texture name="PensPencils_DefaultMaterial_AlbedoTransparency" type="2d" file="PensPencils_DefaultMaterial_AlbedoTransparency.png"/>
+    <material name="material_PensPencils_DefaultMaterial_AlbedoTransparency" class="/" texture="PensPencils_DefaultMaterial_AlbedoTransparency" specular="0.5" shininess="0.5" rgba="1 1 1 1"/>
+    <mesh name="Pen_4_Cylinder.226" class="/" file="Pen_4_Cylinder.226/Pen_4_Cylinder.226.obj" scale="1.0000002384185791 1 1"/>
+  </asset>
+  <worldbody>
+    <body name="Pen_4">
+      <joint name="Pen_4_free" class="/" type="free" pos="0 0 0" axis="0 0 1" stiffness="0" range="0 0" armature="0" damping="0.10000000000000001" frictionloss="0"/>
+      <body name="Pen_4_Cylinder.226" pos="-0 0 -0.0064799999999999996" quat="0.5 -0.5 -0.5 -0.5">
+        <geom name="Pen_4_Cylinder.226" class="__VISUAL_MJT__" type="mesh" material="material_PensPencils_DefaultMaterial_AlbedoTransparency" shellinertia="false" mesh="Pen_4_Cylinder.226"/>
+        <geom name="Pen_4_Cylinder.226_PrimitiveCollider_0" class="__DYNAMIC_MJT__" type="capsule" size="0.0056448532268404961 0.094274123199284077" rgba="0 1 0 1" pos="-0.0064800102263689041 -3.6306445849731972e-08 1.8160790205001831e-08" quat="1.9809017620144125e-06 -0.70710779270735336 -1.9809017619554226e-06 -0.70710576965874539"/>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>

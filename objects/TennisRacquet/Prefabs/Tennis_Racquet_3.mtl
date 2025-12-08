@@ -1,0 +1,17 @@
+newmtl MaroonPlasticScratched
+Kd 0.2794118 0.1511544 0.1294334
+map_Kd ExportedThorAssets/Textures/MaterialPlane_DefaultMaterial_AlbedoTransparency.png
+map_Bump ExportedThorAssets/Textures/HammeredMetal_Normal.png
+illum 2
+
+newmtl BrownMetal_s1
+Kd 0.3897059 0.2505252 0.1604671
+map_Bump ExportedThorAssets/Textures/HammeredMetal_Normal.png
+illum 2
+
+newmtl LightWoodCounters
+Kd 0.9150943 0.6910016 0.384167
+map_Kd ExportedThorAssets/Textures/LightWoodCounters.jpg
+map_Bump ExportedThorAssets/Textures/HammeredMetal_Normal.png
+illum 2
+
