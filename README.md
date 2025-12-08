@@ -44,8 +44,7 @@ Create a JSON file containing a list of MJCF objects to process. Each object nee
         "name": "Pen_1",
         "xml": "/path/to/Pen_1/Pen_1.xml"
     },
-    ...
-]
+  ]
 ```
 
 See `examples/example_objects_list.json` for a working example.
