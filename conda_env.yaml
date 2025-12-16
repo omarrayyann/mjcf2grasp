@@ -17,7 +17,6 @@ dependencies:
     - mujoco
     - wandb
     - tensorflow
-    - pymeshlab
     - python-fcl
     - open3d
     - python-fcl
