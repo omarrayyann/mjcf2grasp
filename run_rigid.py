@@ -10,10 +10,18 @@ parser.add_argument('--objects_list', type=str, default="results/rigid_objects_l
 parser.add_argument('--max_successful_grasps', type=int, default=1000, help='Max successful grasps per object')
 parser.add_argument('--use_wandb', action='store_true', help='Enable Weights & Biases logging')
 parser.add_argument('--num_workers', type=int, default=0, help='Number of workers (0 = all CPUs)')
+parser.add_argument('--approach_distance', type=float, default=0.3, help='Approach distance for grasp filtering')
+parser.add_argument('--approach_steps', type=int, default=3000, help='Approach steps for grasp filtering')
+parser.add_argument('--shake_magnitude', type=float, default=0.1, help='Shake magnitude for perturbation test')
+parser.add_argument('--shake_steps', type=int, default=1000, help='Shake steps for perturbation test')
+parser.add_argument('--max_contact_depth', type=float, default=1.0, help='Max contact depth')
+parser.add_argument('--min_contact_depth', type=float, default=0.0, help='Min contact depth')
+parser.add_argument('--center_contact_depth', type=float, default=0.75, help='Center contact depth')
+parser.add_argument('--contact_depth_bias', type=float, default=2.8, help='Contact depth bias')
 args = parser.parse_args()
 
 if args.num_workers == 0:
-    args.num_workers = os.cpu_count()
+    args.num_workers = int(os.cpu_count()/2) # you can increase this
 
 if not os.path.exists(args.objects_list):
     raise FileNotFoundError(f"Objects list file not found: {args.objects_list}")
@@ -54,7 +62,6 @@ for obj in data:
     manifold_path = os.path.join(object_output_dir, f"{object_name}_manifold.obj")
     simplify_path = os.path.join(object_output_dir, f"{object_name}_simplified.obj")
     grasp_file_path = os.path.join(object_output_dir, f"{object_name}_grasps.json")
-    filtered_viz_path = os.path.join(object_output_dir, f"{object_name}_filtered_grasps_9shot.png")
     filtered_npz_path = os.path.join(object_output_dir, f"{object_name}_grasps_filtered.npz")
     filtered_json_path = os.path.join(object_output_dir, f"{object_name}_grasps_object_info.json")
     
@@ -129,14 +136,14 @@ for obj in data:
                                "--object_name", object_name, 
                                "--grasps_path", grasp_file_path, 
                                "--xml_file", xml_mesh_file_path, 
-                               "--approach_distance", "0.3", 
-                               "--approach_steps", "3000", 
-                               "--shake_magnitude", "0.1", 
-                               "--shake_steps", "1000", 
-                               "--max_contact_depth", "1.0",
-                               "--min_contact_depth", "0.0",
-                               "--center_contact_depth", "0.75",
-                               "--contact_depth_bias", "2.8",
+                               "--approach_distance", str(args.approach_distance), 
+                               "--approach_steps", str(args.approach_steps), 
+                               "--shake_magnitude", str(args.shake_magnitude), 
+                               "--shake_steps", str(args.shake_steps), 
+                               "--max_contact_depth", str(args.max_contact_depth),
+                               "--min_contact_depth", str(args.min_contact_depth),
+                               "--center_contact_depth", str(args.center_contact_depth),
+                               "--contact_depth_bias", str(args.contact_depth_bias),
                                "--num_workers", str(args.num_workers),
                                "--rotate", 
                                "--max_successful", str(args.max_successful_grasps)]

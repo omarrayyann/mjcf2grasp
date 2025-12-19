@@ -19,6 +19,8 @@ parser = argparse.ArgumentParser(description='Meshcat visualization of generated
 parser.add_argument('--objects_list', type=str, required=True, help='Path to JSON file with object list')
 parser.add_argument('--results_dir', type=str, default='results/rigid_objects', help='Results directory')
 parser.add_argument('--max_grasps', type=int, default=30, help='Max grasps to display per object')
+parser.add_argument('--articulable', action='store_true', help='Visualize articulable objects')
+parser.add_argument('--max_grasps_per_joint', type=int, default=10, help='Max grasps per joint for articulable objects')
 args = parser.parse_args()
 
 with open(args.objects_list, 'r') as f:
@@ -27,10 +29,22 @@ with open(args.objects_list, 'r') as f:
 available_objects = []
 for obj in objects:
     name = obj['name']
-    npz_path = os.path.join(args.results_dir, name, f'{name}_grasps_filtered.npz')
     xml_path = obj['xml']
-    if os.path.exists(npz_path):
-        available_objects.append({'name': name, 'npz': npz_path, 'xml': xml_path})
+    
+    if args.articulable:
+        json_path = os.path.join(args.results_dir, name, 'joint_meshes_info_filtered.json')
+        main_mesh_path = os.path.join(args.results_dir, name, 'main.obj')
+        if os.path.exists(json_path) and os.path.exists(main_mesh_path):
+            available_objects.append({
+                'name': name, 
+                'json': json_path, 
+                'xml': xml_path,
+                'main_mesh': main_mesh_path
+            })
+    else:
+        npz_path = os.path.join(args.results_dir, name, f'{name}_grasps_filtered.npz')
+        if os.path.exists(npz_path):
+            available_objects.append({'name': name, 'npz': npz_path, 'xml': xml_path})
 
 if not available_objects:
     print("No objects with generated grasps found.")
@@ -145,13 +159,13 @@ def display_object(idx):
     
     obj = available_objects[idx]
     name = obj['name']
-    npz_path = obj['npz']
     xml_path = obj['xml']
     
     print(f"\n[{idx+1}/{len(available_objects)}] {name}")
     
-    mesh = load_mesh_from_xml(xml_path)
-    if mesh is not None:
+    if args.articulable:
+        main_mesh_path = obj['main_mesh']
+        mesh = trimesh.load(main_mesh_path)
         if isinstance(mesh, trimesh.Scene):
             mesh = trimesh.util.concatenate([g for g in mesh.geometry.values()])
         mesh.apply_scale(1)
@@ -159,29 +173,103 @@ def display_object(idx):
             g.TriangularMeshGeometry(mesh.vertices, mesh.faces),
             g.MeshLambertMaterial(color=0x888888, opacity=0.7)
         )
-    
-    data = np.load(npz_path)
-    transforms = data['transforms'].astype(np.float64)
-    num_grasps = min(len(transforms), args.max_grasps)
-    print(f"  Showing {num_grasps}/{len(transforms)} grasps")
-    
-    gripper_mesh = gripper.hand.copy()
-    gripper_mesh.apply_transform(tra.euler_matrix(0, 0, np.pi/2))
-    gripper_mesh.apply_translation(-gripper.tcp_offset)
-    
-    colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff]
-    
-    for i in range(num_grasps):
-        T = transforms[i]
-        color = colors[i % len(colors)]
         
-        transformed_gripper = gripper_mesh.copy()
-        transformed_gripper.apply_transform(T)
+        json_path = obj['json']
+        with open(json_path, 'r') as f:
+            joint_grasps = json.load(f)
         
-        vis[f'grasps/grasp_{i}'].set_object(
-            g.TriangularMeshGeometry(transformed_gripper.vertices, transformed_gripper.faces),
-            g.MeshLambertMaterial(color=color, opacity=0.6)
-        )
+        colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff]
+        
+        total_grasps = 0
+        grasp_idx = 0
+        
+        for joint_idx, entry in enumerate(joint_grasps):
+            joint = entry['joint']
+            filtered_grasps_file = entry.get('filtered_grasps_file')
+            joint_info = entry.get('joint_info', {})
+            
+            if not filtered_grasps_file:
+                continue
+            
+            grasps_path = os.path.join(os.path.dirname(json_path), filtered_grasps_file)
+            
+            if not os.path.exists(grasps_path):
+                print(f"  Warning: {grasps_path} not found")
+                continue
+            
+            data = np.load(grasps_path)
+            transforms_joint_relative = data['transforms'].astype(np.float64)
+            
+            joint_position = joint_info.get('position', {'x': 0, 'y': 0, 'z': 0})
+            joint_rotation = joint_info.get('parent_rotation', {'w': 1, 'x': 0, 'y': 0, 'z': 0})
+            
+            T_world_joint = np.eye(4)
+            T_world_joint[:3, 3] = [joint_position['x'], joint_position['y'], joint_position['z']]
+            
+            quat = [joint_rotation['x'], joint_rotation['y'], joint_rotation['z'], joint_rotation['w']]
+            T_world_joint[:3, :3] = R.from_quat(quat).as_matrix()
+            
+            num_grasps = min(len(transforms_joint_relative), args.max_grasps_per_joint)
+            total_grasps += len(transforms_joint_relative)
+            
+            color = colors[joint_idx % len(colors)]
+            
+            print(f"  Joint {joint_idx+1} ({joint}): {num_grasps}/{len(transforms_joint_relative)} grasps")
+            
+            gripper_mesh = gripper.hand.copy()
+            gripper_mesh.apply_transform(tra.euler_matrix(0, 0, np.pi/2))
+            gripper_mesh.apply_translation(-gripper.tcp_offset)
+            
+            for i in range(num_grasps):
+                T_joint_grasp = transforms_joint_relative[i]
+                T_world_grasp = T_world_joint @ T_joint_grasp
+                
+                transformed_gripper = gripper_mesh.copy()
+                transformed_gripper.apply_transform(T_world_grasp)
+                
+                vis[f'grasps/grasp_{grasp_idx}'].set_object(
+                    g.TriangularMeshGeometry(transformed_gripper.vertices, transformed_gripper.faces),
+                    g.MeshLambertMaterial(color=color, opacity=0.6)
+                )
+                grasp_idx += 1
+        
+        print(f"  Total: {total_grasps} grasps across {len(joint_grasps)} joints")
+    
+    else:
+        npz_path = obj['npz']
+        
+        mesh = load_mesh_from_xml(xml_path)
+        if mesh is not None:
+            if isinstance(mesh, trimesh.Scene):
+                mesh = trimesh.util.concatenate([g for g in mesh.geometry.values()])
+            mesh.apply_scale(1)
+            vis['object'].set_object(
+                g.TriangularMeshGeometry(mesh.vertices, mesh.faces),
+                g.MeshLambertMaterial(color=0x888888, opacity=0.7)
+            )
+        
+        data = np.load(npz_path)
+        transforms = data['transforms'].astype(np.float64)
+        num_grasps = min(len(transforms), args.max_grasps)
+        print(f"  Showing {num_grasps}/{len(transforms)} grasps")
+        
+        gripper_mesh = gripper.hand.copy()
+        gripper_mesh.apply_transform(tra.euler_matrix(0, 0, np.pi/2))
+        gripper_mesh.apply_translation(-gripper.tcp_offset)
+        
+        colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff]
+        
+        for i in range(num_grasps):
+            T = transforms[i]
+            color = colors[i % len(colors)]
+            
+            transformed_gripper = gripper_mesh.copy()
+            transformed_gripper.apply_transform(T)
+            
+            vis[f'grasps/grasp_{i}'].set_object(
+                g.TriangularMeshGeometry(transformed_gripper.vertices, transformed_gripper.faces),
+                g.MeshLambertMaterial(color=color, opacity=0.6)
+            )
 
 current_idx = 0
 display_object(current_idx)

@@ -1,0 +1,273 @@
+<mujoco model="Dresser_205_1">
+  <compiler angle="radian" boundmass="0.01" />
+
+  <default>
+    <default class="/">
+      <default class="__VISUAL_MJT__">
+        <geom contype="0" conaffinity="0" />
+      </default>
+      <default class="__STRUCTURAL_MJT__">
+        <geom contype="8" conaffinity="15" group="4" friction="0.9 0.9 0.001" solref="0.025" solimp="0.998 0.998" />
+      </default>
+      <default class="__DYNAMIC_MJT__">
+        <geom conaffinity="15" group="4" friction="0.9 0.9 0.001" solref="0.025" solimp="0.998 0.998" />
+      </default>
+    </default>
+  </default>
+
+  <asset>
+    <texture type="2d" name="LightWoodCounters3" file="LightWoodCounters.png" />
+    <texture type="2d" name="DarkWoodSmooth" file="WoodGrains1.png" />
+    <texture type="2d" name="HammeredMetal_Dark" file="HammeredMetal_AlbedoTransparency.png" />
+    <material name="material_LightWoodCounters3" class="/" texture="LightWoodCounters3" rgba="0.698113 0.339363 0.135012 1" />
+    <material name="material_DarkWoodSmooth" class="/" texture="DarkWoodSmooth" rgba="0.235849 0.130508 0.0767622 1" />
+    <material name="material_HammeredMetal_Dark" class="/" texture="HammeredMetal_Dark" rgba="0.264706 0.264706 0.264706 1" />
+    <mesh name="Dresser_205_1_DresserMesh_0" class="/" content_type="model/obj" file="Dresser_205_1_DresserMesh/Dresser_205_1_DresserMesh_0.obj" />
+    <mesh name="Dresser_205_1_DresserMesh_1" class="/" content_type="model/obj" file="Dresser_205_1_DresserMesh/Dresser_205_1_DresserMesh_1.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_0" class="/" content_type="model/obj" file="Dresser_205_1_DrawerMesh_0/Dresser_205_1_DrawerMesh_0.obj" />
+    <mesh name="Dresser_205_1_handle_1_305mm_0" class="/" content_type="model/obj" file="Dresser_205_1_handle_1_305mm_0/Dresser_205_1_handle_1_305mm_0.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_1" class="/" content_type="model/obj" file="Dresser_205_1_DrawerMesh_1/Dresser_205_1_DrawerMesh_1.obj" />
+    <mesh name="Dresser_205_1_handle_1_305mm_1" class="/" content_type="model/obj" file="Dresser_205_1_handle_1_305mm_1/Dresser_205_1_handle_1_305mm_1.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_2" class="/" content_type="model/obj" file="Dresser_205_1_DrawerMesh_2/Dresser_205_1_DrawerMesh_2.obj" />
+    <mesh name="Dresser_205_1_handle_1_305mm_2" class="/" content_type="model/obj" file="Dresser_205_1_handle_1_305mm_2/Dresser_205_1_handle_1_305mm_2.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_3" class="/" content_type="model/obj" file="Dresser_205_1_DrawerMesh_3/Dresser_205_1_DrawerMesh_3.obj" />
+    <mesh name="Dresser_205_1_handle_1_305mm_3" class="/" content_type="model/obj" file="Dresser_205_1_handle_1_305mm_3/Dresser_205_1_handle_1_305mm_3.obj" />
+    <mesh name="Dresser_205_1_DresserMesh_0_collision_0" content_type="model/obj" file="Dresser_205_1_DresserMesh/Dresser_205_1_DresserMesh_0/Dresser_205_1_DresserMesh_0_collision_0.obj" />
+    <mesh name="Dresser_205_1_DresserMesh_1_collision_14" content_type="model/obj" file="Dresser_205_1_DresserMesh/Dresser_205_1_DresserMesh_1/Dresser_205_1_DresserMesh_1_collision_14.obj" />
+    <mesh name="Dresser_205_1_DresserMesh_1_collision_12" content_type="model/obj" file="Dresser_205_1_DresserMesh/Dresser_205_1_DresserMesh_1/Dresser_205_1_DresserMesh_1_collision_12.obj" />
+    <mesh name="Dresser_205_1_DresserMesh_1_collision_5" content_type="model/obj" file="Dresser_205_1_DresserMesh/Dresser_205_1_DresserMesh_1/Dresser_205_1_DresserMesh_1_collision_5.obj" />
+    <mesh name="Dresser_205_1_DresserMesh_1_collision_0" content_type="model/obj" file="Dresser_205_1_DresserMesh/Dresser_205_1_DresserMesh_1/Dresser_205_1_DresserMesh_1_collision_0.obj" />
+    <mesh name="Dresser_205_1_DresserMesh_1_collision_3" content_type="model/obj" file="Dresser_205_1_DresserMesh/Dresser_205_1_DresserMesh_1/Dresser_205_1_DresserMesh_1_collision_3.obj" />
+    <mesh name="Dresser_205_1_DresserMesh_1_collision_4" content_type="model/obj" file="Dresser_205_1_DresserMesh/Dresser_205_1_DresserMesh_1/Dresser_205_1_DresserMesh_1_collision_4.obj" />
+    <mesh name="Dresser_205_1_DresserMesh_1_collision_2" content_type="model/obj" file="Dresser_205_1_DresserMesh/Dresser_205_1_DresserMesh_1/Dresser_205_1_DresserMesh_1_collision_2.obj" />
+    <mesh name="Dresser_205_1_DresserMesh_1_collision_15" content_type="model/obj" file="Dresser_205_1_DresserMesh/Dresser_205_1_DresserMesh_1/Dresser_205_1_DresserMesh_1_collision_15.obj" />
+    <mesh name="Dresser_205_1_DresserMesh_1_collision_16" content_type="model/obj" file="Dresser_205_1_DresserMesh/Dresser_205_1_DresserMesh_1/Dresser_205_1_DresserMesh_1_collision_16.obj" />
+    <mesh name="Dresser_205_1_DresserMesh_1_collision_11" content_type="model/obj" file="Dresser_205_1_DresserMesh/Dresser_205_1_DresserMesh_1/Dresser_205_1_DresserMesh_1_collision_11.obj" />
+    <mesh name="Dresser_205_1_DresserMesh_1_collision_6" content_type="model/obj" file="Dresser_205_1_DresserMesh/Dresser_205_1_DresserMesh_1/Dresser_205_1_DresserMesh_1_collision_6.obj" />
+    <mesh name="Dresser_205_1_DresserMesh_1_collision_10" content_type="model/obj" file="Dresser_205_1_DresserMesh/Dresser_205_1_DresserMesh_1/Dresser_205_1_DresserMesh_1_collision_10.obj" />
+    <mesh name="Dresser_205_1_DresserMesh_1_collision_8" content_type="model/obj" file="Dresser_205_1_DresserMesh/Dresser_205_1_DresserMesh_1/Dresser_205_1_DresserMesh_1_collision_8.obj" />
+    <mesh name="Dresser_205_1_DresserMesh_1_collision_13" content_type="model/obj" file="Dresser_205_1_DresserMesh/Dresser_205_1_DresserMesh_1/Dresser_205_1_DresserMesh_1_collision_13.obj" />
+    <mesh name="Dresser_205_1_DresserMesh_1_collision_1" content_type="model/obj" file="Dresser_205_1_DresserMesh/Dresser_205_1_DresserMesh_1/Dresser_205_1_DresserMesh_1_collision_1.obj" />
+    <mesh name="Dresser_205_1_DresserMesh_1_collision_9" content_type="model/obj" file="Dresser_205_1_DresserMesh/Dresser_205_1_DresserMesh_1/Dresser_205_1_DresserMesh_1_collision_9.obj" />
+    <mesh name="Dresser_205_1_DresserMesh_1_collision_7" content_type="model/obj" file="Dresser_205_1_DresserMesh/Dresser_205_1_DresserMesh_1/Dresser_205_1_DresserMesh_1_collision_7.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_0_collision_10" content_type="model/obj" file="Dresser_205_1_DrawerMesh_0/Dresser_205_1_DrawerMesh_0/Dresser_205_1_DrawerMesh_0_collision_10.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_0_collision_2" content_type="model/obj" file="Dresser_205_1_DrawerMesh_0/Dresser_205_1_DrawerMesh_0/Dresser_205_1_DrawerMesh_0_collision_2.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_0_collision_5" content_type="model/obj" file="Dresser_205_1_DrawerMesh_0/Dresser_205_1_DrawerMesh_0/Dresser_205_1_DrawerMesh_0_collision_5.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_0_collision_9" content_type="model/obj" file="Dresser_205_1_DrawerMesh_0/Dresser_205_1_DrawerMesh_0/Dresser_205_1_DrawerMesh_0_collision_9.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_0_collision_7" content_type="model/obj" file="Dresser_205_1_DrawerMesh_0/Dresser_205_1_DrawerMesh_0/Dresser_205_1_DrawerMesh_0_collision_7.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_0_collision_0" content_type="model/obj" file="Dresser_205_1_DrawerMesh_0/Dresser_205_1_DrawerMesh_0/Dresser_205_1_DrawerMesh_0_collision_0.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_0_collision_1" content_type="model/obj" file="Dresser_205_1_DrawerMesh_0/Dresser_205_1_DrawerMesh_0/Dresser_205_1_DrawerMesh_0_collision_1.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_0_collision_3" content_type="model/obj" file="Dresser_205_1_DrawerMesh_0/Dresser_205_1_DrawerMesh_0/Dresser_205_1_DrawerMesh_0_collision_3.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_0_collision_11" content_type="model/obj" file="Dresser_205_1_DrawerMesh_0/Dresser_205_1_DrawerMesh_0/Dresser_205_1_DrawerMesh_0_collision_11.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_0_collision_4" content_type="model/obj" file="Dresser_205_1_DrawerMesh_0/Dresser_205_1_DrawerMesh_0/Dresser_205_1_DrawerMesh_0_collision_4.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_0_collision_6" content_type="model/obj" file="Dresser_205_1_DrawerMesh_0/Dresser_205_1_DrawerMesh_0/Dresser_205_1_DrawerMesh_0_collision_6.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_0_collision_8" content_type="model/obj" file="Dresser_205_1_DrawerMesh_0/Dresser_205_1_DrawerMesh_0/Dresser_205_1_DrawerMesh_0_collision_8.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_1_collision_8" content_type="model/obj" file="Dresser_205_1_DrawerMesh_1/Dresser_205_1_DrawerMesh_1/Dresser_205_1_DrawerMesh_1_collision_8.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_1_collision_2" content_type="model/obj" file="Dresser_205_1_DrawerMesh_1/Dresser_205_1_DrawerMesh_1/Dresser_205_1_DrawerMesh_1_collision_2.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_1_collision_11" content_type="model/obj" file="Dresser_205_1_DrawerMesh_1/Dresser_205_1_DrawerMesh_1/Dresser_205_1_DrawerMesh_1_collision_11.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_1_collision_7" content_type="model/obj" file="Dresser_205_1_DrawerMesh_1/Dresser_205_1_DrawerMesh_1/Dresser_205_1_DrawerMesh_1_collision_7.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_1_collision_9" content_type="model/obj" file="Dresser_205_1_DrawerMesh_1/Dresser_205_1_DrawerMesh_1/Dresser_205_1_DrawerMesh_1_collision_9.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_1_collision_4" content_type="model/obj" file="Dresser_205_1_DrawerMesh_1/Dresser_205_1_DrawerMesh_1/Dresser_205_1_DrawerMesh_1_collision_4.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_1_collision_0" content_type="model/obj" file="Dresser_205_1_DrawerMesh_1/Dresser_205_1_DrawerMesh_1/Dresser_205_1_DrawerMesh_1_collision_0.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_1_collision_3" content_type="model/obj" file="Dresser_205_1_DrawerMesh_1/Dresser_205_1_DrawerMesh_1/Dresser_205_1_DrawerMesh_1_collision_3.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_1_collision_1" content_type="model/obj" file="Dresser_205_1_DrawerMesh_1/Dresser_205_1_DrawerMesh_1/Dresser_205_1_DrawerMesh_1_collision_1.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_1_collision_6" content_type="model/obj" file="Dresser_205_1_DrawerMesh_1/Dresser_205_1_DrawerMesh_1/Dresser_205_1_DrawerMesh_1_collision_6.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_1_collision_10" content_type="model/obj" file="Dresser_205_1_DrawerMesh_1/Dresser_205_1_DrawerMesh_1/Dresser_205_1_DrawerMesh_1_collision_10.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_1_collision_5" content_type="model/obj" file="Dresser_205_1_DrawerMesh_1/Dresser_205_1_DrawerMesh_1/Dresser_205_1_DrawerMesh_1_collision_5.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_2_collision_10" content_type="model/obj" file="Dresser_205_1_DrawerMesh_2/Dresser_205_1_DrawerMesh_2/Dresser_205_1_DrawerMesh_2_collision_10.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_2_collision_4" content_type="model/obj" file="Dresser_205_1_DrawerMesh_2/Dresser_205_1_DrawerMesh_2/Dresser_205_1_DrawerMesh_2_collision_4.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_2_collision_8" content_type="model/obj" file="Dresser_205_1_DrawerMesh_2/Dresser_205_1_DrawerMesh_2/Dresser_205_1_DrawerMesh_2_collision_8.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_2_collision_6" content_type="model/obj" file="Dresser_205_1_DrawerMesh_2/Dresser_205_1_DrawerMesh_2/Dresser_205_1_DrawerMesh_2_collision_6.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_2_collision_11" content_type="model/obj" file="Dresser_205_1_DrawerMesh_2/Dresser_205_1_DrawerMesh_2/Dresser_205_1_DrawerMesh_2_collision_11.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_2_collision_5" content_type="model/obj" file="Dresser_205_1_DrawerMesh_2/Dresser_205_1_DrawerMesh_2/Dresser_205_1_DrawerMesh_2_collision_5.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_2_collision_3" content_type="model/obj" file="Dresser_205_1_DrawerMesh_2/Dresser_205_1_DrawerMesh_2/Dresser_205_1_DrawerMesh_2_collision_3.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_2_collision_0" content_type="model/obj" file="Dresser_205_1_DrawerMesh_2/Dresser_205_1_DrawerMesh_2/Dresser_205_1_DrawerMesh_2_collision_0.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_2_collision_9" content_type="model/obj" file="Dresser_205_1_DrawerMesh_2/Dresser_205_1_DrawerMesh_2/Dresser_205_1_DrawerMesh_2_collision_9.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_2_collision_2" content_type="model/obj" file="Dresser_205_1_DrawerMesh_2/Dresser_205_1_DrawerMesh_2/Dresser_205_1_DrawerMesh_2_collision_2.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_2_collision_7" content_type="model/obj" file="Dresser_205_1_DrawerMesh_2/Dresser_205_1_DrawerMesh_2/Dresser_205_1_DrawerMesh_2_collision_7.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_2_collision_1" content_type="model/obj" file="Dresser_205_1_DrawerMesh_2/Dresser_205_1_DrawerMesh_2/Dresser_205_1_DrawerMesh_2_collision_1.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_3_collision_10" content_type="model/obj" file="Dresser_205_1_DrawerMesh_3/Dresser_205_1_DrawerMesh_3/Dresser_205_1_DrawerMesh_3_collision_10.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_3_collision_6" content_type="model/obj" file="Dresser_205_1_DrawerMesh_3/Dresser_205_1_DrawerMesh_3/Dresser_205_1_DrawerMesh_3_collision_6.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_3_collision_3" content_type="model/obj" file="Dresser_205_1_DrawerMesh_3/Dresser_205_1_DrawerMesh_3/Dresser_205_1_DrawerMesh_3_collision_3.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_3_collision_0" content_type="model/obj" file="Dresser_205_1_DrawerMesh_3/Dresser_205_1_DrawerMesh_3/Dresser_205_1_DrawerMesh_3_collision_0.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_3_collision_5" content_type="model/obj" file="Dresser_205_1_DrawerMesh_3/Dresser_205_1_DrawerMesh_3/Dresser_205_1_DrawerMesh_3_collision_5.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_3_collision_1" content_type="model/obj" file="Dresser_205_1_DrawerMesh_3/Dresser_205_1_DrawerMesh_3/Dresser_205_1_DrawerMesh_3_collision_1.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_3_collision_8" content_type="model/obj" file="Dresser_205_1_DrawerMesh_3/Dresser_205_1_DrawerMesh_3/Dresser_205_1_DrawerMesh_3_collision_8.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_3_collision_7" content_type="model/obj" file="Dresser_205_1_DrawerMesh_3/Dresser_205_1_DrawerMesh_3/Dresser_205_1_DrawerMesh_3_collision_7.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_3_collision_9" content_type="model/obj" file="Dresser_205_1_DrawerMesh_3/Dresser_205_1_DrawerMesh_3/Dresser_205_1_DrawerMesh_3_collision_9.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_3_collision_11" content_type="model/obj" file="Dresser_205_1_DrawerMesh_3/Dresser_205_1_DrawerMesh_3/Dresser_205_1_DrawerMesh_3_collision_11.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_3_collision_4" content_type="model/obj" file="Dresser_205_1_DrawerMesh_3/Dresser_205_1_DrawerMesh_3/Dresser_205_1_DrawerMesh_3_collision_4.obj" />
+    <mesh name="Dresser_205_1_DrawerMesh_3_collision_2" content_type="model/obj" file="Dresser_205_1_DrawerMesh_3/Dresser_205_1_DrawerMesh_3/Dresser_205_1_DrawerMesh_3_collision_2.obj" />
+    <mesh name="Dresser_205_1_handle_1_305mm_0_collision_2" content_type="model/obj" file="Dresser_205_1_handle_1_305mm_0/Dresser_205_1_handle_1_305mm_0/Dresser_205_1_handle_1_305mm_0_collision_2.obj" />
+    <mesh name="Dresser_205_1_handle_1_305mm_0_collision_0" content_type="model/obj" file="Dresser_205_1_handle_1_305mm_0/Dresser_205_1_handle_1_305mm_0/Dresser_205_1_handle_1_305mm_0_collision_0.obj" />
+    <mesh name="Dresser_205_1_handle_1_305mm_0_collision_1" content_type="model/obj" file="Dresser_205_1_handle_1_305mm_0/Dresser_205_1_handle_1_305mm_0/Dresser_205_1_handle_1_305mm_0_collision_1.obj" />
+    <mesh name="Dresser_205_1_handle_1_305mm_1_collision_2" content_type="model/obj" file="Dresser_205_1_handle_1_305mm_1/Dresser_205_1_handle_1_305mm_1/Dresser_205_1_handle_1_305mm_1_collision_2.obj" />
+    <mesh name="Dresser_205_1_handle_1_305mm_1_collision_0" content_type="model/obj" file="Dresser_205_1_handle_1_305mm_1/Dresser_205_1_handle_1_305mm_1/Dresser_205_1_handle_1_305mm_1_collision_0.obj" />
+    <mesh name="Dresser_205_1_handle_1_305mm_1_collision_1" content_type="model/obj" file="Dresser_205_1_handle_1_305mm_1/Dresser_205_1_handle_1_305mm_1/Dresser_205_1_handle_1_305mm_1_collision_1.obj" />
+    <mesh name="Dresser_205_1_handle_1_305mm_2_collision_1" content_type="model/obj" file="Dresser_205_1_handle_1_305mm_2/Dresser_205_1_handle_1_305mm_2/Dresser_205_1_handle_1_305mm_2_collision_1.obj" />
+    <mesh name="Dresser_205_1_handle_1_305mm_2_collision_0" content_type="model/obj" file="Dresser_205_1_handle_1_305mm_2/Dresser_205_1_handle_1_305mm_2/Dresser_205_1_handle_1_305mm_2_collision_0.obj" />
+    <mesh name="Dresser_205_1_handle_1_305mm_2_collision_2" content_type="model/obj" file="Dresser_205_1_handle_1_305mm_2/Dresser_205_1_handle_1_305mm_2/Dresser_205_1_handle_1_305mm_2_collision_2.obj" />
+    <mesh name="Dresser_205_1_handle_1_305mm_3_collision_2" content_type="model/obj" file="Dresser_205_1_handle_1_305mm_3/Dresser_205_1_handle_1_305mm_3/Dresser_205_1_handle_1_305mm_3_collision_2.obj" />
+    <mesh name="Dresser_205_1_handle_1_305mm_3_collision_0" content_type="model/obj" file="Dresser_205_1_handle_1_305mm_3/Dresser_205_1_handle_1_305mm_3/Dresser_205_1_handle_1_305mm_3_collision_0.obj" />
+    <mesh name="Dresser_205_1_handle_1_305mm_3_collision_1" content_type="model/obj" file="Dresser_205_1_handle_1_305mm_3/Dresser_205_1_handle_1_305mm_3/Dresser_205_1_handle_1_305mm_3_collision_1.obj" />
+  </asset>
+
+  <worldbody>
+    <body name="Dresser_205_1">
+      <body name="Dresser_205_1_DresserMesh" pos="0 -0.34961 -0.00119">
+        <geom name="Dresser_205_1_DresserMesh_0" class="__VISUAL_MJT__" type="mesh" density="120" material="material_LightWoodCounters3" mesh="Dresser_205_1_DresserMesh_0" />
+        <geom name="Dresser_205_1_DresserMesh_1" class="__VISUAL_MJT__" type="mesh" density="120" material="material_DarkWoodSmooth" mesh="Dresser_205_1_DresserMesh_1" />
+        <geom name="Dresser_205_1_DresserMesh_Dresser_205_1_DresserMesh_0_MeshCollider_0" class="__DYNAMIC_MJT__" type="mesh" density="120" rgba="0.353792 0.0148516 0.610911 1" mesh="Dresser_205_1_DresserMesh_0_collision_0" />
+        <geom name="Dresser_205_1_DresserMesh_Dresser_205_1_DresserMesh_1_MeshCollider_0" class="__DYNAMIC_MJT__" type="mesh" density="120" rgba="0.636997 0.478333 0.715973 1" mesh="Dresser_205_1_DresserMesh_1_collision_14" />
+        <geom name="Dresser_205_1_DresserMesh_Dresser_205_1_DresserMesh_1_MeshCollider_1" class="__DYNAMIC_MJT__" type="mesh" density="120" rgba="0.197636 0.404112 0.6639 1" mesh="Dresser_205_1_DresserMesh_1_collision_12" />
+        <geom name="Dresser_205_1_DresserMesh_Dresser_205_1_DresserMesh_1_MeshCollider_2" class="__DYNAMIC_MJT__" type="mesh" density="120" rgba="0.00665003 0.245582 0.419166 1" mesh="Dresser_205_1_DresserMesh_1_collision_5" />
+        <geom name="Dresser_205_1_DresserMesh_Dresser_205_1_DresserMesh_1_MeshCollider_3" class="__DYNAMIC_MJT__" type="mesh" density="120" rgba="0.704353 0.0187688 0.397738 1" mesh="Dresser_205_1_DresserMesh_1_collision_0" />
+        <geom name="Dresser_205_1_DresserMesh_Dresser_205_1_DresserMesh_1_MeshCollider_4" class="__DYNAMIC_MJT__" type="mesh" density="120" rgba="0.246404 0.526564 0.990688 1" mesh="Dresser_205_1_DresserMesh_1_collision_3" />
+        <geom name="Dresser_205_1_DresserMesh_Dresser_205_1_DresserMesh_1_MeshCollider_5" class="__DYNAMIC_MJT__" type="mesh" density="120" rgba="0.77835 0.89569 0.790924 1" mesh="Dresser_205_1_DresserMesh_1_collision_4" />
+        <geom name="Dresser_205_1_DresserMesh_Dresser_205_1_DresserMesh_1_MeshCollider_6" class="__DYNAMIC_MJT__" type="mesh" density="120" rgba="0.558675 0.46229 0.778519 1" mesh="Dresser_205_1_DresserMesh_1_collision_2" />
+        <geom name="Dresser_205_1_DresserMesh_Dresser_205_1_DresserMesh_1_MeshCollider_7" class="__DYNAMIC_MJT__" type="mesh" density="120" rgba="0.162539 0.518181 0.573159 1" mesh="Dresser_205_1_DresserMesh_1_collision_15" />
+        <geom name="Dresser_205_1_DresserMesh_Dresser_205_1_DresserMesh_1_MeshCollider_8" class="__DYNAMIC_MJT__" type="mesh" density="120" rgba="0.299297 0.202019 0.0698767 1" mesh="Dresser_205_1_DresserMesh_1_collision_16" />
+        <geom name="Dresser_205_1_DresserMesh_Dresser_205_1_DresserMesh_1_MeshCollider_9" class="__DYNAMIC_MJT__" type="mesh" density="120" rgba="0.0741207 0.672575 0.357454 1" mesh="Dresser_205_1_DresserMesh_1_collision_11" />
+        <geom name="Dresser_205_1_DresserMesh_Dresser_205_1_DresserMesh_1_MeshCollider_10" class="__DYNAMIC_MJT__" type="mesh" density="120" rgba="0.691054 0.841927 0.776258 1" mesh="Dresser_205_1_DresserMesh_1_collision_6" />
+        <geom name="Dresser_205_1_DresserMesh_Dresser_205_1_DresserMesh_1_MeshCollider_11" class="__DYNAMIC_MJT__" type="mesh" density="120" rgba="0.348726 0.385037 0.570246 1" mesh="Dresser_205_1_DresserMesh_1_collision_10" />
+        <geom name="Dresser_205_1_DresserMesh_Dresser_205_1_DresserMesh_1_MeshCollider_12" class="__DYNAMIC_MJT__" type="mesh" density="120" rgba="0.61515 0.65638 0.792265 1" mesh="Dresser_205_1_DresserMesh_1_collision_8" />
+        <geom name="Dresser_205_1_DresserMesh_Dresser_205_1_DresserMesh_1_MeshCollider_13" class="__DYNAMIC_MJT__" type="mesh" density="120" rgba="0.50403 0.914832 0.730438 1" mesh="Dresser_205_1_DresserMesh_1_collision_13" />
+        <geom name="Dresser_205_1_DresserMesh_Dresser_205_1_DresserMesh_1_MeshCollider_14" class="__DYNAMIC_MJT__" type="mesh" density="120" rgba="0.339406 0.163092 0.711205 1" mesh="Dresser_205_1_DresserMesh_1_collision_1" />
+        <geom name="Dresser_205_1_DresserMesh_Dresser_205_1_DresserMesh_1_MeshCollider_15" class="__DYNAMIC_MJT__" type="mesh" density="120" rgba="0.753614 0.401791 0.567584 1" mesh="Dresser_205_1_DresserMesh_1_collision_9" />
+        <geom name="Dresser_205_1_DresserMesh_Dresser_205_1_DresserMesh_1_MeshCollider_16" class="__DYNAMIC_MJT__" type="mesh" density="120" rgba="0.798988 0.192292 0.664266 1" mesh="Dresser_205_1_DresserMesh_1_collision_7" />
+        <site name="Dresser_205_1_DresserMesh_Receptacle_0" class="/" pos="0 0.754792 0" quat="0 1 0 0" size="0.602611 0.0557916 0.188205" type="box" rgba="1 0 0 1" />
+        <body name="Dresser_205_1_DrawerMesh_0" pos="-0.275986 0.478063 0.0708615">
+          <joint name="Dresser_205_1_joint" class="/" pos="0 0 0" axis="0 0 1" type="slide" range="0 0.206" damping="0.1" frictionloss="2" />
+          <geom name="Dresser_205_1_DrawerMesh_0" class="__VISUAL_MJT__" type="mesh" density="100" material="material_DarkWoodSmooth" mesh="Dresser_205_1_DrawerMesh_0" />
+          <geom name="Dresser_205_1_DrawerMesh_0_Dresser_205_1_DrawerMesh_0_MeshCollider_0" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.127477 0.261896 0.593097 1" mesh="Dresser_205_1_DrawerMesh_0_collision_10" />
+          <geom name="Dresser_205_1_DrawerMesh_0_Dresser_205_1_DrawerMesh_0_MeshCollider_1" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.619458 0.928272 0.0374052 1" mesh="Dresser_205_1_DrawerMesh_0_collision_2" />
+          <geom name="Dresser_205_1_DrawerMesh_0_Dresser_205_1_DrawerMesh_0_MeshCollider_2" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.262378 0.382646 0.371359 1" mesh="Dresser_205_1_DrawerMesh_0_collision_5" />
+          <geom name="Dresser_205_1_DrawerMesh_0_Dresser_205_1_DrawerMesh_0_MeshCollider_3" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.413454 0.233518 0.171311 1" mesh="Dresser_205_1_DrawerMesh_0_collision_9" />
+          <geom name="Dresser_205_1_DrawerMesh_0_Dresser_205_1_DrawerMesh_0_MeshCollider_4" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.645928 0.198758 0.203435 1" mesh="Dresser_205_1_DrawerMesh_0_collision_7" />
+          <geom name="Dresser_205_1_DrawerMesh_0_Dresser_205_1_DrawerMesh_0_MeshCollider_5" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.0869823 0.984432 0.611726 1" mesh="Dresser_205_1_DrawerMesh_0_collision_0" />
+          <geom name="Dresser_205_1_DrawerMesh_0_Dresser_205_1_DrawerMesh_0_MeshCollider_6" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.642988 0.20202 0.436868 1" mesh="Dresser_205_1_DrawerMesh_0_collision_1" />
+          <geom name="Dresser_205_1_DrawerMesh_0_Dresser_205_1_DrawerMesh_0_MeshCollider_7" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.169579 0.723532 0.210866 1" mesh="Dresser_205_1_DrawerMesh_0_collision_3" />
+          <geom name="Dresser_205_1_DrawerMesh_0_Dresser_205_1_DrawerMesh_0_MeshCollider_8" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.159959 0.743699 0.696933 1" mesh="Dresser_205_1_DrawerMesh_0_collision_11" />
+          <geom name="Dresser_205_1_DrawerMesh_0_Dresser_205_1_DrawerMesh_0_MeshCollider_9" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.794245 0.135104 0.578073 1" mesh="Dresser_205_1_DrawerMesh_0_collision_4" />
+          <geom name="Dresser_205_1_DrawerMesh_0_Dresser_205_1_DrawerMesh_0_MeshCollider_10" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.93356 0.988943 0.785161 1" mesh="Dresser_205_1_DrawerMesh_0_collision_6" />
+          <geom name="Dresser_205_1_DrawerMesh_0_Dresser_205_1_DrawerMesh_0_MeshCollider_11" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.33172 0.492714 0.639739 1" mesh="Dresser_205_1_DrawerMesh_0_collision_8" />
+          <site name="Dresser_205_1_DrawerMesh_0_Receptacle_0" class="/" pos="0 0.0284318 0.012494" quat="0 1 0 0" size="0.23667 0.129496 0.0980626" type="box" rgba="1 0 0 1" />
+          <body name="Dresser_205_1_handle_1_305mm_0" pos="0 0.119 0.121">
+            <geom name="Dresser_205_1_handle_1_305mm_0" class="__VISUAL_MJT__" type="mesh" material="material_HammeredMetal_Dark" mesh="Dresser_205_1_handle_1_305mm_0" />
+            <geom name="Dresser_205_1_handle_1_305mm_0_Dresser_205_1_handle_1_305mm_0_MeshCollider_0" class="__DYNAMIC_MJT__" type="mesh" rgba="0.535167 0.42876 0.330526 1" mesh="Dresser_205_1_handle_1_305mm_0_collision_2" />
+            <geom name="Dresser_205_1_handle_1_305mm_0_Dresser_205_1_handle_1_305mm_0_MeshCollider_1" class="__DYNAMIC_MJT__" type="mesh" rgba="0.631613 0.766188 0.192872 1" mesh="Dresser_205_1_handle_1_305mm_0_collision_0" />
+            <geom name="Dresser_205_1_handle_1_305mm_0_Dresser_205_1_handle_1_305mm_0_MeshCollider_2" class="__DYNAMIC_MJT__" type="mesh" rgba="0.477068 0.785309 0.0410458 1" mesh="Dresser_205_1_handle_1_305mm_0_collision_1" />
+          </body>
+        </body>
+        <body name="Dresser_205_1_DrawerMesh_1" pos="-0.275986 0.168286 0.0708615">
+          <joint name="Dresser_205_1_DrawerMesh_1__1" class="/" pos="0 0 0" axis="0 0 1" type="slide" range="0 0.206" damping="0.1" frictionloss="2" />
+          <geom name="Dresser_205_1_DrawerMesh_1" class="__VISUAL_MJT__" type="mesh" density="100" material="material_DarkWoodSmooth" mesh="Dresser_205_1_DrawerMesh_1" />
+          <geom name="Dresser_205_1_DrawerMesh_1_Dresser_205_1_DrawerMesh_1_MeshCollider_0" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.900111 0.367966 0.172268 1" mesh="Dresser_205_1_DrawerMesh_1_collision_8" />
+          <geom name="Dresser_205_1_DrawerMesh_1_Dresser_205_1_DrawerMesh_1_MeshCollider_1" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.150812 0.0614166 0.981737 1" mesh="Dresser_205_1_DrawerMesh_1_collision_2" />
+          <geom name="Dresser_205_1_DrawerMesh_1_Dresser_205_1_DrawerMesh_1_MeshCollider_2" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.297387 0.113454 0.111466 1" mesh="Dresser_205_1_DrawerMesh_1_collision_11" />
+          <geom name="Dresser_205_1_DrawerMesh_1_Dresser_205_1_DrawerMesh_1_MeshCollider_3" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.419528 0.963427 0.968038 1" mesh="Dresser_205_1_DrawerMesh_1_collision_7" />
+          <geom name="Dresser_205_1_DrawerMesh_1_Dresser_205_1_DrawerMesh_1_MeshCollider_4" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.884201 0.614345 0.064811 1" mesh="Dresser_205_1_DrawerMesh_1_collision_9" />
+          <geom name="Dresser_205_1_DrawerMesh_1_Dresser_205_1_DrawerMesh_1_MeshCollider_5" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.722968 0.929245 0.00630655 1" mesh="Dresser_205_1_DrawerMesh_1_collision_4" />
+          <geom name="Dresser_205_1_DrawerMesh_1_Dresser_205_1_DrawerMesh_1_MeshCollider_6" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.427504 0.167529 0.151751 1" mesh="Dresser_205_1_DrawerMesh_1_collision_0" />
+          <geom name="Dresser_205_1_DrawerMesh_1_Dresser_205_1_DrawerMesh_1_MeshCollider_7" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.711695 0.0144207 0.151143 1" mesh="Dresser_205_1_DrawerMesh_1_collision_3" />
+          <geom name="Dresser_205_1_DrawerMesh_1_Dresser_205_1_DrawerMesh_1_MeshCollider_8" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.310992 0.860334 0.297995 1" mesh="Dresser_205_1_DrawerMesh_1_collision_1" />
+          <geom name="Dresser_205_1_DrawerMesh_1_Dresser_205_1_DrawerMesh_1_MeshCollider_9" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.842252 0.762475 0.97136 1" mesh="Dresser_205_1_DrawerMesh_1_collision_6" />
+          <geom name="Dresser_205_1_DrawerMesh_1_Dresser_205_1_DrawerMesh_1_MeshCollider_10" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.290468 0.456394 0.518452 1" mesh="Dresser_205_1_DrawerMesh_1_collision_10" />
+          <geom name="Dresser_205_1_DrawerMesh_1_Dresser_205_1_DrawerMesh_1_MeshCollider_11" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.442188 0.765122 0.459583 1" mesh="Dresser_205_1_DrawerMesh_1_collision_5" />
+          <site name="Dresser_205_1_DrawerMesh_1_Receptacle_0" class="/" pos="0 0.0284318 0.012494" quat="0 1 0 0" size="0.23667 0.129496 0.0980626" type="box" rgba="1 0 0 1" />
+          <body name="Dresser_205_1_handle_1_305mm_1" pos="0 0.119 0.121">
+            <geom name="Dresser_205_1_handle_1_305mm_1" class="__VISUAL_MJT__" type="mesh" material="material_HammeredMetal_Dark" mesh="Dresser_205_1_handle_1_305mm_1" />
+            <geom name="Dresser_205_1_handle_1_305mm_1_Dresser_205_1_handle_1_305mm_1_MeshCollider_0" class="__DYNAMIC_MJT__" type="mesh" rgba="0.542003 0.0312245 0.214577 1" mesh="Dresser_205_1_handle_1_305mm_1_collision_2" />
+            <geom name="Dresser_205_1_handle_1_305mm_1_Dresser_205_1_handle_1_305mm_1_MeshCollider_1" class="__DYNAMIC_MJT__" type="mesh" rgba="0.23466 0.0169875 0.0928497 1" mesh="Dresser_205_1_handle_1_305mm_1_collision_0" />
+            <geom name="Dresser_205_1_handle_1_305mm_1_Dresser_205_1_handle_1_305mm_1_MeshCollider_2" class="__DYNAMIC_MJT__" type="mesh" rgba="0.783418 0.469008 0.626616 1" mesh="Dresser_205_1_handle_1_305mm_1_collision_1" />
+          </body>
+        </body>
+        <body name="Dresser_205_1_DrawerMesh_2" pos="0.275799 0.168286 0.0708615">
+          <joint name="Dresser_205_1_DrawerMesh_2__1" class="/" pos="0 0 0" axis="0 0 1" type="slide" range="0 0.206" damping="0.1" frictionloss="2" />
+          <geom name="Dresser_205_1_DrawerMesh_2" class="__VISUAL_MJT__" type="mesh" density="100" material="material_DarkWoodSmooth" mesh="Dresser_205_1_DrawerMesh_2" />
+          <geom name="Dresser_205_1_DrawerMesh_2_Dresser_205_1_DrawerMesh_2_MeshCollider_0" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.339178 0.395244 0.492159 1" mesh="Dresser_205_1_DrawerMesh_2_collision_10" />
+          <geom name="Dresser_205_1_DrawerMesh_2_Dresser_205_1_DrawerMesh_2_MeshCollider_1" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.345424 0.432665 0.946999 1" mesh="Dresser_205_1_DrawerMesh_2_collision_4" />
+          <geom name="Dresser_205_1_DrawerMesh_2_Dresser_205_1_DrawerMesh_2_MeshCollider_2" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.890543 0.802328 0.410739 1" mesh="Dresser_205_1_DrawerMesh_2_collision_8" />
+          <geom name="Dresser_205_1_DrawerMesh_2_Dresser_205_1_DrawerMesh_2_MeshCollider_3" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.55338 0.775481 0.296469 1" mesh="Dresser_205_1_DrawerMesh_2_collision_6" />
+          <geom name="Dresser_205_1_DrawerMesh_2_Dresser_205_1_DrawerMesh_2_MeshCollider_4" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.743533 0.278462 0.203596 1" mesh="Dresser_205_1_DrawerMesh_2_collision_11" />
+          <geom name="Dresser_205_1_DrawerMesh_2_Dresser_205_1_DrawerMesh_2_MeshCollider_5" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.180434 0.657911 0.534865 1" mesh="Dresser_205_1_DrawerMesh_2_collision_5" />
+          <geom name="Dresser_205_1_DrawerMesh_2_Dresser_205_1_DrawerMesh_2_MeshCollider_6" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.848874 0.684801 0.0105793 1" mesh="Dresser_205_1_DrawerMesh_2_collision_3" />
+          <geom name="Dresser_205_1_DrawerMesh_2_Dresser_205_1_DrawerMesh_2_MeshCollider_7" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.108736 0.73223 0.0291605 1" mesh="Dresser_205_1_DrawerMesh_2_collision_0" />
+          <geom name="Dresser_205_1_DrawerMesh_2_Dresser_205_1_DrawerMesh_2_MeshCollider_8" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.378227 0.956317 0.0342816 1" mesh="Dresser_205_1_DrawerMesh_2_collision_9" />
+          <geom name="Dresser_205_1_DrawerMesh_2_Dresser_205_1_DrawerMesh_2_MeshCollider_9" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.871564 0.280447 0.863422 1" mesh="Dresser_205_1_DrawerMesh_2_collision_2" />
+          <geom name="Dresser_205_1_DrawerMesh_2_Dresser_205_1_DrawerMesh_2_MeshCollider_10" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.0373951 0.557869 0.418465 1" mesh="Dresser_205_1_DrawerMesh_2_collision_7" />
+          <geom name="Dresser_205_1_DrawerMesh_2_Dresser_205_1_DrawerMesh_2_MeshCollider_11" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.193605 0.843652 0.0793982 1" mesh="Dresser_205_1_DrawerMesh_2_collision_1" />
+          <site name="Dresser_205_1_DrawerMesh_2_Receptacle_0" class="/" pos="0 0.0284318 0.012494" quat="0 1 0 0" size="0.23667 0.129496 0.0980626" type="box" rgba="1 0 0 1" />
+          <body name="Dresser_205_1_handle_1_305mm_2" pos="0 0.119 0.121">
+            <geom name="Dresser_205_1_handle_1_305mm_2" class="__VISUAL_MJT__" type="mesh" material="material_HammeredMetal_Dark" mesh="Dresser_205_1_handle_1_305mm_2" />
+            <geom name="Dresser_205_1_handle_1_305mm_2_Dresser_205_1_handle_1_305mm_2_MeshCollider_0" class="__DYNAMIC_MJT__" type="mesh" rgba="0.788405 0.0100353 0.991864 1" mesh="Dresser_205_1_handle_1_305mm_2_collision_1" />
+            <geom name="Dresser_205_1_handle_1_305mm_2_Dresser_205_1_handle_1_305mm_2_MeshCollider_1" class="__DYNAMIC_MJT__" type="mesh" rgba="0.410384 0.487116 0.696756 1" mesh="Dresser_205_1_handle_1_305mm_2_collision_0" />
+            <geom name="Dresser_205_1_handle_1_305mm_2_Dresser_205_1_handle_1_305mm_2_MeshCollider_2" class="__DYNAMIC_MJT__" type="mesh" rgba="0.00600694 0.596298 0.701853 1" mesh="Dresser_205_1_handle_1_305mm_2_collision_2" />
+          </body>
+        </body>
+        <body name="Dresser_205_1_DrawerMesh_3" pos="0.275799 0.478063 0.0708615">
+          <joint name="Dresser_205_1_DrawerMesh_3__1" class="/" pos="0 0 0" axis="0 0 1" type="slide" range="0 0.206" damping="0.1" frictionloss="2" />
+          <geom name="Dresser_205_1_DrawerMesh_3" class="__VISUAL_MJT__" type="mesh" density="100" material="material_DarkWoodSmooth" mesh="Dresser_205_1_DrawerMesh_3" />
+          <geom name="Dresser_205_1_DrawerMesh_3_Dresser_205_1_DrawerMesh_3_MeshCollider_0" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.51391 0.2405 0.381014 1" mesh="Dresser_205_1_DrawerMesh_3_collision_10" />
+          <geom name="Dresser_205_1_DrawerMesh_3_Dresser_205_1_DrawerMesh_3_MeshCollider_1" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.50735 0.119947 0.314675 1" mesh="Dresser_205_1_DrawerMesh_3_collision_6" />
+          <geom name="Dresser_205_1_DrawerMesh_3_Dresser_205_1_DrawerMesh_3_MeshCollider_2" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.33468 0.929206 0.449294 1" mesh="Dresser_205_1_DrawerMesh_3_collision_3" />
+          <geom name="Dresser_205_1_DrawerMesh_3_Dresser_205_1_DrawerMesh_3_MeshCollider_3" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.342327 0.34262 0.231489 1" mesh="Dresser_205_1_DrawerMesh_3_collision_0" />
+          <geom name="Dresser_205_1_DrawerMesh_3_Dresser_205_1_DrawerMesh_3_MeshCollider_4" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.307712 0.843574 0.0461731 1" mesh="Dresser_205_1_DrawerMesh_3_collision_5" />
+          <geom name="Dresser_205_1_DrawerMesh_3_Dresser_205_1_DrawerMesh_3_MeshCollider_5" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.759598 0.602827 0.0754168 1" mesh="Dresser_205_1_DrawerMesh_3_collision_1" />
+          <geom name="Dresser_205_1_DrawerMesh_3_Dresser_205_1_DrawerMesh_3_MeshCollider_6" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.919109 0.144075 0.697743 1" mesh="Dresser_205_1_DrawerMesh_3_collision_8" />
+          <geom name="Dresser_205_1_DrawerMesh_3_Dresser_205_1_DrawerMesh_3_MeshCollider_7" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.520058 0.771968 0.223815 1" mesh="Dresser_205_1_DrawerMesh_3_collision_7" />
+          <geom name="Dresser_205_1_DrawerMesh_3_Dresser_205_1_DrawerMesh_3_MeshCollider_8" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.810855 0.70839 0.472896 1" mesh="Dresser_205_1_DrawerMesh_3_collision_9" />
+          <geom name="Dresser_205_1_DrawerMesh_3_Dresser_205_1_DrawerMesh_3_MeshCollider_9" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.0399849 0.107779 0.389171 1" mesh="Dresser_205_1_DrawerMesh_3_collision_11" />
+          <geom name="Dresser_205_1_DrawerMesh_3_Dresser_205_1_DrawerMesh_3_MeshCollider_10" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.914051 0.305399 0.611273 1" mesh="Dresser_205_1_DrawerMesh_3_collision_4" />
+          <geom name="Dresser_205_1_DrawerMesh_3_Dresser_205_1_DrawerMesh_3_MeshCollider_11" class="__DYNAMIC_MJT__" type="mesh" density="100" rgba="0.828603 0.0243522 0.54718 1" mesh="Dresser_205_1_DrawerMesh_3_collision_2" />
+          <site name="Dresser_205_1_DrawerMesh_3_Receptacle_0" class="/" pos="0 0.0284318 0.012494" quat="0 1 0 0" size="0.23667 0.129496 0.0980626" type="box" rgba="1 0 0 1" />
+          <body name="Dresser_205_1_handle_1_305mm_3" pos="0 0.119 0.121">
+            <geom name="Dresser_205_1_handle_1_305mm_3" class="__VISUAL_MJT__" type="mesh" material="material_HammeredMetal_Dark" mesh="Dresser_205_1_handle_1_305mm_3" />
+            <geom name="Dresser_205_1_handle_1_305mm_3_Dresser_205_1_handle_1_305mm_3_MeshCollider_0" class="__DYNAMIC_MJT__" type="mesh" rgba="0.787404 0.458596 0.156683 1" mesh="Dresser_205_1_handle_1_305mm_3_collision_2" />
+            <geom name="Dresser_205_1_handle_1_305mm_3_Dresser_205_1_handle_1_305mm_3_MeshCollider_1" class="__DYNAMIC_MJT__" type="mesh" rgba="0.574061 0.0648337 0.21758 1" mesh="Dresser_205_1_handle_1_305mm_3_collision_0" />
+            <geom name="Dresser_205_1_handle_1_305mm_3_Dresser_205_1_handle_1_305mm_3_MeshCollider_2" class="__DYNAMIC_MJT__" type="mesh" rgba="0.680319 0.847159 0.450749 1" mesh="Dresser_205_1_handle_1_305mm_3_collision_1" />
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+
+  <contact>
+    <exclude name="//unnamed_contact_0" body1="Dresser_205_1_DresserMesh" body2="Dresser_205_1_DrawerMesh_0" />
+    <exclude body1="Dresser_205_1_DresserMesh" body2="Dresser_205_1_handle_1_305mm_0" />
+    <exclude name="//unnamed_contact_1" body1="Dresser_205_1_DresserMesh" body2="Dresser_205_1_DrawerMesh_1" />
+    <exclude body1="Dresser_205_1_DresserMesh" body2="Dresser_205_1_handle_1_305mm_1" />
+    <exclude name="//unnamed_contact_2" body1="Dresser_205_1_DresserMesh" body2="Dresser_205_1_DrawerMesh_2" />
+    <exclude body1="Dresser_205_1_DresserMesh" body2="Dresser_205_1_handle_1_305mm_2" />
+    <exclude name="//unnamed_contact_3" body1="Dresser_205_1_DresserMesh" body2="Dresser_205_1_DrawerMesh_3" />
+    <exclude body1="Dresser_205_1_DresserMesh" body2="Dresser_205_1_handle_1_305mm_3" />
+    <exclude body1="Dresser_205_1_DrawerMesh_0" body2="Dresser_205_1_handle_1_305mm_0" />
+    <exclude body1="Dresser_205_1_DrawerMesh_0" body2="Dresser_205_1_DrawerMesh_1" />
+    <exclude body1="Dresser_205_1_DrawerMesh_0" body2="Dresser_205_1_handle_1_305mm_1" />
+    <exclude body1="Dresser_205_1_DrawerMesh_0" body2="Dresser_205_1_DrawerMesh_2" />
+    <exclude body1="Dresser_205_1_DrawerMesh_0" body2="Dresser_205_1_handle_1_305mm_2" />
+    <exclude body1="Dresser_205_1_DrawerMesh_0" body2="Dresser_205_1_DrawerMesh_3" />
+    <exclude body1="Dresser_205_1_DrawerMesh_0" body2="Dresser_205_1_handle_1_305mm_3" />
+    <exclude body1="Dresser_205_1_handle_1_305mm_0" body2="Dresser_205_1_DrawerMesh_1" />
+    <exclude body1="Dresser_205_1_handle_1_305mm_0" body2="Dresser_205_1_handle_1_305mm_1" />
+    <exclude body1="Dresser_205_1_handle_1_305mm_0" body2="Dresser_205_1_DrawerMesh_2" />
+    <exclude body1="Dresser_205_1_handle_1_305mm_0" body2="Dresser_205_1_handle_1_305mm_2" />
+    <exclude body1="Dresser_205_1_handle_1_305mm_0" body2="Dresser_205_1_DrawerMesh_3" />
+    <exclude body1="Dresser_205_1_handle_1_305mm_0" body2="Dresser_205_1_handle_1_305mm_3" />
+    <exclude body1="Dresser_205_1_DrawerMesh_1" body2="Dresser_205_1_handle_1_305mm_1" />
+    <exclude body1="Dresser_205_1_DrawerMesh_1" body2="Dresser_205_1_DrawerMesh_2" />
+    <exclude body1="Dresser_205_1_DrawerMesh_1" body2="Dresser_205_1_handle_1_305mm_2" />
+    <exclude body1="Dresser_205_1_DrawerMesh_1" body2="Dresser_205_1_DrawerMesh_3" />
+    <exclude body1="Dresser_205_1_DrawerMesh_1" body2="Dresser_205_1_handle_1_305mm_3" />
+    <exclude body1="Dresser_205_1_handle_1_305mm_1" body2="Dresser_205_1_DrawerMesh_2" />
+    <exclude body1="Dresser_205_1_handle_1_305mm_1" body2="Dresser_205_1_handle_1_305mm_2" />
+    <exclude body1="Dresser_205_1_handle_1_305mm_1" body2="Dresser_205_1_DrawerMesh_3" />
+    <exclude body1="Dresser_205_1_handle_1_305mm_1" body2="Dresser_205_1_handle_1_305mm_3" />
+    <exclude body1="Dresser_205_1_DrawerMesh_2" body2="Dresser_205_1_handle_1_305mm_2" />
+    <exclude body1="Dresser_205_1_DrawerMesh_2" body2="Dresser_205_1_DrawerMesh_3" />
+    <exclude body1="Dresser_205_1_DrawerMesh_2" body2="Dresser_205_1_handle_1_305mm_3" />
+    <exclude body1="Dresser_205_1_handle_1_305mm_2" body2="Dresser_205_1_DrawerMesh_3" />
+    <exclude body1="Dresser_205_1_handle_1_305mm_2" body2="Dresser_205_1_handle_1_305mm_3" />
+    <exclude body1="Dresser_205_1_DrawerMesh_3" body2="Dresser_205_1_handle_1_305mm_3" />
+  </contact>
+</mujoco>

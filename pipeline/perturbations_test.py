@@ -11,11 +11,7 @@ import multiprocessing as mp
 from scipy.spatial.transform import Rotation as R
 from tqdm import tqdm
 import sys
-import matplotlib.pyplot as plt
 from functools import partial
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
-from assets.grippers.robotiq.robotiq_gripper import RobotiqGripper
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--object_name", type=str)

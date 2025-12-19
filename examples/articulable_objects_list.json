@@ -1,0 +1,10 @@
+[
+    {
+        "name": "Doorway_1",
+        "xml": "examples/Doorway_1/Doorway_1.xml"
+    },
+    {
+        "name": "Dresser_205_1",
+        "xml": "examples/Dresser_205_1/Dresser_205_1.xml"
+    }
+]

@@ -9,15 +9,10 @@ import traceback
 from tqdm import tqdm
 import mujoco
 import mujoco.viewer
-
 from scipy.spatial.transform import Rotation as R
 from sklearn.cluster import MiniBatchKMeans
 import re
 
-import sys
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-from assets.grippers.robotiq.robotiq_gripper import RobotiqGripper
 
 def rotation_matrix_from_axis_angle(axis, angle):
     axis = axis / np.linalg.norm(axis)
@@ -792,9 +787,10 @@ def run_simulation_with_viewer(
 def main_single_file_filtering(
     grasps_path, object_name, xml_file, args, joint_axis_info=None, handle_geoms=None
 ):
-    xml_path = os.path.join(os.path.dirname(__file__), "../../assets/scenes/main_scene.xml")
+    xml_path = os.path.join(os.path.dirname(__file__), "../assets/scenes/main_scene.xml")
     tree = ET.parse(xml_path)
     root = tree.getroot()
+    
     try:
         with open(xml_file, "r") as f:
             obj_xml_content = f.read()
@@ -817,7 +813,6 @@ def main_single_file_filtering(
         print(f"Error modifying XML to remove free joints: {e}")
         include = ET.Element("include", {"file": xml_file})
     root.append(include)
-    worldbody = root.find("worldbody")
     if joint_axis_info is not None:
         primary_joint = joint_axis_info
     else:
@@ -827,7 +822,7 @@ def main_single_file_filtering(
         return 0, None
 
     xml_content = ET.tostring(root, encoding="unicode")
-    robot_xml_path = os.path.join(os.path.dirname(__file__), "../../assets/grippers/robotiq/xmls/model_articulate.xml")
+    robot_xml_path = os.path.join(os.path.dirname(__file__), "../assets/grippers/robotiq/xmls/model_articulate.xml")
 
     with open(robot_xml_path, "r") as f:
         robot_xml_content = f.read()
@@ -907,6 +902,11 @@ def main():
     parser.add_argument("--diversity_mode", action="store_true", help="Use clustering-based diversity when testing grasps (default: False)")
     parser.add_argument("--num_clusters", type=int, default=40, help="Number of position-rotation clusters for diversity (default: 40)")
     args = parser.parse_args()
+    
+    # Convert xml_file to absolute path BEFORE chdir if provided
+    if args.xml_file and not os.path.isabs(args.xml_file):
+        args.xml_file = os.path.abspath(args.xml_file)
+    
     if args.per_joint_summary_json:
         summary_path = os.path.abspath(args.per_joint_summary_json)
         os.chdir(os.path.dirname(summary_path))
@@ -921,6 +921,12 @@ def main():
                 grasps_file = entry.get("grasps_file")
             handle_mesh = entry.get("handle_mesh")
             xml_file = entry.get("xml_file") if entry.get("xml_file") else args.xml_file
+            
+            # Convert xml_file to absolute path BEFORE any processing
+            # This ensures it works correctly after os.chdir
+            if xml_file and not os.path.isabs(xml_file):
+                xml_file = os.path.abspath(xml_file)
+            
             joint_info = (
                 entry.get("primary_joint")
                 or entry.get("joint_axis")

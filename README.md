@@ -47,12 +47,12 @@ Create a JSON file containing a list of MJCF objects to process. Each object nee
   ]
 ```
 
-See `examples/example_objects_list.json` for a working example.
+See `examples/rigid_objects_list.json` for a working example.
 
 #### 2. Run the Pipeline
 
 ```bash
-python run_rigid.py --objects_list path/to/objects_list.json
+python run_rigid.py --objects_list examples/rigid_objects_list.json
 ```
 
 #### 3. Results
@@ -70,7 +70,57 @@ The `.npz` file contains the validated grasp transforms.
 #### 4. Visualize Results
 
 ```bash
-python scripts/visualize_meshcat.py --objects_list path/to/objects_list.json
+python scripts/visualize_meshcat.py --objects_list examples/rigid_objects_list.json
 ```
 
 Use arrow keys (or `n`/`p`) to navigate between objects, `q` to quit.
+
+### Articulable Objects
+
+#### 1. Prepare Object List
+
+Create a JSON file containing a list of articulable MJCF objects to process. Each object needs a `name` and `xml` path:
+
+```json
+[
+    {
+        "name": "Doorway_1",
+        "xml": "/path/to/Doorway_1/Doorway_1.xml"
+    }
+]
+```
+
+See `examples/articulable_objects_list.json` for a working example.
+
+#### 2. Run the Pipeline
+
+```bash
+python run_articulable.py --objects_list examples/articulable_objects_list.json
+```
+
+#### 3. Results
+
+Results are saved to `results/articulable_objects/<object_name>/`:
+
+```
+results/articulable_objects/
+└── Doorway_1/
+    ├── main.obj
+    ├── joint_meshes_info.json
+    ├── joint_meshes_info_filtered.json
+    └── Doorway_1_doorway_handle_1_joint_0_grasps_filtered.npz
+```
+
+The filtered JSON and NPZ files contain per-joint validated grasp transforms.
+
+#### 4. Visualize Results
+
+```bash
+python scripts/visualize_meshcat.py \
+    --objects_list examples/articulable_objects_list.json \
+    --results_dir results/articulable_objects \
+    --articulable \
+    --max_grasps_per_joint 10
+```
+
+Use arrow keys (or `n`/`p`) to navigate between objects, `q` to quit. Different joints are shown in different colors.

@@ -1,30 +1,56 @@
 import json
 import os
 import subprocess
-import sys
 import wandb
-from datetime import datetime
-from pathlib import Path
+import argparse
+import numpy as np
 
-USE_WANDB = True
-MAX_SUCCESSFUL= 1000
+parser = argparse.ArgumentParser(description='Process articulable objects for grasp generation')
+parser.add_argument('--objects_list', type=str, default="results/articulable_objects_list.json", help='Path to JSON file with object list')
+parser.add_argument('--max_successful_grasps', type=int, default=1000, help='Max successful grasps per object')
+parser.add_argument('--use_wandb', action='store_true', help='Enable Weights & Biases logging')
+parser.add_argument('--num_workers', type=int, default=0, help='Number of workers (0 = all CPUs)')
+parser.add_argument('--approach_distance', type=float, default=0.6, help='Approach distance for grasp filtering')
+parser.add_argument('--approach_steps', type=int, default=10, help='Approach steps for grasp filtering')
+parser.add_argument('--max_contact_depth', type=float, default=1.0, help='Max contact depth')
+parser.add_argument('--min_contact_depth', type=float, default=0.0, help='Min contact depth')
+parser.add_argument('--center_contact_depth', type=float, default=0.75, help='Center contact depth')
+parser.add_argument('--contact_depth_bias', type=float, default=2.8, help='Contact depth bias')
+parser.add_argument('--num_clusters', type=int, default=40, help='Number of clusters for diversity mode')
+args = parser.parse_args()
 
-def load_articulated_objects():
-    matched_file = "results/articulable_objects_list.json"
+if args.num_workers == 0:
+    args.num_workers = int(os.cpu_count()/2)
 
-    if not os.path.exists(matched_file):
-        print(f"Error: {matched_file} not found!")
-        print(
-            "Please run 'python scripts/find_objects.py' first to generate object list"
-        )
-        return []
+if not os.path.exists(args.objects_list):
+    raise FileNotFoundError(f"Objects list file not found: {args.objects_list}")
 
-    with open(matched_file, "r") as f:
-        data = json.load(f)
+with open(args.objects_list, "r") as f:
+    data = json.load(f)
 
-    print(f"Loaded {len(data)} articulatable objects for processing")
-    return data
+print(f"Total objects in dataset: {len(data)}")
 
+if args.use_wandb:
+    run_id = wandb.util.generate_id()
+    
+    wandb.init(
+        project="mjcf2grasp",
+        id=run_id,
+        resume="allow",
+        config={"total_objects": len(data), "max_successful_grasps": args.max_successful_grasps}
+    )
+    wandb.define_metric("step")
+    wandb.define_metric("completion_percentage", step_metric="step")
+    wandb.define_metric("processed_objects", step_metric="step")
+    wandb.define_metric("remaining_objects", step_metric="step")
+    wandb.define_metric("grasp_count", step_metric="step")
+    wandb.define_metric("filtered_count", step_metric="step")
+    wandb.define_metric("filter_success_rate", step_metric="step")
+    wandb.log({"total_objects": len(data), "step": 0})
+
+processed_objects = 0
+failed_objects = []
+successful_objects = []
 
 def run_grasp_filtering_stage(
     object_name, grasps_path, xml_file, output_dir, per_joint_grasps_json=None
@@ -40,9 +66,8 @@ def run_grasp_filtering_stage(
     xml_file_for_filtering = xml_mesh_file
 
     if per_joint_grasps_json:
-        print(f"   Per-joint grasps JSON: {per_joint_grasps_json}")
         try:
-            print(f"   Filtering per-joint grasps using MuJoCo simulation...")
+            print(f"   Filtering per-joint grasps...")
             max_attempts = 2
             for attempt in range(1, max_attempts + 1):
                 try:
@@ -51,7 +76,7 @@ def run_grasp_filtering_stage(
                     
                     cmd_args = [
                         "python",
-                        "pipeline/articulable/articulation_test.py",
+                        "pipeline/articulation_test.py",
                         "--object_name",
                         object_name,
                         "--per_joint_summary_json",
@@ -59,23 +84,23 @@ def run_grasp_filtering_stage(
                         "--xml_file",
                         xml_file_for_filtering,
                         "--num_workers",
-                        str(os.cpu_count()),
+                        str(args.num_workers),
                         "--approach_distance",
-                        "0.6",
+                        str(args.approach_distance),
                         "--approach_steps",
-                        "10",
+                        str(args.approach_steps),
                         "--max_successful",
-                        str(MAX_SUCCESSFUL),
+                        str(args.max_successful_grasps),
                         "--max_contact_depth",
-                        "1.0",
+                        str(args.max_contact_depth),
                         "--min_contact_depth",
-                        "0.0",
+                        str(args.min_contact_depth),
                         "--center_contact_depth",
-                        "0.75",
+                        str(args.center_contact_depth),
                         "--contact_depth_bias",
-                        "2.8",
+                        str(args.contact_depth_bias),
                         "--num_clusters",
-                        "40",
+                        str(args.num_clusters),
                     ]
                     
                     if attempt == 1:
@@ -86,11 +111,8 @@ def run_grasp_filtering_stage(
                 except subprocess.CalledProcessError as e:
                     if attempt == max_attempts:
                         raise
-                    else:
-                        print(f"   Attempt {attempt} failed, retrying without diversity mode...")
 
             summary_path = per_joint_grasps_json.replace(".json", "_filtered.json")
-            print(f"   Per-joint filtered summary: {summary_path}")
             if os.path.exists(summary_path):
                 with open(summary_path, "r") as f:
                     summary = json.load(f)
@@ -101,12 +123,13 @@ def run_grasp_filtering_stage(
                     if filtered_grasps_file and os.path.exists(
                         os.path.join(os.path.dirname(summary_path), filtered_grasps_file)
                     ):
-                        with open(
-                            os.path.join(os.path.dirname(summary_path), filtered_grasps_file),
-                            "r",
-                        ) as ff:
-                            fdata = json.load(ff)
-                        filtered_count = len(fdata.get("transforms", []))
+                        filtered_path = os.path.join(os.path.dirname(summary_path), filtered_grasps_file)
+                        try:
+                            npz_data = np.load(filtered_path)
+                            filtered_count = len(npz_data["transforms"])
+                        except Exception as e:
+                            print(f"      Warning: Could not read NPZ file {filtered_path}: {e}")
+                            filtered_count = 0
                     
                     grasps_file = entry.get("grasps_file", "")
                     original_count = 0
@@ -127,11 +150,7 @@ def run_grasp_filtering_stage(
                     )
                     
                     status = "SUCCESS" if filtered_grasps_file else "FAILED"
-                    print(
-                        f"      Joint: {entry['joint']} | {status} | Success: {filtered_count}/{original_count} ({success_rate:.1f}%)"
-                    )
-            else:
-                print(f"   Warning: Filtered summary not found at {summary_path}")
+                    print(f"      Joint: {entry['joint']} | {status} | {filtered_count}/{original_count} ({success_rate:.1f}%)")
                 return False, None
             return True, summary_path
         except subprocess.CalledProcessError as e:
@@ -141,11 +160,9 @@ def run_grasp_filtering_stage(
             print(f"   Unexpected error: {str(e)}")
             return False, None
     else:
-        print(f"   Grasps file: {grasps_path}")
-        print(f"   XML file: {xml_file_for_filtering}")
         filtered_grasps_path = grasps_path.replace(".json", "_filtered.json")
         try:
-            print(f"   Filtering grasps using MuJoCo simulation...")
+            print(f"   Filtering grasps...")
             max_attempts = 2
             for attempt in range(1, max_attempts + 1):
                 try:
@@ -154,7 +171,7 @@ def run_grasp_filtering_stage(
                     
                     cmd_args = [
                         "python",
-                        "pipeline/articulable/articulation_test.py",
+                        "pipeline/articulation_test.py",
                         "--object_name",
                         object_name,
                         "--grasps_path",
@@ -162,23 +179,23 @@ def run_grasp_filtering_stage(
                         "--xml_file",
                         xml_file_for_filtering,
                         "--num_workers",
-                        str(os.cpu_count()),
+                        str(args.num_workers),
                         "--approach_distance",
-                        "0.6",
+                        str(args.approach_distance),
                         "--approach_steps",
-                        "10",
+                        str(args.approach_steps),
                         "--max_successful",
-                        str(MAX_SUCCESSFUL),
+                        str(args.max_successful_grasps),
                         "--max_contact_depth",
-                        "1.0",
+                        str(args.max_contact_depth),
                         "--min_contact_depth",
-                        "0.0",
+                        str(args.min_contact_depth),
                         "--center_contact_depth",
-                        "0.75",
+                        str(args.center_contact_depth),
                         "--contact_depth_bias",
-                        "2.8",
+                        str(args.contact_depth_bias),
                         "--num_clusters",
-                        "40",
+                        str(args.num_clusters),
                     ]
                     
                     if attempt == 1:
@@ -189,22 +206,8 @@ def run_grasp_filtering_stage(
                 except subprocess.CalledProcessError as e:
                     if attempt == max_attempts:
                         raise
-                    else:
-                        print(f"   Attempt {attempt} failed, retrying without diversity mode...")
 
-            print(f"   Filtered grasps saved: {filtered_grasps_path}")
-            with open(grasps_path, "r") as f:
-                original_grasps = json.load(f)
-            with open(filtered_grasps_path, "r") as f:
-                filtered_grasps = json.load(f)
-            original_count = len(original_grasps.get("transforms", []))
-            filtered_count = len(filtered_grasps.get("transforms", []))
-            success_rate = (
-                (filtered_count / original_count * 100) if original_count > 0 else 0
-            )
-            print(f"   Original grasps: {original_count}")
-            print(f"   Successful grasps: {filtered_count}")
-            print(f"   Success rate: {success_rate:.1f}%")
+
             return True, filtered_grasps_path
         except subprocess.CalledProcessError as e:
             print(f"   Error in grasp filtering: {str(e)}")
@@ -217,7 +220,6 @@ def run_per_joint_grasp_generation(
     object_name, joint_meshes_json, output_dir, full_mesh
 ):
     print(f"\nStage 2: Per-Joint Grasp Generation for {object_name}")
-    print(f"   Joint meshes JSON: {joint_meshes_json}")
     if isinstance(joint_meshes_json, str):
         with open(joint_meshes_json, "r") as f:
             joint_meshes_data = json.load(f)
@@ -270,8 +272,6 @@ def run_handle_detection_stage(obj, output_dir):
     xml_file_path = obj["xml"]
 
     print(f"\nStage 0: Handle Detection for {object_name}")
-    print(f"   XML: {xml_file_path}")
-
     full_mesh_path = os.path.join(output_dir, "main.obj")
     handle_mesh_path = None
 
@@ -296,67 +296,25 @@ def run_handle_detection_stage(obj, output_dir):
         print(f"   Unexpected error: {str(e)}")
         return False, None, None
 
+output_base = "results/articulable_objects"
+os.makedirs(output_base, exist_ok=True)
 
-def main():
+for i, obj in enumerate(data):
+    object_name = obj["name"]
+    object_output_dir = os.path.join(output_base, object_name)
+    os.makedirs(object_output_dir, exist_ok=True)
 
-    articulated_objects = load_articulated_objects()
-
-    if not articulated_objects:
-        print("No articulatable objects found to process!")
-        return 1
-
-    if USE_WANDB:
-        wandb.init(
-            project="thor-articulated-grasp-pipeline",
-            name=f"articulated-processing-{datetime.now().strftime('%Y%m%d_%H%M%S')}",
-            config={
-                "total_objects": len(articulated_objects),
-                "approach_distance": 0.5,
-                "approach_steps": 5,
-                "max_successful_grasps": 100,
-                "num_workers": 10,
-                "pipeline_stages": "0-3",
-            },
+    if args.use_wandb:
+        wandb.log(
+            {
+                "current_object": object_name,
+                "progress": (i + 1) / len(data),
+                "processed_count": i + 1,
+                "step": i + 1,
+            }
         )
 
-        wandb.define_metric("step")
-        wandb.define_metric("completion_percentage", step_metric="step")
-        wandb.define_metric("processed_objects", step_metric="step")
-        wandb.define_metric("remaining_objects", step_metric="step")
-        wandb.define_metric("grasp_count", step_metric="step")
-        wandb.define_metric("filtered_count", step_metric="step")
-        wandb.define_metric("filter_success_rate", step_metric="step")
-
-        print(f"Starting processing of {len(articulated_objects)} articulated objects")
-        print(f"Monitor progress at: {wandb.run.url}")
-        wandb.log({"total_objects": len(articulated_objects), "step": 0})
-    else:
-        print(
-            f"Starting processing of {len(articulated_objects)} articulated objects (wandb disabled)"
-        )
-
-    output_base = "results/articulable_objects"
-    os.makedirs(output_base, exist_ok=True)
-
-    processed_objects = 0
-    failed_objects = []
-    successful_objects = []
-
-    for i, obj in enumerate(articulated_objects):
-        object_name = obj["name"]
-        object_output_dir = os.path.join(output_base, object_name)
-        os.makedirs(object_output_dir, exist_ok=True)
-
-        if USE_WANDB:
-            wandb.log(
-                {
-                    "current_object": object_name,
-                    "progress": (i + 1) / len(articulated_objects),
-                    "processed_count": i + 1,
-                    "step": i + 1,
-                }
-            )
-
+    try:
         success, handle_mesh, full_mesh = run_handle_detection_stage(
             obj, object_output_dir
         )
@@ -375,80 +333,17 @@ def main():
                 )
             )
             if per_joint_grasps_success:
-                print(f"   Visualizing each per-joint grasp file for {object_name}...")
-                try:
-                    with open(joint_meshes_json, "r") as f:
-                        joint_grasps_summary = json.load(f)
-                    for entry in joint_grasps_summary:
-                        grasps_file = os.path.join(
-                            os.path.dirname(joint_meshes_json), entry["grasps_file"]
-                        )
-                        handle_mesh = os.path.join(
-                            os.path.dirname(joint_meshes_json), entry["handle_mesh"]
-                        )
-                        print(
-                            f"      Visualizing joint: {entry['joint']} ({grasps_file})"
-                        )
-                        viz_grasps = False
-                        if viz_grasps:
-                            try:
-                                subprocess.run(
-                                    [
-                                        "python",
-                                        "scripts/visualize_render.py",
-                                        entry["joint"],
-                                        "--json_file",
-                                        grasps_file,
-                                        "--render",
-                                        "--grasp-shape-only",
-                                    ],
-                                    check=True,
-                                )
-                            except subprocess.CalledProcessError as e:
-                                print(
-                                    f"      Warning: Per-joint grasp visualization failed for {entry['joint']}: {str(e)}"
-                                )
-                except Exception as e:
-                    print(
-                        f"   Warning: Could not visualize per-joint grasps individually: {str(e)}"
-                    )
-                print(
-                    f"   Visualizing all per-joint grasps on full mesh for {object_name}..."
-                )
-                viz_grasps = 0
-                if viz_grasps:
-                    try:
-                        subprocess.run(
-                            [
-                                "python",
-                                "scripts/visualize_all_grasps_on_full_mesh.py",
-                                "--grasps_json",
-                                joint_meshes_json,
-                                "--xml",
-                                obj["xml"],
-                                "--full_mesh",
-                                full_mesh,
-                            ],
-                            check=True,
-                        )
-                        print(
-                            f"   Per-joint grasp visualization completed for {object_name}"
-                        )
-                    except subprocess.CalledProcessError as e:
-                        print(
-                            f"   Warning: Per-joint grasp visualization failed for {object_name}: {str(e)}"
-                        )
+                print(f"   Per-joint grasps generated for {object_name}")
         else:
             print(f"   Error: joint_meshes.json not found: {joint_meshes_json}")
-            print(f"   Cannot proceed with per-joint grasp generation")
 
-        joint_axis_success = False
+        joint_axis_success = os.path.exists(joint_meshes_json) if joint_meshes_json else False
         joint_axis_path = os.path.join(
             object_output_dir, f"{object_name}_joint_axis.json"
         )
 
-        grasps_success = False
-        grasps_path = None
+        grasps_success = per_joint_grasps_success
+        grasps_path = joint_meshes_json if per_joint_grasps_success else None
 
         filtering_success = True
         print(f"\nStage 3: Grasp Filtering for {object_name}")
@@ -469,109 +364,6 @@ def main():
                 filtered_grasps_path = os.path.join(
                     object_output_dir, filtered_grasps_file
                 )
-            if (
-                filtering_success
-                and filtered_grasps_path
-                and os.path.exists(filtered_grasps_path)
-            ):
-                print(
-                    f"   Visualizing each filtered per-joint grasp file for {object_name}..."
-                )
-                viz_grasps = False
-                if viz_grasps:
-                    try:
-                        with open(filtered_grasps_path, "r") as f:
-                            filtered_joint_grasps_summary = json.load(f)
-                        for entry in filtered_joint_grasps_summary:
-                            filtered_grasps_file = os.path.join(
-                                os.path.dirname(filtered_grasps_path),
-                                entry.get("filtered_grasps_file", ""),
-                            )
-
-                            if (
-                                not filtered_grasps_file
-                                or not filtered_grasps_file.endswith(".json")
-                                or not os.path.isfile(filtered_grasps_file)
-                            ):
-                                continue
-                            print(
-                                f"      Visualizing joint (filtered): {entry['joint']} ({filtered_grasps_file})"
-                            )
-                            try:
-                                subprocess.run(
-                                    [
-                                        "python",
-                                        "scripts/visualize_render.py",
-                                        entry["joint"],
-                                        "--json_file",
-                                        filtered_grasps_file,
-                                        "--render",
-                                        "--grasp-shape-only",
-                                    ],
-                                    check=True,
-                                )
-                            except subprocess.CalledProcessError as e:
-                                print(
-                                    f"      Warning: Filtered per-joint grasp visualization failed for {entry['joint']}: {str(e)}"
-                                )
-                    except Exception as e:
-                        print(
-                            f"   Warning: Could not visualize filtered per-joint grasps individually: {str(e)}"
-                        )
-                print(
-                    f"   Visualizing all filtered per-joint grasps on full mesh for {object_name}..."
-                )
-                try:
-                    filtered_grasps_path = os.path.join(
-                        object_output_dir, "joint_meshes_info_filtered.json"
-                    )
-                    visualization_png = os.path.join(
-                        object_output_dir,
-                        f"{object_name}_filtered_grasps_visualization.png",
-                    )
-                    subprocess.run(
-                        [
-                            "python",
-                            "scripts/visualize_all_grasps_on_full_mesh.py",
-                            "--grasps_json",
-                            filtered_grasps_path,
-                            "--xml",
-                            obj["xml"],
-                            "--full_mesh",
-                            full_mesh,
-                            "--filtered_grasps",
-                            "--save-png",
-                            visualization_png,
-                            "--no-render",
-                        ],
-                        check=True,
-                    )
-                    print(
-                        f"   Filtered per-joint grasp visualization completed for {object_name}"
-                    )
-
-                    if USE_WANDB and os.path.exists(visualization_png):
-                        wandb.log(
-                            {
-                                f"{object_name}_filtered_grasps_visualization": wandb.Image(
-                                    visualization_png,
-                                    caption=f"Filtered articulated grasps for {object_name}",
-                                ),
-                                "visualization_success": True,
-                            }
-                        )
-                except subprocess.CalledProcessError as e:
-                    print(
-                        f"   Warning: Filtered per-joint grasp visualization failed for {object_name}: {str(e)}"
-                    )
-                    if USE_WANDB:
-                        wandb.log(
-                            {
-                                "failed_visualization": object_name,
-                                "error": str(e),
-                                "visualization_success": False,
-                            }
-                        )
         elif grasps_success and grasps_path and os.path.exists(grasps_path):
             filtering_success, filtered_grasps_path = run_grasp_filtering_stage(
                 object_name, grasps_path, obj["xml"], object_output_dir
@@ -612,7 +404,7 @@ def main():
                 status = "Partially processed (no joint analysis)"
             print(f"   {status}: {object_name}")
 
-            if USE_WANDB:
+            if args.use_wandb:
                 grasp_count = 0
                 filtered_count = 0
 
@@ -630,11 +422,11 @@ def main():
                                     object_output_dir, entry["filtered_grasps_file"]
                                 )
                                 if os.path.exists(filtered_file):
-                                    with open(filtered_file, "r") as ff:
-                                        filtered_grasp_data = json.load(ff)
-                                    filtered_count += len(
-                                        filtered_grasp_data.get("transforms", [])
-                                    )
+                                    try:
+                                        npz_data = np.load(filtered_file)
+                                        filtered_count += len(npz_data["transforms"])
+                                    except Exception as e:
+                                        print(f"      Warning: Could not read NPZ file {filtered_file}: {e}")
 
                             if "grasps_file" in entry:
                                 grasp_file = os.path.join(
@@ -644,24 +436,24 @@ def main():
                                     with open(grasp_file, "r") as gf:
                                         grasp_data = json.load(gf)
                                     grasp_count += len(grasp_data.get("transforms", []))
-                    except:
-                        pass
+                    except Exception as e:
+                        print(f"      Warning: Error reading grasp counts: {e}")
 
                 filter_success_rate = (
                     (filtered_count / grasp_count * 100) if grasp_count > 0 else 0
                 )
                 completion_percentage = (
-                    processed_objects / len(articulated_objects)
+                    processed_objects / len(data)
                 ) * 100
 
                 wandb.log(
                     {
                         "completion_percentage": completion_percentage,
                         "processed_objects": processed_objects,
-                        "remaining_objects": len(articulated_objects)
+                        "remaining_objects": len(data)
                         - processed_objects,
                         "overall_progress": processed_objects
-                        / len(articulated_objects),
+                        / len(data),
                         "object_completed": object_name,
                         "grasp_count": grasp_count,
                         "filtered_count": filtered_count,
@@ -676,117 +468,18 @@ def main():
         else:
             failed_objects.append(object_name)
             print(f"   Failed to process {object_name}")
-
-        progress = (i + 1) / len(articulated_objects) * 100
-        print(f"   Progress: {progress:.1f}% ({i + 1}/{len(articulated_objects)})")
-
-        progress_bar_width = 50
-        filled_width = int(progress_bar_width * ((i + 1) / len(articulated_objects)))
-        progress_bar = "#" * filled_width + "-" * (progress_bar_width - filled_width)
-
-        print(
-            f"Progress: [{progress_bar}] {progress:.1f}% ({i + 1}/{len(articulated_objects)})"
-        )
-
-
-    objects_with_joint_analysis = sum(
-        1
-        for obj in successful_objects
-        if obj.get("stages_completed", {}).get("joint_axis_analysis", False)
-    )
-    objects_with_grasps = sum(
-        1
-        for obj in successful_objects
-        if obj.get("stages_completed", {}).get("grasp_generation", False)
-    )
-    objects_with_filtered_grasps = sum(
-        1
-        for obj in successful_objects
-        if obj.get("stages_completed", {}).get("grasp_filtering", False)
-    )
-
-    if failed_objects:
-        print(f"\nFailed objects: {', '.join(failed_objects)}")
-
-    summary = {
-        "pipeline_stages": "Stages 0-3 - Handle Detection, Joint Analysis, Grasp Generation & Filtering",
-        "timestamp": datetime.now().isoformat(),
-        "total_objects": len(articulated_objects),
-        "processed_objects": processed_objects,
-        "objects_with_joint_analysis": objects_with_joint_analysis,
-        "objects_with_grasps": objects_with_grasps,
-        "objects_with_filtered_grasps": objects_with_filtered_grasps,
-        "failed_objects": failed_objects,
-        "successful_objects": successful_objects,
-    }
-
-    summary_path = os.path.join(output_base, "pipeline_summary_stages0123.json")
-    with open(summary_path, "w") as f:
-        json.dump(summary, f, indent=2)
-    print(f"\nPipeline summary saved to: {summary_path}")
-
-    if USE_WANDB:
-        wandb.log(
-            {
-                "pipeline_complete": True,
-                "total_processed": processed_objects,
-                "total_failed": len(failed_objects),
-                "objects_with_joint_analysis": objects_with_joint_analysis,
-                "objects_with_grasps": objects_with_grasps,
-                "objects_with_filtered_grasps": objects_with_filtered_grasps,
-                "success_rate": (processed_objects - len(failed_objects))
-                / processed_objects
-                * 100
-                if processed_objects > 0
-                else 0,
-            }
-        )
-
-        # Create summary table for wandb
-        summary_data = []
-        for obj in successful_objects:
-            stages = obj.get("stages_completed", {})
-            summary_data.append(
-                [
-                    obj["name"],
-                    "✓" if stages.get("handle_detection", False) else "✗",
-                    "✓" if stages.get("joint_axis_analysis", False) else "✗",
-                    "✓" if stages.get("grasp_generation", False) else "✗",
-                    "✓" if stages.get("grasp_filtering", False) else "✗",
-                ]
-            )
-
-        table = wandb.Table(
-            columns=[
-                "Object",
-                "Handle Detection",
-                "Joint Analysis",
-                "Grasp Generation",
-                "Grasp Filtering",
-            ],
-            data=summary_data,
-        )
-        wandb.log({"processing_summary": table})
-
-        wandb.finish()
-        print("Results logged to Weights & Biases!")
-    else:
-        print("Pipeline completed (wandb was disabled)")
-
-
-    return 0 if processed_objects > 0 else 1
-
-
-if __name__ == "__main__":
-    try:
-        exit_code = main()
-        sys.exit(exit_code)
-    except KeyboardInterrupt:
-        print("\n\nPipeline interrupted by user")
-        sys.exit(1)
+    
     except Exception as e:
-        print(f"\nFatal error: {str(e)}")
-        import traceback
+        print(f"  Error: {e}")
+        failed_objects.append(object_name)
 
-        traceback.print_exc()
-        sys.exit(1)
+print(f"\nProcessed: {processed_objects}/{len(data)}")
+if failed_objects:
+    print(f"Failed: {', '.join(failed_objects[:10])}" + (f" (+{len(failed_objects)-10} more)" if len(failed_objects) > 10 else ""))
+
+if args.use_wandb:
+    wandb.log({
+        "pipeline_complete": True, 
+        "total_processed": processed_objects, 
+        "total_failed": len(failed_objects)
+    })

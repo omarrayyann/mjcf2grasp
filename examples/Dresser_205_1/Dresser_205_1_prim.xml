@@ -1,0 +1,161 @@
+<mujoco model="Dresser_205_1">
+  <compiler angle="radian" boundmass="0.01"/>
+
+  <default>
+    <default class="/">
+      <default class="__VISUAL_MJT__">
+        <geom contype="0" conaffinity="0"/>
+      </default>
+      <default class="__STRUCTURAL_MJT__">
+        <geom contype="8" conaffinity="15" group="4" friction="0.9 0.9 0.001" solref="0.025" solimp="0.998 0.998"/>
+      </default>
+      <default class="__DYNAMIC_MJT__">
+        <geom conaffinity="15" group="4" friction="0.9 0.9 0.001" solref="0.025" solimp="0.998 0.998"/>
+      </default>
+    </default>
+  </default>
+
+  <asset>
+    <texture type="2d" name="LightWoodCounters3" file="LightWoodCounters.png"/>
+    <texture type="2d" name="DarkWoodSmooth" file="WoodGrains1.png"/>
+    <texture type="2d" name="HammeredMetal_Dark" file="HammeredMetal_AlbedoTransparency.png"/>
+    <material name="material_LightWoodCounters3" class="/" texture="LightWoodCounters3" rgba="0.698113 0.339363 0.135012 1"/>
+    <material name="material_DarkWoodSmooth" class="/" texture="DarkWoodSmooth" rgba="0.235849 0.130508 0.0767622 1"/>
+    <material name="material_HammeredMetal_Dark" class="/" texture="HammeredMetal_Dark" rgba="0.264706 0.264706 0.264706 1"/>
+    <mesh name="Dresser_205_1_DresserMesh_0" class="/" content_type="model/obj" file="Dresser_205_1_DresserMesh/Dresser_205_1_DresserMesh_0.obj"/>
+    <mesh name="Dresser_205_1_DresserMesh_1" class="/" content_type="model/obj" file="Dresser_205_1_DresserMesh/Dresser_205_1_DresserMesh_1.obj"/>
+    <mesh name="Dresser_205_1_DrawerMesh_0" class="/" content_type="model/obj" file="Dresser_205_1_DrawerMesh_0/Dresser_205_1_DrawerMesh_0.obj"/>
+    <mesh name="Dresser_205_1_handle_1_305mm_0" class="/" content_type="model/obj" file="Dresser_205_1_handle_1_305mm_0/Dresser_205_1_handle_1_305mm_0.obj"/>
+    <mesh name="Dresser_205_1_DrawerMesh_1" class="/" content_type="model/obj" file="Dresser_205_1_DrawerMesh_1/Dresser_205_1_DrawerMesh_1.obj"/>
+    <mesh name="Dresser_205_1_handle_1_305mm_1" class="/" content_type="model/obj" file="Dresser_205_1_handle_1_305mm_1/Dresser_205_1_handle_1_305mm_1.obj"/>
+    <mesh name="Dresser_205_1_DrawerMesh_2" class="/" content_type="model/obj" file="Dresser_205_1_DrawerMesh_2/Dresser_205_1_DrawerMesh_2.obj"/>
+    <mesh name="Dresser_205_1_handle_1_305mm_2" class="/" content_type="model/obj" file="Dresser_205_1_handle_1_305mm_2/Dresser_205_1_handle_1_305mm_2.obj"/>
+    <mesh name="Dresser_205_1_DrawerMesh_3" class="/" content_type="model/obj" file="Dresser_205_1_DrawerMesh_3/Dresser_205_1_DrawerMesh_3.obj"/>
+    <mesh name="Dresser_205_1_handle_1_305mm_3" class="/" content_type="model/obj" file="Dresser_205_1_handle_1_305mm_3/Dresser_205_1_handle_1_305mm_3.obj"/>
+  </asset>
+
+  <worldbody>
+    <body name="Dresser_205_1">
+      <body name="Dresser_205_1_DresserMesh" pos="0 -0.34961 -0.00119">
+        <geom name="Dresser_205_1_DresserMesh_0" class="__VISUAL_MJT__" type="mesh" density="120" material="material_LightWoodCounters3" mesh="Dresser_205_1_DresserMesh_0"/>
+        <geom name="Dresser_205_1_DresserMesh_1" class="__VISUAL_MJT__" type="mesh" density="120" material="material_DarkWoodSmooth" mesh="Dresser_205_1_DresserMesh_1"/>
+        <geom name="Dresser_205_1_DresserMesh_PrimitiveCollider_0" class="__DYNAMIC_MJT__" size="0.60215 0.0232278 0.187448" pos="0 0.6749 0" quat="0 5.81145e-07 0 -1" type="box" density="120" rgba="0 1 0 1"/>
+        <geom name="Dresser_205_1_DresserMesh_PrimitiveCollider_1" class="__DYNAMIC_MJT__" size="0.594623 0.0153666 0.187448" pos="0 0.021 0" quat="0 5.81145e-07 0 -1" type="box" density="120" rgba="0 1 0 1"/>
+        <geom name="Dresser_205_1_DresserMesh_PrimitiveCollider_2" class="__DYNAMIC_MJT__" size="0.0253153 0.34366 0.187448" pos="0.571 0.347 6.63668e-07" quat="0 5.81145e-07 0 -1" type="box" density="120" rgba="0 1 0 1"/>
+        <geom name="Dresser_205_1_DresserMesh_PrimitiveCollider_3" class="__DYNAMIC_MJT__" size="0.0253153 0.34366 0.187448" pos="-0.574 0.347 -6.67155e-07" quat="0 5.81145e-07 0 -1" type="box" density="120" rgba="0 1 0 1"/>
+        <geom name="Dresser_205_1_DresserMesh_PrimitiveCollider_4" class="__DYNAMIC_MJT__" size="0.60215 0.331096 0.0283791" pos="1.90383e-07 0.3322 -0.1638" quat="0 5.81145e-07 0 -1" type="box" density="120" rgba="0 1 0 1"/>
+        <geom name="Dresser_205_1_DresserMesh_PrimitiveCollider_5" class="__DYNAMIC_MJT__" size="0.60215 0.310474 0.0448418" pos="1.21295e-07 0.343678 -0.104358" quat="0 5.81145e-07 0 -1" type="box" density="120" rgba="0 1 0 1"/>
+        <geom name="Dresser_205_1_DresserMesh_PrimitiveCollider_6" class="__DYNAMIC_MJT__" size="0.587964 0.00982915 0.128093" pos="-5.93253e-08 0.343378 0.0510417" quat="0 5.81145e-07 0 -1" type="box" density="120" rgba="0 1 0 1"/>
+        <geom name="Dresser_205_1_DresserMesh_PrimitiveCollider_7" class="__DYNAMIC_MJT__" size="0.0106378 0.324231 0.187448" pos="-0.0021 0.366429 -2.44081e-09" quat="0 5.81145e-07 0 -1" type="box" density="120" rgba="0 1 0 1"/>
+        <site name="Dresser_205_1_DresserMesh_Receptacle_0" class="/" pos="0 0.754792 0" quat="0 1 0 0" size="0.602611 0.0557916 0.188205" type="box" rgba="1 0 0 1"/>
+        <body name="Dresser_205_1_DrawerMesh_0" pos="-0.275986 0.478063 0.0708615">
+          <joint name="Dresser_205_1_joint" class="/" pos="0 0 0" axis="0 0 1" type="slide" range="0 0.206" damping="0.1" frictionloss="2"/>
+          <geom name="Dresser_205_1_DrawerMesh_0" class="__VISUAL_MJT__" type="mesh" density="100" material="material_DarkWoodSmooth" mesh="Dresser_205_1_DrawerMesh_0"/>
+          <geom name="Dresser_205_1_DrawerMesh_0_PrimitiveCollider_0" class="__DYNAMIC_MJT__" size="0.257204 0.00876249 0.117363" pos="0 -0.1084 -0.0140118" quat="0 3.27826e-07 0 -1" type="box" density="100" rgba="0 1 0 1"/>
+          <geom name="Dresser_205_1_DrawerMesh_0_PrimitiveCollider_1" class="__DYNAMIC_MJT__" size="0.00909605 0.135623 0.117363" pos="0.2484 0.0209999 -0.0140115" quat="0 3.27826e-07 0 -1" type="box" density="100" rgba="0 1 0 1"/>
+          <geom name="Dresser_205_1_DrawerMesh_0_PrimitiveCollider_2" class="__DYNAMIC_MJT__" size="0.00909605 0.135623 0.117363" pos="-0.2495 0.021 -0.0140118" quat="0 3.27826e-07 0 -1" type="box" density="100" rgba="0 1 0 1"/>
+          <geom name="Dresser_205_1_DrawerMesh_0_PrimitiveCollider_3" class="__DYNAMIC_MJT__" size="0.257204 0.136993 0.0112078" pos="8.9407e-08 0.01983 -0.120412" quat="0 3.27826e-07 0 -1" type="box" density="100" rgba="0 1 0 1"/>
+          <geom name="Dresser_205_1_DrawerMesh_0_PrimitiveCollider_4" class="__DYNAMIC_MJT__" size="0.257204 0.136993 0.0112078" pos="-5.96046e-08 0.01983 0.0956882" quat="0 3.27826e-07 0 -1" type="box" density="100" rgba="0 1 0 1"/>
+          <geom name="Dresser_205_1_DrawerMesh_0_PrimitiveCollider_5" class="__DYNAMIC_MJT__" size="0.271882 0.1534 0.0112078" pos="-8.9407e-08 0.0200824 0.115888" quat="0 3.27826e-07 0 -1" type="box" density="100" rgba="0 1 0 1"/>
+          <site name="Dresser_205_1_DrawerMesh_0_Receptacle_0" class="/" pos="0 0.0284318 0.012494" quat="0 1 0 0" size="0.23667 0.129496 0.0980626" type="box" rgba="1 0 0 1"/>
+          <body name="Dresser_205_1_handle_1_305mm_0" pos="0 0.119 0.121">
+            <geom name="Dresser_205_1_handle_1_305mm_0" class="__VISUAL_MJT__" type="mesh" material="material_HammeredMetal_Dark" mesh="Dresser_205_1_handle_1_305mm_0"/>
+            <geom name="Dresser_205_1_handle_1_305mm_0_PrimitiveCollider_0" class="__DYNAMIC_MJT__" size="0.005 0.148619" pos="0 0 0.0337" quat="0.5 0.5 -0.5 -0.5" type="capsule" rgba="0 1 0 1"/>
+            <geom name="Dresser_205_1_handle_1_305mm_0_PrimitiveCollider_1" class="__DYNAMIC_MJT__" size="0.00300521 0.013226" pos="-0.14153 0 0.0159" quat="0 1 0 0" type="capsule" rgba="0 1 0 1"/>
+            <geom name="Dresser_205_1_handle_1_305mm_0_PrimitiveCollider_2" class="__DYNAMIC_MJT__" size="0.00300521 0.013226" pos="0.1402 0 0.0159" quat="0 1 0 0" type="capsule" rgba="0 1 0 1"/>
+          </body>
+        </body>
+        <body name="Dresser_205_1_DrawerMesh_1" pos="-0.275986 0.168286 0.0708615">
+          <joint name="Dresser_205_1_DrawerMesh_1__1" class="/" pos="0 0 0" axis="0 0 1" type="slide" range="0 0.206" damping="0.1" frictionloss="2"/>
+          <geom name="Dresser_205_1_DrawerMesh_1" class="__VISUAL_MJT__" type="mesh" density="100" material="material_DarkWoodSmooth" mesh="Dresser_205_1_DrawerMesh_1"/>
+          <geom name="Dresser_205_1_DrawerMesh_1_PrimitiveCollider_0" class="__DYNAMIC_MJT__" size="0.257204 0.00876249 0.117363" pos="0 -0.1084 -0.0140118" quat="0 3.27826e-07 0 -1" type="box" density="100" rgba="0 1 0 1"/>
+          <geom name="Dresser_205_1_DrawerMesh_1_PrimitiveCollider_1" class="__DYNAMIC_MJT__" size="0.00909605 0.135623 0.117363" pos="0.2484 0.0209999 -0.0140115" quat="0 3.27826e-07 0 -1" type="box" density="100" rgba="0 1 0 1"/>
+          <geom name="Dresser_205_1_DrawerMesh_1_PrimitiveCollider_2" class="__DYNAMIC_MJT__" size="0.00909605 0.135623 0.117363" pos="-0.2495 0.021 -0.0140118" quat="0 3.27826e-07 0 -1" type="box" density="100" rgba="0 1 0 1"/>
+          <geom name="Dresser_205_1_DrawerMesh_1_PrimitiveCollider_3" class="__DYNAMIC_MJT__" size="0.257204 0.136993 0.0112078" pos="8.9407e-08 0.01983 -0.120412" quat="0 3.27826e-07 0 -1" type="box" density="100" rgba="0 1 0 1"/>
+          <geom name="Dresser_205_1_DrawerMesh_1_PrimitiveCollider_4" class="__DYNAMIC_MJT__" size="0.257204 0.136993 0.0112078" pos="-5.96046e-08 0.01983 0.0956882" quat="0 3.27826e-07 0 -1" type="box" density="100" rgba="0 1 0 1"/>
+          <geom name="Dresser_205_1_DrawerMesh_1_PrimitiveCollider_5" class="__DYNAMIC_MJT__" size="0.271882 0.1534 0.0112078" pos="-8.9407e-08 0.0200824 0.115888" quat="0 3.27826e-07 0 -1" type="box" density="100" rgba="0 1 0 1"/>
+          <site name="Dresser_205_1_DrawerMesh_1_Receptacle_0" class="/" pos="0 0.0284318 0.012494" quat="0 1 0 0" size="0.23667 0.129496 0.0980626" type="box" rgba="1 0 0 1"/>
+          <body name="Dresser_205_1_handle_1_305mm_1" pos="0 0.119 0.121">
+            <geom name="Dresser_205_1_handle_1_305mm_1" class="__VISUAL_MJT__" type="mesh" material="material_HammeredMetal_Dark" mesh="Dresser_205_1_handle_1_305mm_1"/>
+            <geom name="Dresser_205_1_handle_1_305mm_1_PrimitiveCollider_0" class="__DYNAMIC_MJT__" size="0.005 0.148619" pos="0 0 0.0337" quat="0.5 0.5 -0.5 -0.5" type="capsule" rgba="0 1 0 1"/>
+            <geom name="Dresser_205_1_handle_1_305mm_1_PrimitiveCollider_1" class="__DYNAMIC_MJT__" size="0.00300521 0.013226" pos="-0.14153 0 0.0159" quat="0 1 0 0" type="capsule" rgba="0 1 0 1"/>
+            <geom name="Dresser_205_1_handle_1_305mm_1_PrimitiveCollider_2" class="__DYNAMIC_MJT__" size="0.00300521 0.013226" pos="0.1402 0 0.0159" quat="0 1 0 0" type="capsule" rgba="0 1 0 1"/>
+          </body>
+        </body>
+        <body name="Dresser_205_1_DrawerMesh_2" pos="0.275799 0.168286 0.0708615">
+          <joint name="Dresser_205_1_DrawerMesh_2__1" class="/" pos="0 0 0" axis="0 0 1" type="slide" range="0 0.206" damping="0.1" frictionloss="2"/>
+          <geom name="Dresser_205_1_DrawerMesh_2" class="__VISUAL_MJT__" type="mesh" density="100" material="material_DarkWoodSmooth" mesh="Dresser_205_1_DrawerMesh_2"/>
+          <geom name="Dresser_205_1_DrawerMesh_2_PrimitiveCollider_0" class="__DYNAMIC_MJT__" size="0.257204 0.00876249 0.117363" pos="0 -0.1084 -0.0140118" quat="0 3.27826e-07 0 -1" type="box" density="100" rgba="0 1 0 1"/>
+          <geom name="Dresser_205_1_DrawerMesh_2_PrimitiveCollider_1" class="__DYNAMIC_MJT__" size="0.00909605 0.135623 0.117363" pos="0.2484 0.0209999 -0.0140115" quat="0 3.27826e-07 0 -1" type="box" density="100" rgba="0 1 0 1"/>
+          <geom name="Dresser_205_1_DrawerMesh_2_PrimitiveCollider_2" class="__DYNAMIC_MJT__" size="0.00909605 0.135623 0.117363" pos="-0.2495 0.021 -0.0140118" quat="0 3.27826e-07 0 -1" type="box" density="100" rgba="0 1 0 1"/>
+          <geom name="Dresser_205_1_DrawerMesh_2_PrimitiveCollider_3" class="__DYNAMIC_MJT__" size="0.257204 0.136993 0.0112078" pos="8.9407e-08 0.01983 -0.120412" quat="0 3.27826e-07 0 -1" type="box" density="100" rgba="0 1 0 1"/>
+          <geom name="Dresser_205_1_DrawerMesh_2_PrimitiveCollider_4" class="__DYNAMIC_MJT__" size="0.257204 0.136993 0.0112078" pos="-5.96046e-08 0.01983 0.0956882" quat="0 3.27826e-07 0 -1" type="box" density="100" rgba="0 1 0 1"/>
+          <geom name="Dresser_205_1_DrawerMesh_2_PrimitiveCollider_5" class="__DYNAMIC_MJT__" size="0.271882 0.1534 0.0112078" pos="-8.9407e-08 0.0200824 0.115888" quat="0 3.27826e-07 0 -1" type="box" density="100" rgba="0 1 0 1"/>
+          <site name="Dresser_205_1_DrawerMesh_2_Receptacle_0" class="/" pos="0 0.0284318 0.012494" quat="0 1 0 0" size="0.23667 0.129496 0.0980626" type="box" rgba="1 0 0 1"/>
+          <body name="Dresser_205_1_handle_1_305mm_2" pos="0 0.119 0.121">
+            <geom name="Dresser_205_1_handle_1_305mm_2" class="__VISUAL_MJT__" type="mesh" material="material_HammeredMetal_Dark" mesh="Dresser_205_1_handle_1_305mm_2"/>
+            <geom name="Dresser_205_1_handle_1_305mm_2_PrimitiveCollider_0" class="__DYNAMIC_MJT__" size="0.005 0.148619" pos="0 0 0.0337" quat="0.5 0.5 -0.5 -0.5" type="capsule" rgba="0 1 0 1"/>
+            <geom name="Dresser_205_1_handle_1_305mm_2_PrimitiveCollider_1" class="__DYNAMIC_MJT__" size="0.00300521 0.013226" pos="-0.14153 0 0.0159" quat="0 1 0 0" type="capsule" rgba="0 1 0 1"/>
+            <geom name="Dresser_205_1_handle_1_305mm_2_PrimitiveCollider_2" class="__DYNAMIC_MJT__" size="0.00300521 0.013226" pos="0.1402 0 0.0159" quat="0 1 0 0" type="capsule" rgba="0 1 0 1"/>
+          </body>
+        </body>
+        <body name="Dresser_205_1_DrawerMesh_3" pos="0.275799 0.478063 0.0708615">
+          <joint name="Dresser_205_1_DrawerMesh_3__1" class="/" pos="0 0 0" axis="0 0 1" type="slide" range="0 0.206" damping="0.1" frictionloss="2"/>
+          <geom name="Dresser_205_1_DrawerMesh_3" class="__VISUAL_MJT__" type="mesh" density="100" material="material_DarkWoodSmooth" mesh="Dresser_205_1_DrawerMesh_3"/>
+          <geom name="Dresser_205_1_DrawerMesh_3_PrimitiveCollider_0" class="__DYNAMIC_MJT__" size="0.257204 0.00876249 0.117363" pos="0 -0.1084 -0.0140118" quat="0 3.27826e-07 0 -1" type="box" density="100" rgba="0 1 0 1"/>
+          <geom name="Dresser_205_1_DrawerMesh_3_PrimitiveCollider_1" class="__DYNAMIC_MJT__" size="0.00909605 0.135623 0.117363" pos="0.2484 0.0209999 -0.0140115" quat="0 3.27826e-07 0 -1" type="box" density="100" rgba="0 1 0 1"/>
+          <geom name="Dresser_205_1_DrawerMesh_3_PrimitiveCollider_2" class="__DYNAMIC_MJT__" size="0.00909605 0.135623 0.117363" pos="-0.2495 0.021 -0.0140118" quat="0 3.27826e-07 0 -1" type="box" density="100" rgba="0 1 0 1"/>
+          <geom name="Dresser_205_1_DrawerMesh_3_PrimitiveCollider_3" class="__DYNAMIC_MJT__" size="0.257204 0.136993 0.0112078" pos="8.9407e-08 0.01983 -0.120412" quat="0 3.27826e-07 0 -1" type="box" density="100" rgba="0 1 0 1"/>
+          <geom name="Dresser_205_1_DrawerMesh_3_PrimitiveCollider_4" class="__DYNAMIC_MJT__" size="0.257204 0.136993 0.0112078" pos="-5.96046e-08 0.01983 0.0956882" quat="0 3.27826e-07 0 -1" type="box" density="100" rgba="0 1 0 1"/>
+          <geom name="Dresser_205_1_DrawerMesh_3_PrimitiveCollider_5" class="__DYNAMIC_MJT__" size="0.271882 0.1534 0.0112078" pos="-8.9407e-08 0.0200824 0.115888" quat="0 3.27826e-07 0 -1" type="box" density="100" rgba="0 1 0 1"/>
+          <site name="Dresser_205_1_DrawerMesh_3_Receptacle_0" class="/" pos="0 0.0284318 0.012494" quat="0 1 0 0" size="0.23667 0.129496 0.0980626" type="box" rgba="1 0 0 1"/>
+          <body name="Dresser_205_1_handle_1_305mm_3" pos="0 0.119 0.121">
+            <geom name="Dresser_205_1_handle_1_305mm_3" class="__VISUAL_MJT__" type="mesh" material="material_HammeredMetal_Dark" mesh="Dresser_205_1_handle_1_305mm_3"/>
+            <geom name="Dresser_205_1_handle_1_305mm_3_PrimitiveCollider_0" class="__DYNAMIC_MJT__" size="0.005 0.148619" pos="0 0 0.0337" quat="0.5 0.5 -0.5 -0.5" type="capsule" rgba="0 1 0 1"/>
+            <geom name="Dresser_205_1_handle_1_305mm_3_PrimitiveCollider_1" class="__DYNAMIC_MJT__" size="0.00300521 0.013226" pos="-0.14153 0 0.0159" quat="0 1 0 0" type="capsule" rgba="0 1 0 1"/>
+            <geom name="Dresser_205_1_handle_1_305mm_3_PrimitiveCollider_2" class="__DYNAMIC_MJT__" size="0.00300521 0.013226" pos="0.1402 0 0.0159" quat="0 1 0 0" type="capsule" rgba="0 1 0 1"/>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+
+  <contact>
+    <exclude name="//unnamed_contact_0" body1="Dresser_205_1_DresserMesh" body2="Dresser_205_1_DrawerMesh_0"/>
+    <exclude body1="Dresser_205_1_DresserMesh" body2="Dresser_205_1_handle_1_305mm_0"/>
+    <exclude name="//unnamed_contact_1" body1="Dresser_205_1_DresserMesh" body2="Dresser_205_1_DrawerMesh_1"/>
+    <exclude body1="Dresser_205_1_DresserMesh" body2="Dresser_205_1_handle_1_305mm_1"/>
+    <exclude name="//unnamed_contact_2" body1="Dresser_205_1_DresserMesh" body2="Dresser_205_1_DrawerMesh_2"/>
+    <exclude body1="Dresser_205_1_DresserMesh" body2="Dresser_205_1_handle_1_305mm_2"/>
+    <exclude name="//unnamed_contact_3" body1="Dresser_205_1_DresserMesh" body2="Dresser_205_1_DrawerMesh_3"/>
+    <exclude body1="Dresser_205_1_DresserMesh" body2="Dresser_205_1_handle_1_305mm_3"/>
+    <exclude body1="Dresser_205_1_DrawerMesh_0" body2="Dresser_205_1_handle_1_305mm_0"/>
+    <exclude body1="Dresser_205_1_DrawerMesh_0" body2="Dresser_205_1_DrawerMesh_1"/>
+    <exclude body1="Dresser_205_1_DrawerMesh_0" body2="Dresser_205_1_handle_1_305mm_1"/>
+    <exclude body1="Dresser_205_1_DrawerMesh_0" body2="Dresser_205_1_DrawerMesh_2"/>
+    <exclude body1="Dresser_205_1_DrawerMesh_0" body2="Dresser_205_1_handle_1_305mm_2"/>
+    <exclude body1="Dresser_205_1_DrawerMesh_0" body2="Dresser_205_1_DrawerMesh_3"/>
+    <exclude body1="Dresser_205_1_DrawerMesh_0" body2="Dresser_205_1_handle_1_305mm_3"/>
+    <exclude body1="Dresser_205_1_handle_1_305mm_0" body2="Dresser_205_1_DrawerMesh_1"/>
+    <exclude body1="Dresser_205_1_handle_1_305mm_0" body2="Dresser_205_1_handle_1_305mm_1"/>
+    <exclude body1="Dresser_205_1_handle_1_305mm_0" body2="Dresser_205_1_DrawerMesh_2"/>
+    <exclude body1="Dresser_205_1_handle_1_305mm_0" body2="Dresser_205_1_handle_1_305mm_2"/>
+    <exclude body1="Dresser_205_1_handle_1_305mm_0" body2="Dresser_205_1_DrawerMesh_3"/>
+    <exclude body1="Dresser_205_1_handle_1_305mm_0" body2="Dresser_205_1_handle_1_305mm_3"/>
+    <exclude body1="Dresser_205_1_DrawerMesh_1" body2="Dresser_205_1_handle_1_305mm_1"/>
+    <exclude body1="Dresser_205_1_DrawerMesh_1" body2="Dresser_205_1_DrawerMesh_2"/>
+    <exclude body1="Dresser_205_1_DrawerMesh_1" body2="Dresser_205_1_handle_1_305mm_2"/>
+    <exclude body1="Dresser_205_1_DrawerMesh_1" body2="Dresser_205_1_DrawerMesh_3"/>
+    <exclude body1="Dresser_205_1_DrawerMesh_1" body2="Dresser_205_1_handle_1_305mm_3"/>
+    <exclude body1="Dresser_205_1_handle_1_305mm_1" body2="Dresser_205_1_DrawerMesh_2"/>
+    <exclude body1="Dresser_205_1_handle_1_305mm_1" body2="Dresser_205_1_handle_1_305mm_2"/>
+    <exclude body1="Dresser_205_1_handle_1_305mm_1" body2="Dresser_205_1_DrawerMesh_3"/>
+    <exclude body1="Dresser_205_1_handle_1_305mm_1" body2="Dresser_205_1_handle_1_305mm_3"/>
+    <exclude body1="Dresser_205_1_DrawerMesh_2" body2="Dresser_205_1_handle_1_305mm_2"/>
+    <exclude body1="Dresser_205_1_DrawerMesh_2" body2="Dresser_205_1_DrawerMesh_3"/>
+    <exclude body1="Dresser_205_1_DrawerMesh_2" body2="Dresser_205_1_handle_1_305mm_3"/>
+    <exclude body1="Dresser_205_1_handle_1_305mm_2" body2="Dresser_205_1_DrawerMesh_3"/>
+    <exclude body1="Dresser_205_1_handle_1_305mm_2" body2="Dresser_205_1_handle_1_305mm_3"/>
+    <exclude body1="Dresser_205_1_DrawerMesh_3" body2="Dresser_205_1_handle_1_305mm_3"/>
+  </contact>
+</mujoco>
