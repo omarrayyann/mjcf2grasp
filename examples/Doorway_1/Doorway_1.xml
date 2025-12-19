@@ -1,0 +1,67 @@
+<mujoco model="Doorway_1">
+  <compiler angle="radian"/>
+
+  <default>
+    <default class="/">
+      <default class="__VISUAL_MJT__">
+        <geom contype="0" conaffinity="0"/>
+      </default>
+      <default class="__STRUCTURAL_MJT__">
+        <geom contype="8" conaffinity="15" group="4" friction="0.9 0.9 0.001" solref="0.025" solimp="0.998 0.998"/>
+      </default>
+      <default class="__DYNAMIC_MJT__">
+        <geom conaffinity="15" group="4" friction="0.9 0.9 0.001" solref="0.025" solimp="0.998 0.998"/>
+      </default>
+    </default>
+  </default>
+
+  <asset>
+    <texture type="2d" name="TexturesCom_WoodFine0050_1_seamless_S_rich" file="TexturesCom_WoodFine0050_1_seamless_S.png"/>
+    <texture type="2d" name="MediumWoodSmooth" file="WoodGrains1.png"/>
+    <material name="material_TexturesCom_WoodFine0050_1_seamless_S_rich" class="/" texture="TexturesCom_WoodFine0050_1_seamless_S_rich" rgba="0.529412 0.307526 0.307526 1"/>
+    <material name="material_BlackSmoothMeta" class="/" rgba="0.323529 0.323529 0.323529 1"/>
+    <material name="material_MediumWoodSmooth" class="/" texture="MediumWoodSmooth" rgba="0.396226 0.230368 0.151388 1"/>
+    <mesh name="Doorway_1_doorway_1" class="/" content_type="model/obj" file="Doorway_1_doorway_1/Doorway_1_doorway_1.obj"/>
+    <mesh name="Doorway_1_doorway_door_1_0" class="/" content_type="model/obj" file="Doorway_1_doorway_door_1/Doorway_1_doorway_door_1_0.obj"/>
+    <mesh name="Doorway_1_doorway_door_1_1" class="/" content_type="model/obj" file="Doorway_1_doorway_door_1/Doorway_1_doorway_door_1_1.obj"/>
+    <mesh name="Doorway_1_doorway_handle_1" class="/" content_type="model/obj" file="Doorway_1_doorway_handle_1/Doorway_1_doorway_handle_1.obj"/>
+  </asset>
+
+  <worldbody>
+    <body name="Doorway_1">
+      <body name="Doorway_1_doorway_1" pos="0 -1.06572 0.00102" quat="0 0 -1 0">
+        <geom name="Doorway_1_doorway_1" class="__VISUAL_MJT__" type="mesh" material="material_TexturesCom_WoodFine0050_1_seamless_S_rich" mesh="Doorway_1_doorway_1"/>
+        <geom name="Doorway_1_doorway_1_PrimitiveCollider_0" class="__DYNAMIC_MJT__" size="0.0412624 1.016 0.0393335" pos="0.498736 1.01661 -0.0208311" type="box" rgba="0 1 0 1"/>
+        <geom name="Doorway_1_doorway_1_PrimitiveCollider_1" class="__DYNAMIC_MJT__" size="0.0385463 1.016 0.0393335" pos="-0.500817 1.01661 -0.0208311" type="box" rgba="0 1 0 1"/>
+        <geom name="Doorway_1_doorway_1_PrimitiveCollider_2" class="__DYNAMIC_MJT__" size="0.540429 0.0491732 0.0393335" pos="0.00170785 2.08166 -0.0208311" type="box" rgba="0 1 0 1"/>
+        <geom name="Doorway_1_doorway_1_PrimitiveCollider_3" class="__DYNAMIC_MJT__" size="0.0101831 1.00281 0.0199884" pos="0.447716 1.00342 -0.0399562" type="box" rgba="0 1 0 1"/>
+        <geom name="Doorway_1_doorway_1_PrimitiveCollider_4" class="__DYNAMIC_MJT__" size="0.0112413 1.00281 0.0200114" pos="-0.450867 1.00342 -0.0396897" type="box" rgba="0 1 0 1"/>
+        <geom name="Doorway_1_doorway_1_PrimitiveCollider_5" class="__DYNAMIC_MJT__" size="0.459989 0.0129615 0.0198544" pos="-0.00185996 2.01893 -0.0398221" type="box" rgba="0 1 0 1"/>
+        <body name="Doorway_1_doorway_door_1" pos="0.457629 1.016 0.00116137">
+          <joint name="Doorway_1_doorway_door_1_joint_0" class="/" pos="0 0 0" axis="0 1 0" range="0 1.5708" damping="0.1" frictionloss="0.2"/>
+          <geom name="Doorway_1_doorway_door_1_0" class="__VISUAL_MJT__" type="mesh" density="400" material="material_BlackSmoothMeta" mesh="Doorway_1_doorway_door_1_0"/>
+          <geom name="Doorway_1_doorway_door_1_1" class="__VISUAL_MJT__" type="mesh" density="400" material="material_MediumWoodSmooth" mesh="Doorway_1_doorway_door_1_1"/>
+          <geom name="Doorway_1_doorway_door_1_PrimitiveCollider_0" class="__DYNAMIC_MJT__" size="0.458676 1.01514 0.0209082" pos="-0.456095 0.0018158 -0.00124448" type="box" density="400" rgba="0 1 0 1"/>
+          <body name="Doorway_1_doorway_handle_1" pos="-0.854 -0.100915 0">
+            <joint name="Doorway_1_doorway_handle_1_joint_0" class="/" pos="0 0 0" axis="0 0 1" stiffness="2" range="-1.5708 0" armature="0.01" damping="0.01" frictionloss="0.5"/>
+            <geom name="Doorway_1_doorway_handle_1" class="__VISUAL_MJT__" type="mesh" material="material_BlackSmoothMeta" mesh="Doorway_1_doorway_handle_1"/>
+            <geom name="Doorway_1_doorway_handle_1_PrimitiveCollider_0" class="__DYNAMIC_MJT__" size="0.0192836 0.020423 0.0849767" pos="-0.000299931 0 8.20541e-05" type="box" rgba="0 1 0 1"/>
+            <geom name="Doorway_1_doorway_handle_1_PrimitiveCollider_1" class="__DYNAMIC_MJT__" size="0.0412188 0.0413567 0.0361151" pos="-0.000299931 0 0.000702664" type="box" rgba="0 1 0 1"/>
+            <geom name="Doorway_1_doorway_handle_1_PrimitiveCollider_2" class="__DYNAMIC_MJT__" size="0.0404847 0.015062 0.00988799" pos="0.0569131 0 0.0759014" type="box" rgba="0 1 0 1"/>
+            <geom name="Doorway_1_doorway_handle_1_PrimitiveCollider_3" class="__DYNAMIC_MJT__" size="0.0334244 0.015062 0.00987982" pos="0.116718 0 0.0558728" quat="0.928913 0 -0.370299 0" type="box" rgba="0 1 0 1"/>
+            <geom name="Doorway_1_doorway_handle_1_PrimitiveCollider_4" class="__DYNAMIC_MJT__" size="0.0404847 0.015062 0.00988799" pos="0.0569131 0 -0.0751786" quat="-2.95043e-06 1 0 0" type="box" rgba="0 1 0 1"/>
+            <geom name="Doorway_1_doorway_handle_1_PrimitiveCollider_5" class="__DYNAMIC_MJT__" size="0.0334244 0.015062 0.00987982" pos="0.116718 0 -0.0561501" quat="-2.69711e-06 0.928913 1.07661e-06 -0.370299" type="box" rgba="0 1 0 1"/>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+
+  <contact>
+    <exclude name="//unnamed_contact_0" body1="Doorway_1_doorway_1" body2="Doorway_1_doorway_door_1"/>
+    <exclude body1="Doorway_1_doorway_1" body2="Doorway_1_doorway_door_1"/>
+    <exclude body1="Doorway_1_doorway_1" body2="Doorway_1_doorway_handle_1"/>
+    <exclude name="//unnamed_contact_1" body1="Doorway_1_doorway_door_1" body2="Doorway_1_doorway_handle_1"/>
+    <exclude body1="Doorway_1_doorway_door_1" body2="Doorway_1_doorway_handle_1"/>
+  </contact>
+</mujoco>

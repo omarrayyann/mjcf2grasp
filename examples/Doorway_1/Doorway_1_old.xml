@@ -1,0 +1,61 @@
+<mujoco model="Doorway_1">
+  <compiler autolimits="true" boundmass="0" angle="radian"/>
+  <default>
+    <default class="/">
+      <default class="__VISUAL_MJT__">
+        <geom contype="0" conaffinity="0" group="0"/>
+      </default>
+      <default class="__STRUCTURAL_MJT__">
+        <geom contype="8" conaffinity="15" group="4" friction="0.90000000000000002 0.90000000000000002 0.001" solref="0.025000000000000001 1" solimp="0.998 0.998 0.001"/>
+      </default>
+      <default class="__DYNAMIC_MJT__">
+        <geom contype="1" conaffinity="15" group="4" friction="0.90000000000000002 0.90000000000000002 0.001" solref="0.025000000000000001 1" solimp="0.998 0.998 0.001"/>
+      </default>
+    </default>
+  </default>
+  <asset>
+    <texture name="TexturesCom_WoodFine0050_1_seamless_S_rich" type="2d" file="TexturesCom_WoodFine0050_1_seamless_S.png"/>
+    <material name="material_TexturesCom_WoodFine0050_1_seamless_S_rich" class="/" texture="TexturesCom_WoodFine0050_1_seamless_S_rich" specular="0.5" shininess="0.5" rgba="0.52941179999999999 0.30752600000000002 0.30752600000000002 1"/>
+    <mesh name="Doorway_1_doorway_1" class="/" file="Doorway_1_doorway_1/Doorway_1_doorway_1.obj" scale="1 1 1"/>
+    <material name="material_BlackSmoothMeta" class="/" specular="0.5" shininess="0.5" rgba="0.32352940000000002 0.32352940000000002 0.32352940000000002 1"/>
+    <texture name="MediumWoodSmooth" type="2d" file="WoodGrains1.png"/>
+    <material name="material_MediumWoodSmooth" class="/" texture="MediumWoodSmooth" specular="0.5" shininess="0.5" rgba="0.39622639999999998 0.2303684 0.15138840000000001 1"/>
+    <mesh name="Doorway_1_doorway_door_1_0" class="/" file="Doorway_1_doorway_door_1/Doorway_1_doorway_door_1_0.obj" scale="1 1 1"/>
+    <mesh name="Doorway_1_doorway_door_1_1" class="/" file="Doorway_1_doorway_door_1/Doorway_1_doorway_door_1_1.obj" scale="1 1 1"/>
+    <mesh name="Doorway_1_doorway_handle_1" class="/" file="Doorway_1_doorway_handle_1/Doorway_1_doorway_handle_1.obj" scale="1 1 1"/>
+  </asset>
+  <worldbody>
+    <body name="Doorway_1">
+      <joint name="Doorway_1_free" class="/" type="free" pos="0 0 0" axis="0 0 1" stiffness="0" range="0 0" armature="0" damping="0.10000000000000001" frictionloss="0"/>
+      <body name="Doorway_1_doorway_1" pos="0 -1.06572 0.0010200000000000001" quat="0 0 -1 0">
+        <geom name="Doorway_1_doorway_1" class="__VISUAL_MJT__" type="mesh" material="material_TexturesCom_WoodFine0050_1_seamless_S_rich" shellinertia="false" mesh="Doorway_1_doorway_1"/>
+        <geom name="Doorway_1_doorway_1_PrimitiveCollider_0" class="__DYNAMIC_MJT__" type="box" size="0.041262447834014893 1.0160037279129028 0.039333492517471313" rgba="0 1 0 1" pos="0.49873638153076172 1.0166095495223999 -0.020831137895584106" quat="1 0 0 0"/>
+        <geom name="Doorway_1_doorway_1_PrimitiveCollider_1" class="__DYNAMIC_MJT__" type="box" size="0.038546323776245117 1.0160037279129028 0.039333492517471313" rgba="0 1 0 1" pos="-0.50081676244735718 1.0166095495223999 -0.020831137895584106" quat="1 0 0 0"/>
+        <geom name="Doorway_1_doorway_1_PrimitiveCollider_2" class="__DYNAMIC_MJT__" type="box" size="0.54042911529541016 0.049173235893249512 0.039333492517471313" rgba="0 1 0 1" pos="0.0017078518867492676 2.0816588401794434 -0.020831137895584106" quat="1 0 0 0"/>
+        <geom name="Doorway_1_doorway_1_PrimitiveCollider_3" class="__DYNAMIC_MJT__" type="box" size="0.010183125734329224 1.002811074256897 0.019988447427749634" rgba="0 1 0 1" pos="0.44771584868431091 1.003416895866394 -0.039956152439117432" quat="1 0 0 0"/>
+        <geom name="Doorway_1_doorway_1_PrimitiveCollider_4" class="__DYNAMIC_MJT__" type="box" size="0.011241331696510315 1.002811074256897 0.020011439919471741" rgba="0 1 0 1" pos="-0.45086675882339478 1.003416895866394 -0.039689734578132629" quat="1 0 0 0"/>
+        <geom name="Doorway_1_doorway_1_PrimitiveCollider_5" class="__DYNAMIC_MJT__" type="box" size="0.45998874306678772 0.012961506843566895 0.019854351878166199" rgba="0 1 0 1" pos="-0.0018599629402160645 2.0189337730407715 -0.039822056889533997" quat="1 0 0 0"/>
+        <body name="Doorway_1_doorway_door_1" pos="0.45762893557548523 1.0159999132156372 0.0011613749666139483" quat="1 0 0 0">
+          <geom name="Doorway_1_doorway_door_1_0" class="__VISUAL_MJT__" type="mesh" material="material_BlackSmoothMeta" shellinertia="false" mesh="Doorway_1_doorway_door_1_0"/>
+          <geom name="Doorway_1_doorway_door_1_1" class="__VISUAL_MJT__" type="mesh" material="material_MediumWoodSmooth" shellinertia="false" mesh="Doorway_1_doorway_door_1_1"/>
+          <joint name="Doorway_1_doorway_door_1_joint_0" class="/" type="hinge" pos="-0 0 0" axis="0 1 0" stiffness="0" range="0 1.5707963267948966" damping="0.10000000000000001" frictionloss="0"/>
+          <geom name="Doorway_1_doorway_door_1_PrimitiveCollider_0" class="__DYNAMIC_MJT__" type="box" size="0.45867574214935303 1.0151430368423462 0.020908201113343239" rgba="0 1 0 1" pos="-0.45609453320503235 0.0018157958984375 -0.0012444752501323819" quat="1 0 0 0"/>
+          <body name="Doorway_1_doorway_handle_1" pos="-0.85399997234344482 -0.10091483592987061 0" quat="1 0 0 0">
+            <geom name="Doorway_1_doorway_handle_1" class="__VISUAL_MJT__" type="mesh" material="material_BlackSmoothMeta" shellinertia="false" mesh="Doorway_1_doorway_handle_1"/>
+            <joint name="Doorway_1_doorway_handle_1_joint_0" class="/" type="hinge" pos="0 0 0" axis="0 0 1" stiffness="0" range="-1.5707963267948966 0" damping="0.10000000000000001" frictionloss="0"/>
+            <geom name="Doorway_1_doorway_handle_1_PrimitiveCollider_0" class="__DYNAMIC_MJT__" type="box" size="0.019283633679151535 0.020423047244548798 0.084976747632026672" rgba="0 1 0 1" pos="-0.00029993057250976562 0 8.2054059021174908e-05" quat="1 0 0 0"/>
+            <geom name="Doorway_1_doorway_handle_1_PrimitiveCollider_1" class="__DYNAMIC_MJT__" type="box" size="0.041218768805265427 0.04135667160153389 0.036115117371082306" rgba="0 1 0 1" pos="-0.00029993057250976562 0 0.00070266355760395527" quat="1 0 0 0"/>
+            <geom name="Doorway_1_doorway_handle_1_PrimitiveCollider_2" class="__DYNAMIC_MJT__" type="box" size="0.040484696626663208 0.015061997808516026 0.0098879896104335785" rgba="0 1 0 1" pos="0.056913077831268311 0 0.075901396572589874" quat="1 0 0 0"/>
+            <geom name="Doorway_1_doorway_handle_1_PrimitiveCollider_3" class="__DYNAMIC_MJT__" type="box" size="0.033424433320760727 0.015061997808516026 0.0098798172548413277" rgba="0 1 0 1" pos="0.11671805381774902 0 0.05587281659245491" quat="0.92891287803649902 0 -0.37029853463172913 0"/>
+            <geom name="Doorway_1_doorway_handle_1_PrimitiveCollider_4" class="__DYNAMIC_MJT__" type="box" size="0.040484696626663208 0.015061997808516026 0.0098879896104335785" rgba="0 1 0 1" pos="0.056913077831268311 0 -0.075178645551204681" quat="-2.9504299163818359e-06 1 0 0"/>
+            <geom name="Doorway_1_doorway_handle_1_PrimitiveCollider_5" class="__DYNAMIC_MJT__" type="box" size="0.033424429595470428 0.015061997808516026 0.0098798172548413277" rgba="0 1 0 1" pos="0.11671805381774902 0 -0.05615006759762764" quat="-2.6971099487127503e-06 0.92891275882720947 1.0766088962554932e-06 -0.37029856443405151"/>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+  <contact>
+    <exclude name="//unnamed_contact_0" body1="Doorway_1_doorway_1" body2="Doorway_1_doorway_door_1"/>
+    <exclude name="//unnamed_contact_1" body1="Doorway_1_doorway_door_1" body2="Doorway_1_doorway_handle_1"/>
+  </contact>
+</mujoco>

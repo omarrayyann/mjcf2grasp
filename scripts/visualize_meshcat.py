@@ -17,7 +17,7 @@ from assets.grippers.robotiq.robotiq_gripper import RobotiqGripper
 
 parser = argparse.ArgumentParser(description='Meshcat visualization of generated grasps')
 parser.add_argument('--objects_list', type=str, required=True, help='Path to JSON file with object list')
-parser.add_argument('--results_dir', type=str, default='results/static_objects', help='Results directory')
+parser.add_argument('--results_dir', type=str, default='results/rigid_objects', help='Results directory')
 parser.add_argument('--max_grasps', type=int, default=30, help='Max grasps to display per object')
 args = parser.parse_args()
 

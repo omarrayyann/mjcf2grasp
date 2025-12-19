@@ -28,7 +28,7 @@ make
 
 ## Usage
 
-### Static Objects
+### Rigid Objects
 
 #### 1. Prepare Object List
 
@@ -52,15 +52,15 @@ See `examples/example_objects_list.json` for a working example.
 #### 2. Run the Pipeline
 
 ```bash
-python run_static.py --objects_list path/to/objects_list.json
+python run_rigid.py --objects_list path/to/objects_list.json
 ```
 
 #### 3. Results
 
-Results are saved to `results/static_objects/<object_name>/`:
+Results are saved to `results/rigid_objects/<object_name>/`:
 
 ```
-results/static_objects/
+results/rigid_objects/
 └── Tennis_Racquet_5/
     └── Tennis_Racquet_5_grasps_filtered.npz
 ```

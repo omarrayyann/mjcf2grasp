@@ -90,7 +90,7 @@ if __name__ == "__main__":
 
     if not args.output:
         args.output = (
-            "results/static_objects_list.json"
+            "results/rigid_objects_list.json"
             if not args.check_joints
             else "results/articulable_objects_list.json"
         )

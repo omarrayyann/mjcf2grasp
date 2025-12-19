@@ -47,7 +47,7 @@ if __name__ == "__main__":
     parser.add_argument("directory", help="Base directory to search")
     parser.add_argument(
         "--output",
-        default="results/static_objects_list.json",
+        default="results/rigid_objects_list.json",
         help="Output JSON file name",
     )
     parser.add_argument(

@@ -5,8 +5,8 @@ import wandb
 import argparse
 import numpy as np
 
-parser = argparse.ArgumentParser(description='Process static objects for grasp generation')
-parser.add_argument('--objects_list', type=str, default="results/static_objects_list.json", help='Path to JSON file with object list')
+parser = argparse.ArgumentParser(description='Process rigid objects for grasp generation')
+parser.add_argument('--objects_list', type=str, default="results/rigid_objects_list.json", help='Path to JSON file with object list')
 parser.add_argument('--max_successful_grasps', type=int, default=1000, help='Max successful grasps per object')
 parser.add_argument('--use_wandb', action='store_true', help='Enable Weights & Biases logging')
 parser.add_argument('--num_workers', type=int, default=0, help='Number of workers (0 = all CPUs)')
@@ -47,7 +47,7 @@ failed_objects = []
 for obj in data:
     object_name = obj["name"]
     xml_file_path = obj["xml"]
-    object_output_dir = os.path.join("results/static_objects", object_name)
+    object_output_dir = os.path.join("results/rigid_objects", object_name)
     os.makedirs(object_output_dir, exist_ok=True)
     
     mesh_path = os.path.join(object_output_dir, f"{object_name}_combined.obj")

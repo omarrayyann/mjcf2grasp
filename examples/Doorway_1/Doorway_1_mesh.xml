@@ -1,0 +1,137 @@
+<mujoco model="Doorway_1">
+  <compiler angle="radian"/>
+
+  <default>
+    <default class="/">
+      <default class="__VISUAL_MJT__">
+        <geom contype="0" conaffinity="0"/>
+      </default>
+      <default class="__STRUCTURAL_MJT__">
+        <geom contype="8" conaffinity="15" group="4" friction="0.9 0.9 0.001" solref="0.025" solimp="0.998 0.998"/>
+      </default>
+      <default class="__DYNAMIC_MJT__">
+        <geom conaffinity="15" group="4" friction="0.9 0.9 0.001" solref="0.025" solimp="0.998 0.998"/>
+      </default>
+    </default>
+  </default>
+
+  <asset>
+    <texture type="2d" name="TexturesCom_WoodFine0050_1_seamless_S_rich" file="TexturesCom_WoodFine0050_1_seamless_S.png"/>
+    <texture type="2d" name="MediumWoodSmooth" file="WoodGrains1.png"/>
+    <material name="material_TexturesCom_WoodFine0050_1_seamless_S_rich" class="/" texture="TexturesCom_WoodFine0050_1_seamless_S_rich" rgba="0.529412 0.307526 0.307526 1"/>
+    <material name="material_BlackSmoothMeta" class="/" rgba="0.323529 0.323529 0.323529 1"/>
+    <material name="material_MediumWoodSmooth" class="/" texture="MediumWoodSmooth" rgba="0.396226 0.230368 0.151388 1"/>
+    <mesh name="Doorway_1_doorway_1" class="/" content_type="model/obj" file="Doorway_1_doorway_1/Doorway_1_doorway_1.obj"/>
+    <mesh name="Doorway_1_doorway_door_1_0" class="/" content_type="model/obj" file="Doorway_1_doorway_door_1/Doorway_1_doorway_door_1_0.obj"/>
+    <mesh name="Doorway_1_doorway_door_1_1" class="/" content_type="model/obj" file="Doorway_1_doorway_door_1/Doorway_1_doorway_door_1_1.obj"/>
+    <mesh name="Doorway_1_doorway_handle_1" class="/" content_type="model/obj" file="Doorway_1_doorway_handle_1/Doorway_1_doorway_handle_1.obj"/>
+    <mesh name="Doorway_1_doorway_1_collision_1" content_type="model/obj" file="Doorway_1_doorway_1/Doorway_1_doorway_1/Doorway_1_doorway_1_collision_1.obj"/>
+    <mesh name="Doorway_1_doorway_1_collision_0" content_type="model/obj" file="Doorway_1_doorway_1/Doorway_1_doorway_1/Doorway_1_doorway_1_collision_0.obj"/>
+    <mesh name="Doorway_1_doorway_1_collision_2" content_type="model/obj" file="Doorway_1_doorway_1/Doorway_1_doorway_1/Doorway_1_doorway_1_collision_2.obj"/>
+    <mesh name="Doorway_1_doorway_door_1_0_collision_2" content_type="model/obj" file="Doorway_1_doorway_door_1/Doorway_1_doorway_door_1_0/Doorway_1_doorway_door_1_0_collision_2.obj"/>
+    <mesh name="Doorway_1_doorway_door_1_0_collision_11" content_type="model/obj" file="Doorway_1_doorway_door_1/Doorway_1_doorway_door_1_0/Doorway_1_doorway_door_1_0_collision_11.obj"/>
+    <mesh name="Doorway_1_doorway_door_1_0_collision_12" content_type="model/obj" file="Doorway_1_doorway_door_1/Doorway_1_doorway_door_1_0/Doorway_1_doorway_door_1_0_collision_12.obj"/>
+    <mesh name="Doorway_1_doorway_door_1_0_collision_18" content_type="model/obj" file="Doorway_1_doorway_door_1/Doorway_1_doorway_door_1_0/Doorway_1_doorway_door_1_0_collision_18.obj"/>
+    <mesh name="Doorway_1_doorway_door_1_0_collision_20" content_type="model/obj" file="Doorway_1_doorway_door_1/Doorway_1_doorway_door_1_0/Doorway_1_doorway_door_1_0_collision_20.obj"/>
+    <mesh name="Doorway_1_doorway_door_1_0_collision_14" content_type="model/obj" file="Doorway_1_doorway_door_1/Doorway_1_doorway_door_1_0/Doorway_1_doorway_door_1_0_collision_14.obj"/>
+    <mesh name="Doorway_1_doorway_door_1_0_collision_8" content_type="model/obj" file="Doorway_1_doorway_door_1/Doorway_1_doorway_door_1_0/Doorway_1_doorway_door_1_0_collision_8.obj"/>
+    <mesh name="Doorway_1_doorway_door_1_0_collision_16" content_type="model/obj" file="Doorway_1_doorway_door_1/Doorway_1_doorway_door_1_0/Doorway_1_doorway_door_1_0_collision_16.obj"/>
+    <mesh name="Doorway_1_doorway_door_1_0_collision_5" content_type="model/obj" file="Doorway_1_doorway_door_1/Doorway_1_doorway_door_1_0/Doorway_1_doorway_door_1_0_collision_5.obj"/>
+    <mesh name="Doorway_1_doorway_door_1_0_collision_9" content_type="model/obj" file="Doorway_1_doorway_door_1/Doorway_1_doorway_door_1_0/Doorway_1_doorway_door_1_0_collision_9.obj"/>
+    <mesh name="Doorway_1_doorway_door_1_0_collision_10" content_type="model/obj" file="Doorway_1_doorway_door_1/Doorway_1_doorway_door_1_0/Doorway_1_doorway_door_1_0_collision_10.obj"/>
+    <mesh name="Doorway_1_doorway_door_1_0_collision_15" content_type="model/obj" file="Doorway_1_doorway_door_1/Doorway_1_doorway_door_1_0/Doorway_1_doorway_door_1_0_collision_15.obj"/>
+    <mesh name="Doorway_1_doorway_door_1_0_collision_23" content_type="model/obj" file="Doorway_1_doorway_door_1/Doorway_1_doorway_door_1_0/Doorway_1_doorway_door_1_0_collision_23.obj"/>
+    <mesh name="Doorway_1_doorway_door_1_0_collision_17" content_type="model/obj" file="Doorway_1_doorway_door_1/Doorway_1_doorway_door_1_0/Doorway_1_doorway_door_1_0_collision_17.obj"/>
+    <mesh name="Doorway_1_doorway_door_1_0_collision_22" content_type="model/obj" file="Doorway_1_doorway_door_1/Doorway_1_doorway_door_1_0/Doorway_1_doorway_door_1_0_collision_22.obj"/>
+    <mesh name="Doorway_1_doorway_door_1_0_collision_19" content_type="model/obj" file="Doorway_1_doorway_door_1/Doorway_1_doorway_door_1_0/Doorway_1_doorway_door_1_0_collision_19.obj"/>
+    <mesh name="Doorway_1_doorway_door_1_0_collision_21" content_type="model/obj" file="Doorway_1_doorway_door_1/Doorway_1_doorway_door_1_0/Doorway_1_doorway_door_1_0_collision_21.obj"/>
+    <mesh name="Doorway_1_doorway_door_1_0_collision_6" content_type="model/obj" file="Doorway_1_doorway_door_1/Doorway_1_doorway_door_1_0/Doorway_1_doorway_door_1_0_collision_6.obj"/>
+    <mesh name="Doorway_1_doorway_door_1_0_collision_0" content_type="model/obj" file="Doorway_1_doorway_door_1/Doorway_1_doorway_door_1_0/Doorway_1_doorway_door_1_0_collision_0.obj"/>
+    <mesh name="Doorway_1_doorway_door_1_0_collision_3" content_type="model/obj" file="Doorway_1_doorway_door_1/Doorway_1_doorway_door_1_0/Doorway_1_doorway_door_1_0_collision_3.obj"/>
+    <mesh name="Doorway_1_doorway_door_1_0_collision_4" content_type="model/obj" file="Doorway_1_doorway_door_1/Doorway_1_doorway_door_1_0/Doorway_1_doorway_door_1_0_collision_4.obj"/>
+    <mesh name="Doorway_1_doorway_door_1_0_collision_24" content_type="model/obj" file="Doorway_1_doorway_door_1/Doorway_1_doorway_door_1_0/Doorway_1_doorway_door_1_0_collision_24.obj"/>
+    <mesh name="Doorway_1_doorway_door_1_0_collision_1" content_type="model/obj" file="Doorway_1_doorway_door_1/Doorway_1_doorway_door_1_0/Doorway_1_doorway_door_1_0_collision_1.obj"/>
+    <mesh name="Doorway_1_doorway_door_1_0_collision_7" content_type="model/obj" file="Doorway_1_doorway_door_1/Doorway_1_doorway_door_1_0/Doorway_1_doorway_door_1_0_collision_7.obj"/>
+    <mesh name="Doorway_1_doorway_door_1_0_collision_13" content_type="model/obj" file="Doorway_1_doorway_door_1/Doorway_1_doorway_door_1_0/Doorway_1_doorway_door_1_0_collision_13.obj"/>
+    <mesh name="Doorway_1_doorway_door_1_1_collision_0" content_type="model/obj" file="Doorway_1_doorway_door_1/Doorway_1_doorway_door_1_1/Doorway_1_doorway_door_1_1_collision_0.obj"/>
+    <mesh name="Doorway_1_doorway_handle_1_collision_7" content_type="model/obj" file="Doorway_1_doorway_handle_1/Doorway_1_doorway_handle_1/Doorway_1_doorway_handle_1_collision_7.obj"/>
+    <mesh name="Doorway_1_doorway_handle_1_collision_4" content_type="model/obj" file="Doorway_1_doorway_handle_1/Doorway_1_doorway_handle_1/Doorway_1_doorway_handle_1_collision_4.obj"/>
+    <mesh name="Doorway_1_doorway_handle_1_collision_3" content_type="model/obj" file="Doorway_1_doorway_handle_1/Doorway_1_doorway_handle_1/Doorway_1_doorway_handle_1_collision_3.obj"/>
+    <mesh name="Doorway_1_doorway_handle_1_collision_0" content_type="model/obj" file="Doorway_1_doorway_handle_1/Doorway_1_doorway_handle_1/Doorway_1_doorway_handle_1_collision_0.obj"/>
+    <mesh name="Doorway_1_doorway_handle_1_collision_6" content_type="model/obj" file="Doorway_1_doorway_handle_1/Doorway_1_doorway_handle_1/Doorway_1_doorway_handle_1_collision_6.obj"/>
+    <mesh name="Doorway_1_doorway_handle_1_collision_8" content_type="model/obj" file="Doorway_1_doorway_handle_1/Doorway_1_doorway_handle_1/Doorway_1_doorway_handle_1_collision_8.obj"/>
+    <mesh name="Doorway_1_doorway_handle_1_collision_10" content_type="model/obj" file="Doorway_1_doorway_handle_1/Doorway_1_doorway_handle_1/Doorway_1_doorway_handle_1_collision_10.obj"/>
+    <mesh name="Doorway_1_doorway_handle_1_collision_5" content_type="model/obj" file="Doorway_1_doorway_handle_1/Doorway_1_doorway_handle_1/Doorway_1_doorway_handle_1_collision_5.obj"/>
+    <mesh name="Doorway_1_doorway_handle_1_collision_2" content_type="model/obj" file="Doorway_1_doorway_handle_1/Doorway_1_doorway_handle_1/Doorway_1_doorway_handle_1_collision_2.obj"/>
+    <mesh name="Doorway_1_doorway_handle_1_collision_11" content_type="model/obj" file="Doorway_1_doorway_handle_1/Doorway_1_doorway_handle_1/Doorway_1_doorway_handle_1_collision_11.obj"/>
+    <mesh name="Doorway_1_doorway_handle_1_collision_1" content_type="model/obj" file="Doorway_1_doorway_handle_1/Doorway_1_doorway_handle_1/Doorway_1_doorway_handle_1_collision_1.obj"/>
+    <mesh name="Doorway_1_doorway_handle_1_collision_9" content_type="model/obj" file="Doorway_1_doorway_handle_1/Doorway_1_doorway_handle_1/Doorway_1_doorway_handle_1_collision_9.obj"/>
+  </asset>
+
+  <worldbody>
+    <body name="Doorway_1">
+      <joint name="Doorway_1_free" class="/" type="free" limited="false" actuatorfrclimited="false" damping="0.1"/>
+      <body name="Doorway_1_doorway_1" pos="0 -1.06572 0.00102" quat="0 0 -1 0">
+        <geom name="Doorway_1_doorway_1" class="__VISUAL_MJT__" type="mesh" material="material_TexturesCom_WoodFine0050_1_seamless_S_rich" mesh="Doorway_1_doorway_1"/>
+        <geom name="Doorway_1_doorway_1_Doorway_1_doorway_1_MeshCollider_0" class="__DYNAMIC_MJT__" type="mesh" rgba="0.454347 0.851342 0.394783 1" mesh="Doorway_1_doorway_1_collision_1"/>
+        <geom name="Doorway_1_doorway_1_Doorway_1_doorway_1_MeshCollider_1" class="__DYNAMIC_MJT__" type="mesh" rgba="0.202084 0.405855 0.333252 1" mesh="Doorway_1_doorway_1_collision_0"/>
+        <geom name="Doorway_1_doorway_1_Doorway_1_doorway_1_MeshCollider_2" class="__DYNAMIC_MJT__" type="mesh" rgba="0.375331 0.211565 0.730763 1" mesh="Doorway_1_doorway_1_collision_2"/>
+        <body name="Doorway_1_doorway_door_1" pos="0.457629 1.016 0.00116137">
+          <joint name="Doorway_1_doorway_door_1_joint_0" class="/" pos="0 0 0" axis="0 1 0" range="0 1.5708" damping="0.1" frictionloss="0.2"/>
+          <geom name="Doorway_1_doorway_door_1_0" class="__VISUAL_MJT__" type="mesh" density="400" material="material_BlackSmoothMeta" mesh="Doorway_1_doorway_door_1_0"/>
+          <geom name="Doorway_1_doorway_door_1_1" class="__VISUAL_MJT__" type="mesh" density="400" material="material_MediumWoodSmooth" mesh="Doorway_1_doorway_door_1_1"/>
+          <geom name="Doorway_1_doorway_door_1_Doorway_1_doorway_door_1_0_MeshCollider_0" class="__DYNAMIC_MJT__" type="mesh" density="400" rgba="0.648529 0.202294 0.939712 1" mesh="Doorway_1_doorway_door_1_0_collision_2"/>
+          <geom name="Doorway_1_doorway_door_1_Doorway_1_doorway_door_1_0_MeshCollider_1" class="__DYNAMIC_MJT__" type="mesh" density="400" rgba="0.930126 0.644503 0.0959237 1" mesh="Doorway_1_doorway_door_1_0_collision_11"/>
+          <geom name="Doorway_1_doorway_door_1_Doorway_1_doorway_door_1_0_MeshCollider_2" class="__DYNAMIC_MJT__" type="mesh" density="400" rgba="0.155206 0.809583 0.387815 1" mesh="Doorway_1_doorway_door_1_0_collision_12"/>
+          <geom name="Doorway_1_doorway_door_1_Doorway_1_doorway_door_1_0_MeshCollider_3" class="__DYNAMIC_MJT__" type="mesh" density="400" rgba="0.522695 0.00158593 0.142887 1" mesh="Doorway_1_doorway_door_1_0_collision_18"/>
+          <geom name="Doorway_1_doorway_door_1_Doorway_1_doorway_door_1_0_MeshCollider_4" class="__DYNAMIC_MJT__" type="mesh" density="400" rgba="0.0821487 0.656863 0.208377 1" mesh="Doorway_1_doorway_door_1_0_collision_20"/>
+          <geom name="Doorway_1_doorway_door_1_Doorway_1_doorway_door_1_0_MeshCollider_5" class="__DYNAMIC_MJT__" type="mesh" density="400" rgba="0.18088 0.144447 0.345986 1" mesh="Doorway_1_doorway_door_1_0_collision_14"/>
+          <geom name="Doorway_1_doorway_door_1_Doorway_1_doorway_door_1_0_MeshCollider_6" class="__DYNAMIC_MJT__" type="mesh" density="400" rgba="0.414477 0.905256 0.052824 1" mesh="Doorway_1_doorway_door_1_0_collision_8"/>
+          <geom name="Doorway_1_doorway_door_1_Doorway_1_doorway_door_1_0_MeshCollider_7" class="__DYNAMIC_MJT__" type="mesh" density="400" rgba="0.71759 0.554128 0.706758 1" mesh="Doorway_1_doorway_door_1_0_collision_16"/>
+          <geom name="Doorway_1_doorway_door_1_Doorway_1_doorway_door_1_0_MeshCollider_8" class="__DYNAMIC_MJT__" type="mesh" density="400" rgba="0.417041 0.930151 0.939391 1" mesh="Doorway_1_doorway_door_1_0_collision_5"/>
+          <geom name="Doorway_1_doorway_door_1_Doorway_1_doorway_door_1_0_MeshCollider_9" class="__DYNAMIC_MJT__" type="mesh" density="400" rgba="0.0555079 0.0837699 0.834545 1" mesh="Doorway_1_doorway_door_1_0_collision_9"/>
+          <geom name="Doorway_1_doorway_door_1_Doorway_1_doorway_door_1_0_MeshCollider_10" class="__DYNAMIC_MJT__" type="mesh" density="400" rgba="0.556526 0.658584 0.0593275 1" mesh="Doorway_1_doorway_door_1_0_collision_10"/>
+          <geom name="Doorway_1_doorway_door_1_Doorway_1_doorway_door_1_0_MeshCollider_11" class="__DYNAMIC_MJT__" type="mesh" density="400" rgba="0.955395 0.137254 0.527344 1" mesh="Doorway_1_doorway_door_1_0_collision_15"/>
+          <geom name="Doorway_1_doorway_door_1_Doorway_1_doorway_door_1_0_MeshCollider_12" class="__DYNAMIC_MJT__" type="mesh" density="400" rgba="0.630686 0.496505 0.723266 1" mesh="Doorway_1_doorway_door_1_0_collision_23"/>
+          <geom name="Doorway_1_doorway_door_1_Doorway_1_doorway_door_1_0_MeshCollider_13" class="__DYNAMIC_MJT__" type="mesh" density="400" rgba="0.652747 0.6199 0.0718684 1" mesh="Doorway_1_doorway_door_1_0_collision_17"/>
+          <geom name="Doorway_1_doorway_door_1_Doorway_1_doorway_door_1_0_MeshCollider_14" class="__DYNAMIC_MJT__" type="mesh" density="400" rgba="0.904269 0.841919 0.235622 1" mesh="Doorway_1_doorway_door_1_0_collision_22"/>
+          <geom name="Doorway_1_doorway_door_1_Doorway_1_doorway_door_1_0_MeshCollider_15" class="__DYNAMIC_MJT__" type="mesh" density="400" rgba="0.233619 0.80766 0.863779 1" mesh="Doorway_1_doorway_door_1_0_collision_19"/>
+          <geom name="Doorway_1_doorway_door_1_Doorway_1_doorway_door_1_0_MeshCollider_16" class="__DYNAMIC_MJT__" type="mesh" density="400" rgba="0.756694 0.225269 0.20084 1" mesh="Doorway_1_doorway_door_1_0_collision_21"/>
+          <geom name="Doorway_1_doorway_door_1_Doorway_1_doorway_door_1_0_MeshCollider_17" class="__DYNAMIC_MJT__" type="mesh" density="400" rgba="0.032232 0.963325 0.127332 1" mesh="Doorway_1_doorway_door_1_0_collision_6"/>
+          <geom name="Doorway_1_doorway_door_1_Doorway_1_doorway_door_1_0_MeshCollider_18" class="__DYNAMIC_MJT__" type="mesh" density="400" rgba="0.415708 0.803088 0.280024 1" mesh="Doorway_1_doorway_door_1_0_collision_0"/>
+          <geom name="Doorway_1_doorway_door_1_Doorway_1_doorway_door_1_0_MeshCollider_19" class="__DYNAMIC_MJT__" type="mesh" density="400" rgba="0.679179 0.663109 0.517114 1" mesh="Doorway_1_doorway_door_1_0_collision_3"/>
+          <geom name="Doorway_1_doorway_door_1_Doorway_1_doorway_door_1_0_MeshCollider_20" class="__DYNAMIC_MJT__" type="mesh" density="400" rgba="0.492665 0.3828 0.14334 1" mesh="Doorway_1_doorway_door_1_0_collision_4"/>
+          <geom name="Doorway_1_doorway_door_1_Doorway_1_doorway_door_1_0_MeshCollider_21" class="__DYNAMIC_MJT__" type="mesh" density="400" rgba="0.674845 0.437417 0.780639 1" mesh="Doorway_1_doorway_door_1_0_collision_24"/>
+          <geom name="Doorway_1_doorway_door_1_Doorway_1_doorway_door_1_0_MeshCollider_22" class="__DYNAMIC_MJT__" type="mesh" density="400" rgba="0.585471 0.776597 0.377185 1" mesh="Doorway_1_doorway_door_1_0_collision_1"/>
+          <geom name="Doorway_1_doorway_door_1_Doorway_1_doorway_door_1_0_MeshCollider_23" class="__DYNAMIC_MJT__" type="mesh" density="400" rgba="0.073741 0.722184 0.925191 1" mesh="Doorway_1_doorway_door_1_0_collision_7"/>
+          <geom name="Doorway_1_doorway_door_1_Doorway_1_doorway_door_1_0_MeshCollider_24" class="__DYNAMIC_MJT__" type="mesh" density="400" rgba="0.882213 0.0311147 0.971173 1" mesh="Doorway_1_doorway_door_1_0_collision_13"/>
+          <geom name="Doorway_1_doorway_door_1_Doorway_1_doorway_door_1_1_MeshCollider_0" class="__DYNAMIC_MJT__" type="mesh" density="400" rgba="0.225484 0.57759 0.0941078 1" mesh="Doorway_1_doorway_door_1_1_collision_0"/>
+          <body name="Doorway_1_doorway_handle_1" pos="-0.854 -0.100915 0">
+            <joint name="Doorway_1_doorway_handle_1_joint_0" class="/" pos="0 0 0" axis="0 0 1" stiffness="2" range="-1.5708 0" armature="0.01" damping="0.01" frictionloss="0.5"/>
+            <geom name="Doorway_1_doorway_handle_1" class="__VISUAL_MJT__" type="mesh" material="material_BlackSmoothMeta" mesh="Doorway_1_doorway_handle_1"/>
+            <geom name="Doorway_1_doorway_handle_1_Doorway_1_doorway_handle_1_MeshCollider_0" class="__DYNAMIC_MJT__" type="mesh" rgba="0.562059 0.800855 0.0141765 1" mesh="Doorway_1_doorway_handle_1_collision_7"/>
+            <geom name="Doorway_1_doorway_handle_1_Doorway_1_doorway_handle_1_MeshCollider_1" class="__DYNAMIC_MJT__" type="mesh" rgba="0.0695057 0.51781 0.729565 1" mesh="Doorway_1_doorway_handle_1_collision_4"/>
+            <geom name="Doorway_1_doorway_handle_1_Doorway_1_doorway_handle_1_MeshCollider_2" class="__DYNAMIC_MJT__" type="mesh" rgba="0.38647 0.730135 0.994079 1" mesh="Doorway_1_doorway_handle_1_collision_3"/>
+            <geom name="Doorway_1_doorway_handle_1_Doorway_1_doorway_handle_1_MeshCollider_3" class="__DYNAMIC_MJT__" type="mesh" rgba="0.276234 0.550221 0.933302 1" mesh="Doorway_1_doorway_handle_1_collision_0"/>
+            <geom name="Doorway_1_doorway_handle_1_Doorway_1_doorway_handle_1_MeshCollider_4" class="__DYNAMIC_MJT__" type="mesh" rgba="0.34604 0.146677 0.143438 1" mesh="Doorway_1_doorway_handle_1_collision_6"/>
+            <geom name="Doorway_1_doorway_handle_1_Doorway_1_doorway_handle_1_MeshCollider_5" class="__DYNAMIC_MJT__" type="mesh" rgba="0.452668 0.35044 0.72324 1" mesh="Doorway_1_doorway_handle_1_collision_8"/>
+            <geom name="Doorway_1_doorway_handle_1_Doorway_1_doorway_handle_1_MeshCollider_6" class="__DYNAMIC_MJT__" type="mesh" rgba="0.370397 0.40081 0.476497 1" mesh="Doorway_1_doorway_handle_1_collision_10"/>
+            <geom name="Doorway_1_doorway_handle_1_Doorway_1_doorway_handle_1_MeshCollider_7" class="__DYNAMIC_MJT__" type="mesh" rgba="0.954892 0.638711 0.983102 1" mesh="Doorway_1_doorway_handle_1_collision_5"/>
+            <geom name="Doorway_1_doorway_handle_1_Doorway_1_doorway_handle_1_MeshCollider_8" class="__DYNAMIC_MJT__" type="mesh" rgba="0.679595 0.488057 0.0427216 1" mesh="Doorway_1_doorway_handle_1_collision_2"/>
+            <geom name="Doorway_1_doorway_handle_1_Doorway_1_doorway_handle_1_MeshCollider_9" class="__DYNAMIC_MJT__" type="mesh" rgba="0.854284 0.582509 0.0338769 1" mesh="Doorway_1_doorway_handle_1_collision_11"/>
+            <geom name="Doorway_1_doorway_handle_1_Doorway_1_doorway_handle_1_MeshCollider_10" class="__DYNAMIC_MJT__" type="mesh" rgba="0.559371 0.737368 0.32398 1" mesh="Doorway_1_doorway_handle_1_collision_1"/>
+            <geom name="Doorway_1_doorway_handle_1_Doorway_1_doorway_handle_1_MeshCollider_11" class="__DYNAMIC_MJT__" type="mesh" rgba="0.178311 0.255505 0.0784604 1" mesh="Doorway_1_doorway_handle_1_collision_9"/>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+
+  <contact>
+    <exclude name="//unnamed_contact_0" body1="Doorway_1_doorway_1" body2="Doorway_1_doorway_door_1"/>
+    <exclude body1="Doorway_1_doorway_1" body2="Doorway_1_doorway_door_1"/>
+    <exclude body1="Doorway_1_doorway_1" body2="Doorway_1_doorway_handle_1"/>
+    <exclude name="//unnamed_contact_1" body1="Doorway_1_doorway_door_1" body2="Doorway_1_doorway_handle_1"/>
+    <exclude body1="Doorway_1_doorway_door_1" body2="Doorway_1_doorway_handle_1"/>
+  </contact>
+</mujoco>
