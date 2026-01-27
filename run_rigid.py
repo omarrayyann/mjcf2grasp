@@ -113,7 +113,7 @@ for obj in data:
         if not os.path.exists(grasp_file_path):
             print(f"  Generating grasps...")
             try:
-                subprocess.run(["python", "pipeline/generate_grasps.py", "--object_file", simplify_path, 
+                subprocess.run(["python", "pipeline/generate_grasps.py", "--object_file", simplify_path, "--systematic_sampling",
                               "--quality", "antipodal", "--output", grasp_file_path, 
                               "--num_workers", str(args.num_workers)], check=True)
             except subprocess.CalledProcessError as e:
